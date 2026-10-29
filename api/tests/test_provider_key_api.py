@@ -578,7 +578,7 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("previous", [None, "0015_model_test_v2"])
+@pytest.mark.parametrize("previous", [None, "0015_model_test_v2", "0016_provider_models"])
 async def test_registry_schema_empty_upgrade_backfill_and_constraints(
     empty_database_url: URL, previous: str | None, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -621,7 +621,7 @@ async def test_registry_schema_empty_upgrade_backfill_and_constraints(
         "provider_settings_command",
     )
     if previous is not None:
-        migrate(previous)
+        migrate("0015_model_test_v2" if previous == "0016_provider_models" else previous)
         with connect_test_database(empty_database_url) as db:
             identity_row = db.execute("SELECT instance_id FROM instance_control").fetchone()
             assert identity_row is not None
@@ -664,6 +664,238 @@ async def test_registry_schema_empty_upgrade_backfill_and_constraints(
             )
             for table in historical:
                 before[table] = db.execute(f"SELECT * FROM {table} ORDER BY 1,2,3").fetchall()
+        if previous == "0016_provider_models":
+            migrate(previous)
+            # Synthetic SQL migration input, not an upstream/provider test result.
+            from datetime import UTC, datetime, timedelta
+
+            from omnis.modules.runs import model_test_store as store
+            from omnis.modules.runs.model_test_contract import (
+                Caps,
+                Dispatch,
+                EntryCapabilities,
+                EntrySnapshot,
+                Operation,
+                Outcome,
+                Projection,
+            )
+            from omnis.modules.settings.provider_catalog_models import CatalogModel, CatalogView
+            from omnis.modules.settings.provider_key_service import ConnectionRevision
+            from omnis.modules.settings.provider_model_models import ModelEntry, ModelRegistryView
+
+            with connect_test_database(empty_database_url) as db:
+                seeded_entries = [
+                    ModelEntry(
+                        entry_id=str(row[0]),
+                        connection_id=connection,
+                        connection_revision=1,
+                        model=str(row[1]),
+                        revision=1,
+                        output_tokens=int(str(row[2])),
+                    )
+                    for row in db.execute(
+                        "SELECT e.entry_id,e.model,r.output_tokens FROM provider_model_entry e JOIN provider_model_entry_revision r USING(instance_id,entry_id,connection_id) ORDER BY e.entry_id"
+                    ).fetchall()
+                ]
+                seeded_command = str(uuid4())
+                seeded_receipt = ModelRegistryView(
+                    command_id=seeded_command,
+                    registry_revision=1,
+                    entries=seeded_entries,
+                    total=2,
+                    after=None,
+                    next_after=None,
+                )
+                db.execute(
+                    "INSERT INTO provider_model_command VALUES (%s,%s,%s,%s::jsonb)",
+                    (
+                        instance,
+                        seeded_command,
+                        "b" * 64,
+                        seeded_receipt.model_dump_json(),
+                    ),
+                )
+            seed_engine = database_engine(empty_database_url.render_as_string(hide_password=False))
+            try:
+                async with seed_engine.begin() as seed_db:
+                    # Typed archival records are synthetic migration inputs, never a claimed model call.
+                    seed_connection = ConnectionRevision(
+                        connection_id=connection,
+                        provider="openrouter",
+                        revision=1,
+                        enabled=True,
+                        secret_id=str(uuid4()),
+                        credential_revision=1,
+                    )
+                    catalog = CatalogView(
+                        connection_id=connection,
+                        connection_revision=1,
+                        provider="openrouter",
+                        catalog_command_id=str(uuid4()),
+                        state="READY",
+                        query="",
+                        offset=0,
+                        total=1,
+                        entries=[
+                            CatalogModel(
+                                model=seeded_entries[0].model,
+                                max_output_tokens=128,
+                                supports_max_tokens=True,
+                            )
+                        ],
+                    )
+                    catalog_ref = await store.put(
+                        seed_db, instance, "catalog-result", catalog.model_dump(mode="json")
+                    )
+                    capabilities = EntryCapabilities(
+                        entry=seeded_entries[0],
+                        connection=seed_connection,
+                        catalog_ref=catalog_ref,
+                        max_output_tokens=128,
+                    )
+                    capability = await store.put(
+                        seed_db,
+                        instance,
+                        "model-entry-capabilities-v1",
+                        capabilities.model_dump(mode="json"),
+                    )
+                    snapshot = EntrySnapshot(
+                        entry=seeded_entries[0],
+                        connection=seed_connection,
+                        capabilities_ref=capability,
+                        endpoint="https://openrouter.ai/api/v1",
+                    )
+                    config = await store.put(
+                        seed_db,
+                        instance,
+                        "model-entry-snapshot-v1",
+                        snapshot.model_dump(mode="json"),
+                    )
+                    projection = Projection(
+                        model=seeded_entries[0].model, output_tokens=seeded_entries[0].output_tokens
+                    )
+                    projected = await store.put(
+                        seed_db, instance, "model-input-v2", projection.model_dump(mode="json")
+                    )
+                    identity = str(uuid4())
+                    operation = Operation(
+                        instance_id=instance,
+                        operation_id=identity,
+                        command_id=identity,
+                        payload_digest="c" * 64,
+                        config_snapshot_ref=config,
+                        input_projection_ref=projected,
+                        execution_owner_id=str(uuid4()),
+                        generation=1,
+                        owner_epoch=1,
+                        cancel_epoch=1,
+                        deadline=datetime.now(UTC) + timedelta(seconds=300),
+                        state_revision=1,
+                        state="PENDING",
+                        finish_reason=None,
+                        outcome_ref=None,
+                    )
+                    await store.save_operation(seed_db, operation, initial=True)
+                    scope = await store.put(
+                        seed_db, instance, "system-operation", operation.model_dump(mode="json")
+                    )
+                    dispatch_owner = await store.put(
+                        seed_db,
+                        instance,
+                        "dispatch-owner-v2",
+                        {
+                            "execution_owner_id": operation.execution_owner_id,
+                            "owner_epoch": 1,
+                            "generation": 1,
+                            "scope_ref": scope.model_dump(mode="json"),
+                        },
+                    )
+                    permit = await store.put(
+                        seed_db,
+                        instance,
+                        "model-permit-v2",
+                        {
+                            "scope_ref": scope.model_dump(mode="json"),
+                            "owner_ref": dispatch_owner.model_dump(mode="json"),
+                            "config_ref": config.model_dump(mode="json"),
+                            "calls": 1,
+                        },
+                    )
+                    dispatch = Dispatch(
+                        scope_ref=scope,
+                        dispatch_attempt_id=str(uuid4()),
+                        dispatch_owner_ref=dispatch_owner,
+                        config_snapshot_ref=config,
+                        projection_ref=projected,
+                        projection_digest=projected.digest,
+                        reservation_ref=permit,
+                        instance_generation=1,
+                        owner_epoch=1,
+                        cancel_epoch=1,
+                        deadline=operation.deadline,
+                        technical_caps=Caps(output_tokens=projection.output_tokens),
+                    )
+                    await seed_db.execute(
+                        text(
+                            "INSERT INTO model_dispatch_v2(instance_id,dispatch_attempt_id,operation_id,payload) VALUES (:instance,:id,:operation,CAST(:payload AS jsonb))"
+                        ),
+                        {
+                            "instance": instance,
+                            "id": dispatch.dispatch_attempt_id,
+                            "operation": identity,
+                            "payload": dispatch.model_dump_json(),
+                        },
+                    )
+                    await store.event(seed_db, instance, dispatch.dispatch_attempt_id, "RESERVED")
+                    await store.event(seed_db, instance, dispatch.dispatch_attempt_id, "SENT")
+                    dispatch_ref = await store.put(
+                        seed_db, instance, "model-dispatch-v2", dispatch.model_dump(mode="json")
+                    )
+                    outcome = Outcome(
+                        operation_or_run_ref=scope,
+                        dispatch_ref=dispatch_ref,
+                        requested=config,
+                        result_state="UNKNOWN",
+                        reason_code="SYNTHETIC_MIGRATION_INPUT",
+                        usage_state="KNOWN",
+                        input_tokens=9,
+                        output_tokens=7,
+                        cost_observed="0.000016",
+                        recorded_at=datetime.now(UTC),
+                    )
+                    outcome_ref = await store.put(
+                        seed_db, instance, "model-outcome-v2", outcome.model_dump(mode="json")
+                    )
+                    await store.event(
+                        seed_db, instance, dispatch.dispatch_attempt_id, "SETTLED", outcome_ref
+                    )
+                    finished = Operation.model_validate(
+                        {
+                            **operation.model_dump(),
+                            "state": "FINISHED",
+                            "state_revision": 2,
+                            "finish_reason": "OWNER_LOST",
+                            "outcome_ref": outcome_ref,
+                        }
+                    )
+                    await store.save_operation(seed_db, finished)
+                    await store.command(seed_db, instance, identity, "c" * 64, "start", identity)
+            finally:
+                await seed_engine.dispose()
+            with connect_test_database(empty_database_url) as db:
+                for table in (
+                    "provider_model_registry_revision",
+                    "provider_model_entry",
+                    "provider_model_entry_revision",
+                    "provider_model_command",
+                    "model_record_v2",
+                    "system_operation",
+                    "system_operation_event",
+                    "model_command_v2",
+                    "model_dispatch_v2",
+                    "model_dispatch_event_v2",
+                ):
+                    before[table] = db.execute(f"SELECT * FROM {table} ORDER BY 1,2").fetchall()
     migrate("head")
     with connect_test_database(empty_database_url) as db:
         assert db.execute("SELECT version_num FROM alembic_version").fetchone() == (
@@ -673,6 +905,24 @@ async def test_registry_schema_empty_upgrade_backfill_and_constraints(
         assert identity_row is not None
         instance = str(identity_row[0])
         if previous is not None:
+            if previous == "0016_provider_models":
+                for table in (
+                    "provider_model_registry_revision",
+                    "provider_model_entry",
+                    "provider_model_entry_revision",
+                    "provider_model_command",
+                    "model_record_v2",
+                    "system_operation",
+                    "system_operation_event",
+                    "model_command_v2",
+                    "model_dispatch_v2",
+                    "model_dispatch_event_v2",
+                ):
+                    rows = db.execute(f"SELECT * FROM {table} ORDER BY 1,2").fetchall()
+                    if table == "provider_model_entry":
+                        assert all(row[-1] is None for row in rows)
+                        rows = [row[:-1] for row in rows]
+                    assert rows == before[table]
             for table in historical:
                 assert (
                     db.execute(f"SELECT * FROM {table} ORDER BY 1,2,3").fetchall() == before[table]
@@ -743,11 +993,106 @@ async def test_registry_schema_empty_upgrade_backfill_and_constraints(
             ):
                 with pytest.raises(psycopg.Error), db.transaction():
                     db.execute(f"DELETE FROM {table}")
+            for statement, guard_parameters in (
+                ("UPDATE provider_model_entry SET model='rewritten' WHERE entry_id=%s", (entry,)),
+                (
+                    "UPDATE provider_model_entry SET entry_id=%s WHERE entry_id=%s",
+                    (str(uuid4()), entry),
+                ),
+                (
+                    "UPDATE provider_model_entry SET connection_id=%s WHERE entry_id=%s",
+                    (str(uuid4()), entry),
+                ),
+                (
+                    "UPDATE provider_model_entry SET instance_id=%s WHERE entry_id=%s",
+                    (str(uuid4()), entry),
+                ),
+                ("TRUNCATE provider_model_entry CASCADE", ()),
+            ):
+                with pytest.raises(psycopg.Error), db.transaction():
+                    db.execute(statement, guard_parameters)
+            with pytest.raises(psycopg.errors.ForeignKeyViolation) as refused, db.transaction():
+                db.execute(
+                    "UPDATE provider_model_entry SET removed_registry_revision=999 WHERE entry_id=%s",
+                    (entry,),
+                )
+            assert refused.value.diag.constraint_name == "provider_model_removed_registry_fk"
+            with db.transaction(force_rollback=True):
+                # A second namespace exists only inside this rolled-back negative fixture.
+                db.execute(
+                    "ALTER TABLE instance_control DROP CONSTRAINT ck_instance_control_singleton"
+                )
+                foreign = str(uuid4())
+                db.execute("INSERT INTO instance_control(id,instance_id) VALUES (2,%s)", (foreign,))
+                db.execute(
+                    "INSERT INTO provider_model_registry_revision VALUES (%s,999)", (foreign,)
+                )
+                with (
+                    pytest.raises(psycopg.errors.ForeignKeyViolation) as foreign_refused,
+                    db.transaction(),
+                ):
+                    db.execute(
+                        "UPDATE provider_model_entry SET removed_registry_revision=999 WHERE entry_id=%s",
+                        (entry,),
+                    )
+                assert (
+                    foreign_refused.value.diag.constraint_name
+                    == "provider_model_removed_registry_fk"
+                )
+            db.execute(
+                "UPDATE provider_model_entry SET removed_registry_revision=2 WHERE entry_id=%s",
+                (entry,),
+            )
+            for removed_revision in (None, 1, 2):
+                with pytest.raises(psycopg.Error), db.transaction():
+                    db.execute(
+                        "UPDATE provider_model_entry SET removed_registry_revision=%s WHERE entry_id=%s",
+                        (removed_revision, entry),
+                    )
+            new_entry = str(uuid4())
+            db.execute(
+                "INSERT INTO provider_model_entry(instance_id,entry_id,connection_id,model) VALUES (%s,%s,%s,'Exact/ID')",
+                (instance, new_entry, connection),
+            )
+            with pytest.raises(psycopg.errors.UniqueViolation) as refused, db.transaction():
+                db.execute(
+                    "INSERT INTO provider_model_entry(instance_id,entry_id,connection_id,model) VALUES (%s,%s,%s,'Exact/ID')",
+                    (instance, str(uuid4()), connection),
+                )
+            assert refused.value.diag.constraint_name == "provider_model_available_unique"
         else:
             assert db.execute("SELECT count(*) FROM provider_model_entry").fetchone() == (0,)
     engine = database_engine(empty_database_url.render_as_string(hide_password=False))
     try:
         assert await readiness_reason(engine) is None
+        mutations = (
+            "DROP INDEX provider_model_available_unique",
+            "DROP INDEX provider_model_available_unique; CREATE INDEX provider_model_available_unique ON provider_model_entry(instance_id,connection_id,model) WHERE removed_registry_revision IS NULL",
+            "DROP TRIGGER provider_model_retire ON provider_model_entry",
+            "ALTER TABLE provider_model_entry DISABLE TRIGGER provider_model_retire",
+            "CREATE OR REPLACE FUNCTION provider_model_retire_guard() RETURNS trigger LANGUAGE plpgsql AS $$BEGIN RETURN NEW; END;$$",
+            "ALTER TABLE provider_model_entry DROP CONSTRAINT provider_model_removed_registry_fk",
+            "ALTER TABLE provider_model_entry DROP CONSTRAINT provider_model_removed_registry_fk; ALTER TABLE provider_model_entry ADD CONSTRAINT provider_model_removed_registry_fk FOREIGN KEY(instance_id,removed_registry_revision) REFERENCES provider_model_registry_revision(instance_id,revision) NOT VALID",
+        )
+        for mutation in mutations:
+            async with engine.connect() as connection_db:
+                transaction = await connection_db.begin()
+                try:
+                    statements = (
+                        [mutation]
+                        if mutation.startswith("CREATE OR REPLACE FUNCTION")
+                        else mutation.split("; ")
+                    )
+                    for statement in statements:
+                        await connection_db.execute(text(statement))
+                    from omnis.core.db import ReadinessReason, schema_reason_on
+
+                    assert (
+                        await schema_reason_on(connection_db) == ReadinessReason.SCHEMA_INCOMPATIBLE
+                    )
+                finally:
+                    await transaction.rollback()
+            assert await readiness_reason(engine) is None
         async with engine.begin() as connection_db:
             await connection_db.execute(
                 text(

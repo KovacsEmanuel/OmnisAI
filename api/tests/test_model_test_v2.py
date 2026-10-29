@@ -8,6 +8,7 @@ import ssl
 import subprocess
 import sys
 import threading
+from collections.abc import AsyncIterator
 from contextlib import suppress
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -23,6 +24,7 @@ from cryptography.x509.oid import NameOID
 from pydantic import ValidationError
 from sqlalchemy import text
 from sqlalchemy.engine import URL
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 from omnis.api import create_app
 from omnis.core.db import database_engine
@@ -79,6 +81,7 @@ def tls_contexts(root: Path) -> tuple[ssl.SSLContext, ssl.SSLContext]:
     [
         "complete",
         "entry_catalog",
+        "entry_remove",
         "entry_generation_before_first",
         "entry_generation_between",
         "entry_generation_unchanged",
@@ -219,6 +222,8 @@ async def test_api_pg_sdk_protocol_and_replay(
     metadata_outage = scenario in {"metadata_refused", "metadata_eof"}
     catalog_mode = "complete"
     catalog_entered, catalog_release = asyncio.Event(), asyncio.Event()
+    remove_peer_release = asyncio.Event()
+    remove_peer_release.set()
 
     async def serve(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         task = asyncio.current_task()
@@ -309,13 +314,17 @@ async def test_api_pg_sdk_protocol_and_replay(
                 else:
                     assert first == "POST /api/v1/chat/completions HTTP/1.1"
                     data = json.loads(body)
+                    if scenario == "entry_remove":
+                        await remove_peer_release.wait()
                     if scenario == "settings_ui":
                         assert data["model"] in {"fixture/02", "fixture/03"}
                     elif scenario.startswith("entry_generation_"):
                         assert data["model"] in {"fixture/selected", "fixture/00"}
                     else:
                         assert data["model"] == (
-                            "fixture/selected" if scenario == "entry_catalog" else "fixture/model"
+                            "fixture/selected"
+                            if scenario in {"entry_catalog", "entry_remove"}
+                            else "fixture/model"
                         )
                     assert data["max_tokens"] == 64
                     assert data["provider"] == {
@@ -760,6 +769,393 @@ async def test_api_pg_sdk_protocol_and_replay(
                         x["model"] for x in second.json()["entries"]
                     ] == ["fixture/selected"]
                     assert second.json()["next_offset"] is None
+                    if scenario == "entry_remove":
+                        models = "/api/v1/settings/models"
+                        tests = "/api/v1/model-test/entries"
+                        providers = "/api/v1/settings/providers"
+                        tables = (
+                            "provider_connection_revision",
+                            "provider_settings_command",
+                            "provider_selection_revision",
+                            "provider_model_registry_revision",
+                            "provider_model_entry",
+                            "provider_model_entry_revision",
+                            "provider_model_command",
+                            "model_record_v2",
+                            "model_command_v2",
+                            "system_operation",
+                            "system_operation_event",
+                            "model_dispatch_v2",
+                            "model_dispatch_event_v2",
+                        )
+
+                        async def census_remove() -> dict[str, list[str]]:
+                            async with engine.connect() as db:
+                                return {
+                                    table: list(
+                                        (
+                                            await db.execute(
+                                                text(
+                                                    f"SELECT row_to_json(t)::text FROM {table} t ORDER BY row_to_json(t)::text"
+                                                )
+                                            )
+                                        ).scalars()
+                                    )
+                                    for table in tables
+                                }
+
+                        entry_intent = {
+                            "operation_id": str(uuid4()),
+                            "entry_id": ids[0],
+                            "expected_entry_revision": 1,
+                            "expected_connection_revision": 1,
+                            "catalog_command_id": catalog_id,
+                            "expected_generation": generation,
+                            "consent": True,
+                        }
+                        admitted = await http.put(tests, json=entry_intent, headers=headers)
+                        assert admitted.status_code == 202
+                        async with asyncio.timeout(5):
+                            while owner.tasks:
+                                await asyncio.sleep(0.02)
+                        exact_path = tests + "/" + str(entry_intent["operation_id"])
+                        latest_path = tests + "/latest/" + ids[0]
+                        exact = (await http.get(exact_path)).json()
+                        assert exact["state"] == "FINISHED" and exact["result_state"] == "COMPLETED"
+                        assert (
+                            exact["usage_state"] == "KNOWN"
+                            and exact["input_tokens"] == 9
+                            and exact["output_tokens"] == 7
+                        )
+                        history = await census_remove()
+                        settings_before = (await http.get(providers)).json()
+                        remove = {
+                            "action": "remove_model",
+                            "command_id": str(uuid4()),
+                            "expected_registry_revision": 1,
+                            "entry_id": ids[0],
+                            "expected_revision": 1,
+                        }
+                        retired = await http.put(models, json=remove, headers=headers)
+                        assert retired.status_code == 200
+                        receipt_path = models + "/commands/" + str(remove["command_id"])
+                        receipt = retired.json()
+                        archived = (await http.get(exact_path)).json()
+                        assert archived == {**exact, "current": False}
+                        assert (await http.get(latest_path)).json() == archived
+                        removal_after = await census_remove()
+                        for table in tables:
+                            if table not in {
+                                "provider_model_registry_revision",
+                                "provider_model_entry",
+                                "provider_model_command",
+                            }:
+                                assert removal_after[table] == history[table]
+                        assert (await http.get(providers)).json() == settings_before
+                        stale_save = {
+                            "action": "save_models",
+                            "command_id": str(uuid4()),
+                            "expected_registry_revision": 2,
+                            **context,
+                            "models": [
+                                {
+                                    "entry_id": ids[0],
+                                    "expected_revision": 0,
+                                    "model": "fixture/selected",
+                                    "output_tokens": 64,
+                                }
+                            ],
+                        }
+                        denied = await http.put(models, json=stale_save, headers=headers)
+                        assert (
+                            denied.status_code == 409
+                            and denied.json()["error"]["code"] == "REVISION_CONFLICT"
+                        )
+                        assert await census_remove() == removal_after
+                        new_id = str(uuid4())
+                        readd = {
+                            **stale_save,
+                            "command_id": str(uuid4()),
+                            "models": [
+                                {
+                                    "entry_id": new_id,
+                                    "expected_revision": 0,
+                                    "model": "fixture/selected",
+                                    "output_tokens": 64,
+                                }
+                            ],
+                        }
+                        assert (
+                            await http.put(models, json=readd, headers=headers)
+                        ).status_code == 200
+                        absent = await http.get(tests + "/latest/" + new_id)
+                        assert (
+                            absent.status_code == 404
+                            and absent.json()["error"]["code"] == "NOT_FOUND"
+                        )
+                        assert (await http.get(providers)).json() == settings_before
+                        from contextlib import asynccontextmanager
+
+                        async def overlap(
+                            first_path: str,
+                            first_body: dict[str, object],
+                            second_path: str,
+                            second_body: dict[str, object],
+                        ) -> str:
+                            entered, release, arrived = (
+                                asyncio.Event(),
+                                asyncio.Event(),
+                                asyncio.Event(),
+                            )
+                            original_admission = service.admission
+                            original_settings, original_model = (
+                                control.provider_settings,
+                                control.model_test,
+                            )
+                            assert original_settings is not None and original_model is not None
+                            armed = True
+                            first_snapshot = None
+
+                            @asynccontextmanager
+                            async def gated(
+                                expected: int, holder: UUID, fencing_epoch: int
+                            ) -> AsyncIterator[AsyncConnection]:
+                                nonlocal armed, first_snapshot
+                                gate, armed = armed, False
+                                async with original_admission(
+                                    expected, holder, fencing_epoch
+                                ) as db:
+                                    if gate:
+                                        entered.set()
+                                        await asyncio.wait_for(release.wait(), 3)
+                                    yield db
+                                if gate:
+                                    first_snapshot = await census_remove()
+
+                            async def settings_arrival(
+                                command: KeySettingsControl | ModelRegistryControl,
+                            ) -> dict[str, object]:
+                                if entered.is_set():
+                                    arrived.set()
+                                return await original_settings(command)
+
+                            async def model_arrival(command: ModelTestControl) -> dict[str, object]:
+                                if entered.is_set():
+                                    arrived.set()
+                                return await original_model(command)
+
+                            monkeypatch.setattr(service, "admission", gated)
+                            control.provider_settings, control.model_test = (
+                                settings_arrival,
+                                model_arrival,
+                            )
+                            one = asyncio.create_task(
+                                http.put(first_path, json=first_body, headers=headers)
+                            )
+                            two = None
+                            try:
+                                await asyncio.wait_for(entered.wait(), 3)
+                                two = asyncio.create_task(
+                                    http.put(second_path, json=second_body, headers=headers)
+                                )
+                                await asyncio.wait_for(arrived.wait(), 3)
+                                release.set()
+                                results = await asyncio.gather(one, two)
+                                assert results[0].status_code in (200, 202)
+                                assert results[1].status_code in (404, 409)
+                                if first_path != tests:
+                                    assert await census_remove() == first_snapshot
+                                reason = results[1].json()["error"]["code"]
+                                assert isinstance(reason, str)
+                                return reason
+                            finally:
+                                release.set()
+                                await asyncio.gather(
+                                    *(task for task in (one, two) if task is not None),
+                                    return_exceptions=True,
+                                )
+                                monkeypatch.setattr(service, "admission", original_admission)
+                                control.provider_settings, control.model_test = (
+                                    original_settings,
+                                    original_model,
+                                )
+
+                        race_selection = {
+                            "action": "save_selection",
+                            "command_id": str(uuid4()),
+                            "expected_revision": 0,
+                            "default": {
+                                **context,
+                                "model": "fixture/selected",
+                                "output_tokens": 64,
+                            },
+                            "brain": None,
+                            "investigator": None,
+                            "validator": None,
+                        }
+                        remove_new = {
+                            **remove,
+                            "command_id": str(uuid4()),
+                            "entry_id": new_id,
+                            "expected_registry_revision": 3,
+                        }
+                        assert (
+                            await overlap(providers, race_selection, models, remove_new)
+                            == "MODEL_IN_USE"
+                        )
+                        race_selection = {
+                            **race_selection,
+                            "command_id": str(uuid4()),
+                            "expected_revision": 1,
+                            "default": {**context, "model": "fixture/00", "output_tokens": 64},
+                        }
+                        assert (
+                            await http.put(providers, json=race_selection, headers=headers)
+                        ).status_code == 200
+                        remove_peer_release.clear()
+                        start = {**entry_intent, "operation_id": str(uuid4()), "entry_id": new_id}
+                        assert await overlap(tests, start, models, remove_new) == "OPERATION_ACTIVE"
+                        active_path = tests + "/" + str(start["operation_id"])
+                        active = (await http.get(active_path)).json()
+                        cancel = await http.post(
+                            active_path + "/cancel",
+                            json={
+                                "command_id": str(uuid4()),
+                                "expected_state_revision": active["state_revision"],
+                            },
+                            headers=headers,
+                        )
+                        assert cancel.status_code == 202
+                        remove_peer_release.set()
+                        async with asyncio.timeout(5):
+                            while owner.tasks:
+                                await asyncio.sleep(0.02)
+                        cancelled = (await http.get(active_path)).json()
+                        assert cancelled["state"] == "FINISHED"
+                        save = {
+                            **readd,
+                            "command_id": str(uuid4()),
+                            "expected_registry_revision": 3,
+                            "models": [
+                                {
+                                    "entry_id": new_id,
+                                    "expected_revision": 1,
+                                    "model": "fixture/selected",
+                                    "output_tokens": 32,
+                                }
+                            ],
+                        }
+                        assert (
+                            await overlap(models, save, models, remove_new) == "REVISION_CONFLICT"
+                        )
+                        remove_new = {
+                            **remove_new,
+                            "command_id": str(uuid4()),
+                            "expected_registry_revision": 4,
+                            "expected_revision": 2,
+                        }
+                        save = {
+                            **save,
+                            "command_id": str(uuid4()),
+                            "expected_registry_revision": 4,
+                            "models": [
+                                {
+                                    "entry_id": new_id,
+                                    "expected_revision": 2,
+                                    "model": "fixture/selected",
+                                    "output_tokens": 32,
+                                }
+                            ],
+                        }
+                        assert (
+                            await overlap(models, remove_new, models, save) == "REVISION_CONFLICT"
+                        )
+                        race_selection = {
+                            **race_selection,
+                            "command_id": str(uuid4()),
+                            "expected_revision": 2,
+                            "default": {
+                                **context,
+                                "model": "fixture/selected",
+                                "output_tokens": 64,
+                            },
+                        }
+                        for other_path, body, code in (
+                            (providers, race_selection, "MODEL_NOT_REGISTERED"),
+                            (tests, start, "NOT_FOUND"),
+                        ):
+                            next_id = str(uuid4())
+                            revision = (await http.get(models)).json()["registry_revision"]
+                            add = {
+                                **readd,
+                                "command_id": str(uuid4()),
+                                "expected_registry_revision": revision,
+                                "models": [
+                                    {
+                                        "entry_id": next_id,
+                                        "expected_revision": 0,
+                                        "model": "fixture/selected",
+                                        "output_tokens": 64,
+                                    }
+                                ],
+                            }
+                            assert (
+                                await http.put(models, json=add, headers=headers)
+                            ).status_code == 200
+                            removal = {
+                                **remove,
+                                "command_id": str(uuid4()),
+                                "entry_id": next_id,
+                                "expected_registry_revision": revision + 1,
+                            }
+                            if other_path == tests:
+                                body = {**body, "operation_id": str(uuid4()), "entry_id": next_id}
+                            traffic = len(received)
+                            assert await overlap(models, removal, other_path, body) == code
+                            assert len(received) == traffic
+                        heartbeat_stop.set()
+                        await heartbeat
+                        assert await owner.drain()
+                        await service.release(process, epoch)
+                        released = True
+                        fresh_process = uuid4()
+                        fresh_epoch = await service.acquire(fresh_process)
+                        fresh_settings = ProviderSettingsOwner(
+                            service,
+                            fresh_process,
+                            fresh_epoch,
+                            ProviderVault(vault_dir, keys, str(initial.instance_id)),
+                        )
+                        fresh_sender = ModelSender(socket, client_context)
+                        fresh_owner = ApiKeyModelTest(fresh_settings, fresh_sender)
+                        try:
+                            before_restart, traffic = await census_remove(), len(received)
+                            await fresh_owner.reconcile()
+                            control.model_test = fresh_owner.handle
+
+                            async def fresh_provider(
+                                command: KeySettingsControl | ModelRegistryControl,
+                            ) -> dict[str, object]:
+                                return (await fresh_settings.handle(command)).model_dump(
+                                    mode="json"
+                                )
+
+                            control.provider_settings = fresh_provider
+                            assert (await http.get(exact_path)).json() == archived
+                            assert (await http.get(latest_path)).json() == archived
+                            assert (await http.get(receipt_path)).json() == receipt
+                            assert (await http.get(tests + "/latest/" + new_id)).json() == {
+                                **cancelled,
+                                "current": False,
+                            }
+                            assert (
+                                await census_remove() == before_restart and len(received) == traffic
+                            )
+                        finally:
+                            await fresh_owner.drain()
+                            await fresh_sender.close()
+                            await service.release(fresh_process, fresh_epoch)
+                        return
                     if scenario.startswith("entry_generation_"):
                         path = "/api/v1/model-test/entries"
                         intents = [
@@ -1857,6 +2253,7 @@ asyncio.run(main())
         primary = sys.exception()
         physical_release.set()
         catalog_release.set()
+        remove_peer_release.set()
         heartbeat_stop.set()
         try:
             try:

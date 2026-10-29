@@ -1,0 +1,40 @@
+{
+  "all_three_shared_targets_same_inode": true,
+  "commands": [
+    {
+      "exit": 0,
+      "op": "unlink_exact_symlink_only",
+      "path": "/home/kali/.hermes/cache/scratch/fqa-a488b26/api/.venv"
+    },
+    {
+      "exit": 0,
+      "op": "unlink_exact_symlink_only",
+      "path": "/home/kali/.hermes/cache/scratch/fqa-a488b26/cli/.venv"
+    },
+    {
+      "exit": 0,
+      "op": "unlink_exact_symlink_only",
+      "path": "/home/kali/.hermes/cache/scratch/fqa-a488b26/web/node_modules"
+    },
+    {
+      "argv": [
+        "git",
+        "worktree",
+        "remove",
+        "/home/kali/.hermes/cache/scratch/fqa-a488b26"
+      ],
+      "exit": 0
+    }
+  ],
+  "filesystem_available_after": 58629746688,
+  "filesystem_available_before": 58563751936,
+  "filesystem_net_available_delta": 65994752,
+  "limit": "Target checkout allocation removed; net df includes concurrent writers and is not exclusive reclaimed-byte accounting. External QA data/backup/logs/current installation and all refs preserved. No force or recursive fallback.",
+  "path_absent": true,
+  "ref_and_history_preserved": "refs/heads/qa/settings-final-controls-a488b26 e56bc648848a0e2b88cf8de462f8c6cfba276243",
+  "resource": "/home/kali/.hermes/cache/scratch/fqa-a488b26",
+  "target_allocated_after": 0,
+  "target_allocated_before": 65646592,
+  "utc": "2026-10-29T20:34:10.337649+00:00",
+  "worktree_registration_absent": true
+}

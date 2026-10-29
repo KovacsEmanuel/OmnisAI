@@ -1,0 +1,48 @@
+{
+  "allocated_before": 65646592,
+  "commands": [
+    "unlink each of three exact admitted symlinks only",
+    "git worktree remove /home/kali/.hermes/cache/scratch/fqa-a488b26"
+  ],
+  "decision": "DELETE checkout only; keep ref/history/shared dependency targets and all external QA data/evidence",
+  "docker_mount_consumers": [],
+  "filesystem_available_before": 58563751936,
+  "generated_producers": "CPython bytecode, pytest cache and official Vite build web/dist; no unique model/DB/evidence data in this checkout",
+  "head": "e56bc648848a0e2b88cf8de462f8c6cfba276243",
+  "ignored_generated_count": 34,
+  "limits": "No branch/data/image/volume/credential/backup deletion or force; no arbitrary dereference; other partially visible resources remain separate decisions",
+  "owner": "obsolete owned Settings final-controls QA worktree; not Remove or active upgrade/narrow checkout",
+  "preserved_ref": "refs/heads/qa/settings-final-controls-a488b26",
+  "process_visibility": "User supplied exact privileged sudo lsof -nP -t +D target: no PID/no reported error/exit1. This supersedes earlier108sameUIDvisibility denials only for this exact target; not a global process/disk claim. No password received.",
+  "reconstruct": "git worktree add /home/kali/.hermes/cache/scratch/fqa-a488b26 qa/settings-final-controls-a488b26; recreate shared dependency symlinks and build from retained source. Exact generated build replay relinquished.",
+  "replacement": "Operator0.1.1/0017 READY27, independent data readback and post-cancel/read-only census preserved; user accepted new Remove UI. Known preOPEN rollback previously2scenario installed QA, old images/releases/CLI/native backups retained.",
+  "resource": "/home/kali/.hermes/cache/scratch/fqa-a488b26",
+  "tracked_index_clean": true,
+  "untracked_symlinks": {
+    "api/.venv": {
+      "link": "/home/kali/.hermes/cache/scratch/fqa-a488b26/api/.venv",
+      "target": "/home/kali/OmnisAI/api/.venv",
+      "target_stat": {
+        "device": 2049,
+        "inode": 7621140
+      }
+    },
+    "cli/.venv": {
+      "link": "/home/kali/.hermes/cache/scratch/fqa-a488b26/cli/.venv",
+      "target": "/home/kali/OmnisAI/cli/.venv",
+      "target_stat": {
+        "device": 2049,
+        "inode": 7651354
+      }
+    },
+    "web/node_modules": {
+      "link": "/home/kali/.hermes/cache/scratch/fqa-a488b26/web/node_modules",
+      "target": "/home/kali/OmnisAI/web/node_modules",
+      "target_stat": {
+        "device": 2049,
+        "inode": 7784939
+      }
+    }
+  },
+  "utc": "2026-10-29T20:34:03.139765+00:00"
+}

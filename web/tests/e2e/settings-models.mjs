@@ -215,6 +215,7 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
     await check(page.getByRole('region', { name: 'Test consent', exact: true })).toHaveCount(0);
     await check(page.getByLabel('Active model check', { exact: true })).toHaveCount(0);
     await check(row('fixture/01').getByRole('button', { name: /Cancel test|Stop remaining checks/ })).toHaveCount(1);
+    await row('fixture/01').scrollIntoViewIfNeeded(); await check(row('fixture/01')).toBeInViewport({ ratio: 1 });
     await screenshot('settings-save-connect-row-pending', { fullPage: false });
     await row('fixture/01').getByRole('button', { name: 'Stop remaining checks', exact: true }).click();
     releaseAdmission.resolve();

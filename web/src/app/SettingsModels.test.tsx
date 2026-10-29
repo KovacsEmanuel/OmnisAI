@@ -277,7 +277,7 @@ it('moves passive feedback above a collision without hiding it or stealing focus
   collision = false; fireEvent(window, new Event('scroll')); expect(feedback).toBeVisible();
   expect(writes).toEqual([]);
 });
-it.each(['label', 'hint'] as const)('keeps assignment %s text clear of passive feedback after blur', async target => {
+it.each(['label', 'hint', 'page heading', 'section heading', 'provider heading', 'model identity', 'model status', 'provider status', 'saved key'] as const)('keeps assignment %s text clear of passive feedback after blur', async target => {
   settingsBackend(configured, [entry, { ...entry, entry_id: catalogId, model: 'Other/Model' }], [metadata, { ...metadata, model: 'Other/Model' }]);
   let obstacle: HTMLElement | null = null;
   vi.stubGlobal('innerHeight', 1000);
@@ -289,7 +289,16 @@ it.each(['label', 'hint'] as const)('keeps assignment %s text clear of passive f
   fireEvent.click(screen.getByRole('button', { name: 'Save assignments' }));
   const feedback = await screen.findByRole('complementary', { name: 'Settings notification' });
   const dismiss = within(feedback).getByRole('button', { name: 'Dismiss notification' }); dismiss.focus();
-  obstacle = target === 'label' ? screen.getByText('Default model', { selector: 'label' }) : screen.getByText('For future runs. Existing runs keep their pinned settings.');
+  if (target === 'saved key') fireEvent.click(screen.getByRole('button', { name: 'Add models' }));
+  obstacle = target === 'label' ? screen.getByText('Default model', { selector: 'label' })
+    : target === 'hint' ? screen.getByText('For future runs. Existing runs keep their pinned settings.')
+    : target === 'page heading' ? screen.getByRole('heading', { name: 'Settings', level: 1 })
+    : target === 'section heading' ? screen.getByRole('heading', { name: 'Models', level: 2 })
+    : target === 'provider heading' ? screen.getByRole('heading', { name: 'OpenRouter', level: 3 })
+    : target === 'model identity' ? within(screen.getByRole('listitem', { name: 'Model Exact/Model via OpenRouter' })).getByText('Exact model').parentElement!
+    : target === 'model status' ? screen.getAllByText('Not tested')[0]!
+    : screen.getByText(target === 'provider status' ? 'Key saved' : 'Saved key');
+  expect(obstacle).not.toBeNull(); dismiss.focus();
   fireEvent(window, new Event('resize')); expect(feedback.style.bottom).toBe(''); expect(dismiss).toHaveFocus();
   await act(async () => { dismiss.blur(); });
   expect(feedback).toBeVisible();

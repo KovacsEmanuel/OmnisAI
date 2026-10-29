@@ -86,15 +86,21 @@ await test('Settings C SOURCE: painted focus, shared 900px axis, mobile and long
             if (name === 'settings-models-assignments') {
               const notification = page.getByRole('complementary', { name: 'Settings notification', exact: true });
               await check(notification).toBeVisible(); await check(notification).toContainText('Assignments saved.'); await check(notification).toBeInViewport();
-              assert.ok(await notification.evaluate(node => {
+              const clearance = await notification.evaluate(node => {
                 const rect = node.getBoundingClientRect();
                 const hintClass = document.querySelector('[aria-labelledby="assignments-heading"] h2 + p').className;
-                return [...document.querySelectorAll(`button, input, select, summary, a, [role="alert"], label, .${hintClass}`)].filter(target => !node.contains(target)).every(target => {
-                  const box = target.getBoundingClientRect();
-                  return !box.width || !box.height || rect.left >= box.right || rect.right <= box.left || rect.top >= box.bottom || rect.bottom <= box.top;
-                });
-              }), `Notification overlaps a control, label or contextual hint at ${width}px`);
-              console.log(JSON.stringify({ boundary: 'SOURCE actual viewport before notification focus', width, notification: await notification.boundingBox(), text: await notification.innerText() }));
+                const essential = 'h1, h2, h3, [class*="_identity_"], [class*="_state_"], [class*="_saved_"], [class*="_connectionHeading_"] small';
+                return {
+                  identities: [...document.querySelectorAll(essential)].map(target => ({ text: target.textContent, rect: target.getBoundingClientRect().toJSON() })),
+                  clear: [...document.querySelectorAll(`button, input, select, summary, a, :focus, [role="alert"], label, .${hintClass}, ${essential}`)].filter(target => !node.contains(target)).every(target => {
+                    const box = target.getBoundingClientRect();
+                    return !box.width || !box.height || rect.left >= box.right || rect.right <= box.left || rect.top >= box.bottom || rect.bottom <= box.top;
+                  }),
+                };
+              });
+              assert.equal(clearance.identities.length, 9, 'Four headings, two model identities/statuses and provider key status must be counted');
+              assert.ok(clearance.clear, `Notification overlaps a control, label, hint, heading, identity or status at ${width}px`);
+              console.log(JSON.stringify({ boundary: 'SOURCE actual viewport before notification focus', width, notification: await notification.boundingBox(), text: await notification.innerText(), ...clearance }));
               if (process.env.OMNIS_E2E_OUTPUT) await page.screenshot({ path: join(process.env.OMNIS_E2E_OUTPUT, `SOURCE-${name}-${width}-before-focus-viewport.png`), fullPage: false });
               await notification.getByRole('button', { name: 'Dismiss notification', exact: true }).focus();
             }

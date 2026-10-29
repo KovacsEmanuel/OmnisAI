@@ -64,6 +64,7 @@ class InstalledPointerSchemaTest(unittest.TestCase):
         self.env = {
             "PATH": "/usr/bin:/bin",
             "HOME": str(self.root / "home"),
+            "XDG_CONFIG_HOME": str(self.root / "config"),
             "XDG_DATA_HOME": str(self.data),
             "XDG_STATE_HOME": str(self.root / "state"),
             "XDG_RUNTIME_DIR": str(self.root / "runtime"),

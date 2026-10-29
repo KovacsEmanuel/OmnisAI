@@ -12,7 +12,8 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   const test = configured.getByRole('listitem', { name: 'Model fixture/03 via OpenRouter', exact: true });
   const modelDetails = test.getByRole('button', { name: 'Details for fixture/03 via OpenRouter', exact: true });
   const recovery = page.getByRole('region', { name: 'Settings recovery', exact: true });
-  const notification = page.getByRole('complementary', { name: 'Settings notification', exact: true }).getByRole('status');
+  // Passive feedback yields to controls; persistent recovery is checked in context.
+  const notification = page.getByRole('complementary', { name: 'Settings notification', exact: true, includeHidden: true }).getByRole('status', { includeHidden: true });
   const writes = [];
   page.on('request', request => {
     const path = new URL(request.url()).pathname;
@@ -196,7 +197,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   assert.deepEqual((await readSettings()).selection, preserved);
   await page.getByRole('button', { name: 'Reload current settings', exact: true }).click();
   await check(notification).toContainText('Settings reloaded.');
-  await check(notification).toBeVisible();
+  await check(recovery).toHaveCount(0);
   await check(assignments.getByRole('combobox')).toHaveCount(0);
   await assignments.getByText('Output controls', { exact: true }).click();
   await check(page.getByLabel('Brain output tokens', { exact: true })).toHaveValue('37');
@@ -334,7 +335,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   const catalogFailure = wizard.getByText('Models could not be loaded. Reload settings before trying again.', { exact: true });
   await check(catalogFailure).toBeVisible();
   await check(wizard.getByText('Catalog details', { exact: true })).toBeVisible();
-  await check(page.getByRole('complementary', { name: 'Settings notification', exact: true }).filter({ hasText: /Catalog|Models could not/ })).toHaveCount(0);
+  await check(page.getByRole('complementary', { name: 'Settings notification', exact: true, includeHidden: true }).filter({ hasText: /Catalog|Models could not/ })).toHaveCount(0);
   await check(wizard.getByRole('button', { name: 'Continue', exact: true })).toBeDisabled();
   await check(wizard.getByRole('button', { name: /^Add fixture\// })).toHaveCount(0);
   assert.deepEqual((await readSettings()).selection, savedSelection);

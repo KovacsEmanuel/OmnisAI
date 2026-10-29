@@ -116,8 +116,9 @@ DB rollback requires reviewed restoration, not Git revert. No Replace/operator r
 ## Settings refinement — inline confirmation and concise feedback
 
 Implement in order: inline Remove confirmation, quiet save feedback, then concise model approval.
-Keep the accepted house palette, typography, metric layout and44px/focus targets. Replace only
-the model retirement OS confirmation with a compact panel in that model's expanded details:
+Keep the accepted house palette, typography, metric layout and44px/focus targets. Start with
+model retirement, then make the other existing Models confirmations consistent and contextual,
+without adding new key/Replace features. Use a compact panel in that model's expanded details:
 exact model/provider, Cancel and Remove; keyboard Escape/cancel restores focus when appropriate.
 Bind confirmation to its displayed entry/registry revisions; revalidate current barriers before
 send, never silently rebase consent after a change. Keep Stop and unrelated navigation reachable.
@@ -140,6 +141,13 @@ Keep one compact contextual Cancel/Stop for active/remaining work and persistent
 error/UNKNOWN/readback, including an orphaned uncertain operation when no row can represent it.
 Never mark Connected before the exact durable successful result, retry or renew consent. This
 is ordered step4 of the same refinement, not a backend, budget or authority change.
+
+The latest scope also requires an independent inventory and exercised coverage of every Models
+control/state: registration, removal, assignments/output, existing key/provider actions, wizard
+navigation, notifications and recovery. Use disposable synthetic fixtures, never the operator's
+real models/keys or upstream budget. Refine the actual bottom-right notification styling, not only
+its copy; remove normal-modification page-top information completely, while keeping real errors
+and uncertainty compact beside their affected action. No whole-app audit or blind legacy retry.
 
 ## Model assignments — separate from registration
 

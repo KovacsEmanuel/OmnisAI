@@ -81,15 +81,47 @@ it.each([false, true])('persists Remove with exact receipt and no resend on lost
   mounted.unmount(); mount(); await screen.findByText('No models configured.');
   expect(state.writes).toHaveLength(1);
 });
+it.each([[false, false], [false, true], [true, false], [true, true]])('keeps or restores focus after Remove lost=%s moved=%s', async (lost, moved) => {
+  const { state, hook } = settingsBackend();
+  vi.spyOn(window, 'confirm').mockReturnValue(true);
+  let release = () => {}, held = false;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, body, method) => {
+    if (lost && method === 'PUT' && body.action === 'remove_model') {
+      state.entries = []; state.revision += 1;
+      state.receipts.set(String(body.command_id), { schema_version: 1, command_id: body.command_id, registry_revision: state.revision, total: 0, after: null, next_after: null, entries: [] });
+      throw new TypeError('SOURCE committed reply lost');
+    }
+    if (path.includes('/settings/models/commands/')) { held = true; await gate; }
+    return undefined;
+  };
+  mount(); await screen.findByRole('region', { name: 'Configured models' });
+  fireEvent.click(screen.getByRole('button', { name: 'Details for Exact/Model via OpenRouter' }));
+  const remove = screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' });
+  await waitFor(() => expect(remove).toHaveAttribute('aria-disabled', 'false'));
+  remove.focus(); fireEvent.click(remove);
+  if (lost) { const recover = await screen.findByRole('button', { name: 'Read current state' }); recover.focus(); fireEvent.click(recover); }
+  await waitFor(() => expect(held).toBe(true));
+  const reload = screen.getByRole('link', { name: 'Models' });
+  if (moved) reload.focus();
+  await act(async () => { release(); await gate; });
+  await screen.findByText('No models configured.');
+  await waitFor(() => expect(moved ? reload : screen.getByRole('button', { name: 'Add models' })).toHaveFocus());
+  expect(state.writes).toHaveLength(1);
+});
 it('enumerates assignments without confirmation, replacement or writes', async () => {
   const choice = { connection_id: connectionId, connection_revision: 1, model: entry.model, output_tokens: 512 };
-  settingsBackend({ ...configured, selection: { selection_id: entryId, revision: 1, default: choice, brain: choice, investigator: null, validator: choice } });
+  const { state } = settingsBackend({ ...configured, selection: { selection_id: entryId, revision: 1, default: choice, brain: choice, investigator: null, validator: choice } });
   vi.spyOn(window, 'confirm').mockReturnValue(true); mount();
   await screen.findByRole('region', { name: 'Configured models' });
   fireEvent.click(screen.getByRole('button', { name: 'Details for Exact/Model via OpenRouter' }));
-  await waitFor(() => expect(screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' })).toHaveAttribute('aria-disabled', 'false'));
-  fireEvent.click(screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' }));
-  expect(await screen.findByText('Used by Default, Brain, Validator. Reassign explicitly in Model assignments before removing this model.')).toBeVisible();
+  const remove = screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' });
+  expect(remove).toBeDisabled();
+  const hint = within(screen.getByRole('listitem', { name: 'Model Exact/Model via OpenRouter' })).getByText('Used by Default, Brain, Validator. Reassign explicitly in Model assignments before removing this model.');
+  expect(hint).toBeVisible();
+  expect(remove).toHaveAttribute('aria-describedby', hint.id);
+  fireEvent.click(remove);
+  expect(state.writes).toEqual([]);
   expect(window.confirm).not.toHaveBeenCalled();
 });
 it('groups quiet reload with Add models and confirms a read without writes', async () => {

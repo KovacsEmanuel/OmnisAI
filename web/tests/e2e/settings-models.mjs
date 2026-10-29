@@ -57,35 +57,51 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
   assert.equal(historyBefore.result_state, 'COMPLETED');
   await check(row('fixture/selected')).toContainText('Connected');
   await details('fixture/00').focus(); await page.keyboard.press('Enter');
-  await row('fixture/00').getByRole('button', { name: 'Remove fixture/00 via OpenRouter', exact: true }).focus();
-  await page.keyboard.press('Enter');
-  await check(page.getByRole('region', { name: 'Settings recovery' })).toContainText('Used by Default');
+  const usedRemove = row('fixture/00').getByRole('button', { name: 'Remove fixture/00 via OpenRouter', exact: true });
+  await check(usedRemove).toBeDisabled();
+  const usedHint = row('fixture/00').getByText('Used by Default. Reassign explicitly in Model assignments before removing this model.', { exact: true });
+  await check(usedHint).toBeVisible();
+  await usedHint.scrollIntoViewIfNeeded();
+  assert.ok(await usedHint.evaluate(node => { const box = node.getBoundingClientRect(); return box.top >= 0 && box.bottom <= innerHeight; }));
+  assert.equal(await usedRemove.getAttribute('aria-describedby'), await usedHint.getAttribute('id'));
+  await screenshot('settings-remove-in-use-viewport', { fullPage: false });
+  await page.keyboard.press('Tab');
+  await check(row('fixture/00').getByRole('button', { name: 'Test fixture/00 via OpenRouter', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await check(usedRemove).not.toBeFocused();
+  assert.match(await page.evaluate(() => document.activeElement?.getAttribute('aria-label') ?? ''), /^Details for /);
   assert.deepEqual(writes, []);
   await details('fixture/selected').focus(); await page.keyboard.press('Enter');
   const remove = row('fixture/selected').getByRole('button', { name: 'Remove fixture/selected via OpenRouter', exact: true });
   for (const width of [1440, 1280, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 });
     await remove.scrollIntoViewIfNeeded();
-    await page.keyboard.press('Tab'); await remove.focus();
+    await details('fixture/selected').focus();
+    await page.keyboard.press('Tab');
+    await check(row('fixture/selected').getByRole('button', { name: 'Test fixture/selected via OpenRouter', exact: true })).toBeFocused();
+    await page.keyboard.press('Tab');
     await check(remove).toBeFocused();
+    // Frame the focused target and outline, rather than the viewport's edge.
+    await remove.evaluate(button => button.scrollIntoView({ block: 'center' }));
     const geometry = await remove.evaluate(button => {
       const box = button.getBoundingClientRect(), style = getComputedStyle(button);
       const metrics = button.parentElement.querySelector('dl').getBoundingClientRect();
-      return { height: box.height, width: box.width, outline: style.outlineStyle,
+      return { height: box.height, width: box.width, outline: style.outlineStyle, inside: box.top >= 4 && box.bottom <= innerHeight - 4,
         hit: button.contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)),
         overlaps: box.left < metrics.right && box.right > metrics.left && box.top < metrics.bottom && box.bottom > metrics.top,
         overflow: document.documentElement.scrollWidth > innerWidth };
     });
-    assert.ok(geometry.height >= 44 && geometry.width >= 44 && geometry.hit);
+    assert.ok(geometry.height >= 44 && geometry.width >= 44 && geometry.hit && geometry.inside);
     assert.notEqual(geometry.outline, 'none');
     assert.equal(geometry.overlaps, false); assert.equal(geometry.overflow, false);
-    await secretChecks(); await screenshot(`settings-remove-focus-${width}x1000`);
+    await secretChecks(); await screenshot(`settings-remove-focus-${width}x1000`, { fullPage: false });
   }
   page.once('dialog', async dialog => {
     assert.equal(dialog.message(), 'Remove fixture/selected via OpenRouter? Saved history remains.');
     await dialog.dismiss();
   });
-  await remove.focus(); await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await check(remove).toBeFocused();
   assert.deepEqual((await read(models)).body, library);
   assert.deepEqual((await read(providers)).body, baseline);
   assert.deepEqual(writes, []);
@@ -99,11 +115,13 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
     await route.abort('failed');
   });
   page.once('dialog', dialog => dialog.accept());
-  await remove.focus(); await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
   await check(page.getByRole('region', { name: 'Settings recovery' })).toContainText('Save unconfirmed');
   await page.unroute(`**${models}`);
-  await page.getByRole('button', { name: 'Read current state', exact: true }).click();
+  const recover = page.getByRole('button', { name: 'Read current state', exact: true });
+  await recover.focus(); await page.keyboard.press('Enter');
   await check(row('fixture/selected')).toHaveCount(0);
+  await check(page.getByRole('button', { name: 'Add models', exact: true })).toBeFocused();
   assert.deepEqual((await read(`${models}/commands/${command.command_id}`)).body, receipt);
   assert.equal(command.entry_id, entry.entry_id);
   assert.equal(command.expected_revision, entry.revision);

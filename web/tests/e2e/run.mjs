@@ -139,8 +139,8 @@ async function secretChecks(inspected = page) {
   assert.deepEqual(pageErrors, [], 'Browser JavaScript failure');
 }
 
-async function screenshot(name) {
-  await page.screenshot({ path: join(output, `${name}.png`), fullPage: true });
+async function screenshot(name, { fullPage = true } = {}) {
+  await page.screenshot({ path: join(output, `${name}.png`), fullPage });
 }
 
 let blocker;

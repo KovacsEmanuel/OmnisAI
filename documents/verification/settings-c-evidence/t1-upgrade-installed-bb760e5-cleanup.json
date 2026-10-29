@@ -1,0 +1,177 @@
+{
+  "daemon_before": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+  "fixtures": [
+    {
+      "scenario": "upgrade",
+      "project": "omnis-local-faa2b6c553ea4258b78a46039a53e481",
+      "instance_id": "ab27e91f-1c47-40a3-bf9b-c1cf41aa3560",
+      "intent_state": "COMPLETE",
+      "locator": "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-k1zjkj8s/probe-receipt.json",
+      "startup": "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-k1zjkj8s/s/omnis/startup.json",
+      "upgrade_intent": "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/omnis-bundle-r2y2lyw5/data/omnis/upgrade.json",
+      "snapshot": "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-k1zjkj8s/snapshot",
+      "trial_restore": "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-k1zjkj8s/s/omnis-upgrade-restore-b02e496e-6a8d-4f25-8e7a-8e3acc425abc",
+      "quarantine": null,
+      "journal_paths": [
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-k1zjkj8s/s/omnis/startup.json",
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-k1zjkj8s/snapshot/startup.json",
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-k1zjkj8s/s/omnis/stopped-855c05c7-62a6-4964-9887-fc4f3c42495a.json",
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-k1zjkj8s/s/omnis-upgrade-restore-b02e496e-6a8d-4f25-8e7a-8e3acc425abc/restore-source/startup.json"
+      ],
+      "exact_container_ids_absent": [
+        "310c1e9fbff59d5830148562b0e4fe1141e45a938b0521b3516d7f6bdb09ae84",
+        "3e9693f9d22a2c3a1e822ebe0fb4d5899e775dd39155e88344a5fa39764c1ff1",
+        "559c5a2b399741c74e33f2b77295c6eb0696d336a71b781e08f30562ced66fbf",
+        "883e926b6139682142b3873f573fb03d64f3f32ba89f83e3e88e12b093424c82",
+        "9b754139e9d12303fcead982dcb2f2b96a1684b89ebc0d487815eea9e2cc3d18",
+        "c2466f4bfa359d47ce5df876bddb36b2b82749aa47c29e3bd0b62f971714c896",
+        "e00f626e0cc53560bf05c74b045247fedc135d5c9eefb9ed7c1a3a728d0703d8"
+      ],
+      "project_container_ids": [],
+      "project_network_ids": [],
+      "forwarders_absent": [
+        {
+          "pid": 2007891,
+          "start_ticks": "15191368",
+          "same_identity_alive": false
+        },
+        {
+          "pid": 1993172,
+          "start_ticks": "15179278",
+          "same_identity_alive": false
+        }
+      ],
+      "listener_port": 34327,
+      "listener_absent": true,
+      "ipc_absent": {
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-k1zjkj8s/s/omnis/http/api.sock": false,
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-k1zjkj8s/r/omnis/control.sock": false,
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-k1zjkj8s/r/omnis/control.cap": false
+      },
+      "owner_absence_readback": "PASS",
+      "observer_family_drained": true,
+      "metadata_checks": {
+        "snapshot_schema0016": true,
+        "snapshot_source_digest": true,
+        "same_instance": true,
+        "same_system_id": true,
+        "trial_restore_source_exact": true,
+        "trial_restore_grant_exact": true,
+        "postgres_retained": true,
+        "backup_retained": true,
+        "source_copy_retained": true,
+        "state_stopped": true,
+        "intent_complete": true,
+        "configured_development_preserved": true,
+        "pgdata_identity_preserved": true,
+        "old_grant_exact": true
+      },
+      "retained_images": [
+        {
+          "id": "sha256:306af02dd8adc654ec05f7ad5124fe4f40dcb86e9a5dc4a65e4bf365a67920aa",
+          "repository": "omnis-control-faa2b6c553ea4258b78a46039a53e481",
+          "tag": "0.1.1"
+        },
+        {
+          "id": "sha256:e62e39d8d037951b0973c87e45e72379cc7c80ea1820ca2721c888afee53afce",
+          "repository": "omnis-control-faa2b6c553ea4258b78a46039a53e481",
+          "tag": "0.1.0"
+        }
+      ]
+    },
+    {
+      "scenario": "rollback",
+      "project": "omnis-local-d698c3a1ff894ae4b0f6399c005e59df",
+      "instance_id": "43a300b3-9b10-43da-92aa-3a96e0937a59",
+      "intent_state": "ROLLED_BACK",
+      "locator": "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-cjjh4xq9/probe-receipt.json",
+      "startup": "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-cjjh4xq9/s/omnis/startup.json",
+      "upgrade_intent": "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/omnis-bundle-jrdpax5a/data/omnis/upgrade.json",
+      "snapshot": "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-cjjh4xq9/snapshot",
+      "trial_restore": "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-cjjh4xq9/s/omnis-upgrade-restore-486ebea9-cbc5-4d96-b5d5-fc094994617f",
+      "quarantine": "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-cjjh4xq9/s/omnis-upgrade-failed-486ebea9-cbc5-4d96-b5d5-fc094994617f",
+      "journal_paths": [
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-cjjh4xq9/s/omnis/startup.json",
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-cjjh4xq9/snapshot/startup.json",
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-cjjh4xq9/s/omnis/stopped-b187223f-4df6-4c3e-9e30-63d6f1a8cad6.json",
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-cjjh4xq9/s/omnis-upgrade-restore-486ebea9-cbc5-4d96-b5d5-fc094994617f/restore-source/startup.json",
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-cjjh4xq9/s/omnis-upgrade-failed-486ebea9-cbc5-4d96-b5d5-fc094994617f/startup.json"
+      ],
+      "exact_container_ids_absent": [
+        "1a1f7441e9330e2367ebe4b8e9baa2c401aa8526dff1a2a290379861f123e7ef",
+        "1bfebca13d0722154f74d0475bf5fa18a771aa93276bd4b990d2a0b4bb14ddc8",
+        "322844f270a7cf5376417283163c55262f269ed4b16ff0c79d6a2a13ca98fe9b",
+        "6b7d3f8c699d3aa66b780fea6917bc5501678d16d3b74a07e3706351fdcc1ae4",
+        "79d55a3ce5b5649f2977ea5a8dd5ad0922053f21130f05b1e6f584009ba5ea50",
+        "80ee371fbb1d46949cefe2eb43c35012c1a051461dbab946baed25f31c633b7f",
+        "a614fcd4650a9a985efa7e664fdfd83f2014e363525eaef132f3f395ee71aa43",
+        "e1b8dcbb03c929880df76bf4164acc71b1670285dd575df136668ff7d22272e0",
+        "f347bcb290fb0455b6e485c0b8fe132b3309135ffece19a9268f0a164647cc64",
+        "fda56ce42c61bce17afcf87bd7aafae947c1a983f49beef96ed9bd7ac650ca85"
+      ],
+      "project_container_ids": [],
+      "project_network_ids": [],
+      "forwarders_absent": [
+        {
+          "pid": 2037962,
+          "start_ticks": "15209831",
+          "same_identity_alive": false
+        },
+        {
+          "pid": 2018591,
+          "start_ticks": "15196081",
+          "same_identity_alive": false
+        },
+        {
+          "pid": 2033362,
+          "start_ticks": "15208259",
+          "same_identity_alive": false
+        }
+      ],
+      "listener_port": 57925,
+      "listener_absent": true,
+      "ipc_absent": {
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-cjjh4xq9/s/omnis/http/api.sock": false,
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-cjjh4xq9/r/omnis/control.sock": false,
+        "/home/kali/.hermes/cache/scratch/q1-vnvrbh4o/t/s4-cjjh4xq9/r/omnis/control.cap": false
+      },
+      "owner_absence_readback": "PASS",
+      "observer_family_drained": true,
+      "metadata_checks": {
+        "snapshot_schema0016": true,
+        "snapshot_source_digest": true,
+        "same_instance": true,
+        "same_system_id": true,
+        "trial_restore_source_exact": true,
+        "trial_restore_grant_exact": true,
+        "postgres_retained": true,
+        "backup_retained": true,
+        "source_copy_retained": true,
+        "state_stopped": true,
+        "intent_rolled_back": true,
+        "restored_source_exact": true,
+        "restored_grant_exact": true,
+        "failed_data_quarantined": true,
+        "quarantine_never_open": true,
+        "vault_bytes_preserved": true,
+        "master_key_bytes_preserved": true
+      },
+      "retained_images": [
+        {
+          "id": "sha256:7a3122c90b298259ab5c4b5f022fba6e3bc4e21eada4b0d5edd16cdff37aa39c",
+          "repository": "omnis-control-d698c3a1ff894ae4b0f6399c005e59df",
+          "tag": "0.1.1"
+        },
+        {
+          "id": "sha256:cd7ac9aaaada8d7e39fc25daa3bfcb4bb905bd9b4b556717e1fd59ae0b25e920",
+          "repository": "omnis-control-d698c3a1ff894ae4b0f6399c005e59df",
+          "tag": "0.1.0"
+        }
+      ]
+    }
+  ],
+  "problems": [],
+  "daemon_after": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+  "status": "PASS_DRAINED_DATA_RETAINED",
+  "elapsed_since_baseline": 463.09686290100217
+}

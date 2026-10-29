@@ -1,0 +1,22 @@
+{
+  "head": "bb760e5b9bf9256f1ca31036d8a395590f2c0507",
+  "tree": "724d5cb1736cc0def5e0d3eb25eaef18b1d848ec",
+  "paths_sha256_verified": 33,
+  "git_status": "## impl/t1-compatible-upgrade-20261029\n?? api/.venv\n?? cli/.venv\n?? web/node_modules",
+  "tracked_diff_empty": true,
+  "main_head_unchanged": "06040a97e1066e5faf8807c7410a9315d40b1811",
+  "tests": 2,
+  "consumer_seconds": 318.89,
+  "command_wall_seconds": 319.14976477622986,
+  "batch_elapsed_seconds": 495.18478721100837,
+  "exact_container_ids_absent_count": 17,
+  "retained_images": 4,
+  "cleanup": "PASS_DRAINED_DATA_RETAINED",
+  "evidence_sha256": {
+    "upgrade.raw.log": "c2e43d450e6cd948851a916f987a4043cb48e3a461c508dd661f993a43c93e73",
+    "rollback.raw.log": "50dd8aa383ea6507fddf689c58501a30676e6e0741800790cb8adc67b019fce6",
+    "commands.json": "c7843dcba0d23484d29a36e30d5a844be173a679376fb57dcfa562279461e300",
+    "preflight.json": "178addf7a448e36d85ebdd5e0e1f3f7ba2ae9dd62b8e2d657fc62837145f3ae5",
+    "cleanup-readback.json": "17c5796e8199e10e21b7c41c3a4b007c284b3c426e8566130f642dbfc8727e7c"
+  }
+}

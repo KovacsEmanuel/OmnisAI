@@ -1,0 +1,41 @@
+{
+  "root": "/home/kali/.hermes/cache/scratch/t1-narrow-20261029",
+  "head": "e47c9017f6ab8a541dd4b5c155979bd620489215",
+  "tree": "aa177b8c727b8018b3563846b01eca9d448b1c6d",
+  "delta_base": "635c8fa7ae76ea541a9f12441fec9b717709c6da",
+  "cumulative_base": "bb760e5b9bf9256f1ca31036d8a395590f2c0507",
+  "scope": "SOURCE_CANDIDATE_ONLY; runtime NOT_RUN until independent review; counter2 retained",
+  "selector": "api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[settings_cancel_current_ui]",
+  "opt_in": {"OMNIS_SETTINGS_CANCEL_UI": "1"},
+  "runtime_browser_path": "/home/kali/.cache/ms-playwright",
+  "runtime_deadline_seconds": 600,
+  "patches": [
+    {"path": "/home/kali/.hermes/cache/scratch/t1-cancel-current-e47c901-delta.patch", "bytes": 12945, "sha256": "abcbbe23223d46439459c69fa238e1bab68fe5098d21138504fa157c5050ca46"},
+    {"path": "/home/kali/.hermes/cache/scratch/t1-cancel-current-e47c901-cumulative.patch", "bytes": 29708, "sha256": "71bad85318d6554da48d167e15805ff88d576af7f3eb293e2199b0719c5d1b44"}
+  ],
+  "files": [
+    {"path": "api/tests/test_model_test_v2.py", "blob": "383dd5e3ada4a111205f0dac5959756dfce2d33e", "sha256": "c62ebb37e8a82ce6c2848eaa18fc616700a03d4460c9d6f305ed16a79710aa1e", "changed_in_delta": true},
+    {"path": "api/tests/test_web_e2e.py", "blob": "43177999d178fe165b1f2b3489837be8c0e9f767", "sha256": "ae840b6b2edb82b4f976b675425a52d9267ca7551b328c1f3eda67cef4b31a73", "changed_in_delta": true},
+    {"path": "web/src/app/SettingsWizard.test.tsx", "blob": "86d82585ceaac10f613273e6e015d165a7b2a244", "sha256": "f3fe8c1a71bf0794a6d1b753f9990dff843aa85c3898ab3b88e1d3c061cca6a8", "changed_in_delta": false},
+    {"path": "web/tests/e2e/run.mjs", "blob": "abf6256dda77b680b339f5d9295363a4fa753d82", "sha256": "f8098fb810b8be6b38aba366e2793f6e10efcc280b0c01a36a5964fac70a0893", "changed_in_delta": true},
+    {"path": "web/tests/e2e/settings-models.mjs", "blob": "0a5008e85e330ef623510542049c5fb1d233954c", "sha256": "fbfd7286fdbee085bd9d82ebb601eaefc1f9be5b72bd7acdd7dacab7b53eea2e", "changed_in_delta": true}
+  ],
+  "unchanged_proof": {
+    "diagnostic_js_suffix_sha256_base_and_candidate": "1cf41cd25d14c470eee1057b0426c0dab1879a8621a73bfab90ca7fc395a17ea",
+    "wrong_id_channel_negative_function_sha256_base_and_candidate": "9aa4e0b425712aa716809e131e70fd44c507794b6e593beb6e09745e8e2b3a6c",
+    "run_result_labels_unchanged": true,
+    "all_28_existing_fixture_predicates_checked_equivalent": true
+  },
+  "source_checks": {
+    "ruff": "exit0",
+    "mypy": "exit0 no issues in2source files",
+    "node_check_both_mjs": "exit0",
+    "diff_check": "exit0",
+    "exact_collect": "exit0 1collected 1.29s",
+    "existing_negative_source": "exit0 1passed 1.25s",
+    "predicate_byte_integrity": "exit0",
+    "real_preflight_no_effect": "exit0"
+  },
+  "not_run": ["PG", "browser", "build", "default/known", "fullsuite", "functional current Cancel"],
+  "preexisting_untracked_untouched": ["api/.venv", "cli/.venv", "web/node_modules"]
+}

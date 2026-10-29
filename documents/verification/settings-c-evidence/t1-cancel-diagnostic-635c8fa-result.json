@@ -1,0 +1,61 @@
+{
+  "classification": "CURRENT_STALE_CAS_CAUSE_OBSERVED_DIAGNOSTIC_ONLY",
+  "candidate": "635c8fa7ae76ea541a9f12441fec9b717709c6da",
+  "process": "proc_d76177efc6bb",
+  "root": "/home/kali/.hermes/cache/scratch/nc-y1m5gz1b",
+  "gate": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "pytest": "1 passed in 17.11s (diagnostic assertions only)",
+  "pre_handle": {
+    "operation_id": "a31632a8-e365-473c-82eb-d640919a7104",
+    "requested_revision": 1,
+    "observed_state": "RUNNING",
+    "observed_revision": 2
+  },
+  "browser": {
+    "scenario": "settings-cancel-probe",
+    "passed": null,
+    "browser": "153.0.8010.12",
+    "catalog": {
+      "classification": "DIAGNOSTIC_ONLY",
+      "functionalPass": false,
+      "cancel": {
+        "status": 409,
+        "error_code": "REVISION_CONFLICT",
+        "operation_id": "a31632a8-e365-473c-82eb-d640919a7104",
+        "requested_revision": 1,
+        "response_operation_id": null,
+        "response_state": null,
+        "response_revision": null
+      },
+      "readback": {
+        "operation_id": "a31632a8-e365-473c-82eb-d640919a7104",
+        "state": "FINISHED",
+        "state_revision": 3,
+        "finish_reason": "COMPLETED"
+      }
+    },
+    "requestCount": 31,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "secretChecks": true,
+    "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only"
+  },
+  "cleanup": {
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "container_id": "02b7f542c052d6d6e4ec1b133051f2851e46051f26d4ed0ce64285bb5c299a94",
+    "project": "omnis-p01-604819eca2344229aeb947de48d19547",
+    "exact_container_absent": true,
+    "project_containers_absent": true,
+    "project_networks_absent": true,
+    "socket_absent": true,
+    "data_retained": true
+  },
+  "historical_limit": "Original legacy409 did not record request revision/body; current observation establishes the mechanism but does not retroactively establish that unobserved exact request",
+  "source_review": "t1-narrow-r2-635c8fa-original.md",
+  "harness_only_cycles_retained": 2,
+  "canonical": "NOT_RUN_UNCONSUMED"
+}

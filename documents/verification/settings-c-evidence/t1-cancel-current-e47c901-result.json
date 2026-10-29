@@ -1,0 +1,62 @@
+{
+  "classification": "PASS_CURRENT_REVISION_CANCEL_SCOPED",
+  "candidate": "e47c9017f6ab8a541dd4b5c155979bd620489215",
+  "process": "proc_2b9ab3338146",
+  "root": "/home/kali/.hermes/cache/scratch/np-e47c901",
+  "gate": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "pytest_summary": [
+    "1 passed in 14.60s"
+  ],
+  "pre_handle": {
+    "operation_id": "ac4f5360-f491-45a0-abc1-7c83451fccc6",
+    "requested_revision": 2,
+    "observed_state": "RUNNING",
+    "observed_revision": 2
+  },
+  "browser": {
+    "scenario": "settings-cancel-current",
+    "passed": true,
+    "browser": "153.0.8010.12",
+    "catalog": {
+      "classification": "CURRENT_REVISION_CANCEL",
+      "functionalPass": true,
+      "running": {
+        "operation_id": "ac4f5360-f491-45a0-abc1-7c83451fccc6",
+        "state": "RUNNING",
+        "state_revision": 2
+      },
+      "cancel": {
+        "status": 202,
+        "requested_revision": 2
+      },
+      "readback": {
+        "operation_id": "ac4f5360-f491-45a0-abc1-7c83451fccc6",
+        "state": "FINISHED",
+        "state_revision": 4,
+        "finish_reason": "CANCELLED"
+      }
+    },
+    "requestCount": 34,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "secretChecks": true,
+    "scope": "owned PostgreSQL/API/supervisor + built assets, synthetic pairing only"
+  },
+  "cleanup": {
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "container_id": "4d51e564fa437746de2d7e6aff3808c6476be596529ac4b2c253a1f39b9c3715",
+    "project": "omnis-p01-637e5f8c8af648979722fe184864c219",
+    "exact_container_absent": true,
+    "project_containers_absent": true,
+    "project_networks_absent": true,
+    "socket_absent": true,
+    "data_retained": true
+  },
+  "negative_control": "635c8fa/one immediateCancel requested1->RUNNING2/409REVISION_CONFLICT observed in nc-y1m5gz1b; no retry",
+  "scope_limit": "Same existing actual UI/HTTP/API/PG/TLS peer, one operation/Start/Cancel; not old broad QA, operator/provider or canonical; historical original409 exactrequest remains unobserved",
+  "counter2_retained": true
+}

@@ -1,0 +1,56 @@
+{
+  "status": "SOURCE_COMPLETE_CANDIDATE; IN_REVIEW; RUNTIME_NOT_RUN",
+  "base": "bb760e5b9bf9256f1ca31036d8a395590f2c0507",
+  "head": "635c8fa7ae76ea541a9f12441fec9b717709c6da",
+  "tree": "ae0c07a6044cb341cd9be2fa6e5efa627ea8e4a8",
+  "branch": "fix/t1-finalization-narrow-probes-20261029",
+  "worktree": "/home/kali/.hermes/cache/scratch/t1-narrow-20261029",
+  "commits": [
+    "36d245149407e5e45d3d26182c0ac65092d2ad26",
+    "04965fc2a43f89036502c358c68bed7da7760623",
+    "635c8fa7ae76ea541a9f12441fec9b717709c6da"
+  ],
+  "files": {
+    "web/src/app/SettingsWizard.test.tsx": {"blob": "86d82585ceaac10f613273e6e015d165a7b2a244", "sha256": "f3fe8c1a71bf0794a6d1b753f9990dff843aa85c3898ab3b88e1d3c061cca6a8"},
+    "api/tests/test_model_test_v2.py": {"blob": "e84320892f987746ca71a0bb3a46f846b7be9ec3", "sha256": "92fb0fad81e7cb450a6a453e46656e9db0700043c50cef3af5000df986e8f439"},
+    "api/tests/test_web_e2e.py": {"blob": "1e5c4ea3c4396cb87f14189b988d8f7d5b100fdb", "sha256": "64eaa8cb16ecd5e035f16073e273dc758a373b1ff43c7f23d74e7c26810c3f11"},
+    "web/tests/e2e/run.mjs": {"blob": "56077c10eaa590774b6b268e4236a9a26576431f", "sha256": "1adcd4a464ddfe9527cc57b6c64805298f4d0f9fe6c1973d188dd2ba9c96a8be"},
+    "web/tests/e2e/settings-models.mjs": {"blob": "bc6b9e6f1db3b040ec07eaae001143da2634dc1b", "sha256": "3adca58b90655870832bf9e65898420f1c3fd5724f8b7769cbdeaebe9178bb9b"}
+  },
+  "diff": {"command": "git diff --binary bb760e5b9bf9256f1ca31036d8a395590f2c0507 635c8fa7ae76ea541a9f12441fec9b717709c6da", "sha256": "de3dbf160c5abf3790b7bb531468e987548f1e2eacaa0c460bdf08ba5e2dd185", "bytes": 24331},
+  "admitted_patch": {"path": "/home/kali/.hermes/cache/scratch/t1-narrow-cancel-helper-scope.patch", "sha256": "3af80afb1e2d4375ac8ebfb8436f8e7400fa556ced4d9ac70b1c1118deaa70e9", "application": "Read then patch V4A; formatter-equivalent removal of redundant parentheses and wrapping conditional print only"},
+  "helper_fix": "Only api/tests/test_web_e2e.py:settings_models_browser changed in 635c8fa (+10/-3). Exact settings-cancel-probe runs before only and requires E2E DIAGNOSTIC; other scenarios preserve before+after/PASS. Existing JS passed:null, functionalPass:false, 409 DIAGNOSTIC_ONLY retained, not Cancel ACK/PASS.",
+  "caller_audit": [
+    "test_model_test_v2.py settings_cancel_ui -> scenario=settings-cancel-probe -> existing helper -> run.mjs -> runSettingsModels one-operation branch",
+    "test_model_test_v2.py settings_ui -> helper default=settings-models; normal before+after/PASS unchanged",
+    "test_model_test_v2.py entry_remove_ui -> scenario=settings-remove; normal before+after/PASS unchanged"
+  ],
+  "invariants_retained": "One Start/one Cancel; no browser Refresh, assignments or retry; one fixture-local TLS metadata prerequisite; pre-owner.handle observation and release in Cancel finally; no lock held across Cancel; SOURCE wrong identity/channel controls retained. Production/canonical/global/operator/protected files untouched; upgrade bb760e5 worktree untouched; no missing helper caller remains in admitted SOURCE scope.",
+  "checks": [
+    {"command": "SOURCE AST stage assertion before edit", "exit": 1, "result": "Expected RED: diagnostic stages (before,after), not (before,)"},
+    {"command": "python -B /home/kali/.hermes/cache/scratch/t1-narrow-helper-source-check.py", "exit": 0, "result": "Exact scenario stage/label/summary positives; normal cases unchanged; wrong-label/nonzero-child negatives; null/DIAGNOSTIC_ONLY source guards; compile and unchanged other helper definitions"},
+    {"command": "api/.venv/bin/python -I -B -m ruff check --config api/pyproject.toml --no-fix api/tests/test_web_e2e.py api/tests/test_model_test_v2.py", "exit": 0, "result": "All checks passed"},
+    {"command": "api/.venv/bin/python -I -B -m ruff format --config api/pyproject.toml --check api/tests/test_web_e2e.py", "exit": 0, "result": "1 file already formatted; initial proposal-format exit1 corrected only within admitted hunks"},
+    {"command": "api/.venv/bin/python -I -B -m mypy --config-file api/pyproject.toml --no-incremental --cache-dir /home/kali/.hermes/cache/scratch/t1-narrow-mypy api/tests/test_web_e2e.py api/tests/test_model_test_v2.py", "exit": 0, "result": "Success: no issues found in 2 source files"},
+    {"command": "env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMNIS_SETTINGS_CANCEL_UI=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[settings_cancel_ui] --collect-only -q", "exit": 0, "result": "1 collected in 1.72s after final helper formatting; no fixtures executed"},
+    {"command": "api/.venv/bin/python -I -B controlled source import test_web_e2e", "exit": 0, "result": "ROOT equals this worktree; helper callable; actual local module imported"},
+    {"command": "/home/kali/.local/share/omnis-toolchains/bin/node --check web/tests/e2e/run.mjs; same for settings-models.mjs", "exit": 0, "result": "Node v24.21.0; both syntax checks passed; JS unchanged by helper fix"},
+    {"command": "api/.venv/bin/python -I -B ops/run_test_db_gate.py --help", "exit": 0, "result": "Existing target choices inspected; no new target or one-case flag"},
+    {"command": "git diff --check; git show --stat --oneline HEAD; git status --short --branch", "exit": 0, "result": "Tracked clean; intended helper commit read back; only preexisting api/.venv and web/node_modules symlinks untracked"}
+  ],
+  "observer_source": "Prior PASS reused unchanged: test_cancel_observation_source; equal/stale revision positives and wrong identity/channel negatives. Not rerun.",
+  "known_case": {"executions": 1, "result": "Historical 1 PASS / 89 filtered / 2.02s", "log": "/home/kali/.hermes/cache/scratch/t1-narrow-known-once.log", "limit": "Failure hook did not fire; historical cause UNKNOWN. No known/default unit retry here."},
+  "runner": {
+    "selector": "api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[settings_cancel_ui]",
+    "opt_in": "OMNIS_SETTINGS_CANCEL_UI=1",
+    "native_cli_one_case": "UNSUPPORTED: existing test-model-test-v2-pg recipe runs five files; _gate_environment strips ambient pytest/Make overrides and does not forward Cancel opt-in. Do not invent MAKEARGS/filters.",
+    "possible_existing_api_command_proposal": "/home/kali/.hermes/cache/scratch/t1-narrow-cancel-runner-command.txt",
+    "proposal_status": "NOT_EXECUTED; parent decides admission of established programmatic run_gate selection seam; existing prove_private_fixture(test-model-test-v2-pg, pinned_uv,600) preserves provisioning/attestation/owned cleanup. No Make/runner code modified; no finite new target implemented.",
+    "real_pin_preflight": {"exit": 1, "result": "UnsafeFixture: Locked API/CLI environment missing; api/.venv/bin/python present, cli/.venv/bin/python absent. No provisioning reached, no workaround applied."}
+  },
+  "runtime": "NOT_RUN: PG/browser/build/default-web/broad QA/provider/operator effects. SOURCE checks do not certify runtime or functional Cancel success; required focused independent review precedes effects.",
+  "harness_only_cycles_retained": 2,
+  "tracked_index": "clean",
+  "untracked_preexisting_dependency_symlinks": ["api/.venv -> /home/kali/OmnisAI/api/.venv", "web/node_modules -> /home/kali/OmnisAI/web/node_modules"],
+  "rollback": "Inspect dependencies then git revert 635c8fa7ae76ea541a9f12441fec9b717709c6da; no external state changed"
+}

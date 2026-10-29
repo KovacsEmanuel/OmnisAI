@@ -133,6 +133,14 @@ with the selected model/provider context and one separate brief charge hint. Rem
 per-model call bound/deadline, generation pin, caps or explicit consent/reset guards. No automatic
 tests, upstream Refresh, key changes, backend/protocol migration or T2 in this UI slice.
 
+After confirmed Save/receipt/readback, Save & connect closes the wizard and updates the saved
+list. Continue only the already-consented finite sequence, with small per-row Connecting →
+Connected status; no new global connection/Test/consent box or routine technical information.
+Keep one compact contextual Cancel/Stop for active/remaining work and persistent actionable
+error/UNKNOWN/readback, including an orphaned uncertain operation when no row can represent it.
+Never mark Connected before the exact durable successful result, retry or renew consent. This
+is ordered step4 of the same refinement, not a backend, budget or authority change.
+
 ## Model assignments — separate from registration
 
 - Zero configured models: `Add a model first.`

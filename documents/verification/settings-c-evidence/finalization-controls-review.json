@@ -1,0 +1,67 @@
+{
+  "verdict": "APPROVED_QA_SOURCE_SCOPED",
+  "findings": [],
+  "scope": "Independent read-only review of the existing two-file QA controls overlay and directly connected producer/oracles; not approval of a488b26 product source, final rebound product, built distribution, visual acceptance, or runtime QA.",
+  "commit": "c579f894b8243bc741b31c116760d3459979375f",
+  "base": "a488b2611b96fbb6edc4d4c4bbd0c2de21a45b90",
+  "worktree": "/home/kali/.hermes/cache/scratch/fqa-a488b26",
+  "reviewed_sha256": {
+    "api/tests/test_model_test_v2.py": "34cf202c633a42710ba291dfc668be24c3148d2de0663f001041169667843dce",
+    "web/tests/e2e/settings-models.mjs": "5398b960485c1e64879341e2a70635ccf6ff087d1f2f512055b7be6cd0f736f8"
+  },
+  "patch_sha256": "dfd505ea345d43074327c7db912ceb0f8d6a5d563d7723775c0450cbf582d833",
+  "source_assessment": [
+    {
+      "criterion": "Authentic SENT precedes inline Cancel with model details closed",
+      "consumer": "web/tests/e2e/settings-models.mjs:217-240,280-323",
+      "producer": "api/tests/test_model_test_v2.py:369-371,526-567",
+      "assessment": "Both starts traverse the real browser HTTP/control owner. The owned TLS peer has accepted and validated the request before Cancel delegates to owner.handle. The observer separately checks committed SENT count and RUNNING for the exact admitted operation; its engine.connect block exits before cancellation. TLS response release follows actual cancellation/drain rather than fabricating a terminal reply. Browser asserts closed/hidden details, visible inline Cancel, exact operation IDs and cancellation revision2 to FINISHED revision4. The underlying runtime commits SENT before network and persists CANCELLED/UNKNOWN/CANCELLED_OR_STOPPED/ABSENT."
+    },
+    {
+      "criterion": "Terminal UNKNOWN A permits fresh consent B and history cannot retarget active B",
+      "consumer": "web/tests/e2e/settings-models.mjs:257-328",
+      "producer": "api/tests/test_model_test_v2.py:528-555,671-725",
+      "assessment": "A is first read/reloaded by its exact ID. B requires a new initially unchecked consent, targets another exact entry with a different operation ID and cap37, and is reloaded while genuinely RUNNING. A has no Cancel; its history Read is natively disabled while B owns recovery. After the attempted disabled click, B's actual read and Cancel replies must retain B's identity/model/revisions. Two authentic TLS POSTs and distinct terminal persisted outcomes are required. This correctly challenges the known old-source defect; old-source failure is not an overlay finding."
+    },
+    {
+      "criterion": "Lost real HTTP reply recovers exact operation/receipt without resend",
+      "consumer": "web/tests/e2e/settings-models.mjs:171-190,241-269,324-328,377-381",
+      "assessment": "route.fetch(maxRetries:0) forwards the real request, checks the successful real response and matching command/operation ID, then aborts delivery. Recovery uses the exact receipt/operation and compares terminal readback. Mutation and POST inventories, distinct command identities, TLS request order and persistent ledgers reject a retry/resend. This is HTTP reply loss, not physical server ACK-loss or paid provider inference."
+    },
+    {
+      "criterion": "Exact command/history totals agree with the existing producer",
+      "producer": "api/tests/test_model_test_v2.py:619-739; api/src/omnis/modules/settings/provider_catalog_runtime.py:138-203; api/src/omnis/modules/runs/model_test_runtime.py:314-514",
+      "assessment": "Six explicit refreshes, one catalog Cancel, two entry starts and two entry Cancels produce eleven shared model_command_v2 rows; search/status reads do not create command rows. Five successful two-page catalogs plus the cancelled first page give eleven metadata GETs, alongside two model POSTs. Three key saves plus one selection save and one revoke produce five provider settings receipts; two registry saves produce three entries/five entry revisions. Expected fields and RESERVED/SENT/SETTLED plus FINISHED revision4 match real runtime/store contracts, not invented response fields. All totals remain prospective runtime assertions."
+    },
+    {
+      "criterion": "Persistence across API restart and finite owned cleanup",
+      "consumer": "web/tests/e2e/settings-models.mjs:48-110; api/tests/test_web_e2e.py:278-383",
+      "producer": "api/tests/test_model_test_v2.py:1950-1982; api/tests/e2e_processes.py:85-150",
+      "assessment": "The unchanged existing owner launches and joins two real API/browser stages against the same PostgreSQL fixture. It compares full rows in thirteen named tables, reads both original IDs/latest entry views after API restart, and rejects browser writes/non-GET model commands. This restarts API processes, not the control owner or PostgreSQL server. Existing driver120s/API join5s/outer300s limits and owned-family cleanup remain; TLS tasks are bounded by the existing final gather2s and relay/owner cleanup. The new model TLS wait is outside DB locks; cancellation normally releases it, and failure teardown cancels remaining tasks. No new supervisor or harness framework is needed."
+    }
+  ],
+  "verification": [
+    {
+      "kind": "read-only snapshot discovery",
+      "result": "HEAD and the two tracked changes matched the freeze; no tracked edits by reviewer."
+    },
+    {
+      "kind": "targeted stdlib-only bytes/AST/source arithmetic check",
+      "exit": 0,
+      "result": "Both frozen SHA256 values match; expected request array contains GET11/POST2; census has thirteen unique tables; declared command parts sum to eleven. No product/test imports or effects."
+    },
+    {
+      "kind": "initial over-strict clean-worktree assertion",
+      "exit": 1,
+      "result": "Concurrent untracked api/.venv, cli/.venv and web/node_modules appeared during review. Readback confirmed unchanged HEAD and frozen file/patch hashes. These paths were neither opened nor created/modified/removed by reviewer. The subsequent check distinguished tracked cleanliness from these externally added prerequisites. This is not an overlay defect."
+    }
+  ],
+  "effects_executed": 0,
+  "repository_files_modified": [],
+  "limits": [
+    "No browser, PostgreSQL, build, provisioning, services, provider/model call, credentials, environment discovery, bulk preflight, or runtime attempt was executed by this reviewer.",
+    "Final product fixes must pass their independent reviews and be explicitly rebound before the parent's admitted existing bounded real QA. Missing future rebind/runtime evidence is not a circular source-review blocker.",
+    "R1F02 alternate-provider fault semantics remain with focused product review/current-list QA, not an expanded OrcaRouter fault fixture here.",
+    "Reticle NOT_RUN/NOT_INTEGRATED; Chisel BLOCKED_NO_GO. No visual/global/T2/push approval."
+  ]
+}

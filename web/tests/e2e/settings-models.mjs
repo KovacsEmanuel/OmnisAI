@@ -170,12 +170,12 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
   await wizard.getByRole('button', { name: 'Remove selected manual/preview', exact: true }).click();
   await wizard.getByRole('button', { name: 'Back', exact: true }).click();
   for (const escape of [false, true]) {
-    await wizard.getByLabel('Provider', { exact: true }).selectOption('orcarouter');
+    await wizard.getByRole('combobox', { name: 'Provider', exact: true }).selectOption('orcarouter');
     const change = wizard.getByRole('region', { name: 'Provider change confirmation', exact: true });
     await check(change).toContainText('OpenRouter → OrcaRouter'); await check(change).toContainText('fixture/selected');
     await change.getByRole('button', { name: 'Cancel', exact: true }).focus();
     if (escape) await page.keyboard.press('Escape'); else await page.keyboard.press('Enter');
-    await check(wizard.getByLabel('Provider', { exact: true })).toBeFocused();
+    await check(wizard.getByRole('combobox', { name: 'Provider', exact: true })).toBeFocused();
   }
   await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
   await check(wizard.getByRole('list', { name: 'Provider models', exact: true })).toHaveAttribute('aria-busy', 'false');

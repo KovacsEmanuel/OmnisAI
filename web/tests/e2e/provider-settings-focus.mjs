@@ -78,11 +78,27 @@ await test('Settings C SOURCE: painted focus, shared 900px axis, mobile and long
         const page = await context.newPage(); page.setDefaultTimeout(5000); page.on('pageerror', error => errors.push(error.message));
         async function capture(name) {
           for (const width of [1440, 1280, 390, 320]) {
+            if (name === 'settings-models-assignments') await page.getByRole('button', { name: 'Dismiss notification', exact: true }).evaluate(button => button.blur());
             await page.setViewportSize({ width, height: 1000 }); await page.evaluate(() => scrollTo(0, 0)); await paint(page);
             assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${name}: overflow at ${width}px`);
             assert.ok(await page.locator('[aria-label="Provider models"] button').evaluateAll(buttons => buttons.every(button => button.getBoundingClientRect().height <= 48)), 'Catalog action labels must remain on one line');
             assert.ok(await page.getByRole('link', { name: 'Skip to content', exact: true }).evaluate(link => link.getBoundingClientRect().bottom <= 0), 'Unfocused skip link must be outside the viewport');
-            if (process.env.OMNIS_E2E_OUTPUT) await page.screenshot({ path: join(process.env.OMNIS_E2E_OUTPUT, `SOURCE-${name}-${width}-loaded.png`), fullPage: true });
+            if (name === 'settings-models-assignments') {
+              const notification = page.getByRole('complementary', { name: 'Settings notification', exact: true });
+              await notification.getByRole('button', { name: 'Dismiss notification', exact: true }).focus();
+              await check(notification).toBeInViewport();
+              assert.ok(await notification.evaluate(node => {
+                const rect = node.getBoundingClientRect();
+                return [...document.querySelectorAll('button, input, select, summary, a, [role="alert"]')].filter(target => !node.contains(target)).every(target => {
+                  const box = target.getBoundingClientRect();
+                  return !box.width || !box.height || rect.left >= box.right || rect.right <= box.left || rect.top >= box.bottom || rect.bottom <= box.top;
+                });
+              }), `Notification overlaps an interactive target at ${width}px`);
+            }
+            if (process.env.OMNIS_E2E_OUTPUT) {
+              await page.screenshot({ path: join(process.env.OMNIS_E2E_OUTPUT, `SOURCE-${name}-${width}-loaded.png`), fullPage: true });
+              await page.screenshot({ path: join(process.env.OMNIS_E2E_OUTPUT, `SOURCE-${name}-${width}-viewport.png`), fullPage: false });
+            }
           }
           await page.setViewportSize({ width: 1440, height: 1000 });
         }
@@ -108,23 +124,52 @@ await test('Settings C SOURCE: painted focus, shared 900px axis, mobile and long
           const save = page.getByRole('button', { name: 'Save assignments', exact: true }), elsewhere = page.getByRole('link', { name: 'Models', exact: true });
           await page.getByLabel('Default model', { exact: true }).selectOption(other); await save.focus(); await page.keyboard.press('Enter');
           await check.poll(() => writes.length).toBe(1); await paint(page); await check(save).toBeFocused(); await check(save).toHaveAttribute('aria-disabled', 'true'); assert.equal(await save.evaluate(button => button.disabled), false, 'Transient busy must not natively disable the focused button');
+          if (scenario === 'retained') await capture('settings-assignment-pending');
           if (scenario === 'moved') await elsewhere.focus(); else { await page.keyboard.press('Enter'); await save.evaluate(button => button.form.requestSubmit()); }
           assert.equal(writes.length, 1); put.resolve();
           if (scenario === 'stale') { await check(page.getByText(/Settings changed/)).toBeVisible(); await check(save).toBeDisabled(); assert.equal(await save.evaluate(button => button.disabled), true); await capture('settings-failure'); }
           else { await check(page.getByText(/Assignments saved/)).toBeVisible(); await check(scenario === 'moved' ? elsewhere : save).toBeFocused(); assert.equal(writes[0].brain.output_tokens, 37); }
           if (scenario === 'retained') {
+            const notification = page.getByRole('complementary', { name: 'Settings notification', exact: true });
+            const dismiss = notification.getByRole('button', { name: 'Dismiss notification', exact: true });
+            await dismiss.focus();
             await capture('settings-models-assignments');
+            await check(dismiss).toBeFocused();
+            const targets = await dismiss.boundingBox(); assert.ok(targets.width >= 44 && targets.height >= 44);
+            await save.focus(); await check(save).toBeFocused();
+            await dismiss.click(); await check(notification).toHaveCount(0);
             await page.getByRole('button', { name: 'Add models', exact: true }).click(); await check(page.getByRole('region', { name: 'Add models wizard' })).toBeVisible();
             await capture('settings-connection');
             await page.getByRole('button', { name: 'Continue', exact: true }).click();
             await check(page.getByRole('button', { name: 'Add New/Model', exact: true })).toBeVisible();
             await capture('settings-model-results');
             await page.getByRole('button', { name: 'Add New/Model', exact: true }).click();
+            const wizard = page.getByRole('region', { name: 'Add models wizard', exact: true });
+            await wizard.getByText('Enter a model ID', { exact: true }).click();
+            await wizard.getByLabel('Exact model ID', { exact: true }).fill('manual/preview');
+            await wizard.getByRole('button', { name: 'Add model ID', exact: true }).click();
+            await wizard.getByRole('button', { name: 'Remove selected manual/preview', exact: true }).click();
+            await wizard.getByRole('button', { name: 'Back', exact: true }).click();
+            const provider = wizard.getByRole('combobox', { name: 'Provider', exact: true });
+            await check(provider).toBeVisible(); await check(wizard.getByText('Saved key', { exact: true })).toBeVisible();
+            assert.equal(await wizard.getByLabel('Provider', { exact: true }).count(), 0, 'Native label text includes select options; the exact accessible role name does not');
+            console.log(JSON.stringify({ scenario, boundary: 'SOURCE actual built App after Back', exactLabelCount: 0, exactRoleCount: await provider.count(), value: await provider.inputValue() }));
+            for (const escape of [false, true]) {
+              await provider.selectOption('orcarouter');
+              const change = wizard.getByRole('region', { name: 'Provider change confirmation', exact: true });
+              await check(change).toContainText('New/Model');
+              await change.getByRole('button', { name: 'Cancel', exact: true }).focus();
+              await page.keyboard.press(escape ? 'Escape' : 'Enter');
+              await check(provider).toBeFocused(); await check(provider).toHaveValue('openrouter');
+              await check(wizard.getByText('Saved key', { exact: true })).toBeVisible();
+            }
+            await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
+            await check(wizard.getByRole('list', { name: 'Selected models', exact: true })).toContainText('New/Model');
             await page.getByRole('button', { name: 'Continue', exact: true }).click();
             await check(page.getByRole('button', { name: 'Save models', exact: true })).toBeVisible();
             const modelToTest = page.getByRole('region', { name: 'Add models wizard' }).getByRole('combobox', { name: 'Model to test', exact: true });
             await check(modelToTest).toHaveCount(0);
-            await check(page.getByRole('region', { name: 'Add models wizard' }).getByText('New/Model', { exact: true, selector: 'small' })).toBeVisible();
+            await check(page.getByRole('region', { name: 'Add models wizard' }).locator('small').getByText('New/Model', { exact: true })).toBeVisible();
             await check(page.getByRole('checkbox', { name: 'I approve using this model.', exact: true })).not.toBeChecked();
             assert.equal(writes.length, 1);
             await capture('settings-review');

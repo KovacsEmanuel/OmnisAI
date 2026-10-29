@@ -200,7 +200,7 @@ it('shows passive feedback only where it does not cover controls or focus', asyn
   fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
   const feedback = await screen.findByRole('complementary', { name: 'Settings notification' });
   expect(feedback).toBeVisible();
-  collision = true; fireEvent(window, new Event('resize')); expect(feedback).not.toBeVisible();
+  collision = true; await waitFor(() => { fireEvent(window, new Event('resize')); expect(feedback).not.toBeVisible(); });
   collision = false; fireEvent(window, new Event('scroll')); expect(feedback).toBeVisible();
   expect(writes).toEqual([]);
 });

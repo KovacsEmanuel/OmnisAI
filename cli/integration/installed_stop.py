@@ -26,6 +26,15 @@ from omnis_cli.lifecycle import lifecycle_lock
 from omnis_cli.start_runtime import ControlRuntime
 
 
+def _upgrade_census_sql(table):
+    if re.fullmatch(r"[a-z_0-9]+", table) is None:
+        raise ValueError("Invalid census table")
+    row = "to_jsonb(t)"
+    if table == "provider_model_entry":
+        row += " - 'removed_registry_revision'"
+    return f"SELECT md5(coalesce(string_agg(({row})::text,',' ORDER BY ({row})::text),'')) FROM {table} t"
+
+
 def _lock_effect_snapshot(runtime, root, control, port, record):
     """Read the Stop lock boundary, including effects outside container state."""
     network_id = runtime.network(
@@ -399,7 +408,7 @@ def run_installed_stop(
                 assert re.fullmatch(r"[a-z_0-9]+", table)
                 census[table] = runtime.psql(
                     db,
-                    f"SELECT md5(coalesce(string_agg(to_jsonb(t)::text,',' ORDER BY to_jsonb(t)::text),'')) FROM {table} t",
+                    _upgrade_census_sql(table),
                 )
 
         runtime.deadline = time.monotonic() + 30
@@ -614,7 +623,7 @@ def run_installed_stop(
                     assert (
                         runtime.psql(
                             record["containers"]["db"],
-                            f"SELECT md5(coalesce(string_agg(to_jsonb(t)::text,',' ORDER BY to_jsonb(t)::text),'')) FROM {table} t",
+                            _upgrade_census_sql(table),
                         )
                         == expected
                     )
@@ -659,11 +668,18 @@ def run_installed_stop(
             assert runtime.receipt.image_id != receipt["image_id"]
             assert all((root / name).read_bytes() == value for name, value in vault_before.items())
             assert (data / "omnis/releases/0.1.0/release.json").is_file()
+            assert (
+                runtime.psql(
+                    upgraded_record["containers"]["db"],
+                    "SELECT count(*) FROM provider_model_entry WHERE removed_registry_revision IS NOT NULL",
+                )
+                == "0"
+            )
             for table, expected in census.items():
                 assert (
                     runtime.psql(
                         upgraded_record["containers"]["db"],
-                        f"SELECT md5(coalesce(string_agg(to_jsonb(t)::text,',' ORDER BY to_jsonb(t)::text),'')) FROM {table} t",
+                        _upgrade_census_sql(table),
                     )
                     == expected
                 )

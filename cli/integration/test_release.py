@@ -24,6 +24,17 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class ReleaseBundleTest(unittest.TestCase):
+    def test_upgrade_census_normalizes_only_new_model_removal_field(self):
+        from installed_stop import _upgrade_census_sql
+
+        model = _upgrade_census_sql("provider_model_entry")
+        self.assertEqual(model.count("to_jsonb(t) - 'removed_registry_revision'"), 2)
+        history = _upgrade_census_sql("model_record_v2")
+        self.assertNotIn("removed_registry_revision", history)
+        self.assertEqual(history.count("(to_jsonb(t))::text"), 2)
+        with self.assertRaises(ValueError):
+            _upgrade_census_sql("model_record_v2; DROP TABLE model_record_v2")
+
     def test_t1_upgrade_preflight_refuses_missing_inputs_before_daemon(self):
         from installed_stop import upgrade_preflight
 

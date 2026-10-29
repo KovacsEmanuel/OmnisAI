@@ -27,10 +27,10 @@ function operation(id: string, target: ModelEntry): EntryTestView { return {
   system_message: 'Respond only with OMNIS_MODEL_TEST_OK. Use no tools.', user_message: 'This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.', calls_limit: 1, wall_seconds: 300,
   entry_id: target.entry_id, entry_revision: target.revision, connection_id: target.connection_id, connection_revision: target.connection_revision, current: true,
 }; }
-it('expands the model row with native keyboard, real saved details and no test or redundant disclosure action', async () => {
+it.each(['known', 'unknown', 'partial-zero'] as const)('expands a minimal %s usage capsule with native keyboard and no repeated success or diagnostics', async usage => {
   const user = userEvent.setup();
   const { state, hook } = settingsBackend();
-  const saved = { ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', finish_reason: 'COMPLETED', result_state: 'COMPLETED', response_text: 'OMNIS_MODEL_TEST_OK', observed_model: 'Exact/Observed', usage_state: 'KNOWN', input_tokens: 12, output_tokens: 7, reasoning_tokens: 0, cost_observed: '0.001' };
+  const saved = { ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', finish_reason: 'COMPLETED', result_state: 'COMPLETED', response_text: 'OMNIS_MODEL_TEST_OK', observed_model: entry.model, usage_state: usage === 'known' ? 'KNOWN' : usage === 'unknown' ? 'UNKNOWN' : 'PARTIAL', input_tokens: usage === 'known' ? 12 : usage === 'partial-zero' ? 0 : null, output_tokens: usage === 'known' ? 7 : null, reasoning_tokens: 0, cost_observed: usage === 'known' ? '0.001' : null };
   hook.intercept = path => path.includes('/entries/latest/') ? Response.json(saved) : undefined;
   mount();
   const toggle = await screen.findByRole('button', { name: 'Details for Exact/Model via OpenRouter' });
@@ -43,16 +43,41 @@ it('expands the model row with native keyboard, real saved details and no test o
   toggle.focus(); await user.keyboard('{Enter}');
   expect(toggle).toHaveFocus(); expect(toggle).toHaveAttribute('aria-expanded', 'true');
   expect(details).toBeVisible();
-  expect(within(details).getByLabelText('Model response')).toHaveTextContent('OMNIS_MODEL_TEST_OK');
-  expect(details).toHaveTextContent('Requested model: Exact/Model'); expect(details).toHaveTextContent('Observed model: Exact/Observed');
-  expect(details).toHaveTextContent('Input tokens: 12'); expect(details).toHaveTextContent('Output tokens: 7'); expect(details).toHaveTextContent('Cost: 0.001');
-  const diagnostics = within(details).getByText('Operation details').closest('details');
-  expect(diagnostics).not.toHaveAttribute('open'); expect(within(details).getByText(`Operation ${saved.operation_id}`)).not.toBeVisible();
+  const metrics = within(details).getByLabelText('Test usage');
+  expect(within(metrics).getAllByRole('term').map(node => node.textContent)).toEqual(['Input', 'Output', 'Cost']);
+  expect(within(metrics).getAllByRole('definition').map(node => node.textContent)).toEqual(usage === 'known' ? ['12', '7', '0.001'] : usage === 'unknown' ? ['Unknown', 'Unknown', 'Unknown'] : ['0', 'Unknown', 'Unknown']);
+  expect(details).not.toHaveTextContent(/Test completed|Requested model|Observed model|OMNIS_MODEL_TEST_OK|FINISHED|COMPLETED|revision|\$|€/);
+  expect(modelRow(entry.model)).not.toHaveTextContent(saved.operation_id!);
+  expect(screen.queryByText('Operation details')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Model response')).not.toBeInTheDocument();
+  expect(within(modelRow(entry.model)).queryByRole('button', { name: 'Read test status' })).not.toBeInTheDocument();
+  if (usage === 'partial-zero') expect(screen.getByText('Usage is incomplete.')).toBeVisible();
   await user.keyboard(' '); expect(toggle).toHaveAttribute('aria-expanded', 'false');
   expect(state.reads).toEqual(reads); expect(state.writes).toEqual([]);
   await user.tab(); expect(screen.getByRole('button', { name: 'Test Exact/Model via OpenRouter' })).toHaveFocus();
   await user.keyboard('{Enter}'); expect(screen.getByRole('region', { name: 'Test consent' })).toBeVisible();
   expect(toggle).toHaveAttribute('aria-expanded', 'false'); expect(state.writes).toEqual([]);
+});
+it.each(['failed', 'incomplete', 'mismatch', 'stale', 'truncated'] as const)('keeps actionable %s context visible with usage closed', async kind => {
+  const { state, hook } = settingsBackend();
+  const saved: EntryTestView = { ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', result_state: kind === 'failed' ? 'FAILED' : kind === 'incomplete' ? 'INCOMPLETE' : 'COMPLETED', finish_reason: kind === 'failed' || kind === 'incomplete' ? 'FAILED' : 'COMPLETED', current: kind !== 'stale', observed_model: kind === 'mismatch' ? '<different/model>' : entry.model, output_state: kind === 'truncated' || kind === 'incomplete' ? 'TRUNCATED' : 'COMPLETE' };
+  hook.intercept = path => path.includes('/entries/latest/') ? Response.json(saved) : path.endsWith(saved.operation_id!) ? Response.json(saved) : undefined;
+  mount();
+  const row = await screen.findByRole('listitem', { name: 'Model Exact/Model via OpenRouter' });
+  const toggle = within(row).getByRole('button', { name: 'Details for Exact/Model via OpenRouter' });
+  expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  expect(document.getElementById(toggle.getAttribute('aria-controls')!)).not.toBeVisible();
+  const context = kind === 'failed' ? 'Test did not complete successfully. Read the saved result before testing again.' : kind === 'incomplete' ? 'Test incomplete. Read the saved result before testing again.' : kind === 'mismatch' ? /Model mismatch/ : kind === 'stale' ? 'This saved result does not match the current model settings.' : 'Response truncated.';
+  expect(within(row).getByText(context)).toBeVisible();
+  expect(row).not.toHaveTextContent(saved.operation_id!);
+  if (kind === 'mismatch') { expect(within(row).getByText(/Model mismatch/)).toHaveTextContent('Requested: Exact/Model · OpenRouter. Observed: <different/model>.'); expect(row.querySelector('different')).toBeNull(); }
+  fireEvent.click(toggle);
+  if (kind !== 'truncated') {
+    const before = state.reads.length;
+    fireEvent.click(within(row).getByRole('button', { name: 'Read test status' }));
+    await waitFor(() => expect(state.reads.slice(before)).toContain('/api/v1/model-test/entries/' + saved.operation_id));
+  }
+  expect(state.writes).toEqual([]);
 });
 it.each(['FAILED', 'UNKNOWN', 'RUNNING', 'stale', 'missing', 'unavailable'] as const)('never resurrects an older stored green result when latest is %s', async status => {
   const { hook, state } = settingsBackend();
@@ -437,7 +462,7 @@ it.each([false, true])('manual read uncertainty=%s stops only unsent checks unti
       views.set(next.entry_id, next); return Response.json(next);
     }
   };
-  mount(); await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
+  const scope = await sessionScope(session.csrf_token), { client } = mount(); await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
   fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
   await waitFor(() => expect(reads).toBeGreaterThan(0)); expect(views.size).toBe(1);
   const first = [...views.values()][0]!;
@@ -448,8 +473,9 @@ it.each([false, true])('manual read uncertainty=%s stops only unsent checks unti
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(uncertain ? 1 : 2);
   if (uncertain) {
     const panel = modelRow('Catalog/00'), list = screen.getByRole('region', { name: 'Configured models' });
-    await waitFor(() => expect(panel).toHaveTextContent('FINISHED · COMPLETED'));
-    expect(panel).toHaveTextContent(`Operation ${first.operation_id}`);
+    await waitFor(() => expect(client.getQueryData(['private', 'settings-entry-test', scope, first.operation_id])).toMatchObject({ operation_id: first.operation_id, state: 'FINISHED', result_state: 'COMPLETED' }));
+    expect(state.reads).toContain('/api/v1/model-test/entries/' + first.operation_id);
+    expect(panel).not.toHaveTextContent(first.operation_id!);
     expect(within(panel).getByText('UNKNOWN — keep the same operation ID. No test was resent.')).toBeVisible();
     expect(within(list).getByText('Unconfirmed')).toBeVisible(); expect(within(list).queryByText('Connected')).not.toBeInTheDocument();
     expect(screen.queryByText('Models connected.')).not.toBeInTheDocument();
@@ -561,7 +587,7 @@ it.each(['sequence', 'single', 'pending', 'hydrated'] as const)('expands history
       return Response.json(active);
     }
   };
-  mount(); await screen.findByRole('region', { name: 'Configured models' });
+  const scope = await sessionScope(session.csrf_token), { client } = mount(); await screen.findByRole('region', { name: 'Configured models' });
   if (mode === 'sequence') {
     await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
     fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
@@ -585,20 +611,23 @@ it.each(['sequence', 'single', 'pending', 'hydrated'] as const)('expands history
   if (history.getAttribute('aria-expanded') !== 'true') fireEvent.click(history);
   const historicalRead = within(modelRow('Exact/Model')).getByRole('button', { name: 'Read test status' }); expect(historicalRead).toBeDisabled(); fireEvent.click(historicalRead);
   fireEvent.click(within(panel).getByRole('button', { name: 'Read test status' }));
-  await waitFor(() => expect(panel).toHaveTextContent(`Operation ${id}`));
-  expect(history).toBeEnabled(); expect(panel).toHaveTextContent('RUNNING');
+  await waitFor(() => expect(state.reads.slice(before)).toContain('/api/v1/model-test/entries/' + id));
+  expect(history).toBeEnabled(); expect(panel).toHaveTextContent('Connecting');
+  await waitFor(() => expect(client.getQueryData(['private', 'settings-entry-test', scope, id])).toMatchObject({ operation_id: id, state: 'RUNNING' }));
   const read = within(panel).getByRole('button', { name: 'Read test status' }); expect(read).toBeEnabled(); fireEvent.click(read);
   await waitFor(() => expect(state.reads.slice(before)).toContain('/api/v1/model-test/entries/' + id));
   expect(state.reads.slice(before)).not.toContain('/api/v1/model-test/entries/' + old.operation_id);
   const cancel = within(panel).getByRole('button', { name: 'Cancel test' }); expect(cancel).toBeEnabled(); fireEvent.click(cancel);
   await waitFor(() => expect(state.writes.filter(item => item.path.endsWith('/cancel'))).toEqual([{ path: `/api/v1/model-test/entries/${id}/cancel`, body: expect.objectContaining({ expected_state_revision: 2 }) }]));
-  await waitFor(() => expect(panel).toHaveTextContent('FINISHED · NOT_SENT'));
+  await waitFor(() => expect(client.getQueryData(['private', 'settings-entry-test', scope, id])).toMatchObject({ operation_id: id, state: 'FINISHED', result_state: 'NOT_SENT' }));
+  expect(within(panel).getByText('Test cancelled. Read the saved result before testing again.')).toBeVisible();
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(mode === 'hydrated' ? 0 : 1);
   expect(active!.operation_id).toBe(id); expect(state.keys.selection).toBeNull();
   await waitFor(() => expect(historicalRead).toBeEnabled()); fireEvent.click(historicalRead);
   await waitFor(() => expect(state.reads).toContain('/api/v1/model-test/entries/' + old.operation_id));
-  expect(modelRow('Exact/Model')).toHaveTextContent(`Operation ${old.operation_id}`);
-  expect(modelRow('Exact/Model')).toHaveTextContent('FINISHED · COMPLETED');
+  expect(modelRow('Exact/Model')).not.toHaveTextContent(old.operation_id!);
+  await waitFor(() => expect(client.getQueryData(['private', 'settings-entry-test', scope, old.operation_id])).toMatchObject({ operation_id: old.operation_id, state: 'FINISHED', result_state: 'COMPLETED' }));
+  expect(within(modelRow('Exact/Model')).getByText('Test passed · model details unavailable')).toBeVisible();
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(mode === 'hydrated' ? 0 : 1);
 });
 it.each(['remembered-completed', 'fresh-unknown-first', 'remembered-unknown'] as const)('recovers the actual active check with %s history', async mode => {
@@ -613,11 +642,13 @@ it.each(['remembered-completed', 'fresh-unknown-first', 'remembered-unknown'] as
       return Response.json(active);
     }
   };
-  if (mode !== 'fresh-unknown-first') remember(testStorage, await sessionScope(session.csrf_token), old.operation_id!);
-  mount(); await screen.findByRole('region', { name: 'Configured models' });
+  const scope = await sessionScope(session.csrf_token);
+  if (mode !== 'fresh-unknown-first') remember(testStorage, scope, old.operation_id!);
+  const { client } = mount(); await screen.findByRole('region', { name: 'Configured models' });
   const row = modelRow(target.model), cancel = await within(row).findByRole('button', { name: 'Cancel test' }); expect(cancel).toBeEnabled();
   fireEvent.click(screen.getByRole('button', { name: 'Details for Exact/Model via OpenRouter' }));
-  expect(modelRow(entry.model)).toHaveTextContent(`FINISHED · ${old.result_state}`);
+  expect(client.getQueryData(['private', 'settings-model-library', scope])).toMatchObject({ checks: { [entry.entry_id]: { operation_id: old.operation_id, state: 'FINISHED', result_state: old.result_state } } });
+  expect(within(modelRow(entry.model)).getByText(old.result_state === 'COMPLETED' ? 'Test passed · model details unavailable' : 'Unconfirmed')).toBeVisible();
   expect(within(modelRow(entry.model)).getByRole('button', { name: 'Read test status' })).toBeDisabled();
   const before = state.reads.length;
   fireEvent.click(within(row).getByRole('button', { name: 'Read test status' }));
@@ -625,7 +656,8 @@ it.each(['remembered-completed', 'fresh-unknown-first', 'remembered-unknown'] as
   expect(state.reads.slice(before)).not.toContain('/api/v1/model-test/entries/' + old.operation_id); expect(state.writes).toEqual([]);
   fireEvent.click(cancel);
   await waitFor(() => expect(state.writes).toEqual([{ path: `/api/v1/model-test/entries/${active.operation_id}/cancel`, body: expect.objectContaining({ expected_state_revision: 2 }) }]));
-  await waitFor(() => expect(row).toHaveTextContent('FINISHED · NOT_SENT'));
+  await waitFor(() => expect(client.getQueryData(['private', 'settings-entry-test', scope, active.operation_id])).toMatchObject({ operation_id: active.operation_id, state: 'FINISHED', result_state: 'NOT_SENT' }));
+  expect(within(row).getByText('Test cancelled. Read the saved result before testing again.')).toBeVisible();
 });
 it.each(['FINISHED', 'NEEDS_RECONCILIATION'] as const)('remote UNKNOWN with local %s preserves history and requires fresh consent after readback', async status => {
   const old: EntryTestView = { ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: status, state_revision: 3, result_state: 'UNKNOWN', finish_reason: status === 'FINISHED' ? 'OWNER_LOST' : null };
@@ -634,11 +666,12 @@ it.each(['FINISHED', 'NEEDS_RECONCILIATION'] as const)('remote UNKNOWN with loca
     if (path === '/api/v1/model-test/entries' && method === 'PUT') return Response.json(operation(String(body.operation_id), entry));
     if (path.includes('/model-test/entries/')) return Response.json(old);
   };
-  mount(); const row = await screen.findByRole('listitem', { name: 'Model Exact/Model via OpenRouter' });
+  const scope = await sessionScope(session.csrf_token), { client } = mount(); const row = await screen.findByRole('listitem', { name: 'Model Exact/Model via OpenRouter' });
   const read = await within(row).findByRole('button', { name: 'Read test status' }), before = state.reads.filter(path => path.endsWith(old.operation_id!)).length;
   fireEvent.click(read);
   await waitFor(() => expect(state.reads.filter(path => path.endsWith(old.operation_id!)).length).toBeGreaterThan(before));
-  expect(row).toHaveTextContent(`${status} · UNKNOWN`); expect(state.writes).toEqual([]);
+  await waitFor(() => expect(client.getQueryData(['private', 'settings-entry-test', scope, old.operation_id])).toMatchObject({ operation_id: old.operation_id, state: status, result_state: 'UNKNOWN' }));
+  expect(row).not.toHaveTextContent(old.operation_id!); expect(state.writes).toEqual([]);
   expect(within(row).getByText('Unconfirmed')).toBeVisible();
   if (status === 'NEEDS_RECONCILIATION') {
     expect(within(row).queryByRole('button', { name: 'Test Exact/Model via OpenRouter' })).not.toBeInTheDocument();
@@ -648,7 +681,7 @@ it.each(['FINISHED', 'NEEDS_RECONCILIATION'] as const)('remote UNKNOWN with loca
   expect(within(row).queryByRole('button', { name: 'Cancel test' })).not.toBeInTheDocument();
   const test = await within(row).findByRole('button', { name: 'Test Exact/Model via OpenRouter' }); expect(test).toBeEnabled(); fireEvent.click(test);
   expect(screen.getByRole('checkbox')).not.toBeChecked(); expect(screen.getByRole('button', { name: 'Send model test' })).toBeDisabled();
-  expect(state.writes).toEqual([]); expect(row).toHaveTextContent('FINISHED · UNKNOWN');
+  expect(state.writes).toEqual([]); expect(within(row).getByText('Remote outcome remains unknown.')).toBeVisible();
   fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Send model test' }));
   await waitFor(() => expect(state.writes).toEqual([{ path: '/api/v1/model-test/entries', body: expect.objectContaining({ entry_id: entryId, expected_generation: 1, consent: true }) }]));
   expect(state.writes[0]!.body.operation_id).not.toBe(old.operation_id);
@@ -661,6 +694,7 @@ it.each(['RUNNING', 'UNKNOWN'] as const)('preserves receive-only recovery for an
   remember(testStorage, await sessionScope(session.csrf_token), view.operation_id!); mount();
   const result = await screen.findByText(/Orphan\/Model/); expect(result).toBeVisible();
   const recovery = screen.getByRole('region', { name: 'Unconfirmed model check' });
+  expect(recovery).not.toHaveTextContent(view.operation_id!); expect(screen.queryByText('Operation details')).not.toBeInTheDocument();
   if (status === 'UNKNOWN') expect(within(recovery).queryByRole('button', { name: 'Cancel test' })).not.toBeInTheDocument();
   const before = state.reads.length; fireEvent.click(within(recovery).getByRole('button', { name: 'Read test status' }));
   await waitFor(() => expect(state.reads.slice(before)).toContain('/api/v1/model-test/entries/' + view.operation_id));
@@ -676,11 +710,11 @@ it('UNKNOWN entry admission keeps the same operation and cannot start a fresh te
   await screen.findByText(/Test outcome unconfirmed/); fireEvent.click(screen.getByRole('button', { name: 'Read test status' })); await waitFor(() => expect(state.reads).toContain('/api/v1/model-test/entries/' + id));
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1); expect(screen.getByRole('button', { name: 'Cancel test' })).toBeEnabled();
 });
-it.each(['RUNNING', 'FINISHED', 'NEEDS_RECONCILIATION'] as const)('keeps %s test identity and recovery visible with diagnostics collapsed', async status => {
+it.each(['RUNNING', 'FINISHED', 'NEEDS_RECONCILIATION'] as const)('keeps %s recovery separate from the usage capsule and exact operation identity internal', async status => {
   const { state, hook } = settingsBackend(); let view: EntryTestView | undefined;
   hook.intercept = (path, body, method) => {
     if (path === '/api/v1/model-test/entries' && method === 'PUT') {
-      view = { ...operation(String(body.operation_id), entry), state: status, result_state: status === 'FINISHED' ? 'COMPLETED' : 'UNKNOWN', response_text: status === 'FINISHED' ? 'OMNIS_MODEL_TEST_OK' : null };
+      view = { ...operation(String(body.operation_id), entry), state: status, result_state: status === 'FINISHED' ? 'COMPLETED' : status === 'RUNNING' ? null : 'UNKNOWN', finish_reason: status === 'FINISHED' ? 'COMPLETED' : null, observed_model: status === 'FINISHED' ? entry.model : null, response_text: status === 'FINISHED' ? 'OMNIS_MODEL_TEST_OK' : null };
       return Response.json(view);
     }
     if (path.startsWith('/api/v1/model-test/entries/')) return Response.json(view);
@@ -688,14 +722,13 @@ it.each(['RUNNING', 'FINISHED', 'NEEDS_RECONCILIATION'] as const)('keeps %s test
   mount(); fireEvent.click(await screen.findByRole('button', { name: 'Test Exact/Model via OpenRouter' }));
   fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Send model test' }));
   const panel = modelRow('Exact/Model');
-  await waitFor(() => expect(panel).toHaveTextContent(status));
+  await within(panel).findByText(status === 'FINISHED' ? 'Connected' : status === 'RUNNING' ? 'Connecting' : 'Unconfirmed');
   const toggle = within(panel).getByRole('button', { name: 'Details for Exact/Model via OpenRouter' });
   expect(toggle).toHaveAttribute('aria-expanded', 'false');
   if (status !== 'FINISHED') expect(within(panel).getByRole('button', { name: 'Read test status' })).toBeVisible();
   fireEvent.click(toggle);
-  const id = within(panel).getByText(`Operation ${view!.operation_id}`);
-  const details = within(panel).getByText('Operation details').closest('details');
-  expect(details).not.toHaveAttribute('open'); expect(id).not.toBeVisible();
+  expect(screen.queryByText('Operation details')).not.toBeInTheDocument(); expect(panel).not.toHaveTextContent(view!.operation_id!);
+  expect(within(panel).getByLabelText('Test usage')).toBeVisible();
   if (status === 'FINISHED') {
     expect(within(panel).queryByRole('button', { name: 'Cancel test' })).not.toBeInTheDocument();
     expect(within(panel).queryByText(/Cancel does not guarantee/)).not.toBeInTheDocument();
@@ -703,10 +736,9 @@ it.each(['RUNNING', 'FINISHED', 'NEEDS_RECONCILIATION'] as const)('keeps %s test
     expect(within(panel).getByRole('button', { name: 'Cancel test' })).toBeEnabled();
     expect(within(panel).getByText('Cancel does not guarantee remote cancellation or a refund.')).toBeVisible();
   }
-  fireEvent.click(within(panel).getByText('Operation details')); expect(id).toBeVisible();
-  if (status === 'FINISHED') expect(within(panel).getByLabelText('Model response')).toHaveTextContent('OMNIS_MODEL_TEST_OK');
-  fireEvent.click(within(panel).getByText('Operation details')); expect(id).not.toBeVisible();
-  fireEvent.click(within(panel).getByRole('button', { name: 'Read test status' }));
+  fireEvent.click(toggle);
+  expect(within(panel).queryByLabelText('Model response')).not.toBeInTheDocument();
+  if (status !== 'FINISHED') fireEvent.click(within(panel).getByRole('button', { name: 'Read test status' }));
   await waitFor(() => expect(state.reads).toContain('/api/v1/model-test/entries/' + view!.operation_id));
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
 });

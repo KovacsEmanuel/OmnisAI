@@ -25,10 +25,12 @@
 .workspace .modelToggle { display: flex; flex: 1; flex-wrap: wrap; align-items: center; gap: 8px 12px; min-width: 0; padding: 10px 4px; text-align: left; background: transparent; border-color: transparent; border-radius: var(--radius-sm); box-shadow: none; font-weight: 400; }
 .modelToggle:hover, .modelToggle[aria-expanded=true] { background: var(--color-elevated); }
 .modelRow > button:not(.modelToggle) { flex-shrink: 0; }
-.modelDetails { padding: 4px 4px 16px; font-size: 13px; overflow-wrap: anywhere; }
+.modelDetails { width: fit-content; max-width: 100%; margin: 4px 0 12px; padding: 10px 16px; border: 1px solid var(--surface-hairline); border-radius: var(--radius-lg); background: var(--color-elevated); font-size: 13px; overflow-wrap: anywhere; }
 .modelDetails[hidden] { display: none; }
-.response { white-space: pre-wrap; max-height: 240px; overflow: auto; }
-.usage { display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--color-secondary); }
+.usage { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0; }
+.usage > div { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.usage dt { color: var(--color-secondary); }
+.usage dd { margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .review .row { padding-block: 12px; }
 .identity { min-width: 0; flex: 1 1 240px; overflow-wrap: anywhere; }
 .identity strong { font-weight: 500; }

@@ -1,0 +1,91 @@
+{
+  "reviewer": "independent reviewer 2 focused re-review",
+  "verdict": "APPROVED_SOURCE_SCOPED_COMPOSED",
+  "snapshot": {
+    "requested_product_head": "ca33c1a86b5cf34a054dc837965f0957b458a1f6",
+    "finding_base": "a488b2611b96fbb6edc4d4c4bbd0c2de21a45b90",
+    "finding_fix": "97350b5",
+    "composed_followup": "ca33c1a",
+    "head_at_readback": "fdcdf8f15244f125057072a3b6f6a49397db4aa0",
+    "head_drift_disposition": "fdcdf8f only adds documents/verification/settings-c-evidence/finalization-controls-review.json. git diff --exit-code ca33c1a..HEAD -- web returned 0; reviewed product bytes remain exact ca33c1a. No review of that new report was needed to transfer unchanged product identity.",
+    "tracked_index_worktree": "clean before and after; protected untracked tempkey.txt and documents/Omnis_Notite_Originale.html never opened or modified",
+    "reviewed_blobs": {
+      "web/src/features/engagement/SettingsModelsPage.tsx": "c77504541d76e5c43344d624b7bcae55f726156c",
+      "web/src/features/engagement/SettingsModelWizard.tsx": "d6a0cfc882dea2994129820bdb020b17f9e9e1c8",
+      "web/src/app/SettingsWizard.test.tsx": "f393432c215df63dde1ea7f8c6faea7034e04255"
+    },
+    "reviewed_source_sha256": {
+      "web/src/features/engagement/SettingsModelsPage.tsx": "58b102046596e94b2a48aacd5fa358680aa32df4d46693654436807938a7fcef",
+      "web/src/features/engagement/SettingsModelWizard.tsx": "34104f76b67cc098df5bf4bc2bc0cbda87d4523a826c318ca1d023e029eb5860",
+      "web/src/app/SettingsWizard.test.tsx": "a791f909c0efc23e1c6e087393ae27bb499b5456ddd2aff2bc93a382dd33ba18"
+    }
+  },
+  "admission": "Close or retain HIGH R2-ACTIVE-UNKNOWN-01 through the existing App -> SettingsModelsPage -> unchanged API client/decoder, keeping exact active Cancel/readback, UNKNOWN history, new explicit consent and existing pending/reconciliation fences. Check the composed catalog-owner change only for affected lifecycle, pinned generation, revoke and close paths. SOURCE fixtures only; no broad audit or runtime effects.",
+  "finding_dispositions": [
+    {
+      "id": "R2-ACTIVE-UNKNOWN-01",
+      "original_severity": "HIGH / P1",
+      "disposition": "CLOSED_CURRENT_SOURCE_SCOPED",
+      "reason": "SettingsModelsPage:94 no longer treats remote result_state UNKNOWN alone as a pending local operation, and :101 selects only nonterminal latest projections. FINISHED/UNKNOWN history therefore cannot monopolize fresh hydration or a remembered confirmed terminal selection. Unobserved admission, nonterminal state, testUnknown and test.isError remain fenced; connecting/sending still prevent selection replacement. UNKNOWN remains visible and receive-only at :359-376 and orphan recovery :329-334.",
+      "independent_current_evidence": "Existing permanent SettingsWizard.test.tsx:604-628 passes remembered-completed, fresh-unknown-first and remembered-unknown. In all three, historical disclosure preserves A, its Read is disabled during B, explicit Read calls /entries/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb without reading old A after the action, zero writes precede Cancel, and exactly one /entries/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb/cancel is sent with expected_state_revision 2; readback displays FINISHED/NOT_SENT. The pending/sequence/single/hydrated controls at :544-603 also pass.",
+      "original_evidence_retained": "The original report still records the valid a488b26 2 FAIL / 1 PASS reproducer and remains CHANGES_REQUESTED at that historical snapshot. Neither original spec, config nor report was edited. The unchanged original spec on final bytes is 1 FAIL / 2 PASS, exit1, not 3 PASS.",
+      "fresh_case_precondition_adjudication": "Independently confirmed overfit at original review2.test.tsx:40. Fresh-unknown-first waits for GET /entries/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa before reaching its actual Cancel assertions. Current code reads both persisted latest-entry projections, validates them through the real decoder, and hydrates B directly; no canonical requirement demands a separate by-operation GET of terminal A. The original failure DOM already contains enabled B Cancel and B Read while A remains UNKNOWN. Permanent fresh-unknown-first then exercises B Read and exact Cancel rather than asserting the obsolete A-selection implementation. This adjudication preserves the FAIL and closes only the original product finding, not the original test execution result."
+    }
+  ],
+  "new_findings": [],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Actual active operation outranks confirmed terminal UNKNOWN without redirecting active Read/Cancel to inspected history",
+      "code": "SettingsModelsPage.tsx:86-106,237-261,356-388,423-426; client.ts:83-102; modelTest.ts:49-63",
+      "evidence": "3 actual-active recovery cases plus 4 history/active identity controls PASS. Real client pins operation ID in both read/cancel path and decoded reply; expected_state_revision remains taken from the selected observed operation."
+    },
+    {
+      "requirement": "FINISHED/UNKNOWN retained, no automatic resend; genuinely unresolved/reconciliation state remains fenced; new Test requires new consent",
+      "code": "SettingsModelsPage.tsx:94-95,218-261,329-334,359-376,410",
+      "evidence": "FINISHED and NEEDS_RECONCILIATION UNKNOWN controls PASS at SettingsWizard.test.tsx:630-655. FINISHED keeps Unconfirmed/history and zero writes until a fresh unchecked checkbox is explicitly approved; new operation ID differs from old and expected_generation remains 1. NEEDS_RECONCILIATION has enabled Cancel and no new Test. Both orphan receive-only cases and UNKNOWN lost-admission recovery PASS."
+    },
+    {
+      "requirement": "No consent rebase across lifecycle generation; UNKNOWN/read failure/Cancel/Stop cannot resume unsent continuation",
+      "code": "SettingsModelsPage.tsx:218-235,237-253,263-312,410; SettingsModelWizard.tsx:79,104-111,139-146",
+      "evidence": "Before-first, between-models and unchanged generation controls PASS; delayed single/review consent read controls PASS. Manual read uncertainty false/true, sequence UNKNOWN/read-lost/cancel/stop and four Save receipt cancellation/unmount/mismatch controls PASS. SOURCE admission doubles are not real Stop/provider/ledger evidence."
+    },
+    {
+      "requirement": "Composed catalog-owner change does not reintroduce lifecycle/consent/revoke/close regression",
+      "code": "SettingsModelsPage.tsx:30,82-83,142-145,190-216,337-343,348-349,393-405; SettingsModelWizard.tsx:16-18,44-58,67-94,104-114",
+      "evidence": "Only existing SettingsModelsPage calls SettingsModelWizard. Provider and pinned connection move together without changing wizard.id; provider change clears consent/selection metadata. Post-await key path retains alive guard; close/unmount retain wizardGeneration/lifetime fences; revoke compares the now-current provider. Existing StrictMode key->catalog->save, refused provider change, both connection/revision catalog controls, disable-open-wizard and cancel-in-flight-key-save tests PASS. Catalog lost-reply close and five local catalog readback/receipt-fence controls PASS. R1-F02's full contextual/error disposition remains reviewer1's responsibility, not a new global approval here."
+    }
+  ],
+  "executions": [
+    {
+      "kind": "UNCHANGED_ORIGINAL_REPRO_SOURCE",
+      "command": "NODE_ENV=test /home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node /home/kali/OmnisAI/web/node_modules/vitest/vitest.mjs run --config /home/kali/.hermes/cache/scratch/settings-review2-a488b26/vitest.config.ts --no-cache --reporter=verbose",
+      "cwd": "/home/kali/OmnisAI/web",
+      "exit_code": 1,
+      "result": "1 failed | 2 passed (3); 4.62s total; fresh case failed only at original line40 old-A GET wait",
+      "log": "/home/kali/.hermes/cache/scratch/settings-r2-rereview-ca33c1a/original-repro-final.log",
+      "original_spec": "/home/kali/.hermes/cache/scratch/settings-review2-a488b26/review2.test.tsx",
+      "original_spec_sha256": "f0391453f2313f5fc2fee165f054eb323467e77a787f8a1556ecb579f7fffb85",
+      "original_config_sha256": "f1f9d2de4c7ffd8b0edfaf296196a823c16f99e69175f2aa5d014191a1764381",
+      "original_report_sha256": "672d1cdf6f7e6412096225c5d6af6011e8b300c85f6f6eeca5b2a57b540dfdc1",
+      "preservation": "All three original input hashes matched before/after. --no-cache avoided test cache writes; original reports/spec/config left intact."
+    },
+    {
+      "kind": "FOCUSED_PERMANENT_SOURCE_REGRESSIONS",
+      "exact_argv_record": "/home/kali/.hermes/cache/scratch/settings-r2-rereview-ca33c1a/focused-run.json",
+      "command_summary": "NODE_ENV=test pinned Node -> installed Vitest run --config web/vitest.config.ts src/app/SettingsWizard.test.tsx src/app/ProviderKeySettings.test.tsx -t <recorded lifecycle/catalog-owner filter> --no-cache --reporter=verbose --reporter=json --outputFile.json=<scratch>/focused-tests.json",
+      "cwd": "/home/kali/OmnisAI/web",
+      "exit_code": 0,
+      "result": "39 passed | 65 skipped by explicit -t selection (104 collected); 2 files passed; 27.38s total",
+      "count_verification": "JSON assertionResults aggregated programmatically: passed39, skipped65; total104, failed0, success=true agree with declared totals.",
+      "log": "/home/kali/.hermes/cache/scratch/settings-r2-rereview-ca33c1a/focused-tests.log",
+      "json": "/home/kali/.hermes/cache/scratch/settings-r2-rereview-ca33c1a/focused-tests.json"
+    }
+  ],
+  "files_and_cleanup": "No repository, skill, source/test/config/original evidence edits, no commits or push. No new spec/harness/dependency needed: permanent requirement-oriented regressions exercised exact B Read/Cancel. Created only this scratch report, original-input hash record, two invocation records, two logs and Vitest JSON under settings-r2-rereview-ca33c1a. Test fixtures unmount through existing setup (original spec also clears its own QueryClient); all test commands completed in foreground.",
+  "limits": [
+    "Approval is only the named HIGH R2 closure and composed affected source lifecycle/consent/close/revoke scope on exact ca33c1a product bytes. Parent adjudication/integration and R1 complementary disposition remain separate.",
+    "No broad web/backend audit, full-suite rerun, canonical, lint/typecheck rerun, build or web/dist write. Parent-supplied full/affected evidence remains scoped at its own execution, not independently rerun or converted into runtime PASS.",
+    "No real browser/visual/API/PostgreSQL/native/provider/model/service/operator effects, credentials, environment dump, protected-file content access, target traffic or T2. Runtime QA/build/visual acceptance remain NOT_RUN by this review; upstream metadata/supervisor causes not diagnosed.",
+    "Reticle NOT_INTEGRATED; Chisel BLOCKED_NO_GO."
+  ]
+}

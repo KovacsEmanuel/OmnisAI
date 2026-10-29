@@ -382,6 +382,15 @@ AUTHORITY_TABLES.update(MODEL_TABLES)
 
 
 async def authority_schema_matches(connection: AsyncConnection) -> bool:
+    return await _authority_schema_matches(connection, previous=False)
+
+
+async def schema0016_matches(connection: AsyncConnection) -> bool:
+    """Migration-only physical predecessor; never used by API readiness."""
+    return await _authority_schema_matches(connection, previous=True)
+
+
+async def _authority_schema_matches(connection: AsyncConnection, *, previous: bool) -> bool:
     # Physical identity is required only for the new extension and its FK root;
     # historical authority contracts below remain unchanged. Never resolve the
     # extension again through the caller's search_path after this OID lookup.
@@ -417,6 +426,25 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
     root_oid = physical_oids["managed_record"]
     quote_identifier = PGIdentifierPreparer(connection.dialect).quote
     for table, (expected_columns, expected_constraints) in AUTHORITY_TABLES.items():
+        if previous and table == "provider_model_entry":
+            expected_columns = {
+                key: value
+                for key, value in expected_columns.items()
+                if key != "removed_registry_revision"
+            }
+            expected_constraints = {
+                row
+                for row in expected_constraints
+                if row[0] != "provider_model_removed_registry_fk"
+            } | {
+                (
+                    "provider_model_entry_instance_id_connection_id_model_key",
+                    "u",
+                    "UNIQUE (instance_id, connection_id, model)",
+                    True,
+                    True,
+                )
+            }
         mission = table == "managed_mission_revision"
         owned = mission or table in MODEL_TABLES
         catalog = "pg_catalog." if owned else ""
@@ -486,12 +514,18 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
             {"table": physical_oids["provider_model_entry"]},
         )
     ).one_or_none()
-    if available_index is None or tuple(available_index) != (
-        True,
-        True,
-        True,
-        "1 3 4",
-        "(removed_registry_revision IS NULL)",
+    if previous and available_index is not None:
+        return False
+    if not previous and (
+        available_index is None
+        or tuple(available_index)
+        != (
+            True,
+            True,
+            True,
+            "1 3 4",
+            "(removed_registry_revision IS NULL)",
+        )
     ):
         return False
     for table, name, function, message in (
@@ -553,7 +587,7 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
         expected_immutable = [
             (
                 name,
-                42 if table == "provider_model_entry" else 58,
+                42 if table == "provider_model_entry" and not previous else 58,
                 "O",
                 function,
                 f"BEGIN\n        RAISE EXCEPTION '{message}';\n        END;",
@@ -566,7 +600,7 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
                 "trigger",
             )
         ]
-        if table == "provider_model_entry":
+        if table == "provider_model_entry" and not previous:
             expected_immutable.append(
                 (
                     "provider_model_retire",

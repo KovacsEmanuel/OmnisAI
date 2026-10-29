@@ -39,7 +39,8 @@ async def migrate() -> None:
     try:
         async with asyncio.timeout(20):
             async with engine.begin() as connection:
-                expected = context.config.attributes.get("initialize_system_id")
+                initialize = context.config.attributes.get("initialize_system_id")
+                expected = context.config.attributes.get("upgrade_system_id", initialize)
                 if expected is not None:
                     actual = (
                         await connection.execute(
@@ -51,7 +52,7 @@ async def migrate() -> None:
                     if actual != (expected, url.database):
                         raise RuntimeError("PostgreSQL cluster identity mismatch")
                 await connection.execute(text("SELECT pg_advisory_xact_lock(5714308421745685321)"))
-                if expected is not None:
+                if initialize is not None:
                     occupied = (
                         await connection.execute(
                             text(
@@ -77,7 +78,17 @@ async def migrate() -> None:
                         raise RuntimeError(
                             "Explicit update/backup required; startup never upgrades existing data"
                         )
+                request = context.config.attributes.get("t1_upgrade")
+                if request is not None:
+                    from omnis.migrate import admit_t1_upgrade
+
+                    await admit_t1_upgrade(connection, engine, request)
                 await connection.run_sync(run_migrations)
+                if request is not None:
+                    from omnis.core.db import schema_reason_on
+
+                    if await schema_reason_on(connection) is not None:
+                        raise RuntimeError("Physical0017 readback required")
     except (TimeoutError, SQLAlchemyError):
         raise RuntimeError("PostgreSQL migration failed or timed out") from None
     finally:

@@ -1,0 +1,68 @@
+{
+  "reviewer": "independent reviewer 2",
+  "verdict": "CHANGES_REQUESTED",
+  "snapshot": {
+    "base": "1f47183b0a3a055a80a5cf57ffbdff5271b58d4b",
+    "head": "a488b2611b96fbb6edc4d4c4bbd0c2de21a45b90",
+    "tracked_index_worktree": "clean before and after; protected untracked tempkey.txt and documents/Omnis_Notite_Originale.html not opened or modified",
+    "reviewed_blobs": {
+      "web/src/features/engagement/SettingsModelsPage.tsx": "3e432b4f9dfbd8ec2ecba5b90be99e8a3061213c",
+      "web/src/features/engagement/SettingsModels.ts": "f574cdf378bce672ae526c5519a0773f4b9f8628",
+      "web/src/features/engagement/SettingsAssignments.tsx": "b5f005e0a1705a8afd15d9bb7c4469dc9f5d9c48",
+      "web/src/features/engagement/SettingsModelWizard.tsx": "ea2c812440d63d0149ade6e7d303930164a017ab",
+      "web/src/features/engagement/SettingsModels.module.css": "a168e1143ec407de50da8bc07f4f6efa19530116",
+      "web/src/app/SettingsModels.test.tsx": "2c7fe45d4a2687c9179d9339b0c20b769385f436",
+      "web/src/app/SettingsWizard.test.tsx": "49f057e49b8f134f6e1b409bf48d163bfd5f191f",
+      "web/src/app/ProviderKeySettings.test.tsx": "cd6dce6b6819a3dc591b9d67a41a95d9a411d54d",
+      "web/tests/e2e/settings-models.mjs": "b437e4f7c724a1619567091a53e6a67c6a013a10"
+    }
+  },
+  "admission": "Mandate A/section5 and settings-final.md lifecycle: real active Cancel must stay reachable, including fresh tabs and historical UNKNOWN, without automatic resend. Consumer: actual App -> SettingsModelsPage -> unchanged API client/decoder, exercised through existing settingsBackend SOURCE fixture. Risk: history monopolizes operation selection and removes active safety controls. Decision: block real QA/build until designated developer fixes and focused re-review passes. No new QA framework or backend-wide audit requested.",
+  "findings": [
+    {
+      "id": "R2-ACTIVE-UNKNOWN-01",
+      "severity": "HIGH / P1",
+      "file_line": "web/src/features/engagement/SettingsModelsPage.tsx:92-104",
+      "related_locations": [
+        "web/src/features/engagement/SettingsModelsPage.tsx:253-259",
+        "web/src/features/engagement/SettingsModelsPage.tsx:353-369",
+        "web/src/features/engagement/SettingsModelsPage.tsx:382"
+      ],
+      "title": "Terminal historical UNKNOWN can hide a different running operation's Cancel/readback",
+      "reproducer": [
+        "Have saved entry A with latest FINISHED/UNKNOWN and another saved entry B with latest RUNNING. The old outcome remains UNKNOWN; B was separately explicitly admitted, e.g. from another tab.",
+        "Fresh tab: when A's latest projection is inserted first, hydration find() selects A because result_state UNKNOWN is accepted before B's nonterminal state. Or remember A's operation ID in this tab; this variant reproduces even when B sorts first.",
+        "operationPending is now true for terminal A/UNKNOWN, so the hydration effect returns and never selects B. B shows Connecting plus a disabled Test. Expanding B gives only a disabled Read test status, with no Cancel test. Reloading the same immutable outcomes does not clear the lock.",
+        "The scratch test mounts the unchanged App using the existing settingsBackend and actual API decoder. Both negative variants fail at missing Cancel test; diagnostics show only the old A operation was read, B's read button disabled and zero writes. The COMPLETED-history control selects B and sends exactly B's expected Cancel."
+      ],
+      "valid_product_state_basis": "This is not two concurrent active operations: API model_test_runtime.py:270-283 and :369 only refuse system_operation states other than FINISHED; :869-877 and :914-919 persist FINISHED with an UNKNOWN result after a sent uncertain outcome. A finished UNKNOWN and a later single RUNNING operation on another entry can coexist without relaxing backend gates.",
+      "violated_criterion": "Mandate section3 A:58 and section5:112-117; web/design/settings-final.md:54-56,79-83: active Cancel and receive-only recovery must remain visible/reachable independently of inspected history, including fresh-page hydration. Keeping history UNKNOWN must not make the actually running operation inaccessible.",
+      "minimal_remedy": "In the existing selection effect distinguish known nonterminal active operations from terminal historical UNKNOWN. Prefer/select the actual nonterminal projection even when the selected confirmed operation is FINISHED/UNKNOWN; keep terminal uncertainty visible and receive-only, and do not overwrite a genuinely unresolved pending admission, weaken consent, or resume a continuation. Add the two cases to existing SettingsWizard tests, retaining the COMPLETED-history control and exact Cancel ID assertion. Fix belongs to the assigned developer; no new owner/storage/API table is needed."
+    }
+  ],
+  "evidence": {
+    "kind": "SOURCE_COMPONENT_REPRO_ONLY",
+    "command": "NODE_ENV=test /home/kali/.local/share/omnis-toolchains/node-v24.21.0-linux-x64/bin/node /home/kali/OmnisAI/web/node_modules/vitest/vitest.mjs run --config /home/kali/.hermes/cache/scratch/settings-review2-a488b26/vitest.config.ts",
+    "node": "v24.21.0",
+    "vitest": "4.1.12",
+    "exit_code": 1,
+    "result": "2 failed | 1 passed (3); 2.11s total; 643ms tests",
+    "spec": "/home/kali/.hermes/cache/scratch/settings-review2-a488b26/review2.test.tsx",
+    "log": "/home/kali/.hermes/cache/scratch/settings-review2-a488b26/repro-test-env.log",
+    "initial_harness_attempt": "Initial direct Vitest invocation omitted the package script's NODE_ENV=test, so React production act was unavailable (3 setup failures, repro.log, exit1). Corrected to the actual manifest test environment; no source or product gate changes. That first attempt is not a product finding.",
+    "cleanup": "Each test unmounts App and clears its own QueryClient. No service/browser/PG/provider work launched; no model or catalog dispatch outside the synthetic existing fetch fixture. Scratch config/cache/log/spec and a node_modules symlink retained for parent reproduction. No full-suite rerun duplicated parent's 280-web evidence."
+  },
+  "scoped_source_assessment": [
+    "Read-only examined the A-D delta, mandated lifecycle contract, supplied tests/E2E changes and affected API client/decoder; require_idle/settle read only to establish the finding's valid state, not audit the whole backend.",
+    "Normal history disclosure uses a native button with expanded/controls semantics, separate sibling action, and local expansion state only; opening it does not issue Test or alter operation. History readCheck is blocked during the selected operation's actual pending state. The finding is the active-discovery/terminal-UNKNOWN interaction, not a demonstrated wrong-ID cancel in the normal selected-active path.",
+    "Read/cancel API calls retain operation ID and expected_state_revision; Cancel aborts the existing continuation first. Read errors abort continuation; unmount aborts continuation/lifetime; expected_generation remains pinned through existing start/save paths. No additional source blocker demonstrated there; unchanged historical proof remains at its original scope, not a new runtime PASS.",
+    "Contextual recovery exists outside collapsed details for selected active checks and orphans. Terminal UNKNOWN is intentionally retained, but its global selection lock causes the reported failure when another active check exists.",
+    "Notification creation does not focus controls; source uses compact passive feedback, collision yielding and timeout, with separate persistent settings/test/catalog recovery. Actual geometry, focus across live asynchronous updates, screen-reader behavior and operator aesthetics were not executed/certified in this source stage.",
+    "No assignment/eligibility guard relaxation or new provider side effect found in the reviewed delta; saved test versus catalog explanations are derived separately. This does not diagnose the actual upstream METADATA_UNAVAILABLE or supervisor cause UNKNOWN."
+  ],
+  "limits": [
+    "Not real QA, build/distribution identity approval, browser/visual approval, universal absence-of-gaps certification, or whole T1 acceptance. Blocking finding requires parent reproduction/adjudication, designated developer fix/affected tests and exact-byte focused re-review before admitted QA.",
+    "No web/dist build/write, shared status/skill/code/test edits, commit/push, instance Start/Stop, PG/native/provider/model effect, .env or secret access. Protected untracked files untouched.",
+    "Reticle not executed (no runtime UI session admitted); Chisel BLOCKED_NO_GO. Historical OrcaRouter/live Stop-drain and other unexecuted proofs remain at their documented scope; no new T2 requirements imposed."
+  ]
+}

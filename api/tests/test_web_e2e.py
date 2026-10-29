@@ -323,7 +323,8 @@ async def settings_models_browser(
         try:
             before: dict[str, list[str]] | None = None
             diagnostic = scenario == "settings-cancel-probe"
-            for stage in ("before",) if diagnostic else ("before", "after"):
+            finite_cancel = scenario in {"settings-cancel-probe", "settings-cancel-current"}
+            for stage in ("before",) if finite_cancel else ("before", "after"):
                 api = launch_api(listener, database_url, control_dir, own_source=True)
                 resources.append((api, False))
                 await asyncio.to_thread(wait_api, api, origin)
@@ -381,6 +382,8 @@ async def settings_models_browser(
             print(
                 "SETTINGS_CANCEL_ONE_OPERATION_DIAGNOSTIC"
                 if diagnostic
+                else "SETTINGS_CANCEL_CURRENT_ONE_OPERATION_PASS"
+                if finite_cancel
                 else "SETTINGS_UI_REAL_API_PG_TLS_API_RESTART_PASS",
                 flush=True,
             )

@@ -44,7 +44,7 @@ it.each(['known', 'unknown', 'partial-zero'] as const)('expands a minimal %s usa
   expect(toggle).toHaveFocus(); expect(toggle).toHaveAttribute('aria-expanded', 'true');
   expect(details).toBeVisible();
   const metrics = within(details).getByLabelText('Test usage');
-  expect(within(metrics).getAllByRole('term').map(node => node.textContent)).toEqual(['Input', 'Output', 'Cost']);
+  expect(within(metrics).getAllByRole('term').map(node => node.textContent)).toEqual(['Input tokens', 'Output tokens', 'Cost']);
   expect(within(metrics).getAllByRole('definition').map(node => node.textContent)).toEqual(usage === 'known' ? ['12', '7', '0.001'] : usage === 'unknown' ? ['Unknown', 'Unknown', 'Unknown'] : ['0', 'Unknown', 'Unknown']);
   expect(details).not.toHaveTextContent(/Test completed|Requested model|Observed model|OMNIS_MODEL_TEST_OK|FINISHED|COMPLETED|revision|\$|€/);
   expect(modelRow(entry.model)).not.toHaveTextContent(saved.operation_id!);

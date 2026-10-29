@@ -23,14 +23,15 @@
 .model { border-top: 1px solid var(--color-divider); padding-block: 4px; }
 .modelRow { display: flex; align-items: center; gap: 12px; }
 .workspace .modelToggle { display: flex; flex: 1; flex-wrap: wrap; align-items: center; gap: 8px 12px; min-width: 0; padding: 10px 4px; text-align: left; background: transparent; border-color: transparent; border-radius: var(--radius-sm); box-shadow: none; font-weight: 400; }
-.modelToggle:hover, .modelToggle[aria-expanded=true] { background: var(--color-elevated); }
+.workspace .modelToggle:hover, .workspace .modelToggle[aria-expanded=true] { background: var(--color-elevated); }
+.workspace .modelToggle:focus-visible { outline: 2px solid var(--color-border); outline-offset: 1px; }
 .modelRow > button:not(.modelToggle) { flex-shrink: 0; }
-.modelDetails { width: fit-content; max-width: 100%; margin: 4px 0 12px; padding: 10px 16px; border: 1px solid var(--surface-hairline); border-radius: var(--radius-lg); background: var(--color-elevated); font-size: 13px; overflow-wrap: anywhere; }
+.modelDetails { width: 280px; max-width: 100%; margin: 8px 0 12px; padding: 4px; font-size: 13px; overflow-wrap: anywhere; }
 .modelDetails[hidden] { display: none; }
-.usage { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0; }
-.usage > div { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.usage { display: grid; gap: 8px; margin: 0; }
+.usage > div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; min-width: 0; }
 .usage dt { color: var(--color-secondary); }
-.usage dd { margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.usage dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .review .row { padding-block: 12px; }
 .identity { min-width: 0; flex: 1 1 240px; overflow-wrap: anywhere; }
 .identity strong { font-weight: 500; }

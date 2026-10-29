@@ -299,7 +299,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await check(modelDetails).toBeFocused(); await check(modelDetails).toHaveAttribute('aria-expanded', 'true');
   await check(test.getByText('Connected', { exact: true })).toBeVisible();
   const usage = test.getByLabel('Test usage', { exact: true });
-  await check(usage.locator('dt')).toHaveText(['Input', 'Output', 'Cost']);
+  await check(usage.locator('dt')).toHaveText(['Input tokens', 'Output tokens', 'Cost']);
   await check(usage.locator('dd')).toHaveText([results[1].input_tokens, results[1].output_tokens, results[1].cost_observed].map(value => value === null ? 'Unknown' : String(value)));
   await check(test.getByText('Operation details', { exact: true })).toHaveCount(0);
   await check(test.getByLabel('Model response', { exact: true })).toHaveCount(0);

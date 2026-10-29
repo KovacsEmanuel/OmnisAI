@@ -383,7 +383,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
             {check?.usage_state === 'PARTIAL' && <p className={styles.hint}>Usage is incomplete.</p>}
             <section id={detailsId} hidden={!open} className={styles.modelDetails} aria-label={`Model details for ${entry.model} via ${providerName(connection.provider)}`}>
               {check ? <>
-                <dl className={styles.usage} aria-label="Test usage"><div><dt>Input</dt><dd>{check.input_tokens ?? 'Unknown'}</dd></div><div><dt>Output</dt><dd>{check.output_tokens ?? 'Unknown'}</dd></div><div><dt>Cost</dt><dd>{check.cost_observed ?? 'Unknown'}</dd></div></dl>
+                <dl className={styles.usage} aria-label="Test usage"><div><dt>Input tokens</dt><dd>{check.input_tokens ?? 'Unknown'}</dd></div><div><dt>Output tokens</dt><dd>{check.output_tokens ?? 'Unknown'}</dd></div><div><dt>Cost</dt><dd>{check.cost_observed ?? 'Unknown'}</dd></div></dl>
                 {!needsRecovery && !terminalUnknown && (!passed || !matching || check.observed_model !== check.requested_model) && <button type="button" className={styles.quiet} disabled={checkSelectionBlocked(check)} onClick={() => readCheck(check)}>Read test status</button>}
               </> : <p>{uncertain ? 'No result confirmed. Read back before another test.' : 'No saved test for this model.'}</p>}
             </section>

@@ -26,7 +26,7 @@
 .workspace .modelToggle:hover, .workspace .modelToggle[aria-expanded=true] { background: var(--color-elevated); }
 .workspace .modelToggle:focus-visible { outline: 2px solid var(--color-border); outline-offset: 1px; }
 .modelRow > button:not(.modelToggle) { flex-shrink: 0; }
-.modelDetails { margin: 8px 0 12px; padding: 4px; font-size: 13px; overflow-wrap: anywhere; }
+.modelDetails { margin: 8px 0 0; padding: 4px 4px 0; font-size: 13px; overflow-wrap: anywhere; }
 .modelDetails[hidden] { display: none; }
 .usage { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 0; }
 .usage > div { display: grid; gap: 4px; min-width: 0; }

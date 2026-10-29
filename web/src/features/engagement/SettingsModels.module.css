@@ -21,7 +21,8 @@
 .list, .chips, .steps { list-style: none; padding: 0; margin: 0; }
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; border-top: 1px solid var(--color-divider); padding: 8px 0; }
 .model { border-top: 1px solid var(--color-divider); padding-block: 4px; }
-.modelRow { display: flex; align-items: center; gap: 12px; }
+.modelRow { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.modelRow > .quiet { margin-left: auto; }
 .workspace .modelToggle { display: flex; flex: 1; flex-wrap: wrap; align-items: center; gap: 8px 12px; min-width: 0; padding: 10px 4px; text-align: left; background: transparent; border-color: transparent; border-radius: var(--radius-sm); box-shadow: none; font-weight: 400; }
 .workspace .modelToggle:hover, .workspace .modelToggle[aria-expanded=true] { background: var(--color-elevated); }
 .workspace .modelToggle:focus-visible { outline: 2px solid var(--color-border); outline-offset: 1px; }

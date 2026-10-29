@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { health, instance, session } from '../../tests/fixtures';
@@ -41,6 +42,27 @@ function backend(options: { empty?: boolean; lost?: boolean } = {}) {
 }
 function mount() { return render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>); }
 beforeEach(() => { sessionStorage.clear(); writes = []; });
+it.each(['Skills', 'Runtime & data'])('activates %s and Models navigation, wiping unsent secrets without resuming work', async destination => {
+  const user = userEvent.setup(), { state, hook } = settingsBackend();
+  hook.intercept = path => path === '/api/v1/settings/catalog' ? Response.json({ items: [], has_more: false, next_after: null }) : undefined;
+  mount(); await screen.findByRole('region', { name: 'Configured models' });
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled());
+  fireEvent.click(screen.getByRole('button', { name: 'Add models' }));
+  fireEvent.change(screen.getByRole('combobox', { name: 'Provider' }), { target: { value: 'orcarouter' } });
+  const key = screen.getByLabelText('API key'); fireEvent.change(key, { target: { value: 'synthetic-unsent-navigation' } });
+  const nav = within(screen.getByRole('navigation', { name: 'Settings navigation' }));
+  nav.getByRole('link', { name: destination }).focus(); await user.keyboard('{Enter}');
+  await screen.findByRole('heading', { name: destination === 'Skills' ? 'Published catalog' : 'Runtime & data' });
+  expect(nav.getByRole('link', { name: destination })).toHaveAttribute('aria-current', 'page');
+  expect(key).toHaveValue(''); expect(key).not.toBeInTheDocument();
+  nav.getByRole('link', { name: 'Models' }).focus(); await user.keyboard('{Enter}');
+  await screen.findByRole('region', { name: 'Configured models' });
+  expect(nav.getByRole('link', { name: 'Models' })).toHaveAttribute('aria-current', 'page');
+  expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('region', { name: 'Test consent' })).not.toBeInTheDocument();
+  expect(JSON.stringify(sessionStorage)).not.toContain('synthetic-unsent-navigation');
+  expect(state.keys).toEqual(configured); expect(state.entries).toEqual([entry]); expect(state.writes).toEqual([]);
+});
 it('opens inline Remove without effects and cancels by button or Escape with focus restored', async () => {
   const { state } = settingsBackend(); const confirm = vi.spyOn(window, 'confirm'); mount();
   await screen.findByRole('region', { name: 'Configured models' });
@@ -167,6 +189,8 @@ it('groups quiet reload with Add models and confirms a read without writes', asy
   expect(within(actions).getAllByRole('button').map(button => button.textContent)).toEqual(['Reload', 'Add models']);
   fireEvent.click(within(actions).getByRole('button', { name: 'Reload current settings' }));
   await screen.findByText('Settings reloaded.');
+  fireEvent.click(screen.getByRole('button', { name: 'Dismiss notification' }));
+  expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
   expect(writes).toEqual([]);
 });
 it('expires confirmations but retains actionable uncertainty and its inline state', async () => {

@@ -12,6 +12,96 @@ import { catalogStorage, pendingStorage, remember, sessionScope, testStorage } f
 import { session } from '../../tests/fixtures';
 const models = Array.from({ length: 32 }, (_, i) => ({ model: `Catalog/${String(i).padStart(2, '0')}`, name: `Model ${i}`, max_output_tokens: 4096, supports_max_tokens: true, reason: null }));
 beforeEach(() => { sessionStorage.clear(); });
+it('explicit Refresh creates one fresh catalog identity and retains chosen models without any test or assignment', async () => {
+  const { state } = settingsBackend(configured, [], models); mount(); const panel = await wizard();
+  fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/00' }));
+  const initial = state.writes[0]!.body.command_id;
+  fireEvent.click(within(panel).getByRole('button', { name: 'Refresh' }));
+  await waitFor(() => expect(state.writes).toHaveLength(2));
+  await waitFor(() => expect(within(panel).getByRole('list', { name: 'Provider models' })).toHaveAttribute('aria-busy', 'false'));
+  expect(state.writes.map(write => write.body.action)).toEqual(['refresh', 'refresh']);
+  expect(state.writes[1]!.body).toEqual({ action: 'refresh', command_id: expect.any(String), connection_id: entry.connection_id, connection_revision: 1 });
+  expect(state.writes[1]!.body.command_id).not.toBe(initial);
+  expect(within(panel).getByRole('list', { name: 'Selected models' })).toHaveTextContent('Model 0');
+  expect(state.keys).toEqual(configured); expect(state.entries).toEqual([]);
+});
+it('Cancel catalog targets its retained connection revision and persists a stopped readback without resending Refresh', async () => {
+  const { state, hook } = settingsBackend(); let cancelled = false;
+  const scope = await sessionScope(session.csrf_token);
+  remember(catalogStorage, scope, { id: catalogId, connection: entry.connection_id, revision: 1 });
+  hook.intercept = (path, body) => {
+    if (path.endsWith('/cancel')) cancelled = true;
+    if (!path.endsWith('/cancel') && !path.endsWith('/search')) return;
+    return Response.json({ schema_version: 1, connection_id: body.connection_id, connection_revision: body.connection_revision, provider: 'openrouter', catalog_command_id: body.catalog_command_id ?? catalogId, state: cancelled ? 'FAILED' : 'PENDING', reason: cancelled ? 'CANCELLED_OR_STOPPED' : null, query: body.query ?? '', offset: 0, next_offset: null, total: 0, entries: [] });
+  };
+  const mounted = mount();
+  await screen.findByRole('region', { name: 'Configured models' });
+  const recovery = await screen.findByRole('region', { name: 'Catalog recovery' });
+  fireEvent.click(within(recovery).getByRole('button', { name: 'Cancel catalog' }));
+  await waitFor(() => expect(sessionStorage.getItem(catalogStorage)).toBeNull());
+  expect(state.writes).toEqual([{ path: '/api/v1/settings/provider-catalog/cancel', body: { action: 'cancel', command_id: expect.any(String), catalog_command_id: catalogId, connection_id: entry.connection_id, connection_revision: 1 } }]);
+  fireEvent.click(within(recovery).getByText('Catalog details'));
+  expect(await within(recovery).findByText('FAILED · CANCELLED_OR_STOPPED')).toBeVisible();
+  mounted.unmount(); mount(); await screen.findByText('The model catalog is unavailable. Saved test results are unchanged. Open Add models to refresh it explicitly.');
+  fireEvent.click(within(screen.getByRole('region', { name: 'Configured models' })).getByText('Catalog details'));
+  expect(screen.getByText(/FAILED · CANCELLED_OR_STOPPED/)).toBeVisible();
+  expect(state.writes).toHaveLength(1); expect(state.entries).toEqual([entry]); expect(state.keys).toEqual(configured);
+});
+it('orphan RUNNING Cancel uses the latest read revision, never the historical operation', async () => {
+  const orphan = { ...entry, entry_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', model: 'Orphan/Model' };
+  let active = operation('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', orphan);
+  const old = { ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', state_revision: 3, result_state: 'COMPLETED', finish_reason: 'COMPLETED' };
+  const { state, hook } = settingsBackend();
+  hook.intercept = (path, body, method) => {
+    if (path.includes('/entries/latest/') && path.endsWith(entryId)) return Response.json(old);
+    if (path.includes(active.operation_id!)) {
+      if (method === 'POST') { expect(body.expected_state_revision).toBe(7); active = { ...active, state: 'FINISHED', state_revision: 8, result_state: 'NOT_SENT', finish_reason: 'CANCELLED' }; }
+      return Response.json(active);
+    }
+    if (path.endsWith(orphan.entry_id)) return Response.json(active);
+  };
+  const scope = await sessionScope(session.csrf_token); remember(testStorage, scope, active.operation_id!);
+  const mounted = mount();
+  const recovery = await screen.findByRole('region', { name: 'Unconfirmed model check' });
+  active = { ...active, state_revision: 7 };
+  fireEvent.click(within(recovery).getByRole('button', { name: 'Read test status' }));
+  await waitFor(() => expect(mounted.client.getQueryData(['private', 'settings-entry-test', scope, active.operation_id])).toMatchObject({ state_revision: 7 }));
+  fireEvent.click(within(recovery).getByRole('button', { name: 'Cancel test' }));
+  await waitFor(() => expect(mounted.client.getQueryData(['private', 'settings-entry-test', scope, active.operation_id])).toMatchObject({ state: 'FINISHED', state_revision: 8 }));
+  expect(state.writes).toEqual([{ path: `/api/v1/model-test/entries/${active.operation_id}/cancel`, body: { command_id: expect.any(String), expected_state_revision: 7 } }]);
+  mounted.unmount(); mount(); await screen.findByRole('region', { name: 'Configured models' });
+  expect(state.writes).toHaveLength(1);
+});
+it('SOURCE missing local projection still exposes orphan Stop and abandons the unsent sequence', async () => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  let active: EntryTestView | undefined, release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, body, method) => {
+    if (path === '/api/v1/model-test/entries' && method === 'PUT') {
+      active = operation(String(body.operation_id), state.entries.find(item => item.entry_id === body.entry_id)!); await gate; return Response.json(active);
+    }
+    if (path.includes('/model-test/entries/') && active) return Response.json(active);
+  };
+  const mounted = mount();
+  try {
+    await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
+    fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
+    await waitFor(() => expect(active).toBeDefined());
+    const query = mounted.client.getQueryCache().findAll({ queryKey: ['private', 'settings-model-library'] })[0]!;
+    // Controlled SOURCE projection fault, not a claim that the API removed a running entry.
+    await act(async () => { mounted.client.setQueryData(query.queryKey, (value: { library: { revision: number; entries: ModelEntry[] } }) => ({ ...value, library: { ...value.library, entries: [] } })); });
+    const recovery = await screen.findByRole('region', { name: 'Unconfirmed model check' });
+    fireEvent.click(within(recovery).getByRole('button', { name: 'Stop remaining checks' }));
+    expect(within(recovery).getByText('Remaining checks stopped. Read the admitted check.')).toBeVisible();
+    active = { ...active!, state: 'FINISHED', state_revision: 3, result_state: 'COMPLETED', finish_reason: 'COMPLETED' };
+    await act(async () => { release(); await gate; });
+    const scope = await sessionScope(session.csrf_token);
+    await waitFor(() => expect(mounted.client.getQueryData(['private', 'settings-entry-test', scope, active!.operation_id])).toMatchObject({ state: 'FINISHED' }));
+    expect(state.writes.map(write => write.body.action ?? write.path)).toEqual(['refresh', 'save_models', '/api/v1/model-test/entries']);
+    mounted.unmount(); mount(); await screen.findByRole('region', { name: 'Configured models' });
+    expect(state.writes.map(write => write.body.action ?? write.path)).toEqual(['refresh', 'save_models', '/api/v1/model-test/entries']);
+  } finally { release(); }
+});
 function mount(strict = false) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, networkMode: 'always' } } });
   const app = <QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>;
@@ -135,6 +225,9 @@ it('keeps a saved successful test distinct from a failed current catalog and pre
   expect(within(list).getByText(/FAILED · METADATA_UNAVAILABLE/)).toBeVisible();
   expect(details).toHaveTextContent(catalogId);
   expect(details).toHaveTextContent('connection revision 1');
+  fireEvent.click(within(list).getByText('Catalog details'));
+  expect(details).not.toHaveAttribute('open');
+  expect(within(list).getByText(/FAILED · METADATA_UNAVAILABLE/)).not.toBeVisible();
   expect(state.writes).toEqual([]);
   expect(state.keys).toEqual(keys);
 });
@@ -203,9 +296,20 @@ it('StrictMode effect replay retains a live mutation lifetime and wizard through
 });
 it('searches cached pages only, preserves chips across Back and saves several exact models without touching Default', async () => {
   const keys = { ...configured, selection: { selection_id: entryId, revision: 1, default: selected, brain: { ...selected, output_tokens: 37 }, investigator: null, validator: null } };
-  const { state } = settingsBackend(keys, [entry], [...models, { ...models[0]!, model: entry.model }]); mount(); const panel = await wizard();
+  const { state, hook } = settingsBackend(keys, [entry], [...models, { ...models[0]!, model: entry.model }]);
+  const searches: Record<string, unknown>[] = [];
+  hook.intercept = (path, body) => { if (path.endsWith('/search')) searches.push(body); return undefined; };
+  mount(); const panel = await wizard();
+  expect(screen.getByRole('button', { name: 'Previous results' })).toBeDisabled();
   fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' }));
   fireEvent.click(screen.getByRole('button', { name: 'Next results' })); await screen.findByRole('button', { name: 'Add Catalog/16' }); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/16' }));
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Previous results' })).toBeEnabled());
+  const beforePrevious = searches.length;
+  fireEvent.click(screen.getByRole('button', { name: 'Previous results' }));
+  await screen.findByRole('button', { name: 'Selected Catalog/00' });
+  await waitFor(() => expect(searches.slice(beforePrevious)).toContainEqual({ action: 'search', connection_id: entry.connection_id, connection_revision: 1, catalog_command_id: state.writes[0]!.body.command_id, query: '', offset: 0 }));
+  expect(searches).toContainEqual(expect.objectContaining({ query: '', offset: 16 }));
+  expect(screen.getByRole('button', { name: 'Previous results' })).toBeDisabled();
   fireEvent.change(screen.getByLabelText('Search models'), { target: { value: 'Catalog/31' } }); await screen.findByRole('button', { name: 'Add Catalog/31' });
   expect(state.writes).toHaveLength(1); await review(); expect(screen.getByText('Default and role overrides stay unchanged.')).toBeVisible();
   fireEvent.click(within(panel).getByRole('button', { name: 'Back' })); expect(within(panel).getByRole('list', { name: 'Selected models' })).toHaveTextContent('Model 0'); expect(within(panel).getByRole('list', { name: 'Selected models' })).toHaveTextContent('Model 16');
@@ -913,6 +1017,10 @@ it.each(['READY', 'PARTIAL', 'FAILED', 'PENDING', 'UNKNOWN'] as const)('keeps ca
     const recovery = screen.getByRole('region', { name: 'Settings recovery' });
     expect(recovery).toHaveTextContent('Save unconfirmed. Recover the exact receipt before another mutation.');
     expect(within(recovery).getByText(`Command ${entryId}`)).not.toBeVisible();
+    const commandDetails = within(recovery).getByText('Command details');
+    expect(commandDetails.closest('details')).not.toHaveAttribute('open');
+    fireEvent.click(commandDetails); expect(within(recovery).getByText(`Command ${entryId}`)).toBeVisible();
+    fireEvent.click(commandDetails); expect(within(recovery).getByText(`Command ${entryId}`)).not.toBeVisible();
     expect(screen.getByRole('button', { name: 'Recover exact receipt' })).toBeEnabled();
     expect(within(recovery).getByRole('button', { name: 'Read current state' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Add models' })).toBeDisabled();

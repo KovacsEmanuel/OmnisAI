@@ -97,6 +97,22 @@ when the new nullable field is serialized. Old decoder refuses the proposed fiel
 this is not runtime implementation proof. Re-run actual final DTO/writer/max-plus-one tests.
 Existing4096 request and65536 reply limits remain; EntryTestView/reply and registry unchanged.
 
+## Remove model — explicit local retirement
+
+Only the expanded details expose quiet destructive `Remove model`, right of the three-metric
+summary and vertically centered on desktop; below it on mobile. Keep intrinsic spacing,
+44px targets/focus and the separate top-row Test. Confirm the exact model ID and provider.
+Retire membership persistently with registry/entry CAS and the existing command/receipt recovery,
+never a React-only filter or reduced SaveModels list. Preserve keys, other models and all history.
+List any Default/Brain/Investigator/Validator references and request explicit reassignment in
+Model assignments; do not clear mandatory Default or choose replacements. Active/unconfirmed
+operations refuse retirement without hiding Cancel/recovery; FINISHED/UNKNOWN is historical.
+The existing owner lock/admission serializes retirement, assignments, saves and test admission.
+Stale saves and retired entry IDs cannot reactivate membership. Explicit re-add uses a new ID,
+without duplicates or inheriting Connected. Exact receipt GET is receive-only, including restart;
+64 available entries/16 per page/65536-byte complete frame remain. Upgrade retains archives;
+DB rollback requires reviewed restoration, not Git revert. No Replace/operator rollout/T2.
+
 ## Model assignments — separate from registration
 
 - Zero configured models: `Add a model first.`

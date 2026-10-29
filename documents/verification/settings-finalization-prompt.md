@@ -1,163 +1,115 @@
-# Mandat pentru sesiunea nouă — finalizare setup, Settings și acceptare T1
+# Sesiune nouă — finalizează T1, instalarea Remove și cleanupul selectiv
 
-> Pregătirea acestui prompt NU lansează implementarea în sesiunea care l-a redactat.
-> Operatorul a ales explicit continuarea într-o sesiune nouă și a aprobat **o singură rulare canonică de maximum 90 minute**, după corecțiile finale. Nu a aprobat noi inferențe de produs, T2 sau push.
+> Acesta este mandatul de execuție **numai când operatorul îl transmite explicit unei sesiuni noi pentru executare**. Redactarea, citirea pentru analiză sau reviewul acestui fișier nu pornesc implementarea ori efecte pe operator.
+> Snapshot citit la 2026-10-29T19:29:30+02:00. Checkpoint înaintea actualizării acestui mandat: main `2879f3158bdc231b0e905d0e3948f9db64762097`; candidat Remove `ed611aa40c90f62f4f511cc1951a68970e2ba51b`. Reverifică Git și starea reală; nu trata snapshotul ca stare perpetuă.
 
-## 1. Rezultatul și limita
+## 1. Rezultatul cerut și autorizația delimitată
 
-Lucrează în `/home/kali/OmnisAI`. Activează `/ponytail:ponytail` **full**: cea mai mică schimbare completă prin codul existent, fără refactor oportunist, framework, installer, profil sau sistem paralel de rapoarte. Respectă AGENTS/CONTRIBUTING și ownershipul existent.
+Lucrează în `/home/kali/OmnisAI`. Activează `/ponytail:ponytail full` și încarcă skillul. Vreau **finalizare funcțională, nu încă un plan, un audit general sau un șir de checkpointuri**. Cod minim complet prin producerii/callerii existenți; fără framework, owner, installer paralel, refactor oportunist ori opțiuni „pentru viitor”. Nu confunda minimul de cod cu omiterea validării, siguranței, accesibilității sau QA.
 
-Finalizează cinci rezultate, nu doar un set de teste:
-1. Settings și UI/UX-ul afectat, corectate după cerințele de mai jos și **acceptate vizual de operator pe aplicația reală**.
-2. Dispoziție justificată pentru incidentul supervisorului: cauză/remediu verificat sau blocker explicit; fără remediu inventat ori risc acceptat în numele utilizatorului.
-3. Verificarea canonică finală, în bugetul nou autorizat, fără eliminarea testelor ori slăbirea limitelor produsului.
-4. Cleanup selectiv închis prin absențe verificate și retenție explicită pentru date unice/efecte incerte; set de recuperare clar.
-5. Confruntarea cerințelor obligatorii **T1** din canon cu implementarea/probele/reviewurile pe versiunea curentă, fără obligații ascunse sau PASS transferat nejustificat.
+Prin transmiterea acestui prompt pentru execuție, autorizez în noua sesiune:
+- implementarea, integrarea și validarea tranziției compatibile0016→0017 pentru **aceeași instanță/date**, inclusiv CLI/API/control/reconcile/release/lifecycle și backup/restaurare prin mecanismele existente;
+- recuperare normală și Stop/Start controlate, necesare acestei tranziții, după diagnostic/baseline și prerechizitele de recuperare; fără resetarea profilului ori abandonarea efectelor incerte;
+- diagnosticul bounded și remedierea minimă a unui defect demonstrat al supervisorului; recovery singur nu este remediu al cauzei;
+- închiderea blocajelor T1 rămase, review/QA pe delta curentă și **o singură rulare canonică finală de maximum5400s**, după prerechizite;
+- **ștergeri selective de resurse Omnis vechi/QA dispensabile**, numai după clasificare exactă, lipsa consumatorilor și păstrarea recuperării/datelor unice. Nu doar inventaria: execută eliminările admisibile și verifică efectele.
 
-**Nu implementa T2.** Nu redeschide întregul MVP/arhitectura, nu lansa mentenanță Hermes-runtime/OAuth, nu promite „zero bug-uri”. Un rezultat acceptabil este: cerințele obligatorii acoperite, UI acceptat de operator, gate-uri trecute, fără blocante cunoscute, limite declarate. Dacă rămâne un blocker, nu declara totul final sau pregătit pentru T2.
+Nu mai cere acord pentru fiecare pas deja inclus aici. Cere numai la o limită reală: acces administrator, pairing/acceptare vizuală umană, resursă neclasificată ori efect din afara acestui scope. Timeoutul vechii întrebări nu a fost acord; acest mandat nou, dacă este transmis pentru execuție, este autorizația delimitată. Nu rescrie istoria acelei lipse de acord.
 
-## 2. Recuperează numai starea necesară
+**Neautorizate:** T2 sau alte faze de produs, push/fetch, conturi noi, credentiale personale, export de chei/sesiuni, trafic țintă, provider live/LLM/Test/Refresh upstream sau buget de produs nou. Inferența agenților de dezvoltare este distinctă. Peerii sintetici locali din fixturele existente sunt permiși și etichetați ca atare. Nu șterge modele reale pentru QA și nu modifica assignments/capuri/chei pentru a obține verde. Unicul Refresh autorizat anterior este consumat.
 
-La reluare, ia starea din unicul CURRENT și din `finalization_handoff.execution.usage_columns_delivery`, nu reexecuta pregătirea de mai jos. Settings `77f9b58` este deja servit și **acceptat vizual explicit**, după ajustarea spațiului comun; nu relua UI, pairingul sau Refreshul consumat. Frontieră rămasă: două default-web FAIL și Cancel409 real neclasificat; contor harness-only2 păstrat. Restrânge următoarea dovadă la bootstrapul exact/pre-Cancel revision + error code, fără al treilea retry larg; canonicalul unic5400s este încă neconsumat. Acesta este readback al progresului, nu alt plan sau autorizație de efecte.
+## 2. Starea de pornire — nu reimplementa ce este verificat
 
-Bază de produs la pregătire: `9da7648953ff7f477ad9b3cc0c8d29b77ed38ed4`, branch `checkpoint/p2-batch2-pause-20261015`, tracked/index curate, 60 commituri locale înaintea remote-ului. Commitul de predare adaugă numai acest mandat și metadata; identifică HEAD real, nu presupune că baza este încă HEAD.
+- Checkout principal: branch `checkpoint/p2-batch2-pause-20261015`, checkpoint `2879f31` înaintea acestui prompt; tracked/index curate la citire. Două untracked **protejate absolut**: `tempkey.txt` și `documents/Omnis_Notite_Originale.html`. Nu le citi, modifica, șterge, hasha sau stage-ui.
+- Remove: `/home/kali/.hermes/cache/scratch/remove-model-fa5451e`, branch `feat/settings-remove-model`, HEAD `ed611aa40c90f62f4f511cc1951a68970e2ba51b`, tree `38463d72bb4271bc11ec6f05074be4cf9d108ada`. Produsul este implementat și comis, **neintegrat/neinstalat** în operator. Untracked preexistente: `api/.venv`, `tools/development/anti-slop/node_modules`, `web/node_modules`; sunt dependențe partajate, nu fișiere de adoptat sau ținte de șters prin dereferențiere.
+- Canon înainte de produs `0f4a8a7112026b33188683e8c614e2ca50d3556b`, produs `c4d465c072ebbd246bd882441a7465b55b0b2ab6`; proof checkpoint `190fae18e57e115a8a86559cec386b9ea147fd4b`; remedii separate `bf0320a3b825866ae1c25df441c8e7f7db1812f2` și `ed611aa...`. Păstrează commiturile și proveniența, fără squash/amend/rebase.
+- Părinte și revieweri au verificat53 bindings blob/SHA; delta finală față de190 are5fișiere. Ultimele remedii nu schimbă API/CLI/storage/migrare/CSS: oracle de test atribuit corect, explicație in-use locală și focusfallback comun.
+- Două re-reviewuri finale SOURCE aprobate și compuse cu scope-ul neschimbat. R1-P01/P02 și R2-P01/P02 închise scoped. **R2-R01 rămâne HIGH/BLOCKED pentru rollout: tranziția compatibilă lipsește**, nu defect al comenzii Remove.
+- QA independentă pe exacted611aa: `test-settings-remove-pg` **4PASS23.67s**, `test-settings-remove-ui-pg` **1PASS45.66s**, code0/family_drained=true; history/retiredID/readd/concurență atribuită/receipt pierdut/noresend/APIrestart probate. Browser0externalRequests/0pageErrors. Cinci PNG viewport inspectate:320/390/1280/1440 și in-use1440; placement/focusoutline/context corecte. Native direct-success/moved-focus sunt component-only, nu probe native; tastele fizice ale dialogului OS nu au fost certificate.
+- Procesele proprii `proc_7527cf873d6e` și `proc_e0c485193ebf` sunt EXITED0, nu trebuie relansate. Niciun subagent/writer activ la predare. Notificările lor întârziate sunt duplicate, nu cereri noi.
 
-Rulează read-only: `git status --short --branch`, `git rev-parse HEAD`, `git diff --stat`, `git diff --cached --stat`. Protejate untracked: **`tempkey.txt` și `documents/Omnis_Notite_Originale.html` — nu le citi, modifica, inventaria ca conținut, șterge sau comite.**
+Remove înseamnă retirement persistent din utilizarea viitoare, nu ștergerea istoricului/testelor/costurilor/receipturilor/cheii/providerului/altor modele. Default/Brain/Investigator/Validator și operațiile nesettled blochează fără fallback; confirmare exactă, CAS/replay/readback; re-add are ID nou fără Connected moștenit, Save stale nu reactivează ID retras. UNKNOWN terminal rămâne istoric incert, nu reînnoirea acordului vechi. Nu relaxa generation pinning, NEEDS_RECONCILIATION, DATA/bugete, Stop/Cancel sau limitele trust-boundary.
 
-Citește minimal:
-- `AGENTS.md`, `CONTRIBUTING.md`, unicul CURRENT din `README.md`;
-- rândurile afectate din `documents/verification/implementation-status.md`;
-- `documents/verification/settings-c-evidence/ui-result.json`, în special `finalization_handoff` și `maintenance.paused_followup.runtime_followup`;
-- `web/design/settings-final.md` / `.html`, contractele afectate din UI/UX și arhitectură; vechiul baseline nu anulează feedbackul nou al operatorului;
-- `cli/README.md`, `web/README.md` pentru editare/pornire/rollback;
-- `documents/verification/api-key-runtime-t1.md` **Acceptare T1 locală scoped**, apoi numai obligațiile T1/T2-prerequisite relevante din plan/arhitectură. Secțiunile PARTIAL istorice nu sunt coadă de reluare.
+## 3. Instanța și dovezile care trebuie păstrate
 
-### Instanța care trebuie păstrată
+**Operatorul ales**, nu o instanță nouă:
+- root `/home/kali/.local/share/omnis-settings-c-9e51d10`;
+- UUID `d694129b-a3e5-446d-9e5b-fe9bc19abed8`, origin `http://127.0.0.1:8780`;
+- `/home/kali/.local/bin/omnis`; ultimul `status --json` exit4: **UNAVAILABLE / RECOVERY_REQUIRED**, DEVELOPMENT, release0.1.0/schema`0016_provider_models`, dashboard/control false;
+- patru modele reale și istoric/chei/configurații de păstrat. Nu pretinde că READY21/24 sau epoch14 sunt starea actuală. Baza vizuală77f9b58 a fost acceptată de operator; noul Remove nu este încă acceptare instalată.
 
-- Root: `/home/kali/.local/share/omnis-settings-c-9e51d10`.
-- Instance UUID: `d694129b-a3e5-446d-9e5b-fe9bc19abed8`; origin `http://127.0.0.1:8780`; schema `0016_provider_models`.
-- Ultimul status citit la pregătire: **READY DEVELOPMENT21 / epoch12**, nu STOPPED20. Verifică din nou, fără Start/Stop doar pentru orientare.
-- `/home/kali/.local/bin/omnis` și `<root>/omnis` operează aceeași instalație; `omnis` / `omnis start` sunt traseele normale, `--no-open` doar opțional.
-- CLI `639530e`; Settings `794cdc9`; diagnostic `7885c48`.
-- Imagine păstrată: `sha256:321b7052a5af0f9dc340d3c89a3667833b054dedf38b8e58dfbf7a54af33d30b`.
-- Release imuabil păstrat: `7673066`, digest `99409cd18adfd4545bbdb03f9edfc6bcc7cca95973f2e13342d2bd54062ef133`.
+Citește minimal AGENTS/CONTRIBUTING, unicul CURRENT din README, rândurile SL12/SL33 și obligațiile T1 din `documents/verification/implementation-status.md` și `api-key-runtime-t1.md`. Sursa detaliată unică este `documents/verification/settings-c-evidence/ui-result.json` → `finalization_handoff.execution.remove_model_delivery.final_candidate`, plus `default_web_gate`, `second_runtime_qa`, `runtime_recurrence_after_visual` și retenția maintenance. Nu încărca tot istoricul/MVP.
 
-Un singur operator/date/profil. UI: Vite build local → `web/dist` montat read-only → refresh, fără rebuild API. Python: Stop verificat → editare → Start controlat, fără reinstalare. Nu modifica Python montat în timp ce rulează. Nu monta checkoutul întreg/home-ul; nu servi secrete/fișiere private. Rebuild numai pentru dependențe/bază/release.
+Originale în `documents/verification/settings-c-evidence/`: `remove-model-r1-c4d465c-original.md`, `remove-model-r2-c4d465c-original.md`, `remove-model-r1-190fae1-original.md`, `remove-model-r2-190fae1-original.md`, `remove-model-r1-ed611aa-original.md`, `remove-model-r2-ed611aa-original.md`. Citește ultimele două și numai R2-R01 din R2/c4 pentru tranziție; nu reaudit toate scope-urile acceptate. Ultimele SHA: R1`beff47c5e258e7ef68fea49d5df6e9d4f41b23f658c0f5c3962e923a70e2273c`, R2`3724ce4aee0409b27e435b2e53d2a6fdab6dd39169a3b96656c71db0ec464a10`. Nu rescrie FAIL-urile/originalele pentru verde.
 
-Patru modele și rezultatele operatorului au fost citite anterior; configurația/capurile/operation IDs/costurile au rămas identice după Stop17→Start18/reload. **Nu repeta apeluri pentru badge verde și nu transforma datele operatorului în fixture.** Modelul DeepSeek datat ales de el nu se substituie cu alt alias.
+Probe finale: `/home/kali/.hermes/cache/scratch/rpg-h3ZjpJ/db-414134b1d075489c`, `/home/kali/.hermes/cache/scratch/rui-N3LDQr/db-27420030ead44da1`; browser/capturi sub al doilea root QA, `pytest-of-kali/pytest-0/test_api_pg_sdk_protocol_and_r0/`. Freeze/checkpoint `remove-model-freeze-ed611aa.json` și `remove-model-checkpoint-ed611aa.md` în scratch. SHA freeze`663ba083b57e00dcee29471bf5aaf5a5b0e01594e0389e68d6892adf41b0047a`. Scratch poate expira: concluziile/hashurile sunt versionate; absența lui nu invalidează automat probele sau justifică rerun.
 
-## 3. Cerințele UI/UX ale operatorului — obligatorii
+## 4. Execuție rapidă, cu ownership și porți reale
 
-Cerințele de mai jos au pornit de la un design respins, nu de la „polish minor”; implementarea finală `77f9b58` este acum acceptată vizual explicit de operator. Păstrează această acceptare în scope și probele neschimbate; nu reautoriza o redesenare în lipsa unui finding sau feedback nou. Scopul rămâne Settings și primitivele comune afectate de aceste fluxuri, nu toate paginile sau funcțiile viitoare. Validarea funcțională restantă nu este închisă prin acceptarea estetică.
+Încarcă la nevoie `omnis-delivery`, `omnis-project-status`, `omnis-release-ops`, `omnis-review-qa`, `systematic-debugging`; UI/accessibility/storage numai la etapa relevantă. Nu instala skilluri/MCP/watchers și nu adăuga proceduri globale ca substitut pentru produs.
 
-### A. Detalii în model, nu un panou tehnic global
+Un orchestrator, **un developer desemnat** în worktree izolat pentru cod/teste/remedii. Poți paraleliza cu un diagnostic read-only al supervisorului sau clasificarea cleanupului, numai dacă rezultatul schimbă o decizie. Nu multiplica writerii/auditul/rapoartele. Înainte de dispatch stabilește producerul real, primul consumer, inputurile/dimensiunile, fișierele și acceptance row. Orchestratorul nu scrie produs în paralel cu developerul.
 
-- Elimină din partea de sus panoul normal de operație/conectare și mesajele tehnice repetate pentru fiecare refresh/conectare.
-- **Varianta finală cerută:** click/tap pe rândul/pastila modelului dezvăluie detaliile imediat dedesubt, în aceeași unitate vizuală. Nu adăuga o a treia pastilă/buton-săgeată separat.
-- Codul de bază afișează în dreapta status, `Test`, `Read check`. Intenția este păstrarea celor două elemente utile din rând și mutarea accesului la detalii în expandarea rândului; verifică și captura reală înainte de autorat. Un indiciu vizual discret nu trebuie să devină încă un control redundant.
-- Detaliile sunt numai date reale ale acelui model/acelei operații: rezultatul relevant, motivul acționabil, momentul dacă există în contract, identitatea cerută/observată și consumul cunoscut când sunt utile. Fără statistici decorative, valori inventate sau dumping de UUID/revizii în vederea normală. Informațiile tehnice necesare pot avea un nivel secundar închis.
-- Expandarea/citirea NU pornește Test și NU retrimite operația. Butoanele de acțiune nu declanșează accidental expandarea și invers; tastatură/focus/aria corecte, fără controale interactive imbricate incorect.
-- **Cancel/Stop și recuperarea unei stări incerte rămân accesibile și vizibile când sunt necesare**, chiar dacă detaliile sunt închise. Acțiunea din rând poate reflecta starea reală, nu trebuie adăugate controale redundante. Selectarea istoricului altui model nu schimbă ținta Cancel a operației active/pending.
+Pentru delta lifecycle/authority: **două reviewuri independente complementare pe același FREEZE exact** (commit/blob/diff/artifact). Reutilizează aprobările neschimbate. Finding concret → părinte reproduce/adjudecă → același developer fixează minimal → affected checks → focused re-review; apoi QA independentă a consumerului real. Developer GREEN nu este acceptare independentă. Nu cere QA deja trecută ca prerechizit circular pentru admiterea QA.
 
-### B. Notificări compacte, discrete, inspirate de Apple
+La fiecare schimbare coerentă: commit mic cu ce/de ce/comenzi/rezultate/limite/rollback; stage numai căile intenționate și verifică commit/status. Păstrează un singur registru/punct de recuperare. Nu opri mandatul după fiecare commit/review: continuă până la rezultat sau blocker real/limită de siguranță, nu până la încă un helper.
 
-- Operatorul cere „buline/pastile fine”, premium, în dreapta-jos: dimensiuni compacte, tipografie și spațiere precise, contur/umbră discrete, integrare cu tokenurile existente.
-- Nu un panou mare de diagnostic plutitor; fără blocuri lungi, straturi inutile, glows/blur sau animații decorative ca substitut pentru design.
-- O singură confirmare utilă pentru o acțiune, nu o notificare pentru fiecare pas intern. Confirmările necritice dispar discret; nu fură focusul și nu acoperă controale, inclusiv pe mobil.
-- Erorile acționabile/UNKNOWN nu dispar fără urmă într-un toast temporar: rămân în contextul elementului afectat, cu recuperare clară și fără resend implicit. Stop global și avertismentele de siguranță nu se ascund pentru estetică.
+## 5. Prima felie: tranziție compatibilă, nu hot-patch
 
-### C. Add models / catalog fără zgomot de sistem
+Verifică întâi read-only Git, identitatea/serviciile/mounturile reale și baseline-ul nesensibil al datelor. Citește R2-R01 și traseele existente: `cli/src/omnis_cli/{instance,release,start,restart,recover,backup}.py`, `ops/build_control_bundle.py`, `api/src/omnis/core/{db,schema}.py`, `api/src/omnis/modules/instance/service.py`, `cli/README.md`; apoi numai definițiile/usages afectate. Candidatul a schimbat deja CLI schema handling în instance/release/start/backup, dar **nu a livrat puntea instalată**.
 
-- Fără `Catalog loading`, `Catalog READY`, stări brute și explicații interne simultan sus, în wizard și în toast.
-- Progres discret în controlul/lista afectată; fără salt de pagină, pierdere de selecții, butoane care clipesc ori blocare aparent inexplicabilă.
-- Dacă lista modelelor nu poate fi citită, mesaj scurt în engleză, pe înțelesul utilizatorului, lângă lista respectivă și cu acțiunea corectă. Cauza exactă rămâne inspectabilă secundar; nu inventa că este cheia greșită.
-- „Key saved” dovedește persistența, nu reușita catalogului sau validitatea upstream. Nu șterge cheia/reconfigura conexiunea ca răspuns generic la orice read failure.
-- Păstrează un singur Add models, Connection → Models → Review, selecțiile și consimțământul pentru exact modelele/costul cerute; fără simplificări care introduc apeluri implicite.
+CLI vechi cere0016; API candidat cere0017. CLI nou singur respinge locatorul/releaseul0016; joburile instalate nu provin automat din mountul development. Restartul vechi nu execută upgrade; slotul0.1.0 este imuabil, restore cere schema/digest compatibile. Nu inventa o comandă `upgrade` existentă și nu rezolva prin editarea manuală a schema/version/digest, restore cross-digest, suprascrierea releaseului ori profil gol.
 
-### D. Connected versus Unavailable — problemă de investigat, nu de cosmetizat
+Alege cea mai mică tranziție completă prin mecanismele existente: compatibilitatea vechi/nou, artefacte CLI/API/control/reconcile coerente, identitate nouă de release dacă este necesară, migrare0017 și rollback real. Orice contract lipsă primește delta canonică minimă înainte de cod, nu arhitectură nouă. Pregătește/probează în fixture izolată upgradeul de la release/schema vechi **populat**, pozitiv și refuzurile relevante, readback/identitate, eșec parțial și restaurarea admisă; fără secrete/LLM live. Review și QA înaintea efectelor operatorului.
 
-Operatorul raportează: după refresh, un model apare Connected în listă, Unavailable la Assignments, urmat de eroare de catalog; a mai văzut citirea catalogului eșuând deși cheia era salvată.
+Înaintea oricărei modificări de date/operator: consemnează before/after nesensibil și inversa, consistența backupului, disponibilitatea materialului criptat necesar și restaurarea verificată în copie izolată. Nu afișa/citi în context chei, cookies, coduri, dumpuri sau Docker Env; folosește mecanismul nativ de backup, nu export de secrete. Backupul vechi `.../omnis-backups/maintenance-056cffd-s6navmih` este istoric și nu acoperă automat configurația actuală sau0017; refolosește-l numai dacă inputurile/identitatea/schema/digest/stopped-state chiar se potrivesc. Nu consuma un grant STOPPED valid printr-un Start făcut doar pentru inventar.
 
-Citirea SOURCE din pregătire a stabilit numai aceste diferențe:
-- `SettingsModelsPage.tsx`, `load()` (~46–70), citește separat latest test și catalogul local; construiește `checks` și `evidence` distincte.
-- `entryStatus()` (~320–330) poate returna Connected din testul exact FINISHED/COMPLETED fără a cere aceeași dovadă de catalog ca Assignments.
-- `SettingsAssignments.tsx` (~14–36,65–72) și `SettingsModels.ts:24–26` folosesc `usable()`/capabilities pentru disponibilitate.
-- `SettingsModelWizard.tsx` (~48–55,120–122) are propria interogare și suprafață de status; `SettingsModelsPage.tsx` (~276–287) duplică notificare/catalog recovery/operație globală.
+**Nu modifica Python montat cât rulează API-ul operatorului.** Mai întâi starea/Stop normal verificate și prerechizitele de recovery, apoi integrare granulară a commiturilor revizuite și tranziție controlată. Păstrează metadata CURRENT mai nouă din main, nu readopta READY istoric din branchul candidat. Nu publica UI0017 singur peste API0016. După pornire verifică exact UUID/origin/release/schema/CLI/API/control/assets, starea reală și egalitatea configurațiilor/assignments/operation IDs/istoricului/cheilor prin proiecțiile existente, fără valorile secretelor.
 
-**Aceasta explică posibilitatea afișării necoerente, NU cauza demonstrată a eșecului de catalog al operatorului.** Reproduce prin callerul real și urmărește răspunsurile/reviziile/capabilitățile/expiry și codul exact al erorii, fără chei/cookies în log.
+## 6. Supervisor și cele două blocaje vechi — diagnostic țintit
 
-Distingi: rezultat de test salvat pentru revizia exactă, metadata curente disponibile, eligibilitate pentru assignment și imposibilitate temporară de readback. UI trebuie să le comunice coerent. Nu forța toate badge-urile verzi, nu elimina validarea capabilities/reviziei, nu transforma o eroare de citire în revocare și nu schimba implicit assignmentul/capul. Nu adăuga alt owner/tabel de status dacă proiecțiile existente sunt suficiente. Modifică API/contract numai dacă defectul demonstrat cere asta, propagând producerul/callerii/limitele prin serializorii reali.
+**Supervisor:** recurența `e9a7f3bac7e9` exited3/LEASE_LOST este capturată în `<root>/evidence/remove-model-fa5451e-pre-recovery.json`, anterior `finalization-supervisor-recurrence.json`. Cauza este UNKNOWN:5486ms COMMIT→TX_DONE/492ms după expiry nu izolează server commit, CPU sau clock. Folosește colectorul/procedura bounded existentă; păstrează trace înainte de recovery. Nu reface instrumentarea, nu mări lease5s/deadline-uri, nu adăuga autorestart/cron/watchers. Fault injection/revoke/kill/lease mutations sunt permise numai în fixturele izolate admise, nu în operator. Diagnostic inițial timeboxed20min pe dovezile existente; dacă trebuie observație nouă, o singură fereastră bounded justificată, nu repetări900s „până pare stabil”. Un remediu cere cauză/reproducer, review și probă relevantă; fără acestea raportează BLOCKED/cauză necunoscută, nu „fixat prin restart” și nu accepta riscul în numele utilizatorului.
 
-## 4. Folosește skillurile și documentarea UI, fără a schimba stackul
+**Default-web:** două rulări FAIL —1FAIL292PASS37.65s și4FAIL289PASS46.38s. Simptome session/bootstrap/library delay; cauza necunoscută. Logurile și controlul baseline sunt în registru; nu deduce lipsa regresiei din109teste componente ori un pass izolat. Localizează callerul/bootstrapul exact, fără mărire timeout/workers sau îndepărtare teste.
 
-Încarcă `omnis-frontend`, `omnis-accessibility`, `omnis-review-qa` la etapa relevantă. Operatorul cere explicit skilluri frontend/UI disponibile în Codex; acestea au fost găsite și citite:
-- `/home/kali/.codex/skills/frontend-design/SKILL.md`;
-- `/home/kali/.codex/skills/ui-ux-pro-max/SKILL.md`.
+**Cancel409:** oracle-ul HTTP greșit200 a fost corectat la202, cu JSON-first-once/diagnostic allowlisted; asta NU explică409 real. Următoarea probă trebuie să distingă status/error_code/operationID/requested-revision/observed-revision la frontiera pre-Cancel, nu să inventeze REVISION_CONFLICT. Folosește mecanismul existent și cel mai mic scenariu cu operația reală, peer local și Cancel/readback; fără noul owner/harness, fără a cere Cancel sub lockul pe care îl ții.
 
-Aplică selecția utilă de principii, nu preferințele lor generice care contrazic Omnis: **nu Tailwind/Next.js/Framer Motion noi, fonturi remote, palete/rebrand arbitrare, layout asimetric obligatoriu, framework de toast sau sistem nou de design**. Nu instala nimic doar pentru a rula un skill. React/TypeScript/Vite/Radix/CSS Modules și primitivele/tokenurile existente rămân baza. Skillul `uxui-principles` găsit este în principal un index de instalare, nu motiv de `npx skills add` sau API extern.
+**Contorul vechi harness-only2 rămâne consumat între sesiuni.** Fără al treilea retry larg default-web/vechiul32models+2Starts2Cancels. Un model cauzal corectat și consumer mai îngust trebuie admise explicit înaintea altei probe; nu reseta contorul prin redenumire, sesiune nouă sau Remove. Repară numai defectul demonstrat; un scoped PASS nu șterge FAIL-ul istoric.
 
-Surse consultate, utile pentru deciziile concrete:
-- [Apple Feedback](https://developer.apple.com/design/human-interface-guidelines/feedback): feedback aproape de obiect, întrerupere proporțională cu importanța, confirmări doar când ajută;
-- [Apple Progress indicators](https://developer.apple.com/design/human-interface-guidelines/progress-indicators): progres discret și corect, fără procente inventate sau etichete redundante;
-- [Apple Disclosure controls](https://developer.apple.com/design/human-interface-guidelines/disclosure-controls): detalii la cerere, legate de obiect;
-- [NNGroup: Indicators, Validations, Notifications](https://www.nngroup.com/articles/indicators-validations-notifications/): toast pasiv versus eroare persistentă/acționabilă.
+## 7. Aplicația operatorului și gate-ul final
 
-HIG nu autorizează refresh provider automat, relaxarea Stop sau copierea unui UI nativ peste aplicație. „Apple-style” înseamnă aici rafinament și claritate, nu animație/efecte gratuite. Definește o singură soluție vizuală scurtă pe baza ecranului real, apoi implementeaz-o; nu inventa trei mockupuri sau încă o bibliotecă. **Aprobarea estetică aparține operatorului.**
+Păstrează Settings C/77f9b58: paletă/fonturi existente,3coloane egale desktop/3rânduri mobile, înălțime intrinsecă, fără carduri și padding decorativ; Remove în dreapta/centrat desktop, sub metrici mobil, Test separat, min44/focus/English-only. Nu reimplementa sau redesena Remove. Refolosește QA53bindings/4PG+1UI și CLI101 privat la scope-ul neschimbat; rerulează numai call paths afectate de noua tranziție, apoi gate-ul obligatoriu la integrare.
 
-## 5. Reproducere, review și QA reală
+Pe instanța instalată reală: navigare/reload, expand/tastatură, date și assignments, controlul Remove/context/confirmare anulată/focus; fără ștergerea unui model real sau Test/Refresh. Folosește sesiunea normală; dacă a expirat, pairing manual prin traseul normal, fără extragere cookie/cod/cheie, fără profil browser clonat. Inspectează capturile, nu doar salva PNG. Cere acceptarea vizuală a controlului nou pe aplicația reală când este posibil, fără a redeschide baza deja acceptată. Nu certifica screen-reader/all-browsers/OSdialogkeys din Chromium.
 
-Un orchestrator; un developer desemnat pentru cod/teste/remedii; review independent pe bytes exacți. Două reviewuri complementare dacă atingi authority/Stop/secrete/concurrency/lifecycle. Orchestratorul nu devine un al doilea autor paralel. Codex este tooling de dezvoltare, nu runtime Omnis. Dacă îl lansezi, folosește skillul `codex`, verifică versiunea/auth status/sandbox fără a citi credentiale; niciun bypass de sandbox pentru a forța pornirea.
+Înainte de orice probă: argv/choices/collect/import/pin/access/UID/căi/oracle fără efecte; apoi fixture fresh, deadline și cleanup proprie. Pinuri existente: Node24.21.0/npm11.19.0/Python3.13.15/uv0.12.19; binare în `/home/kali/.local/share/omnis-toolchains/bin`. Nu instala dependențe în Hermes global și nu arăta raw gate.log/DSN în context.
 
-Înainte de autorat: inspectează aplicația reală, componentele/CSS/testele afectate, leagă producerul și primul consumer; declară criteriile și fișierele. Nu modifica designul din presupuneri. Dacă noua prezentare cere amendarea contractului UI canonic, fă delta minimă coerentă înainte de cod, nu rescrierea arhitecturii.
+Canonicalul este **o singură rulare finală completă≤5400s**, încă neconsumată. După fixuri/review/QA și acceptare folosește traseul existent `ops/run_test_db_gate.py --check --target check-components --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 5400` prin interpreterul API fixat, env/fixture sigure. Verifică propagarea reală; nu schimba selecția, workers, timeouturi individuale sau guarduri pentru verde. Rulează ca proces background urmărit, cu ID exact și readback exit/family_drained/artefacte; nu timeout foreground420s și nu polling/subagenți pentru un simplu shell job. Păstrează duratele din aceeași rulare dacă suportate, nu altă suită pentru profilare. FAIL → remediu/review/affected check; **alt canonical complet cere buget explicit nou**, nu lipi PASS-uri parțiale.
 
-Manual și prin regresiile existente, acoperă cel puțin:
-1. intrare în Settings, refresh normal/hard reload și tab nou, cu rezultate salvate și assignments existente;
-2. expand/collapse pe mai multe modele, tastatură, Test separat, citirea exactă a rezultatului și identitatea Cancel;
-3. Add models cu cheie deja salvată, catalog local prezent, citire lentă, catalog absent/stale/partial/failure, schimbare de conexiune; zero notificări de progres duplicate;
-4. model testat cu metadata lipsă versus model netestat/disponibil — mesaje coerente și fără assignment implicit;
-5. Save & connect cu mai multe modele: consent exact, UNKNOWN/eroare opresc continuarea; late success nu autorizează următorul apel; Stop→Start nu revalidează consimțământul vechi;
-6. recuperare după răspuns pierdut/reload/session expiry fără re-send, fără pierderea draftului și fără a închide browserul operatorului;
-7. notificări desktop/mobil, fără suprapuneri pe acțiuni/focus/Stop; statusurile importante accesibile, detaliile tehnice secundare;
-8. pe artefactul final: persistență, surse/mounturi/identitate păstrate, Start/Status/Stop și refuzurile Host/Origin/CSRF/session relevante schimbării.
+## 8. Ștergeri selective, nu păstrarea tuturor copiilor și nu purge
 
-Folosește callerii existenți (`web/src/app/*Settings*.test.tsx`, `ProviderKeySettings.test.tsx`, `web/tests/e2e/settings-models.mjs`, testele API/catalog afectate), nu un framework nou de QA. Verifică înainte comenzile/colecția/pinurile/browserul/PG/limitele și oracle-ul. Scenele negative, secretele sintetice și dispatchurile se testează în fixture izolat existent, nu prin fault injection/rotații/revoke în profilul operatorului. Manual înseamnă interacțiune reală și capturi inspectate, nu doar selectori sau screenshot salvat fără citire.
+Poți clasifica read-only în paralel, dar ștergerile dependente de noua instalare așteaptă validarea replacementului și rollbackului. Folosește `storage-maintenance` și `omnis-release-ops`; inventarul existent o singură dată plus delta necesară, nu rescanare globală home/root. Autorizația este pentru resurse Omnis identificate, nu laboratoare `vulnappomnis-*`, alte proiecte, toolchainuri comune sau fișierele protejate.
 
-Operator: folosește sesiunea normală; pairing manual dacă a expirat, fără export de cookie/cod/cheie. Nu naviga peste editări nesalvate. Citirile existente și inspecția sunt permise; pentru efect extern necesar reproducerii, verifică autorizația exactă. Nu consuma vechi acorduri de inferență și nu efectua apeluri model plătite fără acord nou. Un refresh local nu trebuie să devină refresh upstream/retest ascuns.
+Pentru fiecare resursă: **cale/ID exact → producer/owner → consumatori cwd/openfiles/mount/restartpolicy/symlinks → date unice/efecte unsettled → recuperare/reconstrucție → KEEP/DELETE/BLOCKED cu motiv → comandă owning-tool → readback**. Retenție minimă: instanța curentă/date/istoric/chei, backup-restaurare și rollback actual probate, originale/evidence necesare pentru efecte incerte. Numele „scratch/cache/old/exited” nu dovedește dispensabilitatea; nici local-only nu obligă păstrarea oricărei copii regenerabile. Nu crea automat arhive OCI pentru fiecare build vechi dacă nu este cerut byte-exact rollback.
 
-RED → GREEN minimal, regresii afectate, review/fix/re-review, apoi consumerul real. Reutilizează probele neschimbate. După două cicluri numai de harness pe aceeași acceptare, restrânge proba sau declară blockerul, nu adăuga observatori/verificatori. Nu muta întreaga finalizare într-un audit fără produs. Cere acceptarea vizuală pe buildul real înainte de a cheltui rularea canonică finală.
+Candidatele de worktree păstrează HEAD/commituri unice într-un ref; verifică tracked/index **și ignored/untracked**, shared deps/consumers; `git worktree remove` exact, fără force, apoi absență cale/registration și ref păstrat. Elimină numai symlinkul admis, nu targetul comun. Branchul/istoricul nu se șterg ca economie de checkout. Legacy QA `/home/kali/.hermes/cache/scratch/fqa-a488b26` la`e56bc648848a0e2b88cf8de462f8c6cfba276243` este alt worktree decât candidatul Remove; clasifică-le separat. Nu șterge worktree-ul activ înaintea integrării/păstrării artefactelor necesare.
 
-## 6. Runtime: nu confunda observația cu remedierea
+Noile fixture-uri parent/developer au deja containere/rețele/socketuri ABSENT și PGDATA/loguri păstrate; nu relansa pentru a le curăța. Decizia pentru datele vechi depinde de settlement/proveniență și retenție, nu de o probă fresh ulterioară. Instalația veche `omnis-t1-fixed-a5b8939` era retrasă STOPPED10, nu o porni/adopta pentru inventar. Nu folosi P1/r1 ca rollback improvizat. Inventarul istoric de procese/cwd a fost incomplet din permisiuni: nu declara lipsa universală a consumatorilor sau disk reconciliat complet.
 
-Incidentul anterior: supervisorul generation18/epoch10 a ieșit3 cu `QUIESCE/CONTROL_CONFLICT`; API/DB au rămas pornite. Lease expirată, callerul exact și cauza întârzierii neînregistrate. Recovery normal → STOPPED20; diagnostic `7885c48` → Start21/epoch12. **900s fără recurență**, readback final total902.833s; nu este dovadă de remediere sau de defect permanent.
+Fără `docker system prune`/`volume prune`, ștergere globală scratch/home, `reset --hard`, `clean -fd`, stash implicit, ștergere DB/credentiale/backupuri neclasificate. Prima permisiune refuzată cere oprire pe ținta aceea și diagnostic owner/parent, nu retry recursiv, chown original sau container privilegiat. Admin necesar: cere acțiune locală exactă, niciodată parolă în chat. Măsoară df/allocated bytes înainte/după fără dublarea directoarelor/layerele comune. Raportează ce a fost efectiv eliminat, ce rămâne și prerechizitul concret; cleanup parțial nu devine complet prin redenumirea restului drept retenție.
 
-Dovezi private nesensibile: `<root>/evidence/operator-postrestart-supervisor-failure.json`, `operator-idle-supervisor-diagnosis.json`, `idle-diagnostics-7885c48/` (două reviewuri,80SOURCE,25PG/27.77s,observation-result.json). Colectorul este task-scoped/bounded, failure-only, maximum3613bytes din4096, fără date private. Nu reconstrui instrumentarea, nu mări lease-ul5s sau deadline-uri, nu introduce autorestart/watchers/cron.
+## 9. Criterii de închidere — nu omite și nu extinde MVP
 
-Începe cu starea și diagnosticul existente. Dacă recidivează, păstrează trace-ul sanitizat **înainte** de recovery; salvează exit/stdout/stderr înaintea assertions. Reproduce/remediază numai cauza demonstrată, apoi review și probă relevantă. Nu injecta defecte în operator pentru diagnostic. Dacă nu există o cauză demonstrată, lasă UNKNOWN/BLOCKED sau cere explicit acceptarea riscului; nu inventa reparație și nu repeta ferestre de observație nelimitate.
+Bifează din cod/probe/review curente, nu din chat sau un număr de teste:
+1. Remove integrat granular și instalat coerent; aceleași UUID/origin/date/chei/istoric/assignments/capuri, fără implicit provider/model effect.
+2. Tranziție0016→0017 și backup/restaurare/rollback probate pe artefactele compatibile; noua instalație utilizabilă real, nu numai SOURCE/build.
+3. Supervisor: remediu cauzal verificat sau blocker explicit; niciun risc acceptat tacit. Nu declara finalizare fără dispoziția cerută.
+4. Blocajele default-web/Cancel rezolvate prin dovezi relevante, review și caller real; FAIL-urile/contorul rămân în istoric.
+5. UI/UX/Stop/Cancel/focus/UNKNOWN păstrate, inspecție reală și acceptare operator delimitată; nu un nou mockup sau un badge verde.
+6. Canonical complet real în buget și cleanup al familiei; limite/NOT_RUN separate, nu certitudine universală.
+7. Ștergeri admise efectuate, absențe verificate, retenție/recuperare exacte; fără resurse QA/writeri uitați sau pierderea datelor unice.
+8. Cerințele obligatorii T1 din canon reconciliate; dovezile istorice5d5bbfb/0b7d675 rămân scoped, nu relansa bugete live ori Hermes/P2. T2 este doar verdict/discuție ulterioară, **nu implementare automată**.
 
-## 7. Canonical: o rulare finală de maximum 90 minute este autorizată
+Actualizează CURRENT/SL12/SL33 și registrul existent în loc, cu snapshoturi/rezultate/limite; nu rapoarte repetitive pentru fiecare comandă. Pentru docuri: `python -B scripts/render_docs.py --check`, `python -B -m unittest discover -s tests/documentation -v`; regenerează HTML numai dacă sursa canonică randată se schimbă. Commit fiecare schimbare coerentă, readback git show/status; fără push sau intended changes necomise.
 
-- Autorizația nouă este pentru **o singură execuție canonică finală, maximum5400s**, după corecții/affected checks/review/acceptarea vizuală. Fără lansare în sesiunea de pregătire a promptului.
-- Păstrează selecția completă și gate-urile. Nicio schimbare de lease/deadline de produs, timeout individual, worker count sau teste eliminate pentru verde.
-- Folosește `Makefile` și `ops/run_test_db_gate.py` existente. Verifică parserul real și propagarea bugetului până la consumer înainte de efecte; dacă e necesar, adaptează minimal același traseu, cu regresie/review, nu al doilea runner.
-- Pinuri: Node24.21.0, npm11.19.0, Python3.13.15, uv0.12.19. Nicio reinstalare de operator pentru teste.
-- Măsurarea istorică:3168API PASS în3213.52s;23migrations67.68s;Settings47.81s;10webE2E117.90s;383CLI source109.996s/383wheel104.485s/status4.16s. Suma3665.551s provine din DOUĂ rulări și exclude alte etape; nu este predicție pentru versiunea curentă. API este componenta lungă cunoscută, profilul fiecărui test nu este stabilit.
-- Nu rula încă o suită lungă doar pentru profilare. Dacă opțiunile existente permit, păstrează duratele din aceeași rulare pentru a explica costul; fără infrastructură de benchmark.
-- 90minute nu garantează PASS. Păstrează FAIL/TIMEOUT/family-drain și cleanupul real. Un eșec cere diagnosticul/remediul afectat, nu retry orb; altă rulare canonică necesită buget nou explicit. PASS-urile delimitate nu se lipesc într-un PASS integral.
-
-## 8. Cleanup și recuperare fără pierderea datelor
-
-Nu relua ștergerile deja verificate:24worktrees și artefacte/imaginile QA dispensabile, fixture-urile CLI/PG/browser proprii au fost retrase; dovada este în registrul existent/private evidence. Reducerea netă istorică măsurată2.26GiB este doar o etapă, nu suma tuturor tagurilor/ștergerilor. Ultima citire a discului:83%ocupat; reverifică dacă devine relevant.
-
-Pentru resursele încă existente: inventar mic `resursă exactă → owner/consumers → date unice/efecte incerte → retenție/backup → eliminare → verificare`. Descoperire prin roots Omnis, `git worktree list` și metadata Docker, nu comenzi de ștergere după prefix/vârstă/exited. Nu include laboratoarele `vulnappomnis-*`, alte proiecte, toolchainurile/interpreterele comune sau resursele instanței alese.
-
-Instalația veche `omnis-t1-fixed-a5b8939` este deja retrasă STOPPED10, cu date/chei/release păstrate; nu o reactiva. Backupurile logice/cold/restaurările verificate sunt sub `/home/kali/.local/share/omnis-backups/maintenance-056cffd-s6navmih`. Citește metadata/validatori, **nu conținutul cheilor/dumpurilor în context**. Cold STOPPED5 este checkpoint istoric, nu backup al ultimelor configurații, grant actual sau acoperire pentru alte profiluri. Nu repeta backup/restaurare dacă inputurile relevante sunt neschimbate; dacă trebuie protejate date noi înainte de un efect ireversibil, folosește mecanismul existent cu consistență/restore plan corecte.
-
-Fără `docker system prune`/`volume prune`, ștergere globală scratch/home, `reset --hard`, `clean -fd`, stash implicit ori worktree removal fără verificarea ignored/untracked/commiturilor unice. Sudo numai prin confirmare locală, niciodată parolă în chat, containere privilegiate sau schimbarea ownershipului datelor originale. Nu restaura launcherul P1/r1 ca rollback. Măsoară numai spațiul efectiv, verifică fiecare efect; retenția justificată nu este gunoi de șters.
-
-## 9. Închidere și raport
-
-Reutilizează acceptarea T1 istorică5d5bbfb/0b7d675 la scope-ul ei: conectivitate API-key-only/Settings/seif/SystemOperation/sender/outcome/readback/Stop. Nu relansa P2/Hermes ori loturi provider consumate. Reconcilează numai obligațiile T1 și schimbările actuale, folosind registrul existent; corectitudinea documentelor nu substituie runtime-ul. Limitele istorice OrcaRouter live/active-Stop-drain/readerii neprobați rămân explicite, nu se transformă în probe executate sau în obligații T2 inventate.
-
-Actualizează CURRENT și rândurile afectate în loc. Commit după fiecare schimbare coerentă; stage numai căile intenționate, fără amend/squash/reset/push. Pentru documentare: `python -B scripts/render_docs.py --check` și `python -B -m unittest discover -s tests/documentation -v`; regenerează HTML numai când se modifică sursa canonică randată.
-
-La final: aplicația reală în stare verificată, UI acceptat de utilizator, cod/teste/remedii revizuite, date/chei/istoric păstrate, cleanup/retention clare, canonical cu rezultat real, fără modificări intenționate necomise sau resurse QA/writeri uitați. Raport scurt în română: comenzile de folosire/editare/rollback, commituri și probe, ce a fost eliminat/păstrat, blocante/limite și verdictul de pregătire T2. **Nu declara „fără niciun bug”, nu porni T2 și nu confunda funcțional, vizual acceptat și integral verificat.**
+Continuă până la aceste rezultate ori un blocker real de autorizare/acces/siguranță/buget. Dacă blochează ceva, termină celelalte ramuri independente admise, nu ascunde problema și nu promite „gata tot”. Raport final scurt în română: ce funcționează pe operator, commituri/probe/review, ce s-a șters/păstrat, spațiu măsurat, backup/rollback/utilizare, limite/blocker și verdict T1/T2. Încheie în stil Ponytail: ce ai omis/neexecutat și riscul rămas.

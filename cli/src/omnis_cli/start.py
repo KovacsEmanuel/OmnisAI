@@ -54,6 +54,7 @@ from .start_runtime import (
     check_native_paths,
     check_vault_paths,
     private_identity,
+    refuse_upgrade,
     settings_overlay,
 )
 
@@ -1141,6 +1142,11 @@ def start_instance(
     from .stop import _integer, _preflight_record, readback_stopped, refuse_interrupted_recovery
 
     config = load_config()
+    data = os.environ.get("XDG_DATA_HOME")
+    data_home = Path(data) if data else Path.home() / ".local/share"
+    refuse_upgrade(
+        data_home / "omnis", str(_upgrade["upgrade_id"]) if _upgrade is not None else None
+    )
     if _upgrade is not None:
         config = replace(config, development_workspace=None)
     startup_seconds = config_integer(
@@ -1176,8 +1182,6 @@ def start_instance(
     if initial_phase == "STOPPING":
         raise StartError("INSTANCE_SHUTTING_DOWN", 4)
     deadline = time.monotonic() + startup_seconds
-    data = os.environ.get("XDG_DATA_HOME")
-    data_home = Path(data) if data else Path.home() / ".local/share"
     try:
         runtime = (
             ControlRuntime(data_home, deadline, upgrade_id=str(_upgrade["upgrade_id"]))

@@ -143,6 +143,19 @@ class UpgradeTest(unittest.TestCase):
             with self.assertRaisesRegex(StartError, "UPGRADE_RECOVERY_REQUIRED"):
                 ControlRuntime(base / "d", 0)
 
+    def test_start_refuses_active_upgrade_before_decoding_mixed_journal(self):
+        from omnis_cli.main import main
+
+        with cold_fixture.ColdBackupTest().source() as (base, root, _record, _runtime):
+            write_record(
+                base / "d/omnis/upgrade.json", {"state": "STARTING", "upgrade_id": "other"}
+            )
+            write_record(root / "startup.json", {"phase": "VERIFYING"}, replace=True)
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main(["start", "--no-open", "--json"]), 4)
+            self.assertEqual(json.loads(output.getvalue())["reason"], "UPGRADE_RECOVERY_REQUIRED")
+
     def test_rollback_never_accepts_open_or_unknown_effect(self):
         module = importlib.import_module("omnis_cli.upgrade")
         with cold_fixture.ColdBackupTest().source() as (base, root, record, runtime):

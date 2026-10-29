@@ -1,0 +1,46 @@
+{
+  "backup_root": "/home/kali/.local/share/omnis-backups/t1-finalization-20261029T194541Z",
+  "checked_utc": "2026-10-29T19:47:46.217790+00:00",
+  "ciphertext_opaque_equal": true,
+  "domain_table_hashes_match": 31,
+  "driver_sha256": "0990439a4be217d4753aaf8788be7bb89cbedcdb61332b77efac6e48d046012c",
+  "family_drained": true,
+  "fixture_cleanup": {
+    "container": "16fe2caa6d61692a682e00da4dc5ba46cceada21a256b5e1893610c398f49261",
+    "container_absent": true,
+    "daemon_unchanged": true,
+    "data_retained": "/home/kali/.hermes/cache/scratch/pr-a_7qgm87/db-64049aa2219547d1/data",
+    "project": "omnis-p01-460910538fb54cf09e8ab21767686cb2",
+    "project_containers_absent": true,
+    "project_networks_absent": true,
+    "socket_and_lock_absent": true
+  },
+  "instance_id": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+  "known_407f88a_baseline_exact": true,
+  "limitations": [
+    "local logical data backup, not physical cluster/PGDATA or cluster credentials restore",
+    "logical identity is not permission to revive old lease/generation",
+    "preserved supervisor failure remains UNKNOWN",
+    "additional authority-schema observer failed although native physical schema equality and restore comparisons completed"
+  ],
+  "live_before_after_final_exact": true,
+  "master": "original metadata/readability verified, never read/hashed/copied/exported",
+  "native_exit_basis": "run() checks each native returncode and the actual worker reached asyncio.run(physical()) afterward",
+  "native_pg_dump_exit": 0,
+  "native_pg_restore_exit": 0,
+  "no_second_restore_or_fixture": true,
+  "operator_effects": "READ ONLY SQL/metadata/opaque ciphertext copy; existing lock files opened O_RDONLY and flocked without creation; no recover/Stop/Start/migrate/settings/provider/target",
+  "optional_authority_schema_reader": "NOT_RUN: percent-encoded UDS host interpreted as DNS by SQLAlchemy/psycopg, UnicodeEncodeError/idna before database connection",
+  "outer_gate_exit": 1,
+  "owner_preserved": "omnis NOLOGIN role, no no-owner/no-acl flags",
+  "physical_schema_bytes_exact": true,
+  "restore_domain_projection_exact": "PASS: executed assertion before the later optional reader failure; separate restored JSON was not retained",
+  "schema": "0016_provider_models",
+  "schema_normalization_only": [
+    "random psql restrict/unrestrict guards"
+  ],
+  "table_census_match": 34,
+  "vault_autounlock": "NOT_PROVED; no decrypt operation or application started",
+  "verdict": "CURRENT_NATIVE_BACKUP_AND_ISOLATED_RESTORE_PROVED_SCOPED",
+  "worker_sha256": "a3602df0b621de5df0e08d9fe8b0f3f4d597902e3e3a10677dcf4481717aa041"
+}

@@ -2,7 +2,7 @@
 
 ## Mandat și snapshot
 
-**T1 CLOSED_SCOPED local — [acceptarea curentă](#acceptare-t1-locală-scoped).** Operatorul a activat explicit [promptul T1](api-key-runtime-t1-prompt.md) după [T0 CLOSED_SCOPED](api-key-runtime-t0.md). Snapshoturile PARTIAL/BLOCKED de mai jos sunt istorice: bază585eaeb0, principalb77ef607 și candidatul f26beb4 nu erau acceptare T1. Produsul final testat5d5bbfb este integrat în principal0b7d675, cu metadata nouă păstrată. Fișierele protejate rămân necitite/necomise; închiderea nu lansează T2.
+**Finalizarea actuală T1 rămâne NOT_CLOSED; Remove/upgrade0017 sunt instalate și acceptate scoped — [criteriile curente](#finalizare-settings-și-remove--instalat-scoped-t1-neînchis).** [Acceptarea5d5bbfb/0b7d675](#acceptare-t1-locală-scoped) este istorică și se reutilizează numai în scope-ul ei; nu certifică automat extensiile Settings sau stabilitatea operatorului. Operatorul a activat explicit [promptul T1](api-key-runtime-t1-prompt.md) după [T0 CLOSED_SCOPED](api-key-runtime-t0.md), apoi [mandatul de finalizare](settings-finalization-prompt.md). Snapshoturile mai vechi de mai jos păstrează starea/autoritatea de la reviziile lor, nu sunt cozi concurente. Fișierele protejate rămân necitite/necomise; T2 nu este autorizat.
 
 Plafonul mandatului: **T1**, nu T2–T6/M-LAB. Arhitectura §5–5.5/§8.1 și plan §7–8 rămân canonul. Acest registru consemnează implementarea/probele, nu introduce alt plan. Ownerul produsului este supervisorul existent; orchestratorul admite/integrează, un developer desemnat scrie și remediază produsul, două reviewuri independente complementare examinează aceiași bytes, apoi QA independentă exercită consumerul real.
 
@@ -470,10 +470,46 @@ La cererea explicită de continuare, livrarea aprobată după gates este executa
 
 **Dispoziții:** LIVE-POST-RESTART-01 închis scoped prin fix/review/prefix instalat și Test configurat după restart; cauza internă a vechii execuții rămâne neobservată. R2-NEW-01 închis **CLOSED_SCOPED_COMPOSED pentru T1**, nu certificare universală a tuturor curselor/peerilor/namespace-urilor. Vechiul NOT_OBSERVED_ACTIVE_STOP, counter2, FAIL/UNKNOWN și limitările observatorilor sunt păstrate. Nu mai există implementare T1 obligatorie deschisă în acest scope; T2 necesită mandat separat. Rapoartele copiilor propun rezultate, această decizie aparține părintelui.
 
-## Recovery și rollback
+## Recovery și rollback — istoric5d5bbfb
 
 Recuperare unică: CURRENT → acceptarea T1 de mai sus → Git și starea curentă, **fără relansarea feliilor acceptate**. Produs5d5bbfb/autor8c527a0 integrat în principal0b7d675 cu metadata păstrată; două chartere, Canonical11 și probele compuse rămân scoped. Bundle/dovezi originale durabile în `omnis-t1-artifacts/postrestart-a5b8939`; instalația normală este `/home/kali/.local/share/omnis-t1-fixed-a5b8939`, e10da359/8773/a5b8939, ultimul readback READY8/epoch5. Folosește exclusiv CLI/roots/README de acolo. QA încheiată, observatori/browser închiși; fără writer de produs sau gate activ.
 
 **Date și identități:** noul root păstrează patru operații terminale și istoricul; conexiunea **rev2 este dezactivată intenționat după revoke**, selection1 rămasă stale. Pentru utilizare ulterioară, operatorul reactivează/salvează explicit cheia numai în UI și salvează selecția pe revizia curentă; niciun secret nu este copiat sau introdus de agent. Vechiul62b/d340a58 rămâne UNAVAILABLE după boot schimbat, nu STOPPED certificat/adoptat, cu toate datele/resursele păstrate; vechea8772/retired33ee99 neatinse. Git revert nu restaurează DB/chei/servicii; rollback operațional numai prin CLI exact al instanței, cu acord și păstrarea datelor.
 
 **Limita de continuare:** T1 este CLOSED_SCOPED. Lotul final1Refresh/4Start/1SIGKILL/1revoke este consumat, ca și tentativele anterioare în scope-ul lor; UNKNOWN nu devine refund sau permis de retry. Nu reexecuta cazuri pentru recrearea raportului. OrcaRouter live, istoricul neprobat și active-Stop-drain instalat păstrează NOT_RUN/NOT_OBSERVED, fără a fi prezentate drept rezultate executate. T2, reactivarea, alte apeluri provider/ținte/rollout/global/push cer acordurile lor; **nimic nu pornește automat din această închidere**. HTML-ul protejat și `tempkey.txt` rămân necitite/necomise.
+
+## Finalizare Settings și Remove — instalat scoped, T1 neînchis
+
+Mandatul nou explicit a fost executat, nu dedus din timeoutul vechi. Punctul unic
+de recuperare este [registrul Settings](settings-c-evidence/ui-result.json) →
+`finalization_handoff.execution.finalization_execution.operator_rollout`.
+Removeed611aa și tranzițiabb760e5, cu istoricul granular/reviewurile complementare
+și QA instalată păstrate, sunt integrate prin a8a1827; b428478 integrează numai
+controalele înguste revizuite. Nu a fost schimbat Python montat până la STOPPED26
+și absența resurselor vechi. Nu este un remediu cauzal al supervisorului.
+
+| Criteriu al mandatului | Rezultat actual și dovadă | Limită / decizie |
+|---|---|---|
+| 1. Remove integrat/instalat, date/identitate păstrate | [Upgrade real0](settings-c-evidence/t1-operator-upgrade-result.json), [QA independentă](settings-c-evidence/t1-operator-independent-postupgrade.json), [readback după UI](settings-c-evidence/t1-operator-post-ui-readback.json): aceeași instanță/origin8780, READY27/epoch16, release0.1.1/schema0017;4modele/registry4/selection2/capuri128/8operații/16comenzi/88records păstrate | PASS_SCOPED; configurația este egală ca valori, bytes NOT_PROVEN fără hashul anterior; lease/control schimbate explicit prin recovery/upgrade |
+| 2. Tranziție, backup/restaurare și rollback compatibile | Două reviewuri complementare bb760e5 și două scenarii instalate upgrade156.108s/rollback162.782s, exit0; backup actual nativ restaurat în copie, [dovadă](settings-c-evidence/t1-operator-preservation-verification.json); upgradeul real a verificat și cold backup/trialrestore; [Start ulterior0/reusedtrue](settings-c-evidence/t1-operator-next-start-result.json) | Rollback probat numai cunoscut/preOPEN; helperul logic exterior1/cititor auxiliar pre-connect NOT_RUN rămân separate de pg_restore0/comparațiile native. Nu downgrade după OPEN sau nou backup cold0017 pretins |
+| 3. Supervisor | Diagnostic bounded pe trace-ul original: OWNED_STATUS/LEASE_LOST,5486ms transaction-exit,492ms după expiry cu owner/epoch egale | BLOCKED_CAUSE_UNKNOWN_UNFIXED; lipsesc martorii care separă servercommit/driver/pool/scheduling. Recovery/READY nu acceptă riscul și nu schimbă lease/deadline |
+| 4. Default-web și Cancel | Diagnostic real request1/observedRUNNING2→409REVISION_CONFLICT; control UI/current-revision request2→202→FINISHED/CANCELLED4,14.60s/exit0/drained, fără resend | Cancel actual închis scoped, nu requestul istoric nereținut. Default-web două FAIL-uri rămân neexplicate; counter harness-only2 consumat, fără al treilea retry larg |
+| 5. UI reală/focus/acceptare | Browser normal, Enter expand/Tab Test→Remove, confirmare exactă→Escape/anulare, reload și context in-use inspectate; operator: „Accept aspectul noului control Remove pe aplicația reală”. Proiecțiile/hashurile după UI neschimbate | PASS_SCOPED pentru traseul sigur; Find a stabilit punctul de start, nu full-document keyboard entry. Fără model real șters/Test/Refresh; AX/DOM focus și succes destructiv nativ necertificate; viewporturile izolate neschimbate reutilizate |
+| 6. Canonical final unic≤5400s | [Preflight real fără efecte](settings-c-evidence/t1-finalization-canonical-preflight.json): pinuri/parser/argv PASS, zero provisioning/gate | BLOCKED_PREREQUISITES/NOT_RUN,0din1 încercări consumate; nu lipsă de acord/buget/pairing. Prerechizitele supervisor/default-web nu sunt înlocuite prin PASS-uri scoped |
+| 7. Cleanup selectiv și recuperare |4configuri imagine QA șterse/verificate anterior; după lsof privilegiat furnizat de operator, [checkoutul fqa retras0](settings-c-evidence/t1-fqa-retirement-result.json), refurile și3targeturi comune păstrate;65646592bytes alocate eliminate | df imediat+65994752bytes include concurență, nu exclusiv reclaimed; date/chei/backups/rollback/efecte istorice incerte păstrate. br-hlw_xp25 și restul vizibilității rămân retenție parțială, fără prune/global cleanup |
+| 8. Reconciliere T1/T2 | CURRENT, SL12/SL33 și acest registru separă integrarea/QA/review de acceptarea istorică5d5bbfb | T1 NOT_CLOSED; T2/agent-tool-loop nu sunt implementate sau autorizate prin această finalizare |
+
+**Utilizare/recuperare actuală:** rootul rămâne
+`/home/kali/.local/share/omnis-settings-c-9e51d10`, CLI global `omnis`,
+DEVELOPMENT `/home/kali/OmnisAI`; `omnis status --json` este citirea normală.
+Nu repetați upgrade/recovery/Start doar pentru inventar. Backupul actual logic
+`/home/kali/.local/share/omnis-backups/t1-finalization-20261029T194541Z` și cel
+cold `/home/kali/.local/share/omnis-backups/t1-upgrade-bb760e5-stopped26`,
+materialul criptat/masterul separat, releaseurile/imaginile/CLI vechi și noi și
+bundleul durabil `omnis-t1-artifacts/upgrade-bb760e5/bundle` sunt păstrate.
+Upgradeul a ajuns OPEN: vechiul snapshot nu acordă autoritate pentru downgrade
+fără pierderi sau reînvierea lease-urilor. Git revert nu restaurează DB/secrete/
+servicii. Nu porniți instalația istorică `omnis-t1-fixed-a5b8939` drept fallback.
+Continuarea cere cauza/reproducerul care schimbă decizia la supervisor/default-web,
+remediul minim revizuit și affected check, apoi unicul canonical; nu alte probe
+plătite, o nouă fereastră900s, harness larg repetat sau T2.

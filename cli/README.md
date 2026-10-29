@@ -51,6 +51,12 @@ Un singur root activ: `/home/kali/.local/share/omnis-settings-c-9e51d10`, origin
 este consemnată în [registru](../documents/verification/settings-c-evidence/ui-result.json);
 verificați starea curentă, nu deduceți autostart:
 
+Tranziția explicită revizuită a fost executată pe aceleași date: ultimul readback
+**READY27/epoch16, CLI/release0.1.1 și schema0017_model_removal**, DEVELOPMENT;
+următorul Start normal a fost `reused=true`. Remove este instalat și acceptat
+vizual; supervisorul/default-web rămân blocante pentru închiderea T1. READY nu
+este remediu al cauzei sau promisiune de disponibilitate persistentă.
+
 ```sh
 omnis status --json
 omnis start                  # explicit, start/reuse și browser verificat
@@ -64,15 +70,24 @@ PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH npm --prefix web run bui
 Configul privat este `<root>/c/omnis/config.toml`, cu
 `development_workspace = "/home/kali/OmnisAI"`. Pentru rollback: Stop verificat,
 eliminați **numai această cheie**, apoi Start; CLI-ul capabil rămâne instalat.
-Releaseul/imaginea7673066, datele și cheile sunt păstrate. Nu restaurați backupul
+Slotul/imaginea curentă0.1.1 sunt coerente; releaseul/imaginea veche7673066,
+datele și cheile sunt păstrate. Eliminarea cheii development selectează bundleul
+curent0017, **nu downgrade0016**. Backupurile actuale sunt
+`/home/kali/.local/share/omnis-backups/t1-finalization-20261029T194541Z`
+și `/home/kali/.local/share/omnis-backups/t1-upgrade-bb760e5-stopped26`;
+masterul rămâne separat. Restaurarea nativă și rollbackul cunoscut **preOPEN**
+au probe scoped; după OPEN nu există downgrade automat/fără pierderi sau
+restore cross-digest admis. Nu repetați `upgrade`, recovery ori restore pentru
+inventar. Git revert nu restaurează DB/chei/servicii. Nu restaurați backupul
 launcherului P1/r1. Nu modificați Python în timp ce rulează; schimbările de
 dependențe/schemă/protocol cer o tranziție explicită, nu un nou profil gol.
 Start/Open cer deschiderea în profilul desktop curent. Cu sesiune validă, browserul
 ajunge în Dashboard; prima asociere sau sesiunea expirată cer pairing manual ales
 explicit. `omnis pair` se execută în terminal local; codul se introduce direct în
 UI, niciodată în URL/chat. Nu se automatizează autentificarea.
-Modul development nu este un release imuabil certificat; canonicalul integral
-TIMEOUT/BLOCKED_BUDGET și T2 NOT_RUN rămân separate.
+Modul development nu este un release imuabil certificat. Canonicalul nou unic
+5400s este NOT_RUN/neconsumat/BLOCKED_PREREQUISITES (supervisor/default-web),
+nu BLOCKED_BUDGET/pairing; TIMEOUT-ul vechi rămâne istoric. T2 nu este autorizat.
 
 [`operator-launcher.sh`](operator-launcher.sh) este artefactul sursă pentru aceleași
 două fișiere `<root>/omnis` și `/home/kali/.local/bin/omnis`, numai pe această VM;

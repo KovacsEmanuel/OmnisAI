@@ -1,0 +1,20 @@
+{
+  "canonical_attempts_consumed": 0,
+  "canonical_budget_seconds_remaining": 5400,
+  "db_or_gate_executed": false,
+  "disposition": "BLOCKED_PREREQUISITES_NOT_RUN; not missing authority/budget",
+  "next_decision": "Discriminating causal reproduction on existing failing bootstrap or supervisor trace boundary, then minimal reviewed fix/affected real check before consuming sole final5400s; no timeout/workers/selection relaxation.",
+  "original_parser_with_inert_provisioning_callback": [
+    [
+      "check-components",
+      "/home/kali/.local/share/omnis-toolchains/bin/uv",
+      5400
+    ]
+  ],
+  "real_existing_pin_preflight": "PASS",
+  "reason": "Default-web two full failures remain unlocalized with harness-only2 consumed; no causal fix/admitted new broad model. Supervisor recurrence root cause UNKNOWN/unfixed; newREADY is recovery not causal repair. Mandate requires corrections/reviews/realUIacceptance before unique final canonical and forbids third blind broad retry. UI/upgrade now accepted scoped but do not waive these prerequisites.",
+  "resolved_uv": "/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+  "runner_sha256": "24cc5a9696bbe7e1f3595ca09c74ec2ae2f8d48b006bdf24fd652b7495954506",
+  "snapshot": "b4284786391dae139abb38233691470e9d180fdc",
+  "utc": "2026-10-29T20:35:47.471105+00:00"
+}

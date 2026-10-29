@@ -1,0 +1,1029 @@
+{
+  "baseline_comparison": {
+    "connections": true,
+    "entries": true,
+    "entry_history": true,
+    "model_commands": true,
+    "model_dispatches": true,
+    "model_records": true,
+    "operations": true,
+    "registry_revisions": true,
+    "selection": true
+  },
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "info",
+        "--format",
+        "{{.ID}}"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "--format",
+        "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"image\":{{json .Image}},\"status\":{{json .State.Status}},\"labels\":{{json .Config.Labels}},\"mounts\":{{json .Mounts}},\"ports\":{{json .NetworkSettings.Ports}},\"networks\":{{json .NetworkSettings.Networks}},\"network_mode\":{{json .HostConfig.NetworkMode}},\"restart\":{{json .HostConfig.RestartPolicy.Name}}}",
+        "01af3c9361d6b924dcd7f8f6fe3a37e2333002f505fa452e54913ef968f528e4",
+        "12a60dacb788e4818ca85208436cced99b5fc3a5784be7cb102a79676f9ecc77",
+        "df6b1ab2fe2e07e1e26486e9928a6513268eb1cc0e974c5771ba4ac2935ce9d0"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "ss",
+        "-ltnp",
+        "sport = :8780"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/home/kali/.local/bin/omnis",
+        "status",
+        "--json"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "-i",
+        "01af3c9361d6b924dcd7f8f6fe3a37e2333002f505fa452e54913ef968f528e4",
+        "python",
+        "-I",
+        "-B",
+        "-"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "12a60dacb788e4818ca85208436cced99b5fc3a5784be7cb102a79676f9ecc77",
+        "psql",
+        "-X",
+        "-qAt",
+        "-U",
+        "omnis",
+        "-d",
+        "omnis",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-c",
+        "BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY; SET LOCAL statement_timeout='15000'; SET LOCAL lock_timeout='3000'; SET LOCAL timezone='UTC'; SELECT jsonb_build_object('schema',(SELECT version_num FROM alembic_version),'instance',(SELECT to_jsonb(t) FROM (SELECT instance_id,admission_open,generation,quiesced_generation,shutdown_command_id FROM instance_control) t),'connections',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY connection_id,revision),'[]') FROM (SELECT connection_id,provider,revision,enabled FROM provider_connection_revision) t),'entries',(SELECT count(*) FROM provider_model_entry),'entry_history',(SELECT count(*) FROM provider_model_entry_revision),'registry_revisions',(SELECT count(*) FROM provider_model_registry_revision),'model_commands',(SELECT count(*) FROM model_command_v2),'model_dispatches',(SELECT count(*) FROM model_dispatch_v2),'model_records',(SELECT count(*) FROM model_record_v2),'operations',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY operation_id),'[]') FROM (SELECT operation_id,state,state_revision FROM system_operation) t),'selection',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY revision),'[]') FROM (SELECT selection_id,revision,payload FROM provider_selection_revision) t));SELECT jsonb_build_object('alembic_version',(SELECT count(*) FROM public.\"alembic_version\"),'catalog_command',(SELECT count(*) FROM public.\"catalog_command\"),'catalog_identity',(SELECT count(*) FROM public.\"catalog_identity\"),'catalog_publication_head',(SELECT count(*) FROM public.\"catalog_publication_head\"),'catalog_record',(SELECT count(*) FROM public.\"catalog_record\"),'catalog_reservation',(SELECT count(*) FROM public.\"catalog_reservation\"),'engagement',(SELECT count(*) FROM public.\"engagement\"),'engagement_revision',(SELECT count(*) FROM public.\"engagement_revision\"),'instance_command',(SELECT count(*) FROM public.\"instance_command\"),'instance_control',(SELECT count(*) FROM public.\"instance_control\"),'instance_stop_fence',(SELECT count(*) FROM public.\"instance_stop_fence\"),'instance_stop_reconciliation',(SELECT count(*) FROM public.\"instance_stop_reconciliation\"),'managed_inbox',(SELECT count(*) FROM public.\"managed_inbox\"),'managed_mission_revision',(SELECT count(*) FROM public.\"managed_mission_revision\"),'managed_record',(SELECT count(*) FROM public.\"managed_record\"),'managed_run',(SELECT count(*) FROM public.\"managed_run\"),'managed_task',(SELECT count(*) FROM public.\"managed_task\"),'model_command_v2',(SELECT count(*) FROM public.\"model_command_v2\"),'model_dispatch_event_v2',(SELECT count(*) FROM public.\"model_dispatch_event_v2\"),'model_dispatch_v2',(SELECT count(*) FROM public.\"model_dispatch_v2\"),'model_record_v2',(SELECT count(*) FROM public.\"model_record_v2\"),'pairing_challenge',(SELECT count(*) FROM public.\"pairing_challenge\"),'pairing_issuance',(SELECT count(*) FROM public.\"pairing_issuance\"),'provider_connection_revision',(SELECT count(*) FROM public.\"provider_connection_revision\"),'provider_model_command',(SELECT count(*) FROM public.\"provider_model_command\"),'provider_model_entry',(SELECT count(*) FROM public.\"provider_model_entry\"),'provider_model_entry_revision',(SELECT count(*) FROM public.\"provider_model_entry_revision\"),'provider_model_registry_revision',(SELECT count(*) FROM public.\"provider_model_registry_revision\"),'provider_selection_revision',(SELECT count(*) FROM public.\"provider_selection_revision\"),'provider_settings_command',(SELECT count(*) FROM public.\"provider_settings_command\"),'supervisor_lease',(SELECT count(*) FROM public.\"supervisor_lease\"),'system_operation',(SELECT count(*) FROM public.\"system_operation\"),'system_operation_event',(SELECT count(*) FROM public.\"system_operation_event\"),'ui_session',(SELECT count(*) FROM public.\"ui_session\"));SELECT jsonb_build_object('alembic_version',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"alembic_version\" t),'catalog_command',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"catalog_command\" t),'catalog_identity',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"catalog_identity\" t),'catalog_publication_head',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"catalog_publication_head\" t),'catalog_record',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"catalog_record\" t),'catalog_reservation',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"catalog_reservation\" t),'engagement',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"engagement\" t),'engagement_revision',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"engagement_revision\" t),'instance_command',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"instance_command\" t),'instance_control',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"instance_control\" t),'instance_stop_fence',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"instance_stop_fence\" t),'instance_stop_reconciliation',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"instance_stop_reconciliation\" t),'managed_inbox',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"managed_inbox\" t),'managed_mission_revision',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"managed_mission_revision\" t),'managed_record',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"managed_record\" t),'managed_run',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"managed_run\" t),'managed_task',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"managed_task\" t),'model_command_v2',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"model_command_v2\" t),'model_dispatch_event_v2',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"model_dispatch_event_v2\" t),'model_dispatch_v2',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"model_dispatch_v2\" t),'model_record_v2',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"model_record_v2\" t),'provider_connection_revision',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"provider_connection_revision\" t),'provider_model_command',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"provider_model_command\" t),'provider_model_entry',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"provider_model_entry\" t),'provider_model_entry_revision',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"provider_model_entry_revision\" t),'provider_model_registry_revision',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"provider_model_registry_revision\" t),'provider_selection_revision',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"provider_selection_revision\" t),'provider_settings_command',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"provider_settings_command\" t),'supervisor_lease',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"supervisor_lease\" t),'system_operation',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"system_operation\" t),'system_operation_event',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]'),'UTF8')),'hex') FROM public.\"system_operation_event\" t));SELECT jsonb_build_object('system_id',(SELECT system_identifier::text FROM pg_control_system()),'removed_nonnull',(SELECT count(*) FROM provider_model_entry WHERE removed_registry_revision IS NOT NULL),'entry_normalized_hash',(SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(t)-'removed_registry_revision' ORDER BY (to_jsonb(t)-'removed_registry_revision')::text)::text,'[]'),'UTF8')),'hex') FROM provider_model_entry t),'supervisor_lease',(SELECT to_jsonb(t) FROM supervisor_lease t)); COMMIT;"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "01af3c9361d6b924dcd7f8f6fe3a37e2333002f505fa452e54913ef968f528e4",
+        "python",
+        "-I",
+        "-B",
+        "-c",
+        "import json,hashlib,pathlib; d={'omnis/__init__.py': 'b735de282691a464a5a74ee200e984d26effb0d20b418254ef423d59599c808a', 'omnis/api.py': '3471ce8f78f9e058f24e77c3bb63ca985fda42f8a0cd7282d809c0acd5117d84', 'omnis/core/db.py': '09a515999035aa6468e22044f1c439074187c78ee83e7ee24418cfa1abfbb4c2', 'omnis/core/errors.py': '910547000bbc25fde718e6e81c071e8d9b3686fe5b50287e91edddcbcbb09259', 'omnis/core/managed_schema.py': 'fd29e66edb1f35806f3778b0b5b6eb73607e487923fad3c397f95abb3f8ce9b0', 'omnis/core/model_schema.py': '070604c9bbdd3d7d7486d76c63bd92da6b40d92e604950524c35dd3034c0e464', 'omnis/core/paths.py': '370f8c9b2c344ed8341edf4be8160eb38cc9ccf5c7e613e411a9134a40347deb', 'omnis/core/persistence.py': '56665a906d4d059f3ba06e70e8731bff39c7f33744371ccf0ca390ea5bbd3788', 'omnis/core/provider_schema.py': '0f27c097d9a6928f17bcc528ad860a405b39eb0506c6e1496da9b3fc75b9f7e9', 'omnis/core/readiness.py': 'e6a7e5082c3d0bb09ef8c1518b2d2b5d829806157098e8279a5e6eb555061b08', 'omnis/core/schema.py': 'fd51f0c7ea000782dcb94901e0b4482238ac59784fd40e9690f6fa0dc38ce441', 'omnis/core/web_assets.py': '2f0ee5b5c415b574c6fe4db7fcbb6a98117abb0b13750e22e2d8e34c8c1a6b9c', 'omnis/migrate.py': 'cb669dd85021ad0cb6b7bb5e5215ebde1403b2c64c4d196c7022ef1c1a56977d', 'omnis/migrations/__init__.py': 'c81db7169477d86a1354592de3bbc5a70912c6617fe830e0d124b16d3db8f0f3', 'omnis/migrations/env.py': '0c2ab9dae731631bfd2963d1e16d8d1a5ea4b5d639ba6742e086d309142784db', 'omnis/migrations/versions/0001_instance_control.py': '25ef6cb7f8c66fd256f4b0d43380ff985aea8e9f8c2932dedd8f3288892ee673', 'omnis/migrations/versions/0002_local_sessions.py': '37c80d9167e8eb5ebc9fb1daa58d45aa4053e971ac393a9473b3bbf597f37ac5', 'omnis/migrations/versions/0003_instance_lifecycle.py': 'cbb9dc85713912179ea4691c7b66a41470a8ae92d0b3260d4458cc7b97353a30', 'omnis/migrations/versions/0004_pairing_receipts.py': '4bdad3645d1f293686c82c48882588734b67cb7059c92e1325c14f681a7e30f8', 'omnis/migrations/versions/0005_stop_fence.py': '1df7e7edd50dd192415de930028e4f88e7cfbae7717f8feb644754fe92326406', 'omnis/migrations/versions/0006_stop_reconciliation.py': 'ec426cc2706220e6a0322caef35e8f10ed498510c3ebb3454073f86e2e6d0607', 'omnis/migrations/versions/0007_engagement_drafts.py': '0a15306bdeda820978bafdfcde0b89556a321368b1bd62188ca434d6cca8abbc', 'omnis/migrations/versions/0008_engagement_edit.py': '63e5a7b2aad9d45b192c26b61d75a33e544fcbebb105fcb7fe066ac94492adf7', 'omnis/migrations/versions/0009_catalog_candidates.py': '9d1d7a4fb4a5475dc3f046e34dd98a718a890d36308103d5557bfce9290b8371', 'omnis/migrations/versions/0010_catalog_publications.py': '48e1bb94a9e41e649c6a87bbc37eb753ef16a004402c85305d95d83fc5a90cea', 'omnis/migrations/versions/0011_managed_tasks.py': 'ed3320ea1920aab36bf2a844a871a23c7629db143fede49977451967c7f8ac2d', 'omnis/migrations/versions/0012_contract_methods.py': '679fb98b485477724287d499ac0f7538dd4a32b63af5b28e587e1da24c50d99c', 'omnis/migrations/versions/0013_mission_revisions.py': 'dce77fd19fb00cf0945387b8ca33d73b2c311f62c4f9b834c97a95bb781f9185', 'omnis/migrations/versions/0014_provider_settings.py': '21e9f41efe3c01e3a731e98d2083bfbece3e05ded6600e5ae87e7db5f20786f0', 'omnis/migrations/versions/0015_model_test_v2.py': '2367b8b207fbfc961125d8e39f77f823a9e0cb3ccf62b7919369b05048fd233f', 'omnis/migrations/versions/0016_provider_models.py': 'f1abe1bb40ce92727b53b4f75995e8a418fead9fa7017f563bb576d05a1e4c7e', 'omnis/migrations/versions/0017_model_removal.py': '19fe3f26110c104047fad759a4d2621e115bf20db1303a33a2f6f6a75dea5feb', 'omnis/modules/coverage/__init__.py': '466e4c014a42ede84c60051304b1ff6a4e62552c8ee578f78bb28bddaaae353a', 'omnis/modules/coverage/denominator.py': '7a260e49a9b183b9219d9dfec76253cf405c5cda3f4613581813ac9909af0d3e', 'omnis/modules/engagements/dashboard.py': '112961a4f8c2c0f0d3fe582a3f5293267184529a984e8ffc997e75bbf62249bb', 'omnis/modules/engagements/routes.py': 'a25b4dc86cd7222e56d2025c291e7648203dad619eb12f6a3ed5c24189d224a0', 'omnis/modules/engagements/schemas.py': 'e7c7e709c6a1c46e957b1a6bc46eb0a05d2ab42bcb6c6efbe295fae79f1b9143', 'omnis/modules/engagements/service.py': '74c07b44a00aff089e318813af573be52b39809345af97305de5f44585a4acdd', 'omnis/modules/instance/domain.py': 'c8cfbc1def56296ff6ae8d594ceeda0c3f6ed2cc6a49e9b6f2bacd53e500258f', 'omnis/modules/instance/models.py': 'c4c197f860efdbece8865283671f68188dffec2a689460f731386edde92224bc', 'omnis/modules/instance/records.py': '17b6fdb5a2dba527c37288994cc2270d05fc50684d07a2a681d2bf5677820222', 'omnis/modules/instance/schemas.py': '8b6a7c59119aea89e370e4cee023e2623eda440e4da391fb8c49405c250cfc29', 'omnis/modules/instance/service.py': 'f58e4ca12b2e3b69e52be9af7800e36125870fb745b5727ec52b8bf543ca5e9c', 'omnis/modules/instance/stop_contract.py': '5273eb6e9b9572bf86a2741af43e6124a793ffb0931142fd81c7ece3c9a9ecf9', 'omnis/modules/runs/__init__.py': '745c668c963f9934fb494e166ce064f737840a1896ea7703e38c0cf4b726f754', 'omnis/modules/runs/contract_inputs.py': '012e7198ec5105ffa25649354f09a8d87ce8fd92d06f6213a49fc0295ad18a74', 'omnis/modules/runs/managed_admission.py': '0945775f21cb809c88ed280cbf8d01fa0ec3c19e06c726d64c2409a658ec2494', 'omnis/modules/runs/model_dispatch.py': '75a334c328bae434faab572cc62d942311e36df4a6827c5ab313846143bb6b3b', 'omnis/modules/runs/model_projection.py': '8dc477a3b0cc2bf5c8855baf3f8c8af16d6fd9ca3ef7bab427b08e24dca5e4b7', 'omnis/modules/runs/model_protocol.py': '10e67db2125547b10868309450ec6149f3fa9ba6b4c4d4ce6b0f95cf9f170f3b', 'omnis/modules/runs/model_test.py': 'bd8133048310c8bc85169de1ffe45f565b88f0c9b76e3343956f550730c8ebf6', 'omnis/modules/runs/model_test_contract.py': 'ec9f94f29e390aa68a5e4d20d49b62afbd50b9545cd9c86f047e99c52c976629', 'omnis/modules/runs/model_test_models.py': '047cb70008e91fdff65342a3317dd2f307da63e77dd4b0a175efe8d0cb2be2d7', 'omnis/modules/runs/model_test_operation.py': '937456a090300e0fd9b32bd580fb1f258d11c5a0995c8935b352f3909da484bf', 'omnis/modules/runs/model_test_routes.py': '7a3edfdd485a6adb8debf7de506b6a8e9a0a552aaa8d2fc3c020331cfb02e50a', 'omnis/modules/runs/model_test_runtime.py': 'de08466e890445e8e64b1d4e335d705e5e9e64237d753643eaf99be2e0645f99', 'omnis/modules/runs/model_test_source.py': '27ef2d2b696e6648ef1cac7606ad3ce9da2ca20769b09acedd3988bb40067bc1', 'omnis/modules/runs/model_test_store.py': '3db5fcc25beaf492ea11bb0483c5f3417a575a073e8043fce22f72f37a3ac63e', 'omnis/modules/runs/native_preparation.py': 'f2f338afaeb75b352c2ae79a34b584266c3bd3bcb84b2758999b2c17730b87b2', 'omnis/modules/runs/native_preparation_models.py': '5b43921a9c8d2e57f914af60238ea003023714a996474bc9eab33ca0fb9a9062', 'omnis/modules/runs/plan_snapshot.py': '695cafd32c938193d13f4fbaef36478e1d1c87697cbab08dc2843359d8b18b1c', 'omnis/modules/runs/pure_probe.py': '50cc3f3fd6fc17193047a5aeb0bd7df8e63bfa39338f897d87b7b4d9babeccd4', 'omnis/modules/settings/candidate_catalog.py': '96931f8b8f73aaf3a8947814d24b92265e9c22560671eb02d285d5e5dbe8a72e', 'omnis/modules/settings/candidate_index.py': '69007b7afff163b0dad9f613049656ca6bda772fc8b2492403c6ddfa973031a2', 'omnis/modules/settings/candidate_material.py': '3faca265b279475824b5b06f1933287dcb47ba211a3dedaa66ae7cd99b294391', 'omnis/modules/settings/candidate_resolution.py': '870d8c393c2aa3198b14225f13cf9ded494aff72421977a3445463b4b78a42fc', 'omnis/modules/settings/candidate_store.py': '24dd7961b961aabf4d88d28f0a46f7b1ce4765f0f2c6e693a185f8fa95b50cb3', 'omnis/modules/settings/catalog_inspection.py': '51b0498640229c6949a2799c35b7f494e53930100e063bb5155a8d8fc453311f', 'omnis/modules/settings/catalog_inspection_models.py': '31143ec33d5b575dfc330c393c1968e05da4eead48cabcf48ded1a584d687b73', 'omnis/modules/settings/catalog_inspection_routes.py': '28c4e96ebd68254c2f55055a0de0fbe864c2007a2c451922f7e33af8181c3348', 'omnis/modules/settings/catalog_models.py': '86dbaa1f62b9891c2775cb2a30705213bfb2598f6cc54ecf68d6d8bea8cf599a', 'omnis/modules/settings/catalog_publication.py': '24cbf0e2d3c485238a1b4a99013626f50ee6c9b6c8a81ed0be3b270aa2f91f1c', 'omnis/modules/settings/catalog_schema.py': '66fdea3a0ef7479a7b9664ca399e9e0ba87aff861defdffdc0d5352b1820ad2b', 'omnis/modules/settings/provider_catalog.py': '1ff93c6bff783e747f9680c3a6b558979313697e7a08e259298a9f2353240b10', 'omnis/modules/settings/provider_catalog_models.py': '1a76ef8755e424eb087aaeb40f3719b4da1874fc5ba9c40a6e9019c862e30f0d', 'omnis/modules/settings/provider_catalog_routes.py': '69d383ab5748dad07bc5609fb9f920b786410f9508876d8634c13f34592dc6ec', 'omnis/modules/settings/provider_catalog_runtime.py': '498b43ea5f3991692083af188dda9ed5e8945cbc1b0e1bc3a64cd7dda6a9b1e4', 'omnis/modules/settings/provider_key_models.py': '45a84252e95b14a57e72d01ea1a6e680370b945e96988f07fca6c47f72f99f45', 'omnis/modules/settings/provider_key_routes.py': '10e58911ff149563754b18a05dc47fa116013c4369df90b924b6fed19394b3f3', 'omnis/modules/settings/provider_key_service.py': 'c563870af865721b4ee67895bd4fcb820e7190021c4dd08040a4bf8d6d50de6f', 'omnis/modules/settings/provider_model_models.py': '8e22ed3d32f51d1e8050b08bd3d265c61ed54820bbf4419745bbd4ea850f800d', 'omnis/modules/settings/provider_model_routes.py': 'c41bef8bad9ebc8e5e4a488e38957020cb94c5073f5652e961419531b788b0f5', 'omnis/modules/settings/provider_model_service.py': 'cc442fd2f7ec8052279036e6b23f51a8bd043528ed41f8d5b9ce05159436987d', 'omnis/modules/settings/provider_model_test.py': 'ce0992d0dee3912a355ef038b9149882b0ee0ca1b3cc837835188d1d85d16c07', 'omnis/modules/settings/provider_models.py': '20fe531b466ce434cfbd471957d09f4d7970b3420a96f71a13471fb522bbdfda', 'omnis/modules/settings/provider_routes.py': 'c29d29157bda7598b935e8088a0a93592d4ca696ded8c9135c05f6a93bc85cde', 'omnis/modules/settings/provider_vault.py': 'baebe4e5316fc756d72a4dbdcca65e25479d61bf976e02d0701aa755571b69de', 'omnis/modules/settings/publication_models.py': '59899b97bce66a9ae73e3e368535fd1d8d4b8cbbb1d138f8be82be99c1541ef5', 'omnis/modules/settings/publication_store.py': 'cca62868b4842859320c3baea84439df6c7602ff00a112944d52d0bdfd058ae9', 'omnis/modules/settings/skill_catalog.py': '4c1044a9bb4f471e7e85077aea816d48a06674982df1ed4203f29fdc47566fdb', 'omnis/modules/tasks/contract_case_input.py': '71ef57c05f6f1a9870de2d9ef17c5fd5c67df6ac0de73074e69faef535a41543', 'omnis/modules/tasks/criterion_checks.py': '779c7da6a9229c95f262a77b7a579c5f2c6228b6d63af7b9a5ec387dd211c61a', 'omnis/modules/tasks/execution_selection.py': 'f7b2275643adb27965eb9baed1981921a4656880cc518b6c18043a01704fffa3', 'omnis/modules/tasks/managed_composition.py': '8ef656ff6ad9427abbb3f967a3556b6e4930bfcc2dfff60727d2ec365d5055b1', 'omnis/modules/tasks/managed_contract.py': '6b399b1121b4d69a41ae0cbea12b3a665cc9426c3a481cdb588774fe4a7534fc', 'omnis/modules/tasks/managed_store.py': '45fae4fea84e8f1752bc720d773e8f39d5d218e8d2ee4776d5c8751926776b6c', 'omnis/modules/tasks/method_checker_identity.py': '79b1cf7801eacfeffd75f6fc18b9b91d7b5356857151fa7d6844339633523fd1', 'omnis/modules/tasks/method_checks.py': '0abb399b339b3f5e246a5f9a73c447b6d62afa1db9dc5aab885637ad41e1e1e2', 'omnis/modules/tasks/mission_revisions.py': '5767202a0d14644d6c5758a85b6a6cfc437e476c6c97fa35bfd0cce8c24c9a97', 'omnis/modules/tasks/module_registry.py': '32435c02978a4fddd4e07363836107b31812c8d7c9c17acb8660646be45104e2', 'omnis/modules/tasks/result_qualification.py': '31bc6781d5fba81ff3b6596c20ce3536dafbccac672599ce42a93de4d459b427', 'omnis/owner.py': 'bdd76fb8cedea03eadec721b65c28ddf9ce22032f0e372d5b984978d07428930', 'omnis/policy/budgets.py': '467963d569eae665d047a1aef4f8f3a4b843c817310f5697abf4acf5a13372ec', 'omnis/policy/model_configuration.py': '2b08822767e8a78c5f6ccd9b2c4a4c2fe3ca960146ad8ca8edfd70ac5c2d7a25', 'omnis/policy/model_context.py': '88b6b694690485503b567cf3b4b3b0798d82a6e9a3c00457432e24b6d6414237', 'omnis/policy/model_dispatch_contract.py': 'b83e7473ae62da655e7afa6884ca05fa26265e4f3e58644ffdbc025471636cf0', 'omnis/policy/model_projection.py': '29d8e90c6e762894e19a63ae45a523732d32e1bae67a3b423de834a54cd7b4f7', 'omnis/policy/ready_model_configuration.py': '44e454797fe56a4a4740b079b0ef7f6d1da1e7474b4a2dea801d483931befea2', 'omnis/security/host_origin.py': '09e89bd6d399efce8080b5c1b3bc95ee8642d8f417a272905491c69cc7a5110e', 'omnis/security/routes.py': '015f812be05717e13a1d8f5ef134d8c5e9ee20d04156afc44062d195193b1c2d', 'omnis/security/sessions.py': 'c2552a9ceef9f5f7903257cf3305f5d27afc9ac391f2457d4e64cb3c2cf170dc', 'omnis/serve.py': 'ab104d722c89f2516195ee5a0ab6452df38692be24a9e34c1ade27f4ee54d345', 'omnis/stop_reconcile.py': 'fdbb15561def1a2c5afddcee08c4ef0bcd2dcfcd4c7aec5ce0d7c7400d638fec', 'omnis/supervisor/__main__.py': '644db12fcb1fab75bb621f115b074bf0574d7207945b38d5c1e902ef94d7bdb6', 'omnis/supervisor/case_slot.py': 'e7b21054db19f10f305b4f61b677fb174e6c2128d9629bcd2d67255b2119ccba', 'omnis/supervisor/model_relay.py': '119545816f6a6fcda866d65737e489eb3a63a1281bc56cb0e3d6e16cc6be3255', 'omnis/supervisor/model_relay_protocol.py': 'fa736927cf18acd22f946355074d2e3b43adab4bbba902a2555309288c1b379e', 'omnis/supervisor/model_sender.py': 'cf0f42b7545e5f3c427bac6f87bc03c314245b81fb12d464a8330cac80e47b23', 'omnis/supervisor/native_tasks.py': '29abd867116aab7a78a7637836c8261b3caa66372f684a1ff71e4f48dd2d8db5', 'omnis/supervisor/runtime_client.py': 'f3529ae1ccf5b91ea0c7fd7ce4ba14f162756057ceca31b4cec97588907f44bb', 'omnis/transport/control_probe.py': 'dac35bffffe245ed53580e92f99a3a25cc3e5a6236b05e74e7915e5643895a2d', 'omnis/transport/local_control.py': '053cf1a02bd2665ad5ed5f0d641c5b67eee80099a4a5f8eb782f140f88d1b0d0', 'omnis/worker.py': '59d99c36f4ff9531cd2af07200b12b4f01cc3ee64d50b09dbf43b805a00bd8f1'}; print(json.dumps({n:hashlib.sha256((pathlib.Path('/usr/local/lib/python3.13/site-packages')/n).read_bytes()).hexdigest()==h for n,h in d.items()}))"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/home/kali/.local/share/omnis-settings-c-9e51d10/cli/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import json,hashlib,sysconfig,pathlib,importlib.metadata; d={'omnis_cli/__init__.py': '43a7d0ce58e04bcfeb7391c1216ad4ad90f82006b18b29879712f00770a2cfac', 'omnis_cli/backup.py': '59a23420b11d64f04483b0b902b95a75f392f07fbd4c0ed8edd35ff4cfaad1a8', 'omnis_cli/browser.py': '685134e77a55342aa3d8aa5a6e1de2109d86dbcde9e7fdc5fa72dc03faf84f30', 'omnis_cli/compose.py': '9d26b79ac8e5bd38e8ee2166a43e532fd8b79171b3077a3e6bb35228d27cedc3', 'omnis_cli/config.py': 'a217221ac19e428d3ea61241b232aea7574e757e0ef1e15720156b79ce2a9bcc', 'omnis_cli/control.py': '097ae2db29d27ce1fa676dac4b7230a43aacd7dcb9639916de6f39180ab0c87b', 'omnis_cli/development.py': '8e147adc4507f0cc15e138cfd86abf2119c6d961f7ba9db2ef64118d1181deae', 'omnis_cli/forwarder.py': '56e5aa4335f7b9185d81d462741cbc3adb370eca688657f1ede5e56ce65015f0', 'omnis_cli/health.py': '8afea9006bf2e5d345d96019a9ebca8114896a4320f2d913a4089444ebf7e578', 'omnis_cli/instance.py': 'ca020907384c1b2b3637271bef094874815704299389f1b369ee5bf5256cd424', 'omnis_cli/lifecycle.py': '2b3b08b97d09da2a0f5a5a408044757e4b7dd145665b2a227752dec4aae84562', 'omnis_cli/main.py': 'e00ab9ca05b7f497d3bb8a65ea7094c88fb86d40e836ab9a45ffa9f3234e4308', 'omnis_cli/model_relay.py': '42f1da73b00a7b006f0d171a19f6f4e5f8345fc96d81ec3a429209a0f735d85f', 'omnis_cli/model_relay_protocol.py': 'fa736927cf18acd22f946355074d2e3b43adab4bbba902a2555309288c1b379e', 'omnis_cli/model_test_source.py': 'd6fa0aaa9f6b1765beab9bb1a78caabb7f705047842af9237f42f5889e6911a0', 'omnis_cli/native_artifacts.py': '5369817d4e8f9f35465f8afabbafc3b4b8657bf4ca5eee9879c1472d59cefb3c', 'omnis_cli/pairing.py': 'e9a23037dd811503810d2fcf4fd216a6959df6acba5441bab50aebe6d3434482', 'omnis_cli/recover.py': '6fbfd9599c7b10be925db09e03578c440900c2e3f9443247634e0b2de45d538f', 'omnis_cli/release.py': 'a406d3d7dc416eaf9b53d68be467d246695d38bd8d48c5bbad631bda29bbe9e4', 'omnis_cli/restart.py': '22c378e48e8e84f31d2e3f318b3d7762f2f01a77ac6c7332a07a7ed048d5bac2', 'omnis_cli/start.py': '773632c449332f937d6bc7d33ee51bd8f4605b0174b1015c5544cd278e689af3', 'omnis_cli/start_runtime.py': '83d8daf87d8023d7eba72fa62a60b461d72ceee9cd63f265b1c27525342c298f', 'omnis_cli/status.py': '4127aa4e44bd3afd4c13440a62adb89481c2b3b38169f50525e391a06ffdb13f', 'omnis_cli/stop.py': 'fdb8fb2f8c09d44a54da0edba31237a7f78c148bcbf9cdc2b06c0e7415b73280', 'omnis_cli/stop_engine.py': 'd8d99cf01f8bd71c1d3fb032b5077d2f648f7a622464cf572fd92e2e3116445f', 'omnis_cli/stop_owner.py': 'c46f101167cb4e0a5a7a2cb5902e67b7653baeebc9e4fe57a9efc251d8fe729c', 'omnis_cli/stop_receipt.py': '585a3b4f97a7985fb1feb2ef7918be9537d2f7f53e0d412d2533f398e9a3aef7', 'omnis_cli/upgrade.py': '71268ed5b9f51ba09d70f955632d4b7b02b362993c3649223c4053e4e61ca6c3', 'omnis_cli/verified.py': '2e73c266b5c32f1ba4db7d860ed2e1f1004750120a7ece8009a10f32f19b20d3'}; print(json.dumps({'version':importlib.metadata.version('omnis-cli'),'files':{n:hashlib.sha256((pathlib.Path(sysconfig.get_paths()['purelib'])/n).read_bytes()).hexdigest()==h for n,h in d.items()}}))"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "network",
+        "inspect",
+        "--format",
+        "{\"name\":{{json .Name}},\"internal\":{{json .Internal}},\"driver\":{{json .Driver}}}",
+        "omnis-local-7734af95b492440daeaeb5eea953fdce_control"
+      ],
+      "exit": 0
+    }
+  ],
+  "completed_utc": "2026-10-29T20:02:55.955510+00:00",
+  "config": {
+    "bytes_preserved": "NOT_PROVEN; retained baseline stores values only",
+    "current_sha256": "e6d02099ae19c178cfe83ba89f54cf0af14a70f4d3b1bc12422afa108dea8c1c",
+    "preupgrade_byte_hash_available": false,
+    "retained_before_source": "evidence/t1-finalization-transition-plan.json:before.configured_mode",
+    "semantic_equal_to_retained_before": true,
+    "values": {
+      "cleanup_timeout_seconds": 100,
+      "development_workspace": "/home/kali/OmnisAI",
+      "port": 8780,
+      "shutdown_timeout_seconds": 180,
+      "startup_timeout_seconds": 180
+    }
+  },
+  "containers": [
+    {
+      "id": "01af3c9361d6b924dcd7f8f6fe3a37e2333002f505fa452e54913ef968f528e4",
+      "image": "sha256:063fd1a003cae9f306b0a2842a2fbed6bc5c04ffa249b56aecb4191054889ed0",
+      "labels": {
+        "com.docker.compose.config-hash": "924a43a8485c17f9c761faf3314987c27127a1380d1f9542f4805f50f785fadc",
+        "com.docker.compose.container-number": "1",
+        "com.docker.compose.depends_on": "db:service_healthy:false",
+        "com.docker.compose.image": "sha256:063fd1a003cae9f306b0a2842a2fbed6bc5c04ffa249b56aecb4191054889ed0",
+        "com.docker.compose.oneoff": "False",
+        "com.docker.compose.project": "omnis-local-7734af95b492440daeaeb5eea953fdce",
+        "com.docker.compose.project.config_files": "/home/kali/.local/share/omnis-settings-c-9e51d10/d/omnis/releases/0.1.1/ops/compose.yaml,-",
+        "com.docker.compose.project.environment_file": "/dev/null",
+        "com.docker.compose.project.working_dir": "/home/kali/.local/share/omnis-settings-c-9e51d10/d/omnis/releases/0.1.1",
+        "com.docker.compose.service": "api",
+        "com.docker.compose.version": "2.32.4",
+        "org.omnis.bundle_sha256": "f09766be6239f6eed62c0e22aed0b5acd6ee2a3658f239e6e78636ff99260262",
+        "org.omnis.profile": "t1-provider-settings",
+        "org.omnis.project": "omnis-local-7734af95b492440daeaeb5eea953fdce",
+        "org.omnis.start-attempt": "d467c2e1-82a6-4344-8f39-89d34d4fee01"
+      },
+      "mounts": [
+        {
+          "Destination": "/run/omnis-control",
+          "Mode": "ro",
+          "Propagation": "rprivate",
+          "RW": false,
+          "Source": "/home/kali/.local/share/omnis-settings-c-9e51d10/r/omnis",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/run/omnis-http",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/home/kali/.local/share/omnis-settings-c-9e51d10/s/omnis/http",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/usr/local/lib/python3.13/site-packages/omnis",
+          "Mode": "",
+          "Propagation": "rprivate",
+          "RW": false,
+          "Source": "/home/kali/OmnisAI/api/src/omnis",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/opt/omnis/web",
+          "Mode": "",
+          "Propagation": "rprivate",
+          "RW": false,
+          "Source": "/home/kali/OmnisAI/web/dist",
+          "Type": "bind"
+        }
+      ],
+      "name": "/omnis-local-7734af95b492440daeaeb5eea953fdce-api-1",
+      "network_mode": "omnis-local-7734af95b492440daeaeb5eea953fdce_control",
+      "networks": {
+        "omnis-local-7734af95b492440daeaeb5eea953fdce_control": {
+          "Aliases": [
+            "omnis-local-7734af95b492440daeaeb5eea953fdce-api-1",
+            "api"
+          ],
+          "DNSNames": [
+            "omnis-local-7734af95b492440daeaeb5eea953fdce-api-1",
+            "api",
+            "01af3c9361d6"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "93b6be95a3de9f033d3d904443a149d6e2cb8841376232648d518b6dc433589e",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "IPAMConfig": null,
+          "IPAddress": "192.168.48.4",
+          "IPPrefixLen": 20,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "02:42:c0:a8:30:04",
+          "NetworkID": "54e1fa43f2d1bebc9f386c65fc8dc75d3c211405c6a86173c8a2b969a4b5aa8c"
+        }
+      },
+      "ports": {},
+      "restart": "no",
+      "status": "running"
+    },
+    {
+      "id": "12a60dacb788e4818ca85208436cced99b5fc3a5784be7cb102a79676f9ecc77",
+      "image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "labels": {
+        "com.docker.compose.config-hash": "35ac1c81d4a5028186b75ee409d814a03449c9173768862374c0cb7d4a58db45",
+        "com.docker.compose.container-number": "1",
+        "com.docker.compose.depends_on": "",
+        "com.docker.compose.image": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+        "com.docker.compose.oneoff": "False",
+        "com.docker.compose.project": "omnis-local-7734af95b492440daeaeb5eea953fdce",
+        "com.docker.compose.project.config_files": "/home/kali/.local/share/omnis-settings-c-9e51d10/d/omnis/releases/0.1.1/ops/compose.yaml,-",
+        "com.docker.compose.project.environment_file": "/dev/null",
+        "com.docker.compose.project.working_dir": "/home/kali/.local/share/omnis-settings-c-9e51d10/d/omnis/releases/0.1.1",
+        "com.docker.compose.service": "db",
+        "com.docker.compose.version": "2.32.4",
+        "org.omnis.start-attempt": "d467c2e1-82a6-4344-8f39-89d34d4fee01"
+      },
+      "mounts": [
+        {
+          "Destination": "/var/lib/postgresql",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/home/kali/.local/share/omnis-settings-c-9e51d10/s/omnis/postgres",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/run/secrets/db_password",
+          "Mode": "",
+          "Propagation": "rprivate",
+          "RW": false,
+          "Source": "/home/kali/.local/share/omnis-settings-c-9e51d10/s/omnis/db-password",
+          "Type": "bind"
+        }
+      ],
+      "name": "/omnis-local-7734af95b492440daeaeb5eea953fdce-db-1",
+      "network_mode": "omnis-local-7734af95b492440daeaeb5eea953fdce_control",
+      "networks": {
+        "omnis-local-7734af95b492440daeaeb5eea953fdce_control": {
+          "Aliases": [
+            "omnis-local-7734af95b492440daeaeb5eea953fdce-db-1",
+            "db"
+          ],
+          "DNSNames": [
+            "omnis-local-7734af95b492440daeaeb5eea953fdce-db-1",
+            "db",
+            "12a60dacb788"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "45ccd4a6f9ab615aaba9e32b394e21f93afe526d5aa700d286cecaf328679776",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "IPAMConfig": null,
+          "IPAddress": "192.168.48.2",
+          "IPPrefixLen": 20,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "02:42:c0:a8:30:02",
+          "NetworkID": "54e1fa43f2d1bebc9f386c65fc8dc75d3c211405c6a86173c8a2b969a4b5aa8c"
+        }
+      },
+      "ports": {},
+      "restart": "no",
+      "status": "running"
+    },
+    {
+      "id": "df6b1ab2fe2e07e1e26486e9928a6513268eb1cc0e974c5771ba4ac2935ce9d0",
+      "image": "sha256:063fd1a003cae9f306b0a2842a2fbed6bc5c04ffa249b56aecb4191054889ed0",
+      "labels": {
+        "com.docker.compose.config-hash": "bb9e9d022bef4380bf9e0e3bb0287d0db8bd03c2f4900902f28e7d65e517afb5",
+        "com.docker.compose.container-number": "1",
+        "com.docker.compose.depends_on": "db:service_healthy:false",
+        "com.docker.compose.image": "sha256:063fd1a003cae9f306b0a2842a2fbed6bc5c04ffa249b56aecb4191054889ed0",
+        "com.docker.compose.oneoff": "False",
+        "com.docker.compose.project": "omnis-local-7734af95b492440daeaeb5eea953fdce",
+        "com.docker.compose.project.config_files": "/home/kali/.local/share/omnis-settings-c-9e51d10/d/omnis/releases/0.1.1/ops/compose.yaml,-",
+        "com.docker.compose.project.environment_file": "/dev/null",
+        "com.docker.compose.project.working_dir": "/home/kali/.local/share/omnis-settings-c-9e51d10/d/omnis/releases/0.1.1",
+        "com.docker.compose.service": "supervisor",
+        "com.docker.compose.version": "2.32.4",
+        "org.omnis.bundle_sha256": "f09766be6239f6eed62c0e22aed0b5acd6ee2a3658f239e6e78636ff99260262",
+        "org.omnis.profile": "t1-provider-settings",
+        "org.omnis.project": "omnis-local-7734af95b492440daeaeb5eea953fdce",
+        "org.omnis.start-attempt": "d467c2e1-82a6-4344-8f39-89d34d4fee01"
+      },
+      "mounts": [
+        {
+          "Destination": "/run/omnis-control",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/home/kali/.local/share/omnis-settings-c-9e51d10/r/omnis",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/vault",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/home/kali/.local/share/omnis-settings-c-9e51d10/s/omnis/vault",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/vault-key",
+          "Mode": "rw",
+          "Propagation": "rprivate",
+          "RW": true,
+          "Source": "/home/kali/.local/share/omnis-settings-c-9e51d10/s/omnis/vault-key",
+          "Type": "bind"
+        },
+        {
+          "Destination": "/usr/local/lib/python3.13/site-packages/omnis",
+          "Mode": "",
+          "Propagation": "rprivate",
+          "RW": false,
+          "Source": "/home/kali/OmnisAI/api/src/omnis",
+          "Type": "bind"
+        }
+      ],
+      "name": "/omnis-local-7734af95b492440daeaeb5eea953fdce-supervisor-1",
+      "network_mode": "omnis-local-7734af95b492440daeaeb5eea953fdce_control",
+      "networks": {
+        "omnis-local-7734af95b492440daeaeb5eea953fdce_control": {
+          "Aliases": [
+            "omnis-local-7734af95b492440daeaeb5eea953fdce-supervisor-1",
+            "supervisor"
+          ],
+          "DNSNames": [
+            "omnis-local-7734af95b492440daeaeb5eea953fdce-supervisor-1",
+            "supervisor",
+            "df6b1ab2fe2e"
+          ],
+          "DriverOpts": null,
+          "EndpointID": "c2ff4c29da96802ca8beee2c237d420c1d3d05ab40dcb67221c0615e2ef5a830",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "IPAMConfig": null,
+          "IPAddress": "192.168.48.3",
+          "IPPrefixLen": 20,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "02:42:c0:a8:30:03",
+          "NetworkID": "54e1fa43f2d1bebc9f386c65fc8dc75d3c211405c6a86173c8a2b969a4b5aa8c"
+        }
+      },
+      "ports": {},
+      "restart": "no",
+      "status": "running"
+    }
+  ],
+  "created_utc": "2026-10-29T20:01:56.666933+00:00",
+  "distribution": {
+    "api": {
+      "installed_equal": true,
+      "mismatches": [],
+      "module_count": 123,
+      "source_equal": true
+    },
+    "assets": {
+      "web/assets/fonts-OFL-bSaZbgNk.txt": {
+        "http_status": 200,
+        "mounted_equal": true,
+        "served_equal": true
+      },
+      "web/assets/index-BeK4BAZY.js": {
+        "http_status": 200,
+        "mounted_equal": true,
+        "served_equal": true
+      },
+      "web/assets/index-CANG2g38.css": {
+        "http_status": 200,
+        "mounted_equal": true,
+        "served_equal": true
+      },
+      "web/index.html": {
+        "http_status": 200,
+        "mounted_equal": true,
+        "served_equal": true
+      },
+      "web/omnis-web.json": {
+        "disposition": "EXPECTED_NOT_EXPOSED; api/src/omnis/api.py:152-175 serves index and /assets only; metadata verified on installed/mounted bytes",
+        "http_status": 404,
+        "mounted_equal": true,
+        "served_equal": null
+      }
+    },
+    "bundle_manifest_equal": true,
+    "cli": {
+      "installed_equal": true,
+      "mismatches": [],
+      "module_count": 29,
+      "source_equal": true
+    },
+    "cli_version": "0.1.1",
+    "installed_release_files": {
+      "api/omnis_api-0.1.1-py3-none-any.whl": true,
+      "api/requirements.txt": true,
+      "cli/omnis_cli-0.1.1-py3-none-any.whl": true,
+      "ops/Dockerfile": true,
+      "ops/compose.yaml": true,
+      "web/assets/fonts-OFL-bSaZbgNk.txt": true,
+      "web/assets/index-BeK4BAZY.js": true,
+      "web/assets/index-CANG2g38.css": true,
+      "web/index.html": true,
+      "web/omnis-web.json": true
+    },
+    "release": {
+      "format": 3,
+      "platform": "linux/amd64",
+      "profile": "t1-provider-settings",
+      "release": "0.1.1",
+      "schema": "0017_model_removal"
+    },
+    "release_manifest_digest_equal": true
+  },
+  "domain_comparison": {
+    "authorized_control_changes": [
+      "alembic_version",
+      "instance_command",
+      "instance_control",
+      "instance_stop_fence",
+      "instance_stop_reconciliation"
+    ],
+    "census_differences": {
+      "instance_command": {
+        "after": 34,
+        "before": 31
+      },
+      "instance_stop_reconciliation": {
+        "after": 11,
+        "before": 10
+      }
+    },
+    "census_table_count": 34,
+    "compared_table_count": 26,
+    "compared_tables": [
+      "catalog_command",
+      "catalog_identity",
+      "catalog_publication_head",
+      "catalog_record",
+      "catalog_reservation",
+      "engagement",
+      "engagement_revision",
+      "managed_inbox",
+      "managed_mission_revision",
+      "managed_record",
+      "managed_run",
+      "managed_task",
+      "model_command_v2",
+      "model_dispatch_event_v2",
+      "model_dispatch_v2",
+      "model_record_v2",
+      "provider_connection_revision",
+      "provider_model_command",
+      "provider_model_entry",
+      "provider_model_entry_revision",
+      "provider_model_registry_revision",
+      "provider_selection_revision",
+      "provider_settings_command",
+      "supervisor_lease",
+      "system_operation",
+      "system_operation_event"
+    ],
+    "different_tables": [
+      "supervisor_lease"
+    ],
+    "equal_table_count": 25,
+    "equal_tables": [
+      "catalog_command",
+      "catalog_identity",
+      "catalog_publication_head",
+      "catalog_record",
+      "catalog_reservation",
+      "engagement",
+      "engagement_revision",
+      "managed_inbox",
+      "managed_mission_revision",
+      "managed_record",
+      "managed_run",
+      "managed_task",
+      "model_command_v2",
+      "model_dispatch_event_v2",
+      "model_dispatch_v2",
+      "model_record_v2",
+      "provider_connection_revision",
+      "provider_model_command",
+      "provider_model_entry",
+      "provider_model_entry_revision",
+      "provider_model_registry_revision",
+      "provider_selection_revision",
+      "provider_settings_command",
+      "system_operation",
+      "system_operation_event"
+    ],
+    "exact_table_set": true,
+    "normalization": {
+      "all_null": true,
+      "field": "removed_registry_revision",
+      "table": "provider_model_entry"
+    },
+    "supervisor_lease_disposition": {
+      "columns": [
+        "id",
+        "owner",
+        "epoch",
+        "expires_at"
+      ],
+      "reason": "Live lease metadata after authorized recovery/upgrade; current epoch16 matches installed status. Prior full lease values not retained, so no byte-equality claim.",
+      "source_columns_verified": "information_schema.columns read-only psql exit0",
+      "status": "OBSERVED_DIFFERENT_NOT_EXEMPTED_OR_NORMALIZED"
+    }
+  },
+  "identity": {
+    "locator": {
+      "instance_id": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+      "origin": "http://127.0.0.1:8780",
+      "project": "omnis-local-7734af95b492440daeaeb5eea953fdce",
+      "release": "0.1.1",
+      "schema": "0017_model_removal",
+      "version": 1
+    },
+    "startup": {
+      "containers": {
+        "api": "01af3c9361d6b924dcd7f8f6fe3a37e2333002f505fa452e54913ef968f528e4",
+        "db": "12a60dacb788e4818ca85208436cced99b5fc3a5784be7cb102a79676f9ecc77",
+        "supervisor": "df6b1ab2fe2e07e1e26486e9928a6513268eb1cc0e974c5771ba4ac2935ce9d0"
+      },
+      "development_workspace": "/home/kali/OmnisAI",
+      "docker_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "generation": 27,
+      "image_id": "sha256:063fd1a003cae9f306b0a2842a2fbed6bc5c04ffa249b56aecb4191054889ed0",
+      "instance_id": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+      "phase": "READY",
+      "port": 8780,
+      "project": "omnis-local-7734af95b492440daeaeb5eea953fdce",
+      "release_digest": "f09766be6239f6eed62c0e22aed0b5acd6ee2a3658f239e6e78636ff99260262",
+      "supervisor_epoch": 16,
+      "system_id": "7701260249314795563"
+    }
+  },
+  "limitations": [
+    "Snapshot only; no stability claim",
+    "Supervisor root cause UNKNOWN; default-web/Cancel/canonical/T1 not closed",
+    "No provider/model/Test/Refresh/pair/recover/Start/Stop/migrate/restore executed",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO"
+  ],
+  "limits_config_bytes": "Configuration values match retained before baseline; no retained pre-upgrade byte hash, so byte equality NOT_PROVEN. No secret material was read, hashed, or copied. Ciphertext-only hash and master stat match original preservation record.",
+  "listener": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                             \nLISTEN 0      16         127.0.0.1:8780      0.0.0.0:*    users:((\"python\",pid=2087939,fd=6))",
+  "native_pg": {
+    "baseline": {
+      "connections": [
+        {
+          "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+          "enabled": true,
+          "provider": "openrouter",
+          "revision": 1
+        }
+      ],
+      "entries": 4,
+      "entry_history": 4,
+      "instance": {
+        "admission_open": true,
+        "generation": 27,
+        "instance_id": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+        "quiesced_generation": null,
+        "shutdown_command_id": null
+      },
+      "model_commands": 16,
+      "model_dispatches": 8,
+      "model_records": 88,
+      "operations": [
+        {
+          "operation_id": "1003914f-999a-43bb-950a-361be89e9c65",
+          "state": "FINISHED",
+          "state_revision": 3
+        },
+        {
+          "operation_id": "3283ad6a-2b93-4457-b589-918fa0d12233",
+          "state": "FINISHED",
+          "state_revision": 3
+        },
+        {
+          "operation_id": "3e8d683a-b12b-412d-9644-787963f51aa5",
+          "state": "FINISHED",
+          "state_revision": 3
+        },
+        {
+          "operation_id": "ba0a9058-7a41-497a-abdb-439b1ab1e4f4",
+          "state": "FINISHED",
+          "state_revision": 3
+        },
+        {
+          "operation_id": "d0ced84b-9bc0-413c-a847-bd6f4b0cd2a7",
+          "state": "FINISHED",
+          "state_revision": 3
+        },
+        {
+          "operation_id": "e2052dff-efc8-4cf6-a082-c425254a2164",
+          "state": "FINISHED",
+          "state_revision": 3
+        },
+        {
+          "operation_id": "e7d3df8d-3fbe-4924-b914-63ec01bb5ae5",
+          "state": "FINISHED",
+          "state_revision": 3
+        },
+        {
+          "operation_id": "f07ef087-9481-4541-9c37-1d4bd1f83ee5",
+          "state": "FINISHED",
+          "state_revision": 3
+        }
+      ],
+      "registry_revisions": 4,
+      "schema": "0017_model_removal",
+      "selection": [
+        {
+          "payload": {
+            "action": "save_selection",
+            "brain": null,
+            "command_id": "c32eef0f-b8c1-40af-bb65-8b3767c05fed",
+            "default": {
+              "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+              "connection_revision": 1,
+              "model": "deepseek/deepseek-v4.1-flash-1017",
+              "output_tokens": 128
+            },
+            "expected_revision": 0,
+            "investigator": null,
+            "validator": null
+          },
+          "revision": 1,
+          "selection_id": "c32eef0f-b8c1-40af-bb65-8b3767c05fed"
+        },
+        {
+          "payload": {
+            "action": "save_selection",
+            "brain": {
+              "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+              "connection_revision": 1,
+              "model": "xiaomi/mimo-v2.6-flash",
+              "output_tokens": 128
+            },
+            "command_id": "128d7a11-b390-4a6d-addf-6007ab7c14a9",
+            "default": {
+              "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+              "connection_revision": 1,
+              "model": "xiaomi/mimo-v2.6-flash",
+              "output_tokens": 128
+            },
+            "expected_revision": 1,
+            "investigator": {
+              "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+              "connection_revision": 1,
+              "model": "z-ai/glm-4.6",
+              "output_tokens": 128
+            },
+            "validator": {
+              "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+              "connection_revision": 1,
+              "model": "deepseek/deepseek-v4.1-flash-1017",
+              "output_tokens": 128
+            }
+          },
+          "revision": 2,
+          "selection_id": "128d7a11-b390-4a6d-addf-6007ab7c14a9"
+        }
+      ]
+    },
+    "census": {
+      "alembic_version": 1,
+      "catalog_command": 0,
+      "catalog_identity": 0,
+      "catalog_publication_head": 0,
+      "catalog_record": 0,
+      "catalog_reservation": 0,
+      "engagement": 1,
+      "engagement_revision": 3,
+      "instance_command": 34,
+      "instance_control": 1,
+      "instance_stop_fence": 0,
+      "instance_stop_reconciliation": 11,
+      "managed_inbox": 0,
+      "managed_mission_revision": 0,
+      "managed_record": 0,
+      "managed_run": 0,
+      "managed_task": 0,
+      "model_command_v2": 16,
+      "model_dispatch_event_v2": 24,
+      "model_dispatch_v2": 8,
+      "model_record_v2": 88,
+      "pairing_challenge": 1,
+      "pairing_issuance": 7,
+      "provider_connection_revision": 1,
+      "provider_model_command": 4,
+      "provider_model_entry": 4,
+      "provider_model_entry_revision": 4,
+      "provider_model_registry_revision": 4,
+      "provider_selection_revision": 2,
+      "provider_settings_command": 3,
+      "supervisor_lease": 1,
+      "system_operation": 8,
+      "system_operation_event": 24,
+      "ui_session": 1
+    },
+    "domain_sha256": {
+      "alembic_version": "ce95c21da53f7c328fb958d414d2b463dd2794cde5d5a3c790b543a0892571f0",
+      "catalog_command": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "catalog_identity": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "catalog_publication_head": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "catalog_record": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "catalog_reservation": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "engagement": "52fdf5e6e10bcc8afe4ef523d9121ed56ce9c2f7d3e44bade1d26c47382e55cd",
+      "engagement_revision": "23909e9532aba810249a839af96e32bcf86db53e1e21595b3d96f130749c5388",
+      "instance_command": "6bc3afb682c68be740609cb153a9aee5af5fe7ad6d900ac0a52e958d73bd1817",
+      "instance_control": "a108480a2331fe6c36283b10ab06b490a167035c375e5de6ad5c09e4d190e3c1",
+      "instance_stop_fence": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "instance_stop_reconciliation": "5a742691c64c8fc347aa35e4f99d4286c1dc95a7cba7d1f690d6b91b646a2ec3",
+      "managed_inbox": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "managed_mission_revision": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "managed_record": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "managed_run": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "managed_task": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "model_command_v2": "d49403b77a8cfa3dde5d28b3507df164eaa1ef15e3b380ab0b454522a59430f2",
+      "model_dispatch_event_v2": "1db7aba698df0c163f9471019132a2334048759e2a9f1e8746a8eed99d01d3d9",
+      "model_dispatch_v2": "f9e270a1e35b1dd62fc543a91d62dfec0e059b374428f7bd88aad60efd1fd5c3",
+      "model_record_v2": "01bbe8715f26cdc63456107ae8485b23b0d9f6fd757bd7c0a13dabcf5a3b4ec0",
+      "provider_connection_revision": "bed1a00425ce1dfc36f89820dc5b191e76b6734227a4c0ff66f727620eb3d2e2",
+      "provider_model_command": "cf5f3f6e3c618eacc948f592a23528b8816c53786fc0140fffd76ed38cb4457b",
+      "provider_model_entry": "e80262924a3d5b782a1a23e4d51853fe4f86a446beefd29f6be782258364f7d4",
+      "provider_model_entry_revision": "b6626a0cf8af3dcb4815185888528d476f26c65c5c652a65aca6791ab9c9fbc1",
+      "provider_model_registry_revision": "c4e83b51128f3d59017661210a85d887d1c53b35a0c8aa1c6788ab99301da30d",
+      "provider_selection_revision": "f189087bb3a162394dbbc81527ece8dbfeb898076593ecb0341dc3005f602033",
+      "provider_settings_command": "477fead25d7af64bbb05ad86664b0d89aef00700cec5a4b3da7d04afac9c2261",
+      "supervisor_lease": "28feaf074f9478cc27af1e1e7241dbc4d6c4f663682f71dce94d4b14e5359063",
+      "system_operation": "dbc2d743a9808960ab26b30f6ce40b16514dbc3f594c4e02c8edb34ec28ca8e9",
+      "system_operation_event": "b29dab6191b1ca12bee47924701409566e3ebacab1f70b3c26e0daf5cf6820ee"
+    },
+    "migration_and_cluster": {
+      "entry_normalized_hash": "b508ee7b98b53b3dc07be0d977719602ce79d0c14687d3481e202169965c2d03",
+      "removed_nonnull": 0,
+      "supervisor_lease": {
+        "epoch": 16,
+        "expires_at": "2026-10-29T20:02:05.780597+00:00",
+        "id": 1,
+        "owner": "d41c5920-1a8e-4f31-8ff9-65993d52b3f9"
+      },
+      "system_id": "7701260249314795563"
+    }
+  },
+  "networks": [
+    {
+      "driver": "bridge",
+      "internal": true,
+      "name": "omnis-local-7734af95b492440daeaeb5eea953fdce_control"
+    }
+  ],
+  "normal_owner_projections": {
+    "checks": [
+      {
+        "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+        "connection_revision": 1,
+        "cost_observed": "0.00001092",
+        "current": true,
+        "entry_id": "0533a9fc-027e-4981-9183-e15e46e106ec",
+        "entry_revision": 1,
+        "finish_reason": "COMPLETED",
+        "fixed_ack_matches": true,
+        "input_tokens": 42,
+        "observed_model": "xiaomi/mimo-v2.6-flash",
+        "operation_id": "ba0a9058-7a41-497a-abdb-439b1ab1e4f4",
+        "output_state": "COMPLETE",
+        "output_tokens": 24,
+        "provider_status": "200",
+        "reasoning_tokens": 15,
+        "requested_model": "xiaomi/mimo-v2.6-flash",
+        "requested_output_tokens": 128,
+        "requested_provider": "openrouter",
+        "result_state": "COMPLETED",
+        "state": "FINISHED",
+        "state_revision": 3,
+        "usage_state": "KNOWN"
+      },
+      {
+        "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+        "connection_revision": 1,
+        "cost_observed": "0.00003295",
+        "current": true,
+        "entry_id": "4a3d45ce-0daa-49ff-acac-37ab32b31438",
+        "entry_revision": 1,
+        "finish_reason": "COMPLETED",
+        "fixed_ack_matches": true,
+        "input_tokens": 40,
+        "observed_model": "z-ai/glm-4.6",
+        "operation_id": "e2052dff-efc8-4cf6-a082-c425254a2164",
+        "output_state": "COMPLETE",
+        "output_tokens": 9,
+        "provider_status": "200",
+        "reasoning_tokens": 0,
+        "requested_model": "z-ai/glm-4.6",
+        "requested_output_tokens": 128,
+        "requested_provider": "openrouter",
+        "result_state": "COMPLETED",
+        "state": "FINISHED",
+        "state_revision": 3,
+        "usage_state": "KNOWN"
+      },
+      {
+        "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+        "connection_revision": 1,
+        "cost_observed": "0.0000459513",
+        "current": true,
+        "entry_id": "a1d11384-1122-47b0-b5d0-b07773ab0a6b",
+        "entry_revision": 1,
+        "finish_reason": "COMPLETED",
+        "fixed_ack_matches": true,
+        "input_tokens": 63,
+        "observed_model": "deepseek/deepseek-v4.1-flash-1017",
+        "operation_id": "3283ad6a-2b93-4457-b589-918fa0d12233",
+        "output_state": "COMPLETE",
+        "output_tokens": 25,
+        "provider_status": "200",
+        "reasoning_tokens": 16,
+        "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+        "requested_output_tokens": 128,
+        "requested_provider": "openrouter",
+        "result_state": "COMPLETED",
+        "state": "FINISHED",
+        "state_revision": 3,
+        "usage_state": "KNOWN"
+      },
+      {
+        "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+        "connection_revision": 1,
+        "cost_observed": "0.000005053",
+        "current": true,
+        "entry_id": "fcc15d6c-f6dd-40dc-a32e-46db7483e467",
+        "entry_revision": 1,
+        "finish_reason": "COMPLETED",
+        "fixed_ack_matches": true,
+        "input_tokens": 44,
+        "observed_model": "z-ai/glm-5.3-flash",
+        "operation_id": "1003914f-999a-43bb-950a-361be89e9c65",
+        "output_state": "COMPLETE",
+        "output_tokens": 41,
+        "provider_status": "200",
+        "reasoning_tokens": 34,
+        "requested_model": "z-ai/glm-5.3-flash",
+        "requested_output_tokens": 128,
+        "requested_provider": "openrouter",
+        "result_state": "COMPLETED",
+        "state": "FINISHED",
+        "state_revision": 3,
+        "usage_state": "KNOWN"
+      }
+    ],
+    "entries": [
+      {
+        "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+        "connection_revision": 1,
+        "entry_id": "0533a9fc-027e-4981-9183-e15e46e106ec",
+        "model": "xiaomi/mimo-v2.6-flash",
+        "output_tokens": 128,
+        "revision": 1
+      },
+      {
+        "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+        "connection_revision": 1,
+        "entry_id": "4a3d45ce-0daa-49ff-acac-37ab32b31438",
+        "model": "z-ai/glm-4.6",
+        "output_tokens": 128,
+        "revision": 1
+      },
+      {
+        "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+        "connection_revision": 1,
+        "entry_id": "a1d11384-1122-47b0-b5d0-b07773ab0a6b",
+        "model": "deepseek/deepseek-v4.1-flash-1017",
+        "output_tokens": 128,
+        "revision": 1
+      },
+      {
+        "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+        "connection_revision": 1,
+        "entry_id": "fcc15d6c-f6dd-40dc-a32e-46db7483e467",
+        "model": "z-ai/glm-5.3-flash",
+        "output_tokens": 128,
+        "revision": 1
+      }
+    ],
+    "registry_revision": 4,
+    "scope": "READ_ONLY_NORMAL_OWNER_PROJECTIONS_NO_DISPATCH",
+    "settings": {
+      "command_id": null,
+      "connections": [
+        {
+          "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+          "credential_present": true,
+          "enabled": true,
+          "provider": "openrouter",
+          "revision": 1
+        }
+      ],
+      "reachable": "NOT_VERIFIED",
+      "schema_version": 2,
+      "selection": {
+        "brain": {
+          "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+          "connection_revision": 1,
+          "model": "xiaomi/mimo-v2.6-flash",
+          "output_tokens": 128
+        },
+        "default": {
+          "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+          "connection_revision": 1,
+          "model": "xiaomi/mimo-v2.6-flash",
+          "output_tokens": 128
+        },
+        "investigator": {
+          "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+          "connection_revision": 1,
+          "model": "z-ai/glm-4.6",
+          "output_tokens": 128
+        },
+        "revision": 2,
+        "selection_id": "128d7a11-b390-4a6d-addf-6007ab7c14a9",
+        "validator": {
+          "connection_id": "2319f5a1-6004-422d-8754-21063e24a363",
+          "connection_revision": 1,
+          "model": "deepseek/deepseek-v4.1-flash-1017",
+          "output_tokens": 128
+        }
+      },
+      "vault_status": "UNLOCKED"
+    },
+    "total": 4
+  },
+  "operations_unchanged": true,
+  "projection_comparison": {
+    "checks": true,
+    "entries": true,
+    "registry_revision": true,
+    "settings": true,
+    "total": true
+  },
+  "projection_helper_sha256": "afce84f602fae35d20227b4c47811cdf65115cf3accac854b50e28dfa0c663f9",
+  "readback_attempt": {
+    "disposition": "Scoped reader assumption resolved from actual route source and exact negative GET404; no transition or suite repeated",
+    "failure": "HTTP404 on release metadata route, not a data or asset mismatch",
+    "first_collector_exit": 1
+  },
+  "scope": "INDEPENDENT_READ_ONLY_POSTUPGRADE_NO_TRANSITIONS_NO_MODEL_EFFECTS",
+  "scope_assertions": {
+    "all_baseline_domain_values_equal": true,
+    "all_projection_comparisons_equal": true,
+    "commands16_records88": true,
+    "credential_projection_present_unlocked": true,
+    "eight_operations_unchanged_finished": true,
+    "four_models": true,
+    "four_saved_successful_checks": true,
+    "registry_revision_4_unchanged": true,
+    "role_caps128": true,
+    "selection_revision_2_unchanged": true
+  },
+  "status": {
+    "admission_open": true,
+    "api_ready": true,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "control_ready": true,
+    "dashboard_ready": true,
+    "generation": 27,
+    "instance_id": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+    "mode": "DEVELOPMENT",
+    "origin": "http://127.0.0.1:8780",
+    "reason": null,
+    "release": "0.1.1",
+    "schema": "0017_model_removal",
+    "state": "READY",
+    "supervisor_epoch": 16
+  },
+  "upgrade_receipt": {
+    "backup": "/home/kali/.local/share/omnis-backups/t1-upgrade-bb760e5-stopped26",
+    "instance_id": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+    "restore_probe": "/home/kali/.local/share/omnis-settings-c-9e51d10/s/omnis-upgrade-restore-e4c091f8-705e-4770-9ff6-02a5d24453e1",
+    "source_digest": "99409cd18adfd4545bbdb03f9edfc6bcc7cca95973f2e13342d2bd54062ef133",
+    "state": "COMPLETE",
+    "target_digest": "f09766be6239f6eed62c0e22aed0b5acd6ee2a3658f239e6e78636ff99260262"
+  },
+  "vault": {
+    "ciphertext_equal": true,
+    "ciphertext_sha256": "96e1d91497f667e98321f81f9629fe1cccf7a5342017a99c42e86d2e4ef155ca",
+    "expected_ciphertext_sha256": "96e1d91497f667e98321f81f9629fe1cccf7a5342017a99c42e86d2e4ef155ca",
+    "master_read_hashed_copied": false,
+    "master_stat": {
+      "ctime_ns": 1793092391481877628,
+      "device": 2049,
+      "gid": 1000,
+      "inode": 4894026,
+      "mode": 384,
+      "mtime_ns": 1793092391481877628,
+      "nlink": 1,
+      "size": 32,
+      "type": 32768,
+      "uid": 1000
+    },
+    "master_stat_equal": true
+  },
+  "verdict": "PASS_SCOPED_INSTALLED_IDENTITY_COMPATIBILITY_DATA_KEYS_PROJECTION_ASSIGNMENTS_CAPS_HISTORY; ADMIT_READ_ONLY_UI_ROLLOUT; NOT_T1_CLOSURE"
+}

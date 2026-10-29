@@ -1,0 +1,30 @@
+{
+  "census_all34_equal_independent": true,
+  "control_and_model_commands_unchanged": true,
+  "domain_hashes_equal_except_live_supervisor_lease": 30,
+  "independent_original_sha256": "ec8b8498d2632b595ddc5a9ba48a423618be384dd8f44d5933f220d7761807c2",
+  "limits": "No stability claim, no provider/model/Test/Refresh; native UI Find used only to establish bounded row starting point, not full document keyboard-entry certification.",
+  "native_psql_exit": 0,
+  "operations_unchanged": true,
+  "removed_nonnull": 0,
+  "scope": "PARENT_POST_NATIVE_UI_CANCEL_RELOAD_NAVIGATION_READBACK",
+  "status": {
+    "admission_open": true,
+    "api_ready": true,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "control_ready": true,
+    "dashboard_ready": true,
+    "generation": 27,
+    "instance_id": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+    "mode": "DEVELOPMENT",
+    "origin": "http://127.0.0.1:8780",
+    "reason": null,
+    "release": "0.1.1",
+    "schema": "0017_model_removal",
+    "state": "READY",
+    "supervisor_epoch": 16
+  },
+  "status_exit": 0,
+  "utc": "2026-10-29T20:33:30.624994+00:00"
+}

@@ -168,9 +168,7 @@ def main(argv: list[str] | None = None) -> int:
                 file=sys.stderr,
             )
             return 2
-        print(
-            "Release Omnis 0.1.0 instalat; pregătiți explicit imaginea, apoi omnis start --no-open."
-        )
+        print("Release Omnis instalat; pregătiți explicit imaginea, apoi omnis start --no-open.")
         return 0
     if args.command == "install-image":
         data_home = os.environ.get("XDG_DATA_HOME")

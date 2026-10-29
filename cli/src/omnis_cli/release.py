@@ -158,6 +158,8 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
         }
         if raw["schema"] == "0016_provider_models":
             required.remove("omnis/migrations/versions/0017_model_removal.py")
+        if version == T1_RELEASE:
+            required |= {"omnis/migrate.py", "omnis/stop_reconcile.py"}
         try:
             with ZipFile(io.BytesIO(result[f"api/omnis_api-{version}-py3-none-any.whl"])) as wheel:
                 if not required <= set(wheel.namelist()) or any(
@@ -173,6 +175,20 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
                     raise ReleaseError("Provider Settings production closure required")
         except (BadZipFile, KeyError):
             raise ReleaseError("Provider Settings wheel required") from None
+        if version == T1_RELEASE:
+            try:
+                with ZipFile(
+                    io.BytesIO(result[f"cli/omnis_cli-{version}-py3-none-any.whl"])
+                ) as wheel:
+                    metadata = wheel.read(f"omnis_cli-{version}.dist-info/METADATA")
+                    if (
+                        "omnis_cli/upgrade.py" not in wheel.namelist()
+                        or b"Version: 0.1.1\n" not in metadata
+                        or b"Requires-Dist:" in metadata
+                    ):
+                        raise ReleaseError("Standalone upgrade CLI required")
+            except (BadZipFile, KeyError):
+                raise ReleaseError("Standalone upgrade CLI required") from None
     return source, result
 
 

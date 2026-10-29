@@ -332,7 +332,7 @@ def run_installed_start(
 
     try:
         # Preflight refusals use the installed command and restore only our synthetic artifacts.
-        asset = data / "omnis/releases/0.1.0/web/index.html"
+        asset = runtime.release / "web/index.html"
         original_asset = asset.read_bytes()
         asset.write_bytes(b"synthetic corrupted release asset")
         try:

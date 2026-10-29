@@ -304,7 +304,7 @@ check-cli-wheel:
 	@test -n "$$TMPDIR" || { printf 'Set TMPDIR to a private scratch directory\n' >&2; exit 2; }
 	$(UV) build --no-config --wheel --clear cli --out-dir "$$TMPDIR/omnis-p04-cli-wheel"
 	$(UV) venv --clear --no-config --no-python-downloads --python 3.13.15 "$$TMPDIR/omnis-p04-cli-check"
-	$(UV) pip install --no-config --python "$$TMPDIR/omnis-p04-cli-check/bin/python" --no-deps "$$TMPDIR/omnis-p04-cli-wheel/omnis_cli-0.1.0-py3-none-any.whl"
+	$(UV) pip install --no-config --python "$$TMPDIR/omnis-p04-cli-check/bin/python" --no-deps "$$TMPDIR/omnis-p04-cli-wheel/omnis_cli-0.1.1-py3-none-any.whl"
 	@output="$$(XDG_CONFIG_HOME="$$TMPDIR/omnis-p04-empty-config" XDG_STATE_HOME="$$TMPDIR/omnis-p04-empty-xdg" "$$TMPDIR/omnis-p04-cli-check/bin/omnis" status --json)"; code=$$?; test "$$code" -eq 3 || { printf 'Installed CLI status exited %s instead of 3\n' "$$code" >&2; exit 1; }; printf '%s' "$$output" | $(CLI_PY) -I -c 'import json,sys; x=json.load(sys.stdin); assert x["state"] == "NOT_INSTALLED" and not x["dashboard_ready"]'
 	cd "$$TMPDIR" && XDG_CONFIG_HOME="$$TMPDIR/omnis-p04-empty-config" "$$TMPDIR/omnis-p04-cli-check/bin/python" -I -m unittest discover -s "$(CURDIR)/cli/tests" -v
 

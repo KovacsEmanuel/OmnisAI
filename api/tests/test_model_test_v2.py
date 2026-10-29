@@ -44,6 +44,40 @@ def test_production_consumer_exists() -> None:
     assert hasattr(model_test_operation, "ApiKeyModelTest"), "T1 production consumer missing"
 
 
+def cancel_observation(command: ModelTestControl, observed: dict[str, object]) -> dict[str, object]:
+    assert command.op == "entry_model_test" and command.action == "cancel"
+    assert observed["operation_id"] == command.operation_id
+    return {
+        "operation_id": command.operation_id,
+        "requested_revision": command.expected_state_revision,
+        "observed_state": observed["state"],
+        "observed_revision": observed["state_revision"],
+    }
+
+
+def test_cancel_observation_source() -> None:
+    identity = str(uuid4())
+    command = ModelTestControl(
+        op="entry_model_test", action="cancel", operation_id=identity,
+        command_id=str(uuid4()), expected_state_revision=1,
+    )
+    observed: dict[str, object] = {
+        "operation_id": identity, "state": "RUNNING", "state_revision": 2,
+        "response_text": "not retained",
+    }
+    assert cancel_observation(command, observed) == {
+        "operation_id": identity, "requested_revision": 1,
+        "observed_state": "RUNNING", "observed_revision": 2,
+    }
+    assert cancel_observation(command.model_copy(update={"expected_state_revision": 2}), observed)[
+        "requested_revision"
+    ] == 2
+    with pytest.raises(AssertionError):
+        cancel_observation(command, {**observed, "operation_id": str(uuid4())})
+    with pytest.raises(AssertionError):
+        cancel_observation(command.model_copy(update={"op": "model_test"}), observed)
+
+
 def tls_contexts(root: Path) -> tuple[ssl.SSLContext, ssl.SSLContext]:
     key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "openrouter.ai")])
@@ -99,6 +133,13 @@ def tls_contexts(root: Path) -> tuple[ssl.SSLContext, ssl.SSLContext]:
                 reason="Explicit built Settings browser fixture only",
             ),
         ),
+        pytest.param(
+            "settings_cancel_ui",
+            marks=pytest.mark.skipif(
+                os.environ.get("OMNIS_SETTINGS_CANCEL_UI") != "1",
+                reason="Explicit one-operation Cancel diagnostic only",
+            ),
+        ),
         "unknown_usage",
         "negative_usage",
         "unsafe_usage",
@@ -128,6 +169,7 @@ async def test_api_pg_sdk_protocol_and_replay(
     scenario: str,
 ) -> None:
     entry_scenario = scenario.startswith("entry_")
+    cancel_probe = scenario == "settings_cancel_ui"
     # RED is the absent production consumer, not a fabricated repository response.
     assert hasattr(model_test_operation, "ApiKeyModelTest"), "T1 production consumer missing"
     from omnis.modules.runs.model_test_operation import ApiKeyModelTest
@@ -171,7 +213,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                 }
             )
         )
-    if not entry_scenario and scenario != "settings_ui":
+    if not entry_scenario and scenario not in {"settings_ui", "settings_cancel_ui"}:
         await settings.handle(
             ModelRegistryControl.model_validate(
                 {
@@ -231,6 +273,8 @@ async def test_api_pg_sdk_protocol_and_replay(
     catalog_entered, catalog_release = asyncio.Event(), asyncio.Event()
     remove_peer_release = asyncio.Event()
     remove_peer_release.set()
+    ui_model_entered, ui_model_release = asyncio.Event(), asyncio.Event()
+    cancel_observations: list[dict[str, object]] = []
 
     async def serve(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         task = asyncio.current_task()
@@ -250,7 +294,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                 except asyncio.IncompleteReadError:
                     return
                 received.append((first, body))
-                if scenario == "settings_ui" and (
+                if (scenario == "settings_ui" or cancel_probe) and (
                     b"Authorization: Bearer " + secret.encode() + b"\r\n" not in headers
                 ):
                     raise AssertionError("Owned peer authentication mismatch")
@@ -259,7 +303,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                     await catalog_release.wait()
                 if metadata_outage:
                     return  # Real TLS peer EOF before any response bytes.
-                if (entry_scenario or scenario == "settings_ui") and first.startswith(
+                if (entry_scenario or scenario == "settings_ui" or cancel_probe) and first.startswith(
                     "GET /api/v1/models?"
                 ):
                     offset = 0 if "offset=0&" in first else 16
@@ -305,6 +349,11 @@ async def test_api_pg_sdk_protocol_and_replay(
                             for i in range(offset, offset + 16)
                         ]
                         payload["total_count"] = 32
+                    if cancel_probe:
+                        assert offset == 0
+                        payload = {"data": [{"id": "fixture/model", "supported_parameters": ["max_tokens"],
+                                             "top_provider": {"max_completion_tokens": 128}}],
+                                   "links": {"next": None}, "total_count": 1}
                     if catalog_mode == "unknown":
                         payload.pop("total_count")
                         payload["links"] = {"next": None}
@@ -321,6 +370,9 @@ async def test_api_pg_sdk_protocol_and_replay(
                 else:
                     assert first == "POST /api/v1/chat/completions HTTP/1.1"
                     data = json.loads(body)
+                    if cancel_probe:
+                        ui_model_entered.set()
+                        await ui_model_release.wait()
                     if scenario in {"entry_remove", "entry_remove_ui"}:
                         await remove_peer_release.wait()
                     if scenario == "settings_ui":
@@ -417,7 +469,7 @@ async def test_api_pg_sdk_protocol_and_replay(
     ) -> list[tuple[object, ...]]:
         assert family in (0, network_socket.AF_INET) and type in (0, network_socket.SOCK_STREAM)
         assert proto in (0, network_socket.IPPROTO_TCP) and flags == 0
-        if scenario in {"settings_ui", "entry_remove_ui"} and host == "127.0.0.1":
+        if scenario in {"settings_ui", "settings_cancel_ui", "entry_remove_ui"} and host == "127.0.0.1":
             assert 0 < port <= 65535
             return [
                 (
@@ -520,7 +572,7 @@ async def test_api_pg_sdk_protocol_and_replay(
     heartbeat_stop = asyncio.Event()
 
     async def renew(owner_id: UUID, owner_epoch: int) -> None:
-        if not entry_scenario and scenario != "settings_ui":
+        if not entry_scenario and scenario not in {"settings_ui", "settings_cancel_ui"}:
             return
         while not heartbeat_stop.is_set():
             await service.heartbeat(owner_id, owner_epoch)
@@ -535,6 +587,15 @@ async def test_api_pg_sdk_protocol_and_replay(
 
             async def model_command(command: ModelTestControl) -> dict[str, object]:
                 commands.append(command)
+                if cancel_probe and command.action == "start":
+                    assert sum(c.action == "start" for c in commands) == 1, "One Start only"
+                if cancel_probe and command.action == "cancel":
+                    assert sum(c.action == "cancel" for c in commands) == 1, "One Cancel only"
+                    await asyncio.wait_for(ui_model_entered.wait(), 3)
+                    observed = await owner.view(command.operation_id, entry=True)
+                    observation = cancel_observation(command, observed)
+                    cancel_observations.append(observation)
+                    print("CANCEL_PRE_HANDLE " + json.dumps(observation), flush=True)
                 if scenario == "settings_ui" and command.action == "start":
                     ui_starts.append(len(received))
                     if ui_admitted:
@@ -545,13 +606,16 @@ async def test_api_pg_sdk_protocol_and_replay(
                         )
                 try:
                     value = await owner.handle(command)
-                    if scenario == "settings_ui" and command.action == "start":
+                    if (scenario == "settings_ui" or cancel_probe) and command.action == "start":
                         assert command.operation_id is not None
                         ui_admitted.append(command.operation_id)
                     return value
                 except ValidationError as error:
                     print(error.errors(include_input=False, include_url=False))
                     raise
+                finally:
+                    if cancel_probe and command.action == "cancel":
+                        ui_model_release.set()
 
             control.model_test = model_command
 
@@ -586,6 +650,46 @@ async def test_api_pg_sdk_protocol_and_replay(
                 return result.model_dump(mode="json")
 
             control.provider_settings = provider_command
+
+            if cancel_probe:
+                from test_web_e2e import settings_models_browser
+
+                await settings.handle(ModelRegistryControl.model_validate({
+                    "op": "provider_models", "request": {
+                        "action": "save_models", "command_id": str(uuid4()),
+                        "expected_registry_revision": 0, "connection_id": connection_id,
+                        "connection_revision": 1, "models": [{"entry_id": str(uuid4()),
+                        "expected_revision": 0, "model": "fixture/model", "output_tokens": 64}],
+                    },
+                }))
+                # One owned TLS metadata prerequisite; no browser Refresh or catalog cycle.
+                await owner.catalog_handle(CatalogControl.model_validate({
+                    "op": "provider_catalog", "request": {"action": "refresh",
+                    "command_id": str(uuid4()), "connection_id": connection_id,
+                    "connection_revision": 1},
+                }))
+                async with asyncio.timeout(15):
+                    while owner.tasks:
+                        await asyncio.sleep(0.01)
+                assert [first for first, _ in received] == [
+                    "GET /api/v1/models?offset=0&limit=1000 HTTP/1.1"
+                ]
+                async with asyncio.timeout(120):
+                    await settings_models_browser(
+                        migrated_database_url, control_dir, tmp_path,
+                        scenario="settings-cancel-probe",
+                    )
+                assert len(ui_admitted) == len(cancel_observations) == 1
+                assert [c.action for c in commands if c.action != "read"] == ["start", "cancel"]
+                assert [first for first, _ in received] == [
+                    "GET /api/v1/models?offset=0&limit=1000 HTTP/1.1",
+                    "POST /api/v1/chat/completions HTTP/1.1",
+                ]
+                async with engine.connect() as db:
+                    assert (await settings.selection(db)) is None
+                    assert (await db.execute(text("SELECT count(*) FROM system_operation"))).scalar_one() == 1
+                    assert (await db.execute(text("SELECT count(*) FROM provider_model_entry"))).scalar_one() == 1
+                return
 
             if scenario == "settings_ui":
                 from test_web_e2e import settings_models_browser
@@ -2535,6 +2639,7 @@ asyncio.run(main())
         physical_release.set()
         catalog_release.set()
         remove_peer_release.set()
+        ui_model_release.set()
         heartbeat_stop.set()
         try:
             try:

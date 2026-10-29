@@ -221,18 +221,35 @@ it('keeps focus on the wizard after Continue and on search across query refreshe
   await waitFor(() => expect(within(screen.getByRole('region', { name: 'Add models wizard' })).getByRole('heading', { name: 'Add models' })).toHaveFocus());
   search.focus(); fireEvent.change(search, { target: { value: 'Catalog/01' } }); await screen.findByRole('button', { name: 'Add Catalog/01' }); expect(search).toHaveFocus();
 });
-it('review keeps short not-tested status, exact consent and closed output controls', async () => {
+it.each([1, 2])('review keeps exact %s-model context, concise approval and closed output controls', async count => {
   const { state } = settingsBackend(configured, [], models); mount(); const panel = await wizard();
-  fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/00' })); await review();
-  expect(within(panel).getByText('Not tested', { exact: true })).toBeVisible();
+  fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/00' }));
+  if (count === 2) fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/01' }));
+  await review();
+  expect(within(panel).getAllByText('Not tested', { exact: true })).toHaveLength(count);
   expect(within(panel).getByText('Catalog/00', { selector: 'small', exact: true })).toBeVisible();
+  expect(within(panel).getByText('OpenRouter · Saved key', { exact: true })).toBeVisible();
   expect(within(panel).getByText('Output controls').closest('details')).not.toHaveAttribute('open');
   expect(within(panel).getByLabelText('Catalog/00 output tokens')).not.toBeVisible();
-  expect(within(panel).getByRole('checkbox', { name: /up to 1 call, one per listed model via OpenRouter/ })).not.toBeChecked();
-  expect(panel).toHaveTextContent('Provider charges may apply.');
-  expect(panel).toHaveTextContent('One call / 300 seconds, no tools or target traffic. Cancel is not a refund.');
+  expect(within(panel).getByRole('checkbox', { name: count === 1 ? 'I approve using this model.' : 'I approve using these models.' })).not.toBeChecked();
+  expect(within(panel).getByText('Provider charges may apply.', { exact: true })).toBeVisible();
+  expect(panel).not.toHaveTextContent(/Fixed input|300 seconds|no tools|refund|OMNIS_MODEL_TEST_OK/);
   expect(within(panel).getByRole('button', { name: 'Save & connect' })).toBeDisabled();
   expect(state.writes.map(item => item.body.action)).toEqual(['refresh']);
+});
+it('resets approval on output and model changes and Save models stays local even when approved', async () => {
+  const { state } = settingsBackend(configured, [], models); mount(); const panel = await wizard();
+  fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/00' })); await review();
+  fireEvent.click(within(panel).getByRole('checkbox')); fireEvent.click(within(panel).getByText('Output controls'));
+  fireEvent.change(within(panel).getByLabelText('Catalog/00 output tokens'), { target: { value: '64' } });
+  expect(within(panel).getByRole('checkbox')).not.toBeChecked();
+  fireEvent.click(within(panel).getByRole('checkbox')); fireEvent.click(within(panel).getByRole('button', { name: 'Back' }));
+  fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/01' })); await review();
+  const consent = within(panel).getByRole('checkbox', { name: 'I approve using these models.' });
+  expect(consent).not.toBeChecked(); fireEvent.click(consent);
+  fireEvent.click(within(panel).getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved.');
+  expect(state.writes.map(item => item.body.action)).toEqual(['refresh', 'save_models']);
+  expect(state.entries.map(item => item.output_tokens)).toEqual([64, 128]);
 });
 it('manual 256-character exact ID saves UNVERIFIED and cannot acquire test consent', async () => {
   const { state } = settingsBackend(configured, [], models); mount(); await wizard(); const id = 'M'.repeat(256);
@@ -245,7 +262,7 @@ it.each([0, 1.5, 65537])('invalid output cap %s cannot authorize Save & connect 
   fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review();
   fireEvent.click(screen.getByText('Output controls', { exact: true }));
   fireEvent.change(screen.getByLabelText('Catalog/00 output tokens'), { target: { value: tokens } });
-  expect(screen.getByRole('checkbox', { name: /I approve the fixed synthetic input/ })).toBeDisabled();
+  expect(screen.getByRole('checkbox', { name: /I approve using (this model|these models)\./ })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'Save models' })).toBeDisabled();
   expect(state.writes.map(item => item.body.action)).toEqual(['refresh']);
@@ -358,7 +375,7 @@ it('Save & connect waits for exact terminal readback before each next model and 
   const mounted = mount(); const panel = await wizard();
   fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
   expect(within(panel).queryByRole('combobox')).not.toBeInTheDocument();
-  expect(within(panel).getByRole('checkbox')).toHaveAccessibleName(/2 calls/);
+  expect(within(panel).getByRole('checkbox')).toHaveAccessibleName('I approve using these models.');
   fireEvent.click(within(panel).getByRole('checkbox')); const connect = screen.getByRole('button', { name: 'Save & connect' }); fireEvent.click(connect); fireEvent.click(connect);
   await waitFor(() => expect(views.size).toBe(1));
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
@@ -568,7 +585,7 @@ it('Save & connect keeps Cancel/readback outside wizard, and unmount abandons re
     if (path.startsWith('/api/v1/model-test/entries/')) return Response.json(view);
   };
   const mounted = mount(); await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
-  expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled(); fireEvent.click(screen.getByRole('checkbox', { name: /I approve the fixed synthetic input/ })); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
+  expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled(); fireEvent.click(screen.getByRole('checkbox', { name: /I approve using (this model|these models)\./ })); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
   const panel = await screen.findByRole('listitem', { name: 'Model Catalog/00 via OpenRouter' }); await waitFor(() => expect(within(panel).getByRole('button', { name: 'Cancel test' })).toBeEnabled());
   expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument(); expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
   expect(view?.requested_model).toBe('Catalog/00'); expect(state.keys.selection).toBeNull(); expect(view?.entry_id).toBe(state.entries[0]!.entry_id);

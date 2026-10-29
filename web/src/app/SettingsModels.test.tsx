@@ -274,15 +274,14 @@ it.each(['openrouter', 'orcarouter'] as const)('direct test consent names the ex
   expect(consent).toHaveTextContent(`${providerLabel} · ${model}`);
   expect(within(consent).getByText(model, { exact: true })).toBeVisible();
   expect(consent).toHaveTextContent('Provider charges may apply.');
-  expect(within(consent).getByRole('checkbox')).not.toBeChecked();
+  expect(within(consent).getByRole('checkbox', { name: 'I approve using this model.' })).not.toBeChecked();
   expect(within(consent).getByRole('button', { name: 'Send model test' })).toBeDisabled();
-  expect(screen.getByText('Fixed input').closest('details')).not.toHaveAttribute('open');
-  fireEvent.click(screen.getByText('Fixed input'));
-  expect(screen.getByText('Respond only with OMNIS_MODEL_TEST_OK. Use no tools.')).toBeVisible();
-  expect(screen.getByText('This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.')).toBeVisible();
+  expect(consent).not.toHaveTextContent(/Fixed input|300 seconds|No tools|refund|OMNIS_MODEL_TEST_OK/);
   fireEvent.click(within(consent).getByRole('checkbox'));
   expect(within(consent).getByRole('button', { name: 'Send model test' })).toBeEnabled();
   fireEvent.click(within(consent).getByRole('button', { name: 'Cancel' }));
+  fireEvent.click(test);
+  expect(screen.getByRole('checkbox', { name: 'I approve using this model.' })).not.toBeChecked();
   expect(state.writes).toHaveLength(0);
 });
 it('keeps single-model output controls secondary before assignment confirmation', async () => {

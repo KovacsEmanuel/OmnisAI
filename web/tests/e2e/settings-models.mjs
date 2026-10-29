@@ -475,7 +475,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await check(consent).toContainText('Provider charges may apply.');
   await check(consent.getByRole('checkbox')).not.toBeChecked();
   await check(consent.getByRole('button', { name: 'Send model test', exact: true })).toBeDisabled();
-  await capture('direct-test-consent', consent, consent.getByText('Fixed input', { exact: true }));
+  await capture('direct-test-consent', consent, consent.getByRole('checkbox', { name: 'I approve using this model.', exact: true }));
   await consent.getByRole('checkbox').check();
   await check(consent.getByRole('button', { name: 'Send model test', exact: true })).toBeEnabled();
   await consent.getByRole('button', { name: 'Cancel', exact: true }).click();
@@ -564,7 +564,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await capture('review-two', wizard.getByRole('button', { name: 'Save & connect', exact: true }));
   const consentGeneration = await page.evaluate(async () => { const response = await fetch('/api/instance'); if (!response.ok) throw new Error('Instance status unavailable'); const status = await response.json(); if (!status.admission_open || !status.supervisor_ready) throw new Error('Instance admission closed'); return status.generation; });
   assert.ok(Number.isSafeInteger(consentGeneration));
-  await wizard.getByRole('checkbox', { name: /up to 2 calls, one per listed model via OpenRouter/ }).check();
+  await wizard.getByRole('checkbox', { name: 'I approve using these models.', exact: true }).check();
   const testIntents = [];
   const collectTest = request => { if (request.method() === 'PUT' && request.url() === `${origin}/api/v1/model-test/entries`) testIntents.push(request.postDataJSON()); };
   page.on('request', collectTest);

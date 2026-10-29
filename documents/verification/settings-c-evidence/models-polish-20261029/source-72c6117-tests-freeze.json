@@ -1,0 +1,709 @@
+{
+  "status": "TEST_ONLY_FROZEN_SUPPLEMENT_AWAITING_PARENT_FOCUSED_REVIEW; not integrated or QA acceptance",
+  "worktree": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029",
+  "base": "a4f5dbc67221e3c0387a88db7bb8e78de4c6ccfa",
+  "head": "72c611713cdb186a4c9d65c1c0f2f46b9e867519",
+  "tree": "bc4f8df3415934fb13ffffdb401f003bd61412f1",
+  "commits": [
+    "a76df461e204811c1f71d7acdbcaca61d3680616",
+    "72c611713cdb186a4c9d65c1c0f2f46b9e867519"
+  ],
+  "changed_paths": [
+    "web/src/app/ProviderKeySettings.test.tsx",
+    "web/src/app/SettingsModels.test.tsx",
+    "web/src/app/SettingsWizard.test.tsx",
+    "web/tests/e2e/provider-settings-focus.mjs",
+    "web/tests/e2e/settings-models.mjs"
+  ],
+  "diff_sha256": "9deb9a5326479e58451aac45dfb5940399769722ee263f53f5203a00f2b1e716",
+  "tracked_status": "clean",
+  "files": [
+    {
+      "path": "api/tests/test_model_test_v2.py",
+      "blob": "ee4ae889dc0060aecf28c5f8f4b730cf35d4e86d",
+      "sha256": "8d4ab3550ae59cc341034e46e235b110480f0e9dbc61e6faf368a1869e871be5",
+      "unchanged_from_a4f5dbc": true
+    },
+    {
+      "path": "web/src/app/ProviderKeySettings.test.tsx",
+      "blob": "5f0e640131b7c5a55b3ddc08f6fe49b5abad94f2",
+      "sha256": "fc9e7f0d6946eb039d66aad015f3de744fd0fbe14ae022ed3d3a17cfbf7aa53f",
+      "unchanged_from_a4f5dbc": false
+    },
+    {
+      "path": "web/src/app/SettingsModels.test.tsx",
+      "blob": "4542d0a16227e0964222393ccf210aec65b8ae33",
+      "sha256": "08ba4ec49fac422ecf8486f3da5b617c466a9a6f3da6be0c0f603cbe8f1d7977",
+      "unchanged_from_a4f5dbc": false
+    },
+    {
+      "path": "web/src/app/SettingsWizard.test.tsx",
+      "blob": "fc18bd94ea60b6e9a363a922354be2b50fa8cad8",
+      "sha256": "17310aefe9f30cb369ed8f2a6cc803ac13bdd0804955fb361b3ac1861b03b6ce",
+      "unchanged_from_a4f5dbc": false
+    },
+    {
+      "path": "web/src/features/engagement/SettingsAssignments.tsx",
+      "blob": "baf3f066327d9d2335cc0eb9a10e29db2f806759",
+      "sha256": "a52600f0cd6f108ab69e28290381465421d606c6c28cb3c692bb249ac64734d2",
+      "unchanged_from_a4f5dbc": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModelWizard.tsx",
+      "blob": "f289e2f5138736a8545998be35a26fcc689c828f",
+      "sha256": "801e06fb826a48ac878c61f0b1373507f7a4ac75195b721d6e1b8067a77a25fe",
+      "unchanged_from_a4f5dbc": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModels.module.css",
+      "blob": "8a813cc48454f75dabeb065e0373d2b5e1ce6a16",
+      "sha256": "9a63338ca6182aa82db5d9d4da203cf4df612a9b635c34344a59123bfbfa310d",
+      "unchanged_from_a4f5dbc": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModelsPage.tsx",
+      "blob": "38cd9e95303255c57e8415f60e0624a55a6379b8",
+      "sha256": "0944c7f774785155f37149845e1fe5e850e493863aebae6363c2c2ac2215b0ed",
+      "unchanged_from_a4f5dbc": true
+    },
+    {
+      "path": "web/tests/e2e/provider-settings-focus.mjs",
+      "blob": "c9c65dfc2c065e9b79ff60290fb79cca502489a2",
+      "sha256": "c5ab6fa84a9bfc3beab72a8e4371546007c370ba72456e619971e9d7d1dec2ed",
+      "unchanged_from_a4f5dbc": false
+    },
+    {
+      "path": "web/tests/e2e/run.mjs",
+      "blob": "f7819bd85fb4a7a7c708f65920ae0ce09860b2e8",
+      "sha256": "f5094f22925e9e6b0d739708045480aecd69e24cf89d64c045cbfe626235f276",
+      "unchanged_from_a4f5dbc": true
+    },
+    {
+      "path": "web/tests/e2e/settings-models.mjs",
+      "blob": "52b0cd4aa6cba2d2462f4233a3ae996a812726f5",
+      "sha256": "a8e3459ee83066414e6f778488ef283b8784603a7d65b73358a6038ba9200c7f",
+      "unchanged_from_a4f5dbc": false
+    }
+  ],
+  "all_four_production_components_css_unchanged": true,
+  "other_production_paths_changed": false,
+  "builds": [
+    {
+      "path": "web/dist/assets/fonts-OFL-bSaZbgNk.txt",
+      "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+      "exact_a4f5dbc": true
+    },
+    {
+      "path": "web/dist/assets/index-6ubBtIU9.css",
+      "sha256": "caa87c3f87499aae6a28c0d63928446042b16eb60510ce6a700552bbda651a5e",
+      "exact_a4f5dbc": true
+    },
+    {
+      "path": "web/dist/assets/index-C4Rn_mrY.js",
+      "sha256": "256eaebfcc73f581accd3edb7c1d976cf356882098b6a322e6089247bfbfc5cf",
+      "exact_a4f5dbc": true
+    },
+    {
+      "path": "web/dist/index.html",
+      "sha256": "26f03f3ff54bdddeb59ed5f82968b8091d22187798136a6b2270fa7bf9db7dad",
+      "exact_a4f5dbc": true
+    },
+    {
+      "path": "web/dist/omnis-web.json",
+      "sha256": "25464e15e682698229e85972f14c6a681b31328be167ae270a99e3baf04356a2",
+      "exact_a4f5dbc": true
+    }
+  ],
+  "rebuild": "NOT_RUN; reused exact approved a4f5dbc build; no source-gate override",
+  "old_freezes_immutable": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-r2fix-freeze-20261029.json",
+      "sha256": "ccf982f039d1e145ba884e94d391e03b5f72ddbf3bb26e245a4d42d664125534"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-freeze-20261029.json",
+      "sha256": "e70a7effbe3b2ebf4d6304da6f327501ea2e7f3310cbef8f054b0d9dde897f97"
+    }
+  ],
+  "original_pg_failure": {
+    "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-a4f5dbc-20261030/result.json",
+    "sha256": "bb6ffc11337551a2c7a2dd3f2f6dec40b11d3e0c4f9c1be4e8a1e74195e48803",
+    "preserved": "oneentry_remove_ui FAIL55.01s; original cause had no recorded Back DOM; no PG rerun"
+  },
+  "matrix": {
+    "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-a4f5dbc-20261030/matrix.json",
+    "sha256": "8c18da9e260915855e08025bf7a992e718874c7484f84fc6476bf39596548672",
+    "definition": "55 JSX sites +3 navigation instances; not all combinations or simultaneous controls"
+  },
+  "checks": {
+    "component": {
+      "command": "npm test -- src/app/SettingsModels.test.tsx src/app/SettingsWizard.test.tsx src/app/ProviderKeySettings.test.tsx",
+      "exit": 0,
+      "passed": 163,
+      "baseline": 153,
+      "added": 10,
+      "seconds": 30.34,
+      "log": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/component-verified.log",
+      "boundary": "SOURCE React/JSDOM/synthetic HTTP"
+    },
+    "lint": {
+      "command": "npm run lint",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/lint-verified.log"
+    },
+    "typecheck": {
+      "command": "npm run typecheck",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/typecheck-verified.log"
+    },
+    "native": {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch OMNIS_E2E_OUTPUT=/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030 node --test web/tests/e2e/provider-settings-focus.mjs",
+      "exit": 0,
+      "subcases": [
+        "retained",
+        "moved",
+        "stale",
+        "long64"
+      ],
+      "node_count_including_parent": 5,
+      "seconds": 10.099730954,
+      "cap_seconds": 90,
+      "log": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/native-final.log",
+      "boundary": "SOURCE real Chromium / actual unchanged built App / synthetic HTTP; no real API/PG/provider"
+    }
+  },
+  "logs": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/component-final.log",
+      "sha256": "2ca220db03c151c4ec872fd51a4ec1e6b3f5249a36acb10af1e1ae3c41b7cf9a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/component-first.log",
+      "sha256": "9e74a5876f68b29036f2aa68fcc3339c9a15bbbe8066f4944788463897be32a3"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/component-focused.log",
+      "sha256": "c6ff3f4769dffb544a99ee8ef747f3980188075ed4a9e2230d417f5dedfae030"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/component-verified.log",
+      "sha256": "fb35548739b1b13cb3bb448b20ea1d50ce914087017c074397d0d219653cca18"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/lint-final.log",
+      "sha256": "e819f5e6d5372b5b2c2282295eeefe2b089e6dc7038119d82a1770322d2c1491"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/lint-verified.log",
+      "sha256": "e819f5e6d5372b5b2c2282295eeefe2b089e6dc7038119d82a1770322d2c1491"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/lint.log",
+      "sha256": "e819f5e6d5372b5b2c2282295eeefe2b089e6dc7038119d82a1770322d2c1491"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/native-corrected.log",
+      "sha256": "4b9d30eb900cb297105d700875566566c30412e98ecf6e64f82505686c3cce83"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/native-final.log",
+      "sha256": "4cd1211b96f91ba26f9e1f40e2394424b1c279e847f3ba16dcfc8816d72e5153"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/native-first.log",
+      "sha256": "1d8039899ca4741bdb4ffeeeaccccdeb3baaf224730ce361909853d974af2bb1"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/typecheck-final.log",
+      "sha256": "fa268149717bddb17ae174999b01341b57f53ad9af4d425b8f1ba31302ca6b57"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/typecheck-verified.log",
+      "sha256": "fa268149717bddb17ae174999b01341b57f53ad9af4d425b8f1ba31302ca6b57"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/typecheck.log",
+      "sha256": "11891772edaaff9fb1431cc6b68bcc1dce2c1a90c9acf92c1f5d434a09a71b17"
+    }
+  ],
+  "captures": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-64-320-loaded.png",
+      "sha256": "17c16c5c6879a74fc9044193055b6f649b1511aea3e9cd3692241e25f5b0c9fd",
+      "width": 320,
+      "height": 844,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-assignment-pending-1280-loaded.png",
+      "sha256": "615f0be05d0cb0f4214e1de4fb814f0b049d7c4f3e88f3032071205112424355",
+      "width": 1280,
+      "height": 1172,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-assignment-pending-1280-viewport.png",
+      "sha256": "7e03319320a56869236de6ab0a3f3b53cdcfb0c07f56e15b731388a47d590049",
+      "width": 1280,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-assignment-pending-1440-loaded.png",
+      "sha256": "900630c24b6d42dcf3ebe87ca21341b33e5db9c5e0f93c202a2ab577ba35f74b",
+      "width": 1440,
+      "height": 1172,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-assignment-pending-1440-viewport.png",
+      "sha256": "3b2b1e07c1f449e848367a49a8b28080699c27c2f6a752df095d0f6db477f957",
+      "width": 1440,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-assignment-pending-320-loaded.png",
+      "sha256": "fe0c5bf102f275570e373b8129d53a0ffac53aa3a51d2d9b86bde46801812bd7",
+      "width": 320,
+      "height": 1554,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-assignment-pending-320-viewport.png",
+      "sha256": "19ef71a97910a2b13d70962116a6392b0d180e32150de5b6e7183da2c570e51d",
+      "width": 320,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-assignment-pending-390-loaded.png",
+      "sha256": "2e79cdb2bc125610534200901105ccd9467677350633f2fddd0420f9d46f381a",
+      "width": 390,
+      "height": 1429,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-assignment-pending-390-viewport.png",
+      "sha256": "808b2d374536fa152125db9e9d48071e456fca49e5ec694e3453651d5b521464",
+      "width": 390,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-connection-1280-loaded.png",
+      "sha256": "9e82e4b56329c935a78e6b5d7fae1d14f3cec64a36c7038aa5278ebbf34570ec",
+      "width": 1280,
+      "height": 1506,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-connection-1280-viewport.png",
+      "sha256": "32b0b672fda49c97ce956fdbd25747426fde32c99e361fdc531b3de9a7200e5f",
+      "width": 1280,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-connection-1440-loaded.png",
+      "sha256": "1e41971294756895aa3df6d271f4a02aa51fe8686d117b27d0de302bc57c689b",
+      "width": 1440,
+      "height": 1506,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-connection-1440-viewport.png",
+      "sha256": "3c1a8df647d535e4b8d56e6af93224e1a57848cc0cb948b989fef91e38066465",
+      "width": 1440,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-connection-320-loaded.png",
+      "sha256": "bf0b1c8191530620aef93ffeafee272a750c4cfe48f3fe50f31f691d7d5c1a49",
+      "width": 320,
+      "height": 2042,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-connection-320-viewport.png",
+      "sha256": "274377edb3ac0b51eba405fe2d38eddf457429ae846cd76e86e319a38a104760",
+      "width": 320,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-connection-390-loaded.png",
+      "sha256": "43ad9e63bcb9b6fa09c843acb476b0d0340ae4bf604ff9027c064a00a8496294",
+      "width": 390,
+      "height": 1878,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-connection-390-viewport.png",
+      "sha256": "98cbb473ae864bcce563ce341dfefa240ec377c98b2717a65d5f2bd4438223fd",
+      "width": 390,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-failure-1280-loaded.png",
+      "sha256": "32651337f75616873b9cbae8ea328e0c61c3899236b264d30e11c51f9146b8c9",
+      "width": 1280,
+      "height": 1304,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-failure-1280-viewport.png",
+      "sha256": "6fca5cc53f88896536160f923b890d8e5d3a598ffda296d2463ec23620116644",
+      "width": 1280,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-failure-1440-loaded.png",
+      "sha256": "55745c98a87a30216a0253c05a6de8dd4069958b6786d9e204d90c871c79d2c7",
+      "width": 1440,
+      "height": 1304,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-failure-1440-viewport.png",
+      "sha256": "ba3316984b7aad9eb234f2bd1e3a85d213e4fca8afe308d94e1d920f559e3e3c",
+      "width": 1440,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-failure-320-loaded.png",
+      "sha256": "5b0d33f7ba887df42d0a800493ae00ab848cf9ce31f58722e34c3537e9a533c2",
+      "width": 320,
+      "height": 1831,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-failure-320-viewport.png",
+      "sha256": "033c8b2c0cd28d7a44d4ed2b12549c4b8fbda2f7f4cb23547dffe0df31fcfa20",
+      "width": 320,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-failure-390-loaded.png",
+      "sha256": "b6789fd1e7e7c01cf8d0b0820993fe36e99ba4ccba3b004e9bc9125ba500e208",
+      "width": 390,
+      "height": 1632,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-failure-390-viewport.png",
+      "sha256": "60bfe20a18959b00b66d5389c6da1b5d84e647c53aa16a4f2e9f701b784b9091",
+      "width": 390,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-forced-colors-focus.png",
+      "sha256": "e5492254c926eb0bc9793f410c28da957707f2d7816324871ce9c3db6a05f267",
+      "width": 1440,
+      "height": 1205,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-model-results-1280-loaded.png",
+      "sha256": "c46caf2c8c8a6b0a6aa2f9161ccb1adb0fe6d615be119a387a504cb735c6f1f6",
+      "width": 1280,
+      "height": 1869,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-model-results-1280-viewport.png",
+      "sha256": "e24d6e57b250b7e99e06d3123fc6441b40a1192ca9f6774ed4c1529c427bb2f4",
+      "width": 1280,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-model-results-1440-loaded.png",
+      "sha256": "39a502b9e5a1940a4ed3baef2935edb9e4edcba688985260c6b7b1fcdc7a83cc",
+      "width": 1440,
+      "height": 1869,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-model-results-1440-viewport.png",
+      "sha256": "7493eafe76e55084667f5c2fc2ab98786c7d08f16e31d7443ea46b52dbe5bab7",
+      "width": 1440,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-model-results-320-loaded.png",
+      "sha256": "14b6feb0f650dbe46324a0d574e08701c4098ce234842e4d063a0e5608edf8b8",
+      "width": 320,
+      "height": 2451,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-model-results-320-viewport.png",
+      "sha256": "870d6a8b3c29d3d573e64a75382f5212c26dbc4477ac4c923f25493c4633d39e",
+      "width": 320,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-model-results-390-loaded.png",
+      "sha256": "a434b08d49122fa33a8ca3b66967a94781f1633ab765ed02bf22b42b427b0a7e",
+      "width": 390,
+      "height": 2252,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-model-results-390-viewport.png",
+      "sha256": "3fcb7754eb21511531f523e2b7758d090e9d5999b3dc368ef7dd18055314a66b",
+      "width": 390,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-models-assignments-1280-loaded.png",
+      "sha256": "cad78054d84f77ce1e270dbffb4c9a3c101cdff81b1b91c47f76280a26315339",
+      "width": 1280,
+      "height": 1152,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-models-assignments-1280-viewport.png",
+      "sha256": "6e65e7223daca048bdb9a26f3ffa69878816dd914591ee6d198c616ab1062543",
+      "width": 1280,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-models-assignments-1440-loaded.png",
+      "sha256": "ab0102cbb45797a32f908052d223ef182b4cd4984b9af4e03c39de2722c27874",
+      "width": 1440,
+      "height": 1152,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-models-assignments-1440-viewport.png",
+      "sha256": "f54e24d5b3b46f753c60f7ee12ab0ef2571da9345aafa06e4687e1fba35ada5f",
+      "width": 1440,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-models-assignments-320-loaded.png",
+      "sha256": "1718cc00dacd079b7e4f1af7fee258f0101f53fd902fefe59eedb9b225e325b4",
+      "width": 320,
+      "height": 1535,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-models-assignments-320-viewport.png",
+      "sha256": "1023b8e0e6623c4497010f01fdb9e70b96c8e0b92fb7b1f200285c510b262bc4",
+      "width": 320,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-models-assignments-390-loaded.png",
+      "sha256": "94968961efdf00828021ac6d448ddf5092f59a77cc3bd65c1885efab15a0774a",
+      "width": 390,
+      "height": 1409,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-models-assignments-390-viewport.png",
+      "sha256": "f6ccbb7b6a7ac88e4cdab213ac1a5a8c2c7f5542f10093f49c7c1317974cad35",
+      "width": 390,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-review-1280-loaded.png",
+      "sha256": "f0858725cfd5317d08a652c8765df5d19ba67027b489cd7de772a7bbfacae4cf",
+      "width": 1280,
+      "height": 1741,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-review-1280-viewport.png",
+      "sha256": "5da9fa6a3dc91502ae98e73f34f73ac0d4629f9cf9d584e7f40833de0a158457",
+      "width": 1280,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-review-1440-loaded.png",
+      "sha256": "2fa07af59054ec390fb5e14266f3e00b15ff96fd1429dcd4e96b3d05457ae43b",
+      "width": 1440,
+      "height": 1741,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-review-1440-viewport.png",
+      "sha256": "4d3b08a773305b0be2d4c06aa16a5eb33022c8e1561b570ce2d95f15481d93e2",
+      "width": 1440,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-review-320-loaded.png",
+      "sha256": "a8ac68cf6baa7f0eb3dbcb154309a7f85ac0defc4934ee1b273a42489a81c02b",
+      "width": 320,
+      "height": 2322,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-review-320-viewport.png",
+      "sha256": "44d5e544eb2356f669c0bc90592e722a8acc5688aa2a307e59228ae3ccbaa0de",
+      "width": 320,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-review-390-loaded.png",
+      "sha256": "af116e8ed85c630f8431af995b303edd8dc3aad39461a179f3efdf1bad877670",
+      "width": 390,
+      "height": 2138,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-review-390-viewport.png",
+      "sha256": "66b7eba7339a0d6a6a0cf95c584e7363806a98ba68b0473857cccd3ab537543f",
+      "width": 390,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-saved-1280-loaded.png",
+      "sha256": "e61186abf327d30fa1f1adb33d838b921cf08489ebce14ea6bed0c242a64d059",
+      "width": 1280,
+      "height": 1205,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-saved-1280-viewport.png",
+      "sha256": "0324a84a41cd5d228935e9aba3f3d7742c29b5ff4e6a6b87e086f7382b9dc8ae",
+      "width": 1280,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-saved-1440-loaded.png",
+      "sha256": "ea9ec8fe80da98a5e47180da440e63fee2ffadb1157f4dbbb96e07f9a8517ab6",
+      "width": 1440,
+      "height": 1205,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-saved-1440-viewport.png",
+      "sha256": "d3d0ac0376aa70871820692cff67adbb0059367bb6aec645c3842142fe977b4d",
+      "width": 1440,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-saved-320-loaded.png",
+      "sha256": "6d6c979c392ee455b97235da514209f416cf2623b74919c1336eb6747239bf56",
+      "width": 320,
+      "height": 1617,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-saved-320-viewport.png",
+      "sha256": "37f1243ee54f76351e4954c7ef7dc9562b1e2d5466da51a8b06184506cb4e9d8",
+      "width": 320,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-saved-390-loaded.png",
+      "sha256": "1a19dd35bf72d17e07c84d1f9bc692520742d0de6d276dc62294ddd484437f90",
+      "width": 390,
+      "height": 1492,
+      "viewport": false
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-saved-390-viewport.png",
+      "sha256": "80d2603bcf44c4d3f77d9709d3e7014e7ecc302e17152b64a0b9c8a0f4d90c22",
+      "width": 390,
+      "height": 1000,
+      "viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/SOURCE-settings-zoom-200.png",
+      "sha256": "87fb5c5fe446951bea66d174d1bb67dbbd12ca407ac16904d059ad6bb47a8e67",
+      "width": 1440,
+      "height": 2411,
+      "viewport": false
+    }
+  ],
+  "capture_count": 59,
+  "viewport_capture_count": 28,
+  "symlinks": [
+    {
+      "path": "api/.venv",
+      "target": "/home/kali/OmnisAI/api/.venv",
+      "staged": false
+    },
+    {
+      "path": "cli/.venv",
+      "target": "/home/kali/OmnisAI/cli/.venv",
+      "staged": false
+    },
+    {
+      "path": "tools/development/anti-slop/node_modules",
+      "target": "/home/kali/OmnisAI/tools/development/anti-slop/node_modules",
+      "staged": false
+    },
+    {
+      "path": "web/node_modules",
+      "target": "/home/kali/OmnisAI/web/node_modules",
+      "staged": false
+    }
+  ],
+  "controls": {
+    "C03": "SettingsModels reload test clicks Dismiss; native retained Enter-save then visible toast and actual Dismiss click.",
+    "C13": "Existing saved successful test/current failed catalog case already opened saved-library Catalog details; supplemented close/hidden assertions.",
+    "C23": "All five existing catalog readback variants assert Command details default closed and click open/close without clearing pending safety state.",
+    "C25": "New exact retained Cancel catalog command, stopped FAILED/CANCELLED_OR_STOPPED local readback across remount, one cancel/no refresh/model/assignment.",
+    "C27": "New orphan RUNNING with historical completed row: receive-only read updates state_revision2 to7, actual orphan Cancel posts exact active ID/rev7; remount no resend.",
+    "C28": "New controlled SOURCE missing local projection during held admission: orphan Stop actual handler; later admitted FINISHED success settles before assertion of exactly one test; remount no resume. Not real API-removal evidence.",
+    "C31/C48": "Native retained actual Add New/Model, manual add/remove, Back: exact label0 / exact combobox role1, Saved key, Cancel and Escape preserving provider/choice, Continue then Review.",
+    "C36": "New positive explicit Refresh clicks actual handler, second fresh catalog command identity, chosen chip retained, no model/assignment effects; old duplicate guards retained.",
+    "C39": "Existing paging case now first Previous disabled, Next offset16, Previous offset0 exact current query/catalog/connection, chips retained and no additional Refresh.",
+    "C53/C55": "Four finite role cases Default/Brain/Investigator/Validator actually edit own cap and picker, exact save payload/read receipt/remount, peer values unchanged; all three overrides reset Use default and save independent peers.",
+    "N1/N2/N3": "Two component keyboard Enter journeys Models->Skills/Runtime & data->Models using actual NavLinks; current-page states, detached secret wiped, library hydrated, no old wizard/consent/secret persistence or writes. Not native-navigation proof."
+  },
+  "causal_notes": [
+    "Original PG failure selector had no failure-DOM record; do not claim a Back product defect. Actual SOURCE built-App checkpoint separately proves Back and native selector semantics.",
+    "First native SOURCE invocation failed after successful Back/Cancel/Escape because old getByText exact New/Model matched strong+small: Playwright ignores unsupported selector option. Repair uses locator(small).getByText exact.",
+    "Second native invocation newly asserted no interactive overlap while keeping toast focused across resize; focus intentionally freezes placement. Capture now blurs before each viewport placement then focuses Dismiss to hold native expiry. Third/final invocation passed all four; two cheap SOURCE observer-repair cycles consumed, no further native retry admitted here.",
+    "Component first run had C25 stale bootstrap recovery element plus C28 immediate pre-notify query observation; second still retained detached C25 region; wait loaded library before obtaining actual region fixed observer. Focused2 passed, then final163 passed after last edits. Initial RTL unsupported exact role option was removed; final lint/typecheck0.",
+    "No production RED or fix claimed: this is test/oracle coverage only; original QA failure and legacy exhausted counter2 remain unchanged."
+  ],
+  "visual_limits": {
+    "inspected_actual_viewports": [
+      320,
+      390,
+      1280,
+      1440
+    ],
+    "observed": "Notification visible and no interactive-target overlap or horizontal overflow. At320px toast overlays some explanatory text/Default model label; retain as visual observation for parent adjudication, not aesthetic acceptance. Focus held deliberately for capture, not production test banner.",
+    "pending": "Native assignment Save pending viewport captures at all4 widths. Save & connect pending native capture NOT_RUN: existing source browser HTTP seam has no model-test handler; component sequencing/Stop probes executed.",
+    "approval": "NOT_GRANTED",
+    "reticle": "NOT_INTEGRATED / NOT_RUN"
+  },
+  "limits": [
+    "No real API/PG/Docker/provider/model/operator/target/T2/default-full/canonical run; no keys read, protected files untouched, no dependencies installed/replaced/staged.",
+    "No native browser navigation proof for N1/N2/N3; actual component NavLinks keyboard tested.",
+    "Independent exact-snapshot focused review belongs to parent and is PENDING, not self-approved. Existing production approvals reused only on identical bytes.",
+    "Original149->153 history and original freezes/logs remain immutable; new supplement is153->163 only.",
+    "No project/global skill writes: allowed code scope is the five test files; causal lessons retained here for parent procedure reuse."
+  ],
+  "next": "Parent focused exact-byte review of five test-only files and adjudication of320px text overlap; any separately admitted PG attempt belongs solely to parent. No QA budget reset.",
+  "rollback": "Revert72c6117 thena76df46 and rerun affected tests; no external state rollback."
+}

@@ -1,0 +1,37 @@
+{
+  "fixture": {
+    "container_id": "e57fd303bbef435ff6c070d3d4408121a15c3b806a57492e7b1667ddc86d2674",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "docker_endpoint": "unix:///run/docker.sock",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "project": "omnis-p01-e301a60b781248ad800adabbc9043924",
+    "root": "/home/kali/.hermes/cache/scratch/db-f8540b05982b41b1",
+    "schema_version": 1,
+    "system_identifier": "7702225633438621726"
+  },
+  "daemon_matches": true,
+  "exact_container_absent": true,
+  "container_inspect_exit": 1,
+  "exact_project_container_ids": [],
+  "project_container_read_exit": 0,
+  "exact_project_network_ids": [],
+  "project_network_read_exit": 0,
+  "database_socket_entries": [],
+  "remaining_owned_unix_socket_paths": [],
+  "data_retained": true,
+  "gate_log_retained": true,
+  "family_drained": true,
+  "gate_code": 2,
+  "physical_pg_logs": "Container log stream not separately retained by stock runner; do not invent it.",
+  "tcp_endpoint_readback": "NOT_RETAINED exact port; stock owned_children/API cleanup and typed gate family_drained retained, no new server/browser probe",
+  "initial_generic_inspect_projection": {
+    "exit": 1,
+    "absence_wording_matched": false
+  },
+  "exact_container_readback": {
+    "command": "docker --host unix:///run/docker.sock container inspect e57fd303bbef435ff6c070d3d4408121a15c3b806a57492e7b1667ddc86d2674",
+    "exit": 1,
+    "stdout": "[]",
+    "stderr": "Error response from daemon: No such container: e57fd303bbef435ff6c070d3d4408121a15c3b806a57492e7b1667ddc86d2674"
+  }
+}

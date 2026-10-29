@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "qa_mode": "Independent read-only product, Ponytail FULL",
+  "verdict": "FAIL_FRESH_BROWSER_OBSERVER_ERROR; product full acceptance BLOCKED",
+  "head": "0c8bff7676b0f0be23b27b77da63ff57ee08cdf0",
+  "tree": "ad622788df6daec982497f3a489d846c7c877eb5",
+  "freeze_sha256": "3e02bd774e13304d8eca89272ce43325cb9b1432f9a794e53410049dfa65f346",
+  "runtime": {
+    "session": "proc_87d66f6de028",
+    "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-settings-remove-ui-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600",
+    "cwd": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029",
+    "attempts_this_mandate": 1,
+    "deadline_seconds": 600,
+    "outer_exit": 2,
+    "wall_seconds_integer": 59,
+    "wall_precision": "Shell SECONDS integer for entire existing runner, not process-poll uptime",
+    "pytest": "1 failed in45.69s",
+    "pytest_seconds": 45.69,
+    "gate_code": 2,
+    "family_drained": true,
+    "failure": {
+      "id": "QA-0C8BFF-01",
+      "type": "Error",
+      "message": "route.fulfill: Route is already handled!",
+      "location": "web/tests/e2e/settings-models.mjs:208:93",
+      "outer_assertion": "api/tests/test_web_e2e.py:364 browser returncode/pass marker",
+      "classification": "BROWSER_OBSERVER_ROUTE_FAILURE; not evidence of a product Save/connect defect",
+      "root_cause": "UNKNOWN; no additional diagnosis/fix/retry authorized",
+      "first_retained_error": "Unhandled async route.fulfill error; any earlier initiating condition NOT_RETAINED"
+    },
+    "last_proven_boundary": "settings-models.mjs213-219: actual admitted202, wizard closed, fixture01 Connecting, one Stop remaining control, exact row fully in viewport and screenshot captured",
+    "not_credited_after_boundary": "Stop click/settlement/exact final model results, assignments stage, key Replace/Disable/Reconnect, final census and restart",
+    "build_exit": 0,
+    "source_hashes_unchanged": 11,
+    "build_hashes_matched_after_rebuild": 5
+  },
+  "requirements": {
+    "remove": "REAL_PREFIX: exact page2 entry retired18->17; lost-reply receipt/history preserved; recovery/reload no resend; four-width keyboard/focus and inline cancel/escape",
+    "save_models": "REAL_PREFIX: same exact model re-added as newID, local receipt total18/latest404/Not tested",
+    "provider_back": "REAL_PREFIX: fixed combobox selector succeeds both cancellations after Back; original55.01sFAIL preserved, no Back product defect inferred",
+    "save_connect": "REAL_PREFIX_ONLY: Save/list proof then held actual202, wizard closed/rowConnecting/one stop control, visible pending screenshot; final COMPLETED/current/latest proof NOT_REACHED",
+    "quiet_save_and_toast": "SOURCE_REUSED172/native final geometry only; new real pending/confirmed screenshots absent, NO real PG-toast PASS",
+    "assignments_and_keys": "SOURCE_REUSED with each role independent save/remount; real stage NOT_REACHED",
+    "persistence": "Remove receipt/history and readd receipt read back real; final13table delta and API-process restart equality NOT_REACHED",
+    "all_controls": {
+      "rows": 58,
+      "counts": {
+        "SOURCE_COMPONENT_REUSED": 37,
+        "REAL_BROWSER_API_PG_PREFIX": 21
+      },
+      "unaccounted_sites": [],
+      "boundary": "55 JSX sites +3 nav instances actuated at declared levels; not58native/allvariants"
+    }
+  },
+  "traffic": {
+    "boundary": "Fresh private PG18.6 UDS, paired API/browser, owned local synthetic TLS peer; zero external provider budget",
+    "required_unchanged_oracles": {
+      "browser_mutations": 12,
+      "new_peer_gets": 8,
+      "new_peer_posts": 2,
+      "post_models_caps": [
+        [
+          "fixture/01",
+          64
+        ],
+        [
+          "fixture/selected",
+          64
+        ]
+      ],
+      "tables": 13
+    },
+    "final_census": "NOT_REACHED: no browser-result.json/settings-controls-census.json",
+    "operation_ids": "NOT_RETAINED; no DB restart/readback/resend performed to recreate them",
+    "externalRequests_pageErrors_requestCount": "NOT_RETAINED: final browser-result absent; no zero-count inference"
+  },
+  "source_reuse": {
+    "component": {
+      "command": "npm test -- src/app/SettingsModels.test.tsx src/app/SettingsWizard.test.tsx src/app/ProviderKeySettings.test.tsx",
+      "exit": 0,
+      "passed": 172,
+      "previous": 165,
+      "added": 7,
+      "seconds": 28.54,
+      "log": {
+        "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/component-green.log",
+        "sha256": "e6f2c44a177cbcfd4337371ffe99075046823ca5fd0dade072f31e07272d2c42"
+      }
+    },
+    "native": {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch OMNIS_E2E_OUTPUT=/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030 node --test web/tests/e2e/provider-settings-focus.mjs",
+      "exit": 0,
+      "subcases": [
+        "retained",
+        "moved",
+        "stale",
+        "long64"
+      ],
+      "node_test_count_including_parent": 5,
+      "seconds": 10.101346408,
+      "cap_seconds": 90,
+      "invocations_after_product_fix": 1,
+      "log": {
+        "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/native.log",
+        "sha256": "acfe84a28269d685ca00bfded99f7444af79f768cf8ce7f905d6d04d734901aa"
+      }
+    },
+    "reruns_this_task": 0
+  },
+  "native_eyes": {
+    "inspected_captures": 10,
+    "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-0c8bff-20261030/captures.json",
+    "save_connect": "Actual320px pending viewport contains fixture01/Connecting/Stop remaining checks fully visible; no wizard/global duplicate panel; contextual Read test status also visible",
+    "save_assignments_toast": "NOT_REACHED; not fabricated from SOURCE or DOM text",
+    "remove": "All9actual frames inspected; no visible target overlap/clipping; content outside viewport remains out of scope",
+    "aesthetic_acceptance": "NOT_CLAIMED"
+  },
+  "matrix": {
+    "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-0c8bff-20261030/matrix.json",
+    "rows": 58,
+    "counts": {
+      "SOURCE_COMPONENT_REUSED": 37,
+      "REAL_BROWSER_API_PG_PREFIX": 21
+    }
+  },
+  "identity": {
+    "before": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-0c8bff-20261030/identity-before.json",
+    "after": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-0c8bff-20261030/identity-after.json",
+    "result": {
+      "head": "0c8bff7676b0f0be23b27b77da63ff57ee08cdf0",
+      "tree": "ad622788df6daec982497f3a489d846c7c877eb5",
+      "changed_frozen_inputs": [],
+      "dependency_links_unchanged": true,
+      "tracked_status": "",
+      "source_matches": 11,
+      "build_matches": 5
+    }
+  },
+  "cleanup": {
+    "fixture": {
+      "container_id": "e57fd303bbef435ff6c070d3d4408121a15c3b806a57492e7b1667ddc86d2674",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "docker_endpoint": "unix:///run/docker.sock",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "project": "omnis-p01-e301a60b781248ad800adabbc9043924",
+      "root": "/home/kali/.hermes/cache/scratch/db-f8540b05982b41b1",
+      "schema_version": 1,
+      "system_identifier": "7702225633438621726"
+    },
+    "daemon_matches": true,
+    "exact_container_absent": true,
+    "container_inspect_exit": 1,
+    "exact_project_container_ids": [],
+    "project_container_read_exit": 0,
+    "exact_project_network_ids": [],
+    "project_network_read_exit": 0,
+    "database_socket_entries": [],
+    "remaining_owned_unix_socket_paths": [],
+    "data_retained": true,
+    "gate_log_retained": true,
+    "family_drained": true,
+    "gate_code": 2,
+    "physical_pg_logs": "Container log stream not separately retained by stock runner; do not invent it.",
+    "tcp_endpoint_readback": "NOT_RETAINED exact port; stock owned_children/API cleanup and typed gate family_drained retained, no new server/browser probe",
+    "initial_generic_inspect_projection": {
+      "exit": 1,
+      "absence_wording_matched": false
+    },
+    "exact_container_readback": {
+      "command": "docker --host unix:///run/docker.sock container inspect e57fd303bbef435ff6c070d3d4408121a15c3b806a57492e7b1667ddc86d2674",
+      "exit": 1,
+      "stdout": "[]",
+      "stderr": "Error response from daemon: No such container: e57fd303bbef435ff6c070d3d4408121a15c3b806a57492e7b1667ddc86d2674"
+    }
+  },
+  "preserved_failures": {
+    "original_a4": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-a4f5dbc-20261030/result.json",
+    "legacy_harness_cycles": 2,
+    "source_observer_cycles": 2,
+    "counters_reset": false
+  },
+  "files_created": "Only private scratch QA artifacts/logs/captures and report aggregator; candidate own dist rebuilt unchanged. No tracked product/test/config/Git/main build changes.",
+  "report_aggregation_notes": "Two read-only aggregation exits1: repeated identical JSX snippets at C08/C09 and C13/C26, then indirect NavLink copy labels. Report mapping corrected by exact existing line+JSX and explicit copy-key/label tuples; no product/harness rerun, no unknown/null match inferred.",
+  "limits": [
+    "No retry/autofix/new runner/timeout increase",
+    "No operator8780/provider/model/real keys/target/T2/push/canonical/default-web/legacy settings_ui",
+    "Reticle NOT_INTEGRATED; Chisel BLOCKED_NO_GO",
+    "No separate stock PG-container log stream retained; gate/browser logs and PGDATA retained",
+    "Exact API TCP port not retained; stock owned_children/family drain and no owned Unix sockets checked, no fresh browser probe",
+    "No screenreader/crossbrowser/allstates or aesthetic approval"
+  ]
+}

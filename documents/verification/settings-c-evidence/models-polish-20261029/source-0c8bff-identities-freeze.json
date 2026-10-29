@@ -1,0 +1,802 @@
+{
+  "status": "FROZEN_CANDIDATE_PARENT_FOCUSED_REVIEW_PENDING; not API/PG or integration acceptance",
+  "worktree": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029",
+  "base": "72c611713cdb186a4c9d65c1c0f2f46b9e867519",
+  "parent": "cdd5f02fa0dd58e491ff7da0d5a1734b05aebf02",
+  "head": "0c8bff7676b0f0be23b27b77da63ff57ee08cdf0",
+  "tree": "ad622788df6daec982497f3a489d846c7c877eb5",
+  "tracked_status": "",
+  "changed_paths": [
+    "web/src/app/SettingsModels.test.tsx",
+    "web/src/features/engagement/SettingsModelsPage.tsx",
+    "web/tests/e2e/provider-settings-focus.mjs",
+    "web/tests/e2e/settings-models.mjs"
+  ],
+  "this_commit_changed_paths": [
+    "web/src/app/SettingsModels.test.tsx",
+    "web/src/features/engagement/SettingsModelsPage.tsx",
+    "web/tests/e2e/provider-settings-focus.mjs",
+    "web/tests/e2e/settings-models.mjs"
+  ],
+  "diff_sha256": "ccedb59e392e3c19269dc3e8a1e9c5532107643632f27129241bf634347bbb2d",
+  "this_commit_diff_sha256": "a20e3cf38354501be157f1dce2146ef17341ae5f34289313900a6999fe3e808f",
+  "files": [
+    {
+      "path": "api/tests/test_model_test_v2.py",
+      "blob": "ee4ae889dc0060aecf28c5f8f4b730cf35d4e86d",
+      "sha256": "8d4ab3550ae59cc341034e46e235b110480f0e9dbc61e6faf368a1869e871be5",
+      "unchanged_from_72c6117": true,
+      "changed_in_this_commit": false
+    },
+    {
+      "path": "web/src/app/ProviderKeySettings.test.tsx",
+      "blob": "5f0e640131b7c5a55b3ddc08f6fe49b5abad94f2",
+      "sha256": "fc9e7f0d6946eb039d66aad015f3de744fd0fbe14ae022ed3d3a17cfbf7aa53f",
+      "unchanged_from_72c6117": true,
+      "changed_in_this_commit": false
+    },
+    {
+      "path": "web/src/app/SettingsModels.test.tsx",
+      "blob": "686715e04befcd98e3f6f518ad695414326e65cf",
+      "sha256": "f0cbe66850446c84ffacbd752e827a43a4515a1eec43a5d5eeac9fab74bbb048",
+      "unchanged_from_72c6117": false,
+      "changed_in_this_commit": true
+    },
+    {
+      "path": "web/src/app/SettingsWizard.test.tsx",
+      "blob": "fc18bd94ea60b6e9a363a922354be2b50fa8cad8",
+      "sha256": "17310aefe9f30cb369ed8f2a6cc803ac13bdd0804955fb361b3ac1861b03b6ce",
+      "unchanged_from_72c6117": true,
+      "changed_in_this_commit": false
+    },
+    {
+      "path": "web/src/features/engagement/SettingsAssignments.tsx",
+      "blob": "baf3f066327d9d2335cc0eb9a10e29db2f806759",
+      "sha256": "a52600f0cd6f108ab69e28290381465421d606c6c28cb3c692bb249ac64734d2",
+      "unchanged_from_72c6117": true,
+      "changed_in_this_commit": false
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModelWizard.tsx",
+      "blob": "f289e2f5138736a8545998be35a26fcc689c828f",
+      "sha256": "801e06fb826a48ac878c61f0b1373507f7a4ac75195b721d6e1b8067a77a25fe",
+      "unchanged_from_72c6117": true,
+      "changed_in_this_commit": false
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModels.module.css",
+      "blob": "8a813cc48454f75dabeb065e0373d2b5e1ce6a16",
+      "sha256": "9a63338ca6182aa82db5d9d4da203cf4df612a9b635c34344a59123bfbfa310d",
+      "unchanged_from_72c6117": true,
+      "changed_in_this_commit": false
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModelsPage.tsx",
+      "blob": "c3a2081901a758a6207218bdeca6eba3e6407bd7",
+      "sha256": "808f2893df824267e343bbadc582e2585012c398d51d7f256533ab81f313f75a",
+      "unchanged_from_72c6117": false,
+      "changed_in_this_commit": true
+    },
+    {
+      "path": "web/tests/e2e/provider-settings-focus.mjs",
+      "blob": "23459c139c195583a02c0a60fa25d5b7d0447378",
+      "sha256": "3f6780c1dc696f5865e4e81adae430978e79be234a60e93eef3256ac3c23f4f6",
+      "unchanged_from_72c6117": false,
+      "changed_in_this_commit": true
+    },
+    {
+      "path": "web/tests/e2e/run.mjs",
+      "blob": "f7819bd85fb4a7a7c708f65920ae0ce09860b2e8",
+      "sha256": "f5094f22925e9e6b0d739708045480aecd69e24cf89d64c045cbfe626235f276",
+      "unchanged_from_72c6117": true,
+      "changed_in_this_commit": false
+    },
+    {
+      "path": "web/tests/e2e/settings-models.mjs",
+      "blob": "807d3358081b613fe7cbc1b7e6aacfac0e987bb7",
+      "sha256": "753c57a1f171a844303ed5e30607222d090d44b8f5517403bee7a709f72d5e03",
+      "unchanged_from_72c6117": false,
+      "changed_in_this_commit": true
+    }
+  ],
+  "builds": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/dist/assets/fonts-OFL-bSaZbgNk.txt",
+      "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/dist/assets/index-6ubBtIU9.css",
+      "sha256": "caa87c3f87499aae6a28c0d63928446042b16eb60510ce6a700552bbda651a5e"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/dist/assets/index-Cz2ykhnr.js",
+      "sha256": "5522809b31b81458d6d85bc43472823bdff2ea6ba638a34168c82d4a87746810"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/dist/index.html",
+      "sha256": "ee929625459a6b65e78b1cc20f12c09cd7ed2f0627d48d5750c641ad5487378d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/dist/omnis-web.json",
+      "sha256": "935698c2e77259b3050d098fc51842f9a084da569a3382d755f17fa74698415d"
+    }
+  ],
+  "test_only_changed_from_72c": [
+    "web/src/app/SettingsModels.test.tsx",
+    "web/tests/e2e/provider-settings-focus.mjs",
+    "web/tests/e2e/settings-models.mjs"
+  ],
+  "test_only_delta": {
+    "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/test-only-from-72c.patch",
+    "sha256": "ae830de288e7bc765d35c6a71c3cc23e851b1fa00c2b7aacab8c9b1aa33dc0dc"
+  },
+  "previous_freeze": {
+    "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/freeze-supplement.json",
+    "sha256": "905cedc80d1439863743c2e9d8f457e8dc89842952228cec5cf42bef59dd4497"
+  },
+  "previous_test_only_supplement": {
+    "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/freeze-supplement.json",
+    "sha256": "b0f2acc78bb5862fbd3d421494ebe300c9b5b571a6afb5fc6fb2bcc30afbe160",
+    "expected_sha256": "b0f2acc78bb5862fbd3d421494ebe300c9b5b571a6afb5fc6fb2bcc30afbe160"
+  },
+  "preserved_prior_evidence": {
+    "old_freezes": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-r2fix-freeze-20261029.json",
+        "sha256": "ccf982f039d1e145ba884e94d391e03b5f72ddbf3bb26e245a4d42d664125534"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-freeze-20261029.json",
+        "sha256": "e70a7effbe3b2ebf4d6304da6f327501ea2e7f3310cbef8f054b0d9dde897f97"
+      }
+    ],
+    "original_pg_failure": {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-a4f5dbc-20261030/result.json",
+      "sha256": "bb6ffc11337551a2c7a2dd3f2f6dec40b11d3e0c4f9c1be4e8a1e74195e48803",
+      "preserved": "oneentry_remove_ui FAIL55.01s; original cause had no recorded Back DOM; no PG rerun"
+    },
+    "legacy_harness_only_cycles": 2,
+    "no_pg_retry": true
+  },
+  "checks": {
+    "red": {
+      "command": "npm test -- src/app/SettingsModels.test.tsx -t 'keeps assignment .* text clear'",
+      "exit": 1,
+      "new_behavior_failures": 7,
+      "previous_passes": 2,
+      "reason": "970 > 926 for all seven new actual-element/class obstacles; jsdom DOMRect fixture, not native geometry",
+      "log": {
+        "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/red-behavior.log",
+        "sha256": "cc825a519a4a7f1c83098f27a63ed2bdce4112c44387f811e6ea9a0a418be09c"
+      },
+      "initial_fixture_ambiguity_preserved": {
+        "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/red.log",
+        "sha256": "011a9793ae9659a8724bf36349d81791db8f300c1ba476a62794a06d42fb4967"
+      }
+    },
+    "components": {
+      "command": "npm test -- src/app/SettingsModels.test.tsx src/app/SettingsWizard.test.tsx src/app/ProviderKeySettings.test.tsx",
+      "exit": 0,
+      "passed": 172,
+      "previous": 165,
+      "added": 7,
+      "seconds": 28.54,
+      "log": {
+        "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/component-green.log",
+        "sha256": "e6f2c44a177cbcfd4337371ffe99075046823ca5fd0dade072f31e07272d2c42"
+      }
+    },
+    "lint": {
+      "command": "npm run lint",
+      "exit": 0,
+      "log": {
+        "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/lint.log",
+        "sha256": "e819f5e6d5372b5b2c2282295eeefe2b089e6dc7038119d82a1770322d2c1491"
+      }
+    },
+    "typecheck": {
+      "command": "npm run typecheck",
+      "exit": 0,
+      "log": {
+        "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/typecheck.log",
+        "sha256": "fa268149717bddb17ae174999b01341b57f53ad9af4d425b8f1ba31302ca6b57"
+      }
+    },
+    "build": {
+      "command": "npm run build",
+      "exit": 0,
+      "log": {
+        "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/build.log",
+        "sha256": "63ba82860ee818297296566773c4a7ddb4b3c400bfdd7030c4edd3e01c097d04"
+      }
+    },
+    "native": {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch OMNIS_E2E_OUTPUT=/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030 node --test web/tests/e2e/provider-settings-focus.mjs",
+      "exit": 0,
+      "subcases": [
+        "retained",
+        "moved",
+        "stale",
+        "long64"
+      ],
+      "node_test_count_including_parent": 5,
+      "seconds": 10.101346408,
+      "cap_seconds": 90,
+      "invocations_after_product_fix": 1,
+      "log": {
+        "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/native.log",
+        "sha256": "acfe84a28269d685ca00bfded99f7444af79f768cf8ce7f905d6d04d734901aa"
+      }
+    },
+    "mjs_syntax": {
+      "command": "node --check web/tests/e2e/provider-settings-focus.mjs && node --check web/tests/e2e/settings-models.mjs",
+      "exit": 0
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  },
+  "actual_before_focus_viewport_geometry": [
+    {
+      "boundary": "SOURCE actual viewport before notification focus",
+      "width": 1440,
+      "notification": {
+        "x": 1235.859375,
+        "y": 934,
+        "width": 188.140625,
+        "height": 50
+      },
+      "text": "Assignments saved.\n\u00d7",
+      "identities": [
+        {
+          "text": "Settings",
+          "rect": {
+            "x": 270,
+            "y": 124,
+            "width": 900,
+            "height": 43.1875,
+            "top": 124,
+            "right": 1170,
+            "bottom": 167.1875,
+            "left": 270
+          }
+        },
+        {
+          "text": "Models",
+          "rect": {
+            "x": 270,
+            "y": 280.4375,
+            "width": 70.484375,
+            "height": 31.5,
+            "top": 280.4375,
+            "right": 340.484375,
+            "bottom": 311.9375,
+            "left": 270
+          }
+        },
+        {
+          "text": "OpenRouter",
+          "rect": {
+            "x": 296,
+            "y": 360.1875,
+            "width": 85.40625,
+            "height": 22.5,
+            "top": 360.1875,
+            "right": 381.40625,
+            "bottom": 382.6875,
+            "left": 296
+          }
+        },
+        {
+          "text": "Key saved",
+          "rect": {
+            "x": 397.40625,
+            "y": 362.375,
+            "width": 54.578125,
+            "height": 18.109375,
+            "top": 362.375,
+            "right": 451.984375,
+            "bottom": 380.484375,
+            "left": 397.40625
+          }
+        },
+        {
+          "text": "Current modelExact/Current",
+          "rect": {
+            "x": 301,
+            "y": 408.6875,
+            "width": 682,
+            "height": 41.75,
+            "top": 408.6875,
+            "right": 983,
+            "bottom": 450.4375,
+            "left": 301
+          }
+        },
+        {
+          "text": "Not tested",
+          "rect": {
+            "x": 995,
+            "y": 419.8125,
+            "width": 64,
+            "height": 19.5,
+            "top": 419.8125,
+            "right": 1059,
+            "bottom": 439.3125,
+            "left": 995
+          }
+        },
+        {
+          "text": "Other/Model",
+          "rect": {
+            "x": 301,
+            "y": 481.5625,
+            "width": 682,
+            "height": 21.75,
+            "top": 481.5625,
+            "right": 983,
+            "bottom": 503.3125,
+            "left": 301
+          }
+        },
+        {
+          "text": "Not tested",
+          "rect": {
+            "x": 995,
+            "y": 482.6875,
+            "width": 64,
+            "height": 19.5,
+            "top": 482.6875,
+            "right": 1059,
+            "bottom": 502.1875,
+            "left": 995
+          }
+        },
+        {
+          "text": "Model assignments",
+          "rect": {
+            "x": 296,
+            "y": 653.4375,
+            "width": 848,
+            "height": 31.5,
+            "top": 653.4375,
+            "right": 1144,
+            "bottom": 684.9375,
+            "left": 296
+          }
+        }
+      ],
+      "clear": true
+    },
+    {
+      "boundary": "SOURCE actual viewport before notification focus",
+      "width": 1280,
+      "notification": {
+        "x": 1075.859375,
+        "y": 934,
+        "width": 188.140625,
+        "height": 50
+      },
+      "text": "Assignments saved.\n\u00d7",
+      "identities": [
+        {
+          "text": "Settings",
+          "rect": {
+            "x": 190,
+            "y": 124,
+            "width": 900,
+            "height": 43.1875,
+            "top": 124,
+            "right": 1090,
+            "bottom": 167.1875,
+            "left": 190
+          }
+        },
+        {
+          "text": "Models",
+          "rect": {
+            "x": 190,
+            "y": 280.4375,
+            "width": 70.484375,
+            "height": 31.5,
+            "top": 280.4375,
+            "right": 260.484375,
+            "bottom": 311.9375,
+            "left": 190
+          }
+        },
+        {
+          "text": "OpenRouter",
+          "rect": {
+            "x": 216,
+            "y": 360.1875,
+            "width": 85.40625,
+            "height": 22.5,
+            "top": 360.1875,
+            "right": 301.40625,
+            "bottom": 382.6875,
+            "left": 216
+          }
+        },
+        {
+          "text": "Key saved",
+          "rect": {
+            "x": 317.40625,
+            "y": 362.375,
+            "width": 54.578125,
+            "height": 18.109375,
+            "top": 362.375,
+            "right": 371.984375,
+            "bottom": 380.484375,
+            "left": 317.40625
+          }
+        },
+        {
+          "text": "Current modelExact/Current",
+          "rect": {
+            "x": 221,
+            "y": 408.6875,
+            "width": 682,
+            "height": 41.75,
+            "top": 408.6875,
+            "right": 903,
+            "bottom": 450.4375,
+            "left": 221
+          }
+        },
+        {
+          "text": "Not tested",
+          "rect": {
+            "x": 915,
+            "y": 419.8125,
+            "width": 64,
+            "height": 19.5,
+            "top": 419.8125,
+            "right": 979,
+            "bottom": 439.3125,
+            "left": 915
+          }
+        },
+        {
+          "text": "Other/Model",
+          "rect": {
+            "x": 221,
+            "y": 481.5625,
+            "width": 682,
+            "height": 21.75,
+            "top": 481.5625,
+            "right": 903,
+            "bottom": 503.3125,
+            "left": 221
+          }
+        },
+        {
+          "text": "Not tested",
+          "rect": {
+            "x": 915,
+            "y": 482.6875,
+            "width": 64,
+            "height": 19.5,
+            "top": 482.6875,
+            "right": 979,
+            "bottom": 502.1875,
+            "left": 915
+          }
+        },
+        {
+          "text": "Model assignments",
+          "rect": {
+            "x": 216,
+            "y": 653.4375,
+            "width": 848,
+            "height": 31.5,
+            "top": 653.4375,
+            "right": 1064,
+            "bottom": 684.9375,
+            "left": 216
+          }
+        }
+      ],
+      "clear": true
+    },
+    {
+      "boundary": "SOURCE actual viewport before notification focus",
+      "width": 390,
+      "notification": {
+        "x": 186.15625,
+        "y": 669.890625,
+        "width": 187.84375,
+        "height": 50
+      },
+      "text": "Assignments saved.\n\u00d7",
+      "identities": [
+        {
+          "text": "Settings",
+          "rect": {
+            "x": 16,
+            "y": 146,
+            "width": 358,
+            "height": 32.390625,
+            "top": 146,
+            "right": 374,
+            "bottom": 178.390625,
+            "left": 16
+          }
+        },
+        {
+          "text": "Models",
+          "rect": {
+            "x": 16,
+            "y": 292.640625,
+            "width": 70.484375,
+            "height": 31.5,
+            "top": 292.640625,
+            "right": 86.484375,
+            "bottom": 324.140625,
+            "left": 16
+          }
+        },
+        {
+          "text": "OpenRouter",
+          "rect": {
+            "x": 42,
+            "y": 373.390625,
+            "width": 85.25,
+            "height": 22.5,
+            "top": 373.390625,
+            "right": 127.25,
+            "bottom": 395.890625,
+            "left": 42
+          }
+        },
+        {
+          "text": "Key saved",
+          "rect": {
+            "x": 143.25,
+            "y": 374.640625,
+            "width": 204.75,
+            "height": 19.984375,
+            "top": 374.640625,
+            "right": 348,
+            "bottom": 394.625,
+            "left": 143.25
+          }
+        },
+        {
+          "text": "Current modelExact/Current",
+          "rect": {
+            "x": 47,
+            "y": 421.890625,
+            "width": 213,
+            "height": 44,
+            "top": 421.890625,
+            "right": 260,
+            "bottom": 465.890625,
+            "left": 47
+          }
+        },
+        {
+          "text": "Not tested",
+          "rect": {
+            "x": 47,
+            "y": 473.890625,
+            "width": 64,
+            "height": 19.5,
+            "top": 473.890625,
+            "right": 111,
+            "bottom": 493.390625,
+            "left": 47
+          }
+        },
+        {
+          "text": "Other/Model",
+          "rect": {
+            "x": 47,
+            "y": 524.390625,
+            "width": 213,
+            "height": 24,
+            "top": 524.390625,
+            "right": 260,
+            "bottom": 548.390625,
+            "left": 47
+          }
+        },
+        {
+          "text": "Not tested",
+          "rect": {
+            "x": 47,
+            "y": 556.390625,
+            "width": 64,
+            "height": 19.5,
+            "top": 556.390625,
+            "right": 111,
+            "bottom": 575.890625,
+            "left": 47
+          }
+        },
+        {
+          "text": "Model assignments",
+          "rect": {
+            "x": 42,
+            "y": 725.890625,
+            "width": 306,
+            "height": 31.5,
+            "top": 725.890625,
+            "right": 348,
+            "bottom": 757.390625,
+            "left": 42
+          }
+        }
+      ],
+      "clear": true
+    },
+    {
+      "boundary": "SOURCE actual viewport before notification focus",
+      "width": 320,
+      "notification": {
+        "x": 116.15625,
+        "y": 328.890625,
+        "width": 187.84375,
+        "height": 50
+      },
+      "text": "Assignments saved.\n\u00d7",
+      "identities": [
+        {
+          "text": "Settings",
+          "rect": {
+            "x": 16,
+            "y": 146,
+            "width": 288,
+            "height": 32.390625,
+            "top": 146,
+            "right": 304,
+            "bottom": 178.390625,
+            "left": 16
+          }
+        },
+        {
+          "text": "Models",
+          "rect": {
+            "x": 16,
+            "y": 339.390625,
+            "width": 70.484375,
+            "height": 31.5,
+            "top": 339.390625,
+            "right": 86.484375,
+            "bottom": 370.890625,
+            "left": 16
+          }
+        },
+        {
+          "text": "OpenRouter",
+          "rect": {
+            "x": 42,
+            "y": 470.890625,
+            "width": 85.25,
+            "height": 22.5,
+            "top": 470.890625,
+            "right": 127.25,
+            "bottom": 493.390625,
+            "left": 42
+          }
+        },
+        {
+          "text": "Key saved",
+          "rect": {
+            "x": 42,
+            "y": 501.390625,
+            "width": 236,
+            "height": 19.984375,
+            "top": 501.390625,
+            "right": 278,
+            "bottom": 521.375,
+            "left": 42
+          }
+        },
+        {
+          "text": "Current modelExact/Current",
+          "rect": {
+            "x": 47,
+            "y": 547.375,
+            "width": 143,
+            "height": 44,
+            "top": 547.375,
+            "right": 190,
+            "bottom": 591.375,
+            "left": 47
+          }
+        },
+        {
+          "text": "Not tested",
+          "rect": {
+            "x": 47,
+            "y": 599.375,
+            "width": 64,
+            "height": 19.5,
+            "top": 599.375,
+            "right": 111,
+            "bottom": 618.875,
+            "left": 47
+          }
+        },
+        {
+          "text": "Other/Model",
+          "rect": {
+            "x": 47,
+            "y": 649.875,
+            "width": 143,
+            "height": 24,
+            "top": 649.875,
+            "right": 190,
+            "bottom": 673.875,
+            "left": 47
+          }
+        },
+        {
+          "text": "Not tested",
+          "rect": {
+            "x": 47,
+            "y": 681.875,
+            "width": 64,
+            "height": 19.5,
+            "top": 681.875,
+            "right": 111,
+            "bottom": 701.375,
+            "left": 47
+          }
+        },
+        {
+          "text": "Model assignments",
+          "rect": {
+            "x": 42,
+            "y": 851.375,
+            "width": 236,
+            "height": 31.5,
+            "top": 851.375,
+            "right": 278,
+            "bottom": 882.875,
+            "left": 42
+          }
+        }
+      ],
+      "clear": true
+    }
+  ],
+  "captures": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/SOURCE-settings-models-assignments-1440-before-focus-viewport.png",
+      "sha256": "256e5661945912f96e1adc71081fc32436811aabf942d4d02b8c1d48b0209616"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/SOURCE-settings-models-assignments-1280-before-focus-viewport.png",
+      "sha256": "cd02dc05fb1ca7d7cccbc91474bc27ef2a0616fe0bc91cd05428fa43e934fb32"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/SOURCE-settings-models-assignments-390-before-focus-viewport.png",
+      "sha256": "1719a0cdbf88ceae969416a0fa5584ac784d1e13595830a7e1803b37a194d8f0"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/SOURCE-settings-models-assignments-320-before-focus-viewport.png",
+      "sha256": "25978975f0ac2fa2efb760aaed18c4510a24d8851d50e926863fa7786ca48c11"
+    }
+  ],
+  "visual_inspection": {
+    "tool": "vision_analyze",
+    "widths": [
+      1440,
+      1280,
+      390,
+      320
+    ],
+    "result": "All four actual before-focus viewport captures: toast visible; OpenRouter heading, Key saved, model identity/status, labels/hints/controls unobscured. At320 toast y328.890625 (previous482.375). At390 toast may overlap only borders/empty panel padding. Save assignments clipped by viewport bottom in desktops, not toast; no pending PG screenshot claimed."
+  },
+  "source_delta": "One existing collision selector extends with h1/h2/h3, identity/state/saved classes and connectionHeading small; algorithm, focus freeze, expiry and44px unchanged. Existing regression seven added cases; native oracle counts all9 essential identities; one permitted pending-row scroll/assert before future screenshot.",
+  "limits": [
+    "No PG invocation. Legacy PG FAIL count1 and harness-only cycles2 unchanged; prior153/163/165/native FAIL/source72c/a4reviews preserved at original paths, not overwritten.",
+    "SOURCE built App + synthetic HTTP only; realAPI/PG pending, parent focused review/acceptance pending.",
+    "No API/Docker/operator/model/provider/Refresh/target/key/T2/canonical effects; protected documents/secret and four dependency-link targets not modified.",
+    "settings-models.mjs pending-row one-line change syntax checked only; not exercised with PG.",
+    "No new architecture/harness/dependencies/CSS or timer/cap changes."
+  ]
+}

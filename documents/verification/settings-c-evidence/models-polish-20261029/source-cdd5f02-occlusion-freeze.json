@@ -1,0 +1,347 @@
+{
+  "status": "PRODUCT_FIX_FROZEN_CANDIDATE_AWAITING_PARENT_FOCUSED_REVIEW; not integrated or API/PG acceptance",
+  "worktree": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029",
+  "base": "72c611713cdb186a4c9d65c1c0f2f46b9e867519",
+  "head": "cdd5f02fa0dd58e491ff7da0d5a1734b05aebf02",
+  "tree": "275ab0c58b6f497e6190460a1c42c84293a823d3",
+  "changed_paths": [
+    "web/src/app/SettingsModels.test.tsx",
+    "web/src/features/engagement/SettingsModelsPage.tsx",
+    "web/tests/e2e/provider-settings-focus.mjs"
+  ],
+  "diff_sha256": "0d96bee28720a348721bf9ac12518ece3dde5394ca8e0aa7debae5249f6ba845",
+  "tracked_status": "clean",
+  "files": [
+    {
+      "path": "api/tests/test_model_test_v2.py",
+      "blob": "ee4ae889dc0060aecf28c5f8f4b730cf35d4e86d",
+      "sha256": "8d4ab3550ae59cc341034e46e235b110480f0e9dbc61e6faf368a1869e871be5",
+      "unchanged_from_72c6117": true
+    },
+    {
+      "path": "web/src/app/ProviderKeySettings.test.tsx",
+      "blob": "5f0e640131b7c5a55b3ddc08f6fe49b5abad94f2",
+      "sha256": "fc9e7f0d6946eb039d66aad015f3de744fd0fbe14ae022ed3d3a17cfbf7aa53f",
+      "unchanged_from_72c6117": true
+    },
+    {
+      "path": "web/src/app/SettingsModels.test.tsx",
+      "blob": "6fa1a05cb65055f2add6f6976c79f31922d50d24",
+      "sha256": "e03b525d3274bd790332381913ee592accc75e577988fe76fbcab64cb2af0cab",
+      "unchanged_from_72c6117": false
+    },
+    {
+      "path": "web/src/app/SettingsWizard.test.tsx",
+      "blob": "fc18bd94ea60b6e9a363a922354be2b50fa8cad8",
+      "sha256": "17310aefe9f30cb369ed8f2a6cc803ac13bdd0804955fb361b3ac1861b03b6ce",
+      "unchanged_from_72c6117": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsAssignments.tsx",
+      "blob": "baf3f066327d9d2335cc0eb9a10e29db2f806759",
+      "sha256": "a52600f0cd6f108ab69e28290381465421d606c6c28cb3c692bb249ac64734d2",
+      "unchanged_from_72c6117": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModelWizard.tsx",
+      "blob": "f289e2f5138736a8545998be35a26fcc689c828f",
+      "sha256": "801e06fb826a48ac878c61f0b1373507f7a4ac75195b721d6e1b8067a77a25fe",
+      "unchanged_from_72c6117": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModels.module.css",
+      "blob": "8a813cc48454f75dabeb065e0373d2b5e1ce6a16",
+      "sha256": "9a63338ca6182aa82db5d9d4da203cf4df612a9b635c34344a59123bfbfa310d",
+      "unchanged_from_72c6117": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModelsPage.tsx",
+      "blob": "fb608598f986609bd782617abc56b3e2f9837c7a",
+      "sha256": "e6fbb29cb3620818629a5c54808c169ad759b02b0a53c7aa617371bfa06f9a81",
+      "unchanged_from_72c6117": false
+    },
+    {
+      "path": "web/tests/e2e/provider-settings-focus.mjs",
+      "blob": "84a1823699a47c8bf31702cb7aafc057b6b04399",
+      "sha256": "65fda61367cdaf7291a9235ac2ea2f787e7ca79c6f9e82df4f39c1e26b5fb101",
+      "unchanged_from_72c6117": false
+    },
+    {
+      "path": "web/tests/e2e/run.mjs",
+      "blob": "f7819bd85fb4a7a7c708f65920ae0ce09860b2e8",
+      "sha256": "f5094f22925e9e6b0d739708045480aecd69e24cf89d64c045cbfe626235f276",
+      "unchanged_from_72c6117": true
+    },
+    {
+      "path": "web/tests/e2e/settings-models.mjs",
+      "blob": "52b0cd4aa6cba2d2462f4233a3ae996a812726f5",
+      "sha256": "a8e3459ee83066414e6f778488ef283b8784603a7d65b73358a6038ba9200c7f",
+      "unchanged_from_72c6117": true
+    }
+  ],
+  "builds": [
+    {
+      "path": "web/dist/assets/fonts-OFL-bSaZbgNk.txt",
+      "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4"
+    },
+    {
+      "path": "web/dist/assets/index-6ubBtIU9.css",
+      "sha256": "caa87c3f87499aae6a28c0d63928446042b16eb60510ce6a700552bbda651a5e"
+    },
+    {
+      "path": "web/dist/assets/index-DxW4ovl4.js",
+      "sha256": "680806fdda77ab2f8753d13be8d65e67439b638c1a6e225f52e5d97f2b4b434a"
+    },
+    {
+      "path": "web/dist/index.html",
+      "sha256": "6915c4f553ad66eab089153e9d5315210a16d7791e0b16fe8614def742d494f9"
+    },
+    {
+      "path": "web/dist/omnis-web.json",
+      "sha256": "314b814a55f5cc9007054f8fb6776502a64fa14bc805f16e9ad4069207c24227"
+    }
+  ],
+  "source_delta": "One collision-target selector adds label and existing CSS-module hint class. Existing finite placement, focus freeze, visible-time expiry and 44px control unchanged. SettingsModels regression + existing native oracle only.",
+  "unchanged_from_72c6117": [
+    "api/tests/test_model_test_v2.py",
+    "web/src/app/ProviderKeySettings.test.tsx",
+    "web/src/app/SettingsWizard.test.tsx",
+    "web/src/features/engagement/SettingsAssignments.tsx",
+    "web/src/features/engagement/SettingsModelWizard.tsx",
+    "web/src/features/engagement/SettingsModels.module.css",
+    "web/tests/e2e/run.mjs",
+    "web/tests/e2e/settings-models.mjs"
+  ],
+  "previous_test_only_supplement": {
+    "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/freeze-supplement.json",
+    "sha256": "b0f2acc78bb5862fbd3d421494ebe300c9b5b571a6afb5fc6fb2bcc30afbe160",
+    "expected_sha256": "b0f2acc78bb5862fbd3d421494ebe300c9b5b571a6afb5fc6fb2bcc30afbe160"
+  },
+  "checks": {
+    "red": {
+      "command": "npm test -- src/app/SettingsModels.test.tsx -t 'keeps assignment .* text clear'",
+      "exit": 1,
+      "failed": 2,
+      "reason": "Actual label and hint obstacle rectangles remain occluded after blur: bottom970 > targetTop930 minus gap4 =926.",
+      "log": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/red-behavior.log",
+      "initial_fixture_attempt": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/red.log"
+    },
+    "component": {
+      "command": "npm test -- src/app/SettingsModels.test.tsx src/app/SettingsWizard.test.tsx src/app/ProviderKeySettings.test.tsx",
+      "exit": 0,
+      "passed": 165,
+      "previous": 163,
+      "added": 2,
+      "seconds": 28.69,
+      "log": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/component-green.log"
+    },
+    "lint": {
+      "command": "npm run lint",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/lint.log"
+    },
+    "typecheck": {
+      "command": "npm run typecheck",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/typecheck.log"
+    },
+    "build": {
+      "command": "npm run build",
+      "exit": 0,
+      "log": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/build.log",
+      "boundary": "Fresh build in owned worktree after last source/test edit; five files inventoried, unchanged CSS/font hashes allowed."
+    },
+    "native": {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch OMNIS_E2E_OUTPUT=/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030 node --test web/tests/e2e/provider-settings-focus.mjs",
+      "exit": 0,
+      "subcases": [
+        "retained",
+        "moved",
+        "stale",
+        "long64"
+      ],
+      "node_count_including_parent": 5,
+      "parent_seconds": 9.74805993,
+      "runner_seconds": 10.349428823,
+      "cap_seconds": 90,
+      "invocations_after_product_fix": 1,
+      "log": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/native.log",
+      "boundary": "SOURCE real Chromium / actual freshly built App / synthetic HTTP; no real API/PG/provider"
+    }
+  },
+  "actual_before_focus_viewport_geometry": [
+    {
+      "boundary": "SOURCE actual viewport before notification focus",
+      "width": 1440,
+      "notification": {
+        "x": 1235.859375,
+        "y": 934,
+        "width": 188.140625,
+        "height": 50
+      },
+      "text": "Assignments saved.\n\u00d7"
+    },
+    {
+      "boundary": "SOURCE actual viewport before notification focus",
+      "width": 1280,
+      "notification": {
+        "x": 1075.859375,
+        "y": 934,
+        "width": 188.140625,
+        "height": 50
+      },
+      "text": "Assignments saved.\n\u00d7"
+    },
+    {
+      "boundary": "SOURCE actual viewport before notification focus",
+      "width": 390,
+      "notification": {
+        "x": 186.15625,
+        "y": 669.890625,
+        "width": 187.84375,
+        "height": 50
+      },
+      "text": "Assignments saved.\n\u00d7"
+    },
+    {
+      "boundary": "SOURCE actual viewport before notification focus",
+      "width": 320,
+      "notification": {
+        "x": 116.15625,
+        "y": 482.375,
+        "width": 187.84375,
+        "height": 50
+      },
+      "text": "Assignments saved.\n\u00d7"
+    }
+  ],
+  "captures": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/SOURCE-settings-models-assignments-320-before-focus-viewport.png",
+      "sha256": "9cbac193e6d645795c44b8d0935f6ce1c3978a983d00694455a24c7671bdc092",
+      "width": 320,
+      "height": 1000,
+      "actual_viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/SOURCE-settings-models-assignments-320-viewport.png",
+      "sha256": "f2e1bcf947a7a804dc58268631dedba2e7f716dd3f23ee72a0977697ee1fe1bf",
+      "width": 320,
+      "height": 1000,
+      "actual_viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/SOURCE-settings-models-assignments-390-before-focus-viewport.png",
+      "sha256": "1719a0cdbf88ceae969416a0fa5584ac784d1e13595830a7e1803b37a194d8f0",
+      "width": 390,
+      "height": 1000,
+      "actual_viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/SOURCE-settings-models-assignments-390-viewport.png",
+      "sha256": "883fffbdd34b21d3eca7ca7d1367f25b3cced8202b22778f5cf0c37916e8d95d",
+      "width": 390,
+      "height": 1000,
+      "actual_viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/SOURCE-settings-models-assignments-1280-before-focus-viewport.png",
+      "sha256": "cd02dc05fb1ca7d7cccbc91474bc27ef2a0616fe0bc91cd05428fa43e934fb32",
+      "width": 1280,
+      "height": 1000,
+      "actual_viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/SOURCE-settings-models-assignments-1280-viewport.png",
+      "sha256": "6e65e7223daca048bdb9a26f3ffa69878816dd914591ee6d198c616ab1062543",
+      "width": 1280,
+      "height": 1000,
+      "actual_viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/SOURCE-settings-models-assignments-1440-before-focus-viewport.png",
+      "sha256": "256e5661945912f96e1adc71081fc32436811aabf942d4d02b8c1d48b0209616",
+      "width": 1440,
+      "height": 1000,
+      "actual_viewport": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/SOURCE-settings-models-assignments-1440-viewport.png",
+      "sha256": "f54e24d5b3b46f753c60f7ee12ab0ef2571da9345aafa06e4687e1fba35ada5f",
+      "width": 1440,
+      "height": 1000,
+      "actual_viewport": true
+    }
+  ],
+  "visual_inspection": {
+    "tool": "vision_analyze",
+    "widths": [
+      320,
+      390,
+      1280,
+      1440
+    ],
+    "result": "Assignments saved visible before focus at all four widths; assignment hint/Default model label and visible model identities unobscured. 320 notification moved to y482.375; 390 y669.890625; desktop y934. Existing focused44 style intentionally unchanged.",
+    "limits": "Desktop Save assignments partially below viewport at scroll0; existing pending capture also uses scroll0, not claimed fully visible. No further harness changes to obtain more captures."
+  },
+  "logs": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/build.log",
+      "sha256": "97d7da50c9e8d45bb6ebfc98dc10de746a61f2391e4d156e63bf9c2356e6f5f3"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/component-green.log",
+      "sha256": "2e3665118e9f31ecba95d6a59cca053ae6284ed9abac3e3f269bff11d8c4823f"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/lint.log",
+      "sha256": "e819f5e6d5372b5b2c2282295eeefe2b089e6dc7038119d82a1770322d2c1491"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/native.log",
+      "sha256": "b680f9df59efef4a05bdd0bc61b2b0c44979d16d9437bd3185f38db0e101c95a"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/red-behavior.log",
+      "sha256": "1d5849ecd7b6eaf6a8454a2b0f5f1a904853bc24c2ba1455024933bc8eabd02d"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/red.log",
+      "sha256": "8434917642afb32f1f37d29de97168456a6a7b9ce1f45d463c51bcc2a2bb2815"
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/typecheck.log",
+      "sha256": "fa268149717bddb17ae174999b01341b57f53ad9af4d425b8f1ba31302ca6b57"
+    }
+  ],
+  "preserved_prior_evidence": {
+    "old_freezes": [
+      {
+        "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-r2fix-freeze-20261029.json",
+        "sha256": "ccf982f039d1e145ba884e94d391e03b5f72ddbf3bb26e245a4d42d664125534"
+      },
+      {
+        "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-freeze-20261029.json",
+        "sha256": "e70a7effbe3b2ebf4d6304da6f327501ea2e7f3310cbef8f054b0d9dde897f97"
+      }
+    ],
+    "original_pg_failure": {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-a4f5dbc-20261030/result.json",
+      "sha256": "bb6ffc11337551a2c7a2dd3f2f6dec40b11d3e0c4f9c1be4e8a1e74195e48803",
+      "preserved": "oneentry_remove_ui FAIL55.01s; original cause had no recorded Back DOM; no PG rerun"
+    },
+    "legacy_harness_only_cycles": 2,
+    "no_pg_retry": true
+  },
+  "toolchain": {
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "tmpdir": "/home/kali/.hermes/cache/scratch"
+  },
+  "limits": [
+    "Candidate only; parent focused review and acceptance pending.",
+    "SOURCE native does not imply real API/PG PASS or all58 coverage.",
+    "No API/PG/Docker/operator8780/provider/model/target/Refresh/budget/T2/push/canonical effects.",
+    "No CSS/restyle, layout framework, wrappers, portal, timers, dependencies or protected dependency-target edits."
+  ]
+}

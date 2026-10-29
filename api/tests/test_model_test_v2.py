@@ -957,6 +957,159 @@ async def test_api_pg_sdk_protocol_and_replay(
                         assert (await http.get(providers)).json() == settings_before
                         from contextlib import asynccontextmanager
 
+                        def unchanged_except_start(
+                            before: dict[str, list[str]],
+                            after: dict[str, list[str]],
+                            identity: str,
+                        ) -> None:
+                            from omnis.modules.runs.model_test_contract import (
+                                Dispatch,
+                                Operation,
+                                Ref,
+                            )
+
+                            instance = str(initial.instance_id)
+                            records: set[tuple[str, str, str, int, str]] = set()
+                            dispatches: set[str] = set()
+                            for snapshot in (before, after):
+                                roots = [json.loads(raw) for raw in snapshot["system_operation"]]
+                                op = Operation.model_validate_json(
+                                    json.dumps(
+                                        next(
+                                            row
+                                            for row in roots
+                                            if row["instance_id"] == instance
+                                            and row["operation_id"] == identity
+                                        )
+                                    )
+                                )
+                                refs = [op.config_snapshot_ref, op.input_projection_ref]
+                                if op.outcome_ref:
+                                    refs.append(op.outcome_ref)
+                                for raw in snapshot["model_dispatch_v2"]:
+                                    row = json.loads(raw)
+                                    if (
+                                        row["instance_id"] == instance
+                                        and row["operation_id"] == identity
+                                    ):
+                                        dispatch = Dispatch.model_validate_json(
+                                            json.dumps(row["payload"])
+                                        )
+                                        assert (
+                                            dispatch.dispatch_attempt_id
+                                            == row["dispatch_attempt_id"]
+                                        )
+                                        dispatches.add(dispatch.dispatch_attempt_id)
+                                        refs.extend(
+                                            [
+                                                dispatch.scope_ref,
+                                                dispatch.dispatch_owner_ref,
+                                                dispatch.config_snapshot_ref,
+                                                dispatch.projection_ref,
+                                                dispatch.reservation_ref,
+                                            ]
+                                        )
+                                retained = [json.loads(raw) for raw in snapshot["model_record_v2"]]
+                                while refs:
+                                    ref = refs.pop()
+                                    key = (
+                                        ref.instance_id,
+                                        ref.id,
+                                        ref.kind,
+                                        ref.revision,
+                                        ref.digest,
+                                    )
+                                    if key in records:
+                                        continue
+                                    record = next(
+                                        row
+                                        for row in retained
+                                        if (
+                                            row["instance_id"],
+                                            row["id"],
+                                            row["kind"],
+                                            row["revision"],
+                                            row["digest"],
+                                        )
+                                        == key
+                                    )
+                                    records.add(key)
+                                    # Follow only producer reference fields, never text occurring in payloads.
+                                    fields = {
+                                        "model-entry-snapshot-v1": ("capabilities_ref",),
+                                        "model-entry-capabilities-v1": ("catalog_ref",),
+                                        "system-operation": (
+                                            "config_snapshot_ref",
+                                            "input_projection_ref",
+                                            "outcome_ref",
+                                        ),
+                                        "dispatch-owner-v2": ("scope_ref",),
+                                        "model-permit-v2": ("scope_ref", "owner_ref", "config_ref"),
+                                        "model-outcome-v2": (
+                                            "operation_or_run_ref",
+                                            "dispatch_ref",
+                                            "requested",
+                                            "output_ref",
+                                        ),
+                                        "model-dispatch-v2": (
+                                            "scope_ref",
+                                            "dispatch_owner_ref",
+                                            "config_snapshot_ref",
+                                            "projection_ref",
+                                            "reservation_ref",
+                                        ),
+                                    }.get(ref.kind, ())
+                                    refs.extend(
+                                        Ref.model_validate(record["payload"][field])
+                                        for field in fields
+                                        if record["payload"].get(field) is not None
+                                    )
+
+                            for table in tables:
+                                if table in {
+                                    "model_record_v2",
+                                    "model_command_v2",
+                                    "system_operation_event",
+                                    "model_dispatch_v2",
+                                    "model_dispatch_event_v2",
+                                }:
+                                    assert set(before[table]).issubset(after[table]), table
+                                foreign = []
+                                for snapshot in (before, after):
+                                    rows = []
+                                    for raw in snapshot[table]:
+                                        row = json.loads(raw)
+                                        owned = False
+                                        if row.get("instance_id") == instance:
+                                            if table in {
+                                                "system_operation",
+                                                "system_operation_event",
+                                            }:
+                                                owned = row["operation_id"] == identity
+                                            elif table == "model_command_v2":
+                                                owned = (
+                                                    row["operation_id"] == identity
+                                                    and row["command_id"] == identity
+                                                    and row["action"] == "start"
+                                                )
+                                            elif table in {
+                                                "model_dispatch_v2",
+                                                "model_dispatch_event_v2",
+                                            }:
+                                                owned = row["dispatch_attempt_id"] in dispatches
+                                            elif table == "model_record_v2":
+                                                owned = (
+                                                    instance,
+                                                    row["id"],
+                                                    row["kind"],
+                                                    row["revision"],
+                                                    row["digest"],
+                                                ) in records
+                                        if not owned:
+                                            rows.append(raw)
+                                    foreign.append(rows)
+                                assert foreign[0] == foreign[1], table
+
                         async def overlap(
                             first_path: str,
                             first_body: dict[str, object],
@@ -1029,9 +1182,25 @@ async def test_api_pg_sdk_protocol_and_replay(
                                 else:
                                     assert first_snapshot is not None
                                     final_snapshot = await census_remove()
+                                    identity = str(first_body["operation_id"])
+                                    unchanged_except_start(first_snapshot, first_snapshot, identity)
+                                    unchanged_except_start(first_snapshot, final_snapshot, identity)
                                     for table in tables:
-                                        if table.startswith("provider_"):
-                                            assert final_snapshot[table] == first_snapshot[table]
+                                        foreign = json.loads(
+                                            (history[table] or first_snapshot[table])[0]
+                                        )
+                                        if table == "model_record_v2":
+                                            foreign["payload"]["unrelated_bait"] = identity
+                                        else:
+                                            foreign["unrelated_bait"] = identity
+                                        challenged = {
+                                            **final_snapshot,
+                                            table: [*final_snapshot[table], json.dumps(foreign)],
+                                        }
+                                        with pytest.raises(AssertionError, match=table):
+                                            unchanged_except_start(
+                                                first_snapshot, challenged, identity
+                                            )
                                 reason = results[1].json()["error"]["code"]
                                 assert isinstance(reason, str)
                                 return reason
@@ -1080,6 +1249,13 @@ async def test_api_pg_sdk_protocol_and_replay(
                             await http.put(providers, json=race_selection, headers=headers)
                         ).status_code == 200
                         remove_peer_release.clear()
+                        relay_before = (
+                            len(model_opens),
+                            len(model_writes),
+                            len(connected),
+                            len(handed),
+                            len(received),
+                        )
                         start = {**entry_intent, "operation_id": str(uuid4()), "entry_id": new_id}
                         assert await overlap(tests, start, models, remove_new) == "OPERATION_ACTIVE"
                         active_path = tests + "/" + str(start["operation_id"])
@@ -1099,6 +1275,44 @@ async def test_api_pg_sdk_protocol_and_replay(
                                 await asyncio.sleep(0.02)
                         cancelled = (await http.get(active_path)).json()
                         assert cancelled["state"] == "FINISHED"
+                        settled = await census_remove()
+                        dispatch_rows = [json.loads(raw) for raw in settled["model_dispatch_v2"]]
+                        dispatch_id = next(
+                            row["dispatch_attempt_id"]
+                            for row in dispatch_rows
+                            if row["instance_id"] == str(initial.instance_id)
+                            and row["operation_id"] == start["operation_id"]
+                        )
+                        sent = [
+                            json.loads(raw)
+                            for raw in settled["model_dispatch_event_v2"]
+                            if json.loads(raw)["dispatch_attempt_id"] == dispatch_id
+                            and json.loads(raw)["state"] == "SENT"
+                        ]
+                        assert len(sent) in (0, 1)
+                        opens, writes, connects, handoffs, traffic = relay_before
+                        for scope, _ in model_opens[opens:]:
+                            assert (
+                                scope.instance_id == str(initial.instance_id)
+                                and scope.id == dispatch_id
+                            )
+                        for scope, _, _, _ in model_writes[writes:]:
+                            assert (
+                                scope.instance_id == str(initial.instance_id)
+                                and scope.id == dispatch_id
+                            )
+                        assert len(connected) - connects <= len(sent)
+                        assert len(received) - traffic <= len(sent)
+                        assert all(
+                            first == "POST /api/v1/chat/completions HTTP/1.1"
+                            and json.loads(body)["model"] == "fixture/selected"
+                            for first, body in received[traffic:]
+                        )
+                        if not sent:
+                            assert len(model_opens) == opens and len(model_writes) == writes
+                            assert len(handed) == handoffs and len(received) == traffic
+                        if len(handed) > handoffs:
+                            assert model_writes[writes:] and len(sent) == 1
                         save = {
                             **readd,
                             "command_id": str(uuid4()),

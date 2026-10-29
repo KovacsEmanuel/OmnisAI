@@ -126,7 +126,7 @@ await test('Settings C SOURCE: painted focus, shared 900px axis, mobile and long
             assert.equal(writes.length, 1);
             await capture('settings-review');
             await page.getByRole('button', { name: 'Save models', exact: true }).click();
-            await check(page.getByText('Models saved. Assignments stay unchanged.', { exact: true })).toBeVisible();
+            await check(page.getByText('Models saved.', { exact: true })).toBeVisible();
             await check(page.getByRole('region', { name: 'Add models wizard' })).toHaveCount(0);
             await capture('settings-saved');
             await page.evaluate(() => { document.documentElement.style.zoom = '2'; }); await paint(page);

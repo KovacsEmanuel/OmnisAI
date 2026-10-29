@@ -47,7 +47,7 @@ it.each(['lost', 'wrong receipt', 'invalid current'])('uncertain key %s remains 
   fireEvent.click(await screen.findByRole('button', { name: 'Recover exact receipt' }));
   await screen.findByText('Receipt not confirmed. Do not repeat this command.');
   valid = true; fireEvent.click(screen.getByRole('button', { name: 'Recover exact receipt' }));
-  await screen.findByText(/Exact receipt recovered/); expect(state.writes).toHaveLength(1);
+  await screen.findByText('Settings recovered.'); expect(state.writes).toHaveLength(1);
 });
 it('CAS rejection is a hard stale barrier until explicit authoritative reload', async () => {
   const { state, hook } = settingsBackend(empty, []); hook.intercept = (path, _body, method) => path.endsWith('/providers') && method === 'PUT' ? refuse() : undefined;
@@ -107,9 +107,15 @@ it.each([false, true])('assignment save preserves focused action or moved focus=
   mount(); const save = await screen.findByRole('button', { name: 'Save assignments' }); await waitFor(() => expect(save).toBeEnabled());
   fireEvent.change(screen.getByLabelText('Default model'), { target: { value: '44444444-4444-4444-8444-444444444444' } });
   save.focus(); fireEvent.click(save); await waitFor(() => expect(state.writes).toHaveLength(1)); expect(save).not.toBeDisabled(); expect(save).toHaveAttribute('aria-disabled', 'true');
+  expect(save).toHaveAttribute('aria-busy', 'true');
+  expect(screen.queryByRole('region', { name: 'Settings recovery' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Recover exact receipt' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
   fireEvent.click(save); fireEvent.submit(save.closest('form')!); expect(state.writes).toHaveLength(1);
   const elsewhere = screen.getByRole('link', { name: 'Models' }); if (moved) elsewhere.focus(); resolve();
   await screen.findByText(/Assignments saved/); expect(moved ? elsewhere : save).toHaveFocus(); expect(screen.getByRole('button', { name: 'Save assignments' })).toBe(save);
+  expect(screen.getByRole('complementary', { name: 'Settings notification' })).toHaveTextContent('Assignments saved.');
+  expect(screen.getAllByText('Assignments saved.', { exact: true })).toHaveLength(1);
   expect(state.writes[0]!.body).toMatchObject({ action: 'save_selection', default: { ...selected, model: 'Other/Model' }, brain: { ...selected, output_tokens: 37 }, validator: { ...selected, output_tokens: 89 }, investigator: null });
 });
 it('disabling an open connection invalidates its wizard and keeps saved identities/history', async () => {
@@ -165,15 +171,19 @@ it('first single-model assignment needs one explicit save and authoritative read
     expect(state.writes[0]).toEqual({ path: '/api/v1/settings/providers', body: { action: 'save_selection', command_id: expect.any(String), expected_revision: 0, default: selected, brain: null, investigator: null, validator: null } });
     await waitFor(() => expect(state.reads).toContain('/api/v1/settings/providers/commands/' + String(state.writes[0]!.body.command_id)));
     expect(within(panel).queryByText(/All roles use/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Settings recovery' })).not.toBeInTheDocument();
     releaseReceipt();
     await waitFor(() => expect(state.reads.filter(path => path.endsWith('/providers')).length).toBeGreaterThan(readsBefore));
     expect(within(panel).queryByText(/All roles use/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
   } finally { releaseReceipt(); releaseReadback(); }
   await within(panel).findByText('All roles use Exact/Model · OpenRouter.');
   expect(within(panel).queryByText(/All roles will use/)).not.toBeInTheDocument();
   expect(within(panel).queryAllByRole('combobox')).toHaveLength(0);
   expect(state.keys.selection).toMatchObject({ revision: 1, default: selected, brain: null, investigator: null, validator: null });
   expect(state.writes).toHaveLength(1); expect(save).toHaveFocus();
+  expect(screen.getAllByText('Assignments saved.', { exact: true })).toHaveLength(1);
 });
 it('one usable model collapses valid same-entry overrides without erasing independent caps', async () => {
   const keys = { ...configured, selection: { selection_id: entryId, revision: 1, default: selected, brain: { ...selected, output_tokens: 37 }, investigator: null, validator: { ...selected, output_tokens: 89 } } };

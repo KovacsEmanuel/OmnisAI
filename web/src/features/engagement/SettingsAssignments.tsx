@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import type { KeyCommand, KeySelection, KeySettings } from '../../shared/api/providerKeys';
 import { roles } from '../../shared/api/providerKeys';
 import { availabilityIssue, matches, providerName, supports, usable } from './SettingsModels';
@@ -7,9 +7,10 @@ import type { CatalogRead, Evidence, Library, ModelEntry } from './SettingsModel
 import styles from './SettingsModels.module.css';
 
 type Role = typeof roles[number];
-export function SettingsAssignments({ settings, library, evidence, catalogs, blocked, working, save }: {
+export function SettingsAssignments({ settings, library, evidence, catalogs, blocked, working, feedback, save }: {
   settings: KeySettings; library: Library; evidence: Record<string, Evidence>; catalogs: Record<string, CatalogRead>; blocked: boolean; working: boolean;
   save: (command: KeyCommand) => Promise<boolean>;
+  feedback: ReactNode;
 }) {
   const eligible = library.entries.filter(entry => usable(entry, settings, evidence));
   const initial = (role: Role) => settings.selection?.[role] ?? (role === 'default' && eligible[0] ? { connection_id: eligible[0].connection_id, connection_revision: eligible[0].connection_revision, model: eligible[0].model, output_tokens: eligible[0].output_tokens } : null);
@@ -60,8 +61,9 @@ export function SettingsAssignments({ settings, library, evidence, catalogs, blo
           return choice && <div className={styles.field} key={role}><label htmlFor={`settings-output-${role}`}>{title(role)} output tokens</label><input id={`settings-output-${role}`} type="number" min={1} max={65536} step={1} value={choice.output_tokens} disabled={blocked} aria-disabled={working} onChange={event => { if (!working) { setDraft({ ...draft, [role]: { ...choice, output_tokens: Number(event.target.value) } }); setNotice('Unsaved assignments.'); } }} /><small className={styles.mono}>{entry ? label(entry) : `${choice.model} · ${choice.connection_id} revision ${choice.connection_revision} · Unavailable`}</small></div>;
         })}</div></details>
         <div className={styles.actions}><button type="submit" disabled={blocked || !valid} aria-disabled={working} aria-busy={working}>Save assignments</button></div>
-      </form><output aria-live="polite">{notice}</output>
+      </form><output className={styles.hint} aria-live="polite">{notice}</output>
     </>}
+    {feedback}
   </div></section>;
   function picker(role: Role) {
     const choice = draft[role], entry = selectedEntry(choice);

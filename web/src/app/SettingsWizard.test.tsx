@@ -101,14 +101,16 @@ it.each(['FAILED', 'UNKNOWN', 'RUNNING', 'stale', 'missing', 'unavailable'] as c
   expect(within(list).getByText(status === 'FAILED' ? 'Failed' : status === 'RUNNING' ? 'Connecting' : status === 'stale' ? 'Unavailable — stale check' : status === 'missing' ? 'Not tested' : 'Unconfirmed')).toBeVisible();
   expect(state.writes).toHaveLength(0);
 });
-it('marks prior Connected state unconfirmed after a settings read fails, including after notice dismissal', async () => {
+it('marks prior Connected state unconfirmed after a settings read fails without a duplicate notification', async () => {
   const { hook } = settingsBackend(); let failed = false;
   hook.intercept = path => {
     if (path === '/api/v1/settings/providers' && failed) return Response.json({ error: { code: 'CONTROL_UNAVAILABLE', correlation_id: entryId } }, { status: 503 });
     if (path.includes('/entries/latest/')) return Response.json({ ...operation(crypto.randomUUID(), entry), state: 'FINISHED', finish_reason: 'COMPLETED', result_state: 'COMPLETED' });
   };
   mount(); await screen.findByText('Connected'); failed = true; fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
-  await screen.findByText('Unconfirmed — reload settings'); fireEvent.click(await screen.findByRole('button', { name: 'Dismiss notification' }));
+  await screen.findByText('Unconfirmed — reload settings');
+  expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
+  expect(screen.getByRole('region', { name: 'Settings recovery' })).toBeVisible();
   expect(screen.getByText('Unconfirmed — reload settings')).toBeVisible(); expect(screen.queryByText('Connected')).not.toBeInTheDocument();
 });
 it('keeps a saved successful test distinct from a failed current catalog and preserves assignments', async () => {
@@ -195,7 +197,7 @@ it('StrictMode effect replay retains a live mutation lifetime and wizard through
   fireEvent.click(await screen.findByRole('button', { name: 'Add Catalog/00' }));
   expect(input).toHaveValue('');
   await review(); fireEvent.click(screen.getByRole('button', { name: 'Save models' }));
-  await screen.findByText('Models saved. Assignments stay unchanged.');
+  await screen.findByText('Models saved.');
   expect(state.writes.map(item => item.body.action)).toEqual(['save_connection', 'refresh', 'save_models']);
   expect(state.entries[0]!.model).toBe('Catalog/00'); expect(state.keys.selection).toBeNull();
 });
@@ -207,7 +209,7 @@ it('searches cached pages only, preserves chips across Back and saves several ex
   fireEvent.change(screen.getByLabelText('Search models'), { target: { value: 'Catalog/31' } }); await screen.findByRole('button', { name: 'Add Catalog/31' });
   expect(state.writes).toHaveLength(1); await review(); expect(screen.getByText('Default and role overrides stay unchanged.')).toBeVisible();
   fireEvent.click(within(panel).getByRole('button', { name: 'Back' })); expect(within(panel).getByRole('list', { name: 'Selected models' })).toHaveTextContent('Model 0'); expect(within(panel).getByRole('list', { name: 'Selected models' })).toHaveTextContent('Model 16');
-  await review(); fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved. Assignments stay unchanged.');
+  await review(); fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved.');
   expect(state.entries.map(item => item.model)).toEqual(expect.arrayContaining(['Exact/Model', 'Catalog/00', 'Catalog/16'])); expect(state.keys.selection).toEqual(keys.selection);
   expect(state.writes.map(item => item.body.action)).toEqual(['refresh', 'save_models']);
 });
@@ -236,7 +238,7 @@ it('manual 256-character exact ID saves UNVERIFIED and cannot acquire test conse
   const { state } = settingsBackend(configured, [], models); mount(); await wizard(); const id = 'M'.repeat(256);
   fireEvent.click(screen.getByText('Enter a model ID')); fireEvent.change(screen.getByLabelText('Exact model ID'), { target: { value: id } }); fireEvent.click(screen.getByRole('button', { name: 'Add model ID' })); await review();
   expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled(); expect(screen.getByText('UNVERIFIED — manual model ID')).toBeVisible(); fireEvent.click(screen.getByRole('button', { name: 'Save models' }));
-  await screen.findByText('Models saved. Assignments stay unchanged.'); expect(state.entries[0]!.model).toBe(id); expect(state.keys.selection).toBeNull(); expect(screen.queryByText(/All roles use/)).not.toBeInTheDocument();
+  await screen.findByText('Models saved.'); expect(state.entries[0]!.model).toBe(id); expect(state.keys.selection).toBeNull(); expect(screen.queryByText(/All roles use/)).not.toBeInTheDocument();
 });
 it.each([0, 1.5, 65537])('invalid output cap %s cannot authorize Save & connect or send a registry write', async tokens => {
   const { state } = settingsBackend(configured, [], models); mount(); await wizard();
@@ -440,7 +442,7 @@ it.each(['unavailable', 'missing', 'closed', 'owner-unavailable'] as const)('can
   expect(screen.getByRole('button', { name: `Test ${entry.model} via OpenRouter` })).toBeDisabled();
   fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review();
   expect(within(panel).getByRole('checkbox')).toBeDisabled(); expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled();
-  fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved. Assignments stay unchanged.');
+  fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved.');
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(0);
 });
 it('an unavailable instance read after Save cannot launch the first paid check', async () => {
@@ -554,7 +556,7 @@ it('missing capabilities on any selected model allow local Save but never a sile
   fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByText('Enter a model ID'));
   fireEvent.change(screen.getByLabelText('Exact model ID'), { target: { value: 'Manual/unknown' } }); fireEvent.click(screen.getByRole('button', { name: 'Add model ID' })); await review();
   expect(screen.getByRole('checkbox')).toBeDisabled(); expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled();
-  fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved. Assignments stay unchanged.');
+  fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved.');
   expect(state.entries).toHaveLength(2); expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(0);
 });
 it('Save & connect keeps Cancel/readback outside wizard, and unmount abandons remaining work', async () => {
@@ -837,5 +839,5 @@ it('explicitly updates a stale saved identity after key rotation instead of dupl
   const { state } = settingsBackend({ ...configured, connections: configured.connections.map(item => ({ ...item, revision: 2 })) }, [entry]);
   mount(); await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled()); fireEvent.click(screen.getByRole('button', { name: 'Add models' })); fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
   const update = await screen.findByRole('button', { name: 'Update Exact/Model' }); fireEvent.click(update); await review(); fireEvent.click(screen.getByRole('button', { name: 'Save models' }));
-  await screen.findByText('Models saved. Assignments stay unchanged.'); expect(state.entries).toHaveLength(1); expect(state.entries[0]).toMatchObject({ entry_id: entry.entry_id, revision: 2, connection_revision: 2, output_tokens: 512 });
+  await screen.findByText('Models saved.'); expect(state.entries).toHaveLength(1); expect(state.entries[0]).toMatchObject({ entry_id: entry.entry_id, revision: 2, connection_revision: 2, output_tokens: 512 });
 });

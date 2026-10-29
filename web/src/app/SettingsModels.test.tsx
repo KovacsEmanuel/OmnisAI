@@ -204,18 +204,30 @@ it('shows passive feedback only where it does not cover controls or focus', asyn
   collision = false; fireEvent(window, new Event('scroll')); expect(feedback).toBeVisible();
   expect(writes).toEqual([]);
 });
-it('keeps actionable save recovery inline after dismissing the compact feedback', async () => {
+it('keeps actionable save recovery local without a duplicate error notification', async () => {
   backend({ empty: true, lost: true }); mount(); await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled());
   fireEvent.click(screen.getByRole('button', { name: 'Add models' })); fireEvent.change(screen.getByLabelText('API key'), { target: { value: 'synthetic-only' } });
   fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
-  const feedback = await screen.findByRole('complementary', { name: 'Settings notification' });
-  expect(feedback).toHaveTextContent('Settings need attention.'); expect(feedback).not.toHaveTextContent(/Command|Recover the exact|No success/);
-  expect(within(feedback).getAllByRole('button')).toHaveLength(1);
-  fireEvent.click(within(feedback).getByRole('button', { name: 'Dismiss notification' }));
-  const recovery = screen.getByRole('region', { name: 'Settings recovery' });
+  const recovery = await screen.findByRole('region', { name: 'Settings recovery' });
+  expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
   expect(recovery).toHaveTextContent('Save unconfirmed. Recover the exact receipt before another mutation.');
   expect(within(recovery).getByRole('button', { name: 'Read current state' })).toBeEnabled();
   expect(screen.getByRole('button', { name: 'Recover exact receipt' })).toBeEnabled(); expect(writes).toHaveLength(1);
+});
+it('keeps assignment drafts quiet and lost-save recovery beside assignments without a success claim', async () => {
+  const { state, hook } = settingsBackend();
+  hook.intercept = (_path, body, method) => { if (method === 'PUT' && body.action === 'save_selection') throw new TypeError('SOURCE lost save'); return undefined; };
+  mount(); const panel = await screen.findByRole('region', { name: 'Model assignments' });
+  fireEvent.click(within(panel).getByText('Output controls'));
+  fireEvent.change(screen.getByLabelText('Default output tokens'), { target: { value: '128' } });
+  expect(within(panel).getByText('Unsaved assignments.')).toBeVisible();
+  expect(screen.queryByRole('region', { name: 'Settings recovery' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
+  fireEvent.click(within(panel).getByRole('button', { name: 'Save assignments' }));
+  expect(await within(panel).findByRole('region', { name: 'Settings recovery' })).toHaveTextContent('Save unconfirmed');
+  expect(screen.getAllByRole('region', { name: 'Settings recovery' })).toHaveLength(1);
+  expect(screen.queryByText('Assignments saved.')).not.toBeInTheDocument();
+  expect(state.writes).toHaveLength(1);
 });
 it('uses the saved key without a password field or key resubmission; Back preserves selection', async () => {
   backend(); mount();
@@ -235,11 +247,11 @@ it('lost connection save wipes the DOM secret and recovery never starts a fresh 
   const key = screen.getByLabelText('API key');
   fireEvent.change(key, { target: { value: 'synthetic-only-secret' } });
   fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
-  await within(screen.getByRole('region', { name: 'Settings recovery' })).findByText(/Save unconfirmed/); expect(key).toHaveValue('');
+  await within(await screen.findByRole('region', { name: 'Settings recovery' })).findByText(/Save unconfirmed/); expect(key).toHaveValue('');
   fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   mounted.unmount(); mount();
   fireEvent.click(await screen.findByRole('button', { name: 'Recover exact receipt' }));
-  await screen.findByText(/Exact receipt recovered/);
+  await screen.findByText('Settings recovered.');
   expect(writes).toHaveLength(1); expect(writes[0]!.path).toMatch(/providers$/);
   expect(JSON.stringify(sessionStorage)).not.toContain('synthetic-only-secret');
 });

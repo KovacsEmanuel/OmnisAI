@@ -15,7 +15,7 @@ import type { CatalogOperation, CatalogRead, Connection, EntryCheck, Evidence, M
 import styles from './SettingsModels.module.css';
 
 const definitive = (error: unknown) => error instanceof ApiError && ['MODEL_IN_USE', 'NOT_FOUND', 'REVISION_CONFLICT', 'CONNECTION_UNAVAILABLE', 'MODEL_NOT_REGISTERED', 'REGISTRY_FULL', 'CAPABILITIES_REQUIRED', 'OPERATION_ACTIVE', 'INVALID_INPUT', 'INVALID_CSRF', 'BODY_TOO_LARGE'].includes(error.code);
-const confirmations = ['Model removed. Saved history remains.', 'Key saved.', 'Connection disabled.', 'Assignments saved. Applies to future runs only.', 'Settings reloaded.', 'Models saved. Assignments stay unchanged.', 'Models connected.', 'Exact receipt recovered; current settings loaded. No catalog refresh or test was sent.', 'Test was not admitted. A new test requires new consent.'];
+const confirmations = ['Model removed.', 'Key saved.', 'Connection disabled.', 'Assignments saved.', 'Settings reloaded.', 'Models saved.', 'Models connected.', 'Settings recovered.', 'Test was not admitted. A new test requires new consent.'];
 export function SettingsModelsPage({ scope }: { scope: string }) {
   const { session, readPrivate } = useSession();
   const client = useQueryClient();
@@ -26,6 +26,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   const [reading, setReading] = useState(false);
   const [stale, setStale] = useState(false);
   const [notice, setNotice] = useState('');
+  const [noticeTarget, setNoticeTarget] = useState<string | null>(null);
   const [notification, setNotification] = useState('');
   const [wizard, setWizard] = useState<{ id: number; provider: Connection['provider']; connection: Connection | undefined; replace?: boolean } | null>(null);
   const [testChoice, setTestChoice] = useState<ModelEntry | null>(null);
@@ -115,7 +116,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   }, []);
   useEffect(() => {
     if (!notice) { setNotification(''); return; }
-    setNotification(confirmations.includes(notice) ? notice : 'Settings need attention.');
+    setNotification(confirmations.includes(notice) ? notice : '');
     const timer = window.setTimeout(() => setNotification(''), 5000); return () => window.clearTimeout(timer);
   }, [notice]);
   useEffect(() => {
@@ -162,19 +163,19 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   async function readCurrent(recover = false) {
     if (!authReady || reading || mutationBusy.current || continuation.current || (pending && !recover)) return;
     const settleFocus = removedControlFocus();
-    setReading(true); setNotice(''); const abort = new AbortController(); readController.current = abort;
+    setReading(true); setNotice(''); if (!recover) setNoticeTarget(null); const abort = new AbortController(); readController.current = abort;
     try {
       if (recover && pending) await readPrivate(async () => { if (pending.kind === 'keys') await api.providerKeys(pending.id, abort.signal); else await api.providerModels(pending.id, abort.signal); }, abort.signal);
       const value = await readPrivate(() => load(abort.signal), abort.signal);
       if (abort.signal.aborted || lifetime.current.signal.aborted) return;
       remember(pendingStorage, scope, null); setPending(null); setStale(false); client.setQueryData(queryKey, value);
-      setNotice(recover ? 'Exact receipt recovered; current settings loaded. No catalog refresh or test was sent.' : 'Settings reloaded.');
+      setNotice(recover ? 'Settings recovered.' : 'Settings reloaded.');
     } catch (error) { if (!abort.signal.aborted && !lifetime.current.signal.aborted) { setStale(true); setNotice(recover ? 'Receipt not confirmed. Do not repeat this command.' : message(error)); } }
     finally { if (!lifetime.current.signal.aborted) setReading(false); settleFocus(); }
   }
-  async function mutate<T>(kind: Pending['kind'], id: string, send: () => Promise<T>): Promise<T | undefined> {
+  async function mutate<T>(kind: Pending['kind'], id: string, send: () => Promise<T>, target: string | null = null): Promise<T | undefined> {
     if (blocked || reading || current.isFetching || mutationBusy.current) return;
-    mutationBusy.current = true; setSending(true); setNotice(''); let submitted = false;
+    mutationBusy.current = true; setSending(true); setNotice(''); setNoticeTarget(target); let submitted = false;
     try {
       remember(pendingStorage, scope, { kind, id }); setPending({ kind, id });
       await client.cancelQueries({ queryKey });
@@ -199,8 +200,8 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   }
   async function saveKeys(command: KeyCommand) {
     continuation.current?.abort();
-    const result = await mutate('keys', command.command_id, () => api.saveProviderKeys(command, session.data!.csrf_token, lifetime.current.signal));
-    if (result) setNotice(command.action === 'save_selection' ? 'Assignments saved. Applies to future runs only.' : command.action === 'revoke_connection' ? 'Connection disabled.' : 'Key saved.');
+    const result = await mutate('keys', command.command_id, () => api.saveProviderKeys(command, session.data!.csrf_token, lifetime.current.signal), command.action === 'save_selection' ? 'assignments' : command.connection_id);
+    if (result) setNotice(command.action === 'save_selection' ? 'Assignments saved.' : command.action === 'revoke_connection' ? 'Connection disabled.' : 'Key saved.');
     return result;
   }
   async function refresh(connection: Connection): Promise<CatalogView | undefined> {
@@ -322,7 +323,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     const entries = latest?.library.entries.filter(item => payload.models.some(request => request.entry_id === item.entry_id && request.model === item.model && item.revision === request.expected_revision + 1 && item.output_tokens === request.output_tokens) && item.connection_id === payload.connection_id && item.connection_revision === payload.connection_revision) ?? [];
     if (latest?.library.revision !== receipt.registry_revision || receipt.registry_revision !== payload.expected_registry_revision + 1 || entries.length !== payload.models.length) { setStale(true); setNotice('Saved entries do not match the requested revisions. Read current settings; no test was sent.'); return; }
     if (testIntent && latest?.generation == null) { setNotice('Models saved. Instance admission is unavailable; no test was sent. Reload settings and give new consent.'); return entries; }
-    if (!testIntent) setNotice('Models saved. Assignments stay unchanged.');
+    if (!testIntent) setNotice('Models saved.');
     const connection = data?.settings.connections.find(item => item.connection_id === payload.connection_id);
     if (testIntent && connection && generation === wizardGeneration.current && !lifetime.current.signal.aborted) void connectEntries(payload.models.map(request => entries.find(item => item.entry_id === request.entry_id)!), testIntent.catalog, connection.provider, testIntent.generation);
     return entries;
@@ -344,22 +345,17 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     const command = { action: 'remove_model' as const, command_id: crypto.randomUUID(), expected_registry_revision: removal.registry, entry_id: removal.entry.entry_id, expected_revision: removal.entry.revision };
     const settleFocus = removedControlFocus();
     try {
-      const receipt = await mutate('models', command.command_id, () => api.saveProviderModels(command, session.data!.csrf_token, lifetime.current.signal));
-      if (receipt) { setTestChoice(null); setConsent(false); setNotice('Model removed. Saved history remains.'); }
+      const receipt = await mutate('models', command.command_id, () => api.saveProviderModels(command, session.data!.csrf_token, lifetime.current.signal), removal.entry.entry_id);
+      if (receipt) { setTestChoice(null); setConsent(false); setNotice('Model removed.'); }
     } finally { settleFocus(); }
   }
   return <>
     <div className={styles.heading}><h2>Models</h2><fieldset className={styles.headingActions} aria-label="Model library actions">
-      <button type="button" className={pending || stale || current.isError ? undefined : styles.quiet} aria-label={pending ? undefined : 'Reload current settings'} disabled={!authReady} aria-disabled={reading || sending || connecting} onClick={() => { if (!reading) void readCurrent(!!pending); }}>{pending ? 'Recover exact receipt' : stale || current.isError ? 'Reload current settings' : 'Reload'}</button>
+      <button type="button" className={(pending && !sending) || stale || current.isError ? undefined : styles.quiet} aria-label={pending && !sending ? undefined : 'Reload current settings'} disabled={!authReady} aria-disabled={reading || sending || connecting} onClick={() => { if (!reading) void readCurrent(!!pending); }}>{pending && !sending ? 'Recover exact receipt' : stale || current.isError ? 'Reload current settings' : 'Reload'}</button>
       <button ref={addButton} type="button" disabled={blocked} aria-disabled={busy} onClick={() => { if (!busy) open(); }}>Add models</button>
     </fieldset></div>
     {notification && <aside ref={feedback} className={styles.notification} aria-label="Settings notification"><output aria-live="polite">{notification}</output><button type="button" className={styles.quiet} aria-label="Dismiss notification" onClick={() => setNotification('')}>×</button></aside>}
-    {(pending || stale || current.isError || (notice && !confirmations.includes(notice))) && <section className={styles.notice} aria-label="Settings recovery">
-      <output aria-live="polite">{pending ? sending ? 'Saving locally…' : 'Save unconfirmed. Recover the exact receipt before another mutation.' : notice && !confirmations.includes(notice) ? notice : 'Read failed. Current settings are not confirmed.'}</output>
-      {pending && notice && !confirmations.includes(notice) && <p>{notice}</p>}
-      {!sending && <button type="button" className={styles.secondary} onClick={() => { void readCurrent(!!pending); }}>Read current state</button>}
-      {pending && <details><summary>Command details</summary><p className={styles.mono}>Command {pending.id}</p></details>}
-    </section>}
+
 
     {!data?.settings.connections.some(connection => connection.connection_id === (catalogOperation?.connection ?? catalogNotice?.connection)) && catalogRecovery()}
 
@@ -408,6 +404,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
               </button>
               {needsRecovery ? <button type="button" className={styles.secondary} onClick={() => { void readTest(canCancel); }}>{canCancel ? 'Cancel test' : 'Read test status'}</button> : <button type="button" className={styles.secondary} aria-label={`Test ${entry.model} via ${providerName(connection.provider)}`} disabled={blocked || activeTest || generation === null || !usable(entry, data.settings, data.evidence)} aria-disabled={busy} onClick={() => { if (!busy) { setTestChoice(entry); setTestGeneration(generation); setConsent(false); requestAnimationFrame(() => testHeading.current?.focus({ preventScroll: true })); } }}>Test</button>}
             </div>
+            {noticeTarget === entry.entry_id && settingsRecovery()}
             {needsRecovery && <div className={styles.operation} aria-label="Active model check">
               {testNotice && <output aria-live="polite">{testNotice}</output>}
               {uncertain && !testNotice && <p>Test outcome unconfirmed. Read the same operation; no test is resent.</p>}
@@ -441,6 +438,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
             return <p key={entry.entry_id} className={styles.mono}>{entry.model} · {'code' in catalog ? catalog.code : `${catalog.state} · ${catalog.reason} · Catalog ${catalog.catalog_command_id}`} · connection revision {entry.connection_revision}</p>;
           })}</details>
         </div>}
+          {noticeTarget === connection.connection_id && settingsRecovery()}
           <details><summary>Connection options</summary><div className={styles.actions}><button type="button" className={styles.secondary} disabled={blocked || data.settings.vault_status === 'LOCKED'} onClick={() => { if (window.confirm(`${connection.enabled ? 'Replace the key for' : 'Reconnect'} ${providerName(connection.provider)}? Saved checks and assignments keep their original revision.`)) open(connection.provider, true); }}>{connection.enabled ? 'Replace key' : 'Reconnect'}</button><button type="button" className={styles.secondary} disabled={blocked || !connection.enabled} aria-disabled={sending} onClick={() => {
             if (sending || !window.confirm(`Disable ${providerName(connection.provider)}? Saved models and history remain. This does not revoke the upstream key.`)) return;
             if (wizard?.provider === connection.provider) closeWizard(false);
@@ -451,10 +449,20 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
 
     </div></section>
       {testChoice && <section className={styles.panel} aria-label="Test consent"><div className={styles.core}><h2 tabIndex={-1} ref={testHeading}>Test model</h2><p>{testConnection ? providerName(testConnection.provider) : 'Unavailable connection'} · <span className={styles.mono}>{testChoice.model}</span></p><p>One fixed synthetic call / 300 seconds. Provider charges may apply.</p><label className={styles.check}><input type="checkbox" checked={consent} disabled={blocked || activeTest || generation === null || testGeneration === null} onChange={event => setConsent(event.target.checked)} />I approve one synthetic acknowledgement call for {testChoice.model}. No tools or target data.</label><details><summary>Fixed input</summary><p>Respond only with OMNIS_MODEL_TEST_OK. Use no tools.</p><p>This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.</p></details><div className={styles.actions}><button type="button" className={styles.secondary} onClick={() => { setTestChoice(null); setConsent(false); }}>Cancel</button><button type="button" disabled={blocked || activeTest || generation === null || testGeneration === null || !consent || !usable(testChoice, data.settings, data.evidence)} aria-disabled={sending} onClick={() => { const proof = data.evidence[testChoice.entry_id]; if (!sending && consent && proof && testGeneration !== null) void startTest(testChoice, proof.catalog, testGeneration); }}>Send model test</button></div></div></section>}
-      <SettingsAssignments settings={data.settings} library={data.library} evidence={data.evidence} catalogs={data.catalogs} blocked={blocked} working={busy} save={async command => !!await saveKeys(command)} />
+      <SettingsAssignments settings={data.settings} library={data.library} evidence={data.evidence} catalogs={data.catalogs} blocked={blocked} working={busy} feedback={noticeTarget === 'assignments' ? settingsRecovery() : null} save={async command => !!await saveKeys(command)} />
     </>}
+    {(!data || (noticeTarget !== 'assignments' && !data.library.entries.some(entry => entry.entry_id === noticeTarget) && !data.settings.connections.some(connection => connection.connection_id === noticeTarget))) && settingsRecovery()}
     {legacy && <ModelTest receiveOnly />}
   </>;
+  function settingsRecovery() {
+    if (sending || (!pending && !stale && !current.isError && (!notice || confirmations.includes(notice)))) return null;
+    return <section className={styles.notice} aria-label="Settings recovery">
+      <output aria-live="polite">{pending ? 'Save unconfirmed. Recover the exact receipt before another mutation.' : notice && !confirmations.includes(notice) ? notice : 'Read failed. Current settings are not confirmed.'}</output>
+      {pending && notice === 'Receipt not confirmed. Do not repeat this command.' && <p>{notice}</p>}
+      <button type="button" className={styles.secondary} onClick={() => { void readCurrent(!!pending); }}>Read current state</button>
+      {pending && <details><summary>Command details</summary><p className={styles.mono}>Command {pending.id}</p></details>}
+    </section>;
+  }
   function catalogRecovery() {
     if (!catalogOperation && !catalogNotice) return null;
     return <section className={styles.catalogStatus} aria-label="Catalog recovery"><output aria-live="polite">{catalogNotice?.text ?? 'Loading models…'}</output>

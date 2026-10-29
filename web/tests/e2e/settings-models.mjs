@@ -38,6 +38,7 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
     const saved = previous.catalog;
     assert.deepEqual((await read(`${models}/commands/${saved.command.command_id}`)).body, saved.receipt);
     assert.deepEqual((await read(`${tests}/${saved.history.operation_id}`)).body, saved.history);
+    assert.deepEqual((await read(`${providers}/commands/${saved.assignment.command_id}`)).body, saved.assignment);
     assert.equal((await read(`${tests}/latest/${saved.newEntry}`)).status, 404);
     await check(row('fixture/selected')).toContainText('Not tested');
     assert.deepEqual(writes, [], 'Restart readback must not resend any command');
@@ -160,8 +161,35 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
   await page.getByRole('button', { name: 'Reload current settings', exact: true }).click();
   await check(row('fixture/selected')).toContainText('Not tested');
   assert.equal((await read(`${tests}/latest/${newEntry}`)).status, 404);
+  const notification = page.getByRole('complementary', { name: 'Settings notification', exact: true });
+  if (await notification.count()) await notification.getByRole('button', { name: 'Dismiss notification', exact: true }).click();
+  const save = page.getByRole('button', { name: 'Save assignments', exact: true });
+  const gate = Promise.withResolvers();
+  const receiptRead = page.waitForRequest(request => new URL(request.url()).pathname.startsWith(`${providers}/commands/`) && request.method() === 'GET');
+  await page.route(`**${providers}/commands/*`, async route => { await gate.promise; await route.continue(); });
+  let assignment;
+  try {
+    await save.focus(); await page.keyboard.press('Enter');
+    const request = await receiptRead;
+    await check(save).toHaveAttribute('aria-busy', 'true'); await check(save).toBeFocused();
+    await check(page.getByRole('region', { name: 'Settings recovery', exact: true })).toHaveCount(0);
+    await check(notification).toHaveCount(0);
+    await screenshot('settings-save-local-pending', { fullPage: false });
+    gate.resolve();
+    await check(notification).toContainText('Assignments saved.');
+    await check(page.getByText('Assignments saved.', { exact: true })).toHaveCount(1);
+    await check(save).toBeFocused();
+    assignment = (await read(new URL(request.url()).pathname)).body;
+    const current = (await read(providers)).body;
+    assert.deepEqual(current.selection, assignment.selection);
+    assert.equal(current.selection.revision, baseline.selection.revision + 1);
+    for (const role of ['default', 'brain', 'investigator', 'validator']) assert.deepEqual(current.selection[role], baseline.selection[role]);
+    await screenshot('settings-save-local-confirmed', { fullPage: false });
+  } finally { gate.resolve(); await page.unroute(`**${providers}/commands/*`); }
+  assert.equal(writes.filter(write => write.path === providers).length, 1);
+  assert.equal(writes.filter(write => write.path === tests || write.path.endsWith('/refresh')).length, 0);
   await secretChecks();
-  return { command, receipt, history, newEntry, lostReplyRecovered: true, entries: 18 };
+  return { command, receipt, history, newEntry, assignment, lostReplyRecovered: true, entries: 18 };
 }
 
 export async function runSettingsModels({ page, check, paired, origin, output, screenshot, secretChecks, remember }) {
@@ -474,7 +502,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   assert.equal((await denied.json()).error.code, 'REVISION_CONFLICT');
   await check(recovery).toContainText('Settings changed. Reload the current revision before saving.');
   await check(recovery).toBeVisible();
-  await check(notification).toHaveText('Settings need attention.');
+  await check(notification).toHaveCount(0);
   assert.deepEqual((await readSettings()).selection, preserved);
   await page.getByRole('button', { name: 'Reload current settings', exact: true }).click();
   await check(notification).toContainText('Settings reloaded.');
@@ -623,7 +651,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await assignments.getByText('Output controls', { exact: true }).click();
   await check(page.getByLabel('Brain output tokens', { exact: true })).toHaveValue('37');
   await assignments.getByRole('button', { name: 'Save assignments', exact: true }).click();
-  await check(notification).toContainText('Assignments saved. Applies to future runs only.');
+  await check(notification).toContainText('Assignments saved.');
   await page.reload();
   const savedSelection = (await loadedMany()).selection;
   await capture('saved-many-assignments', brain, assignments.getByText('Output controls', { exact: true }));

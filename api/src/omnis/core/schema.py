@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 
 from omnis.core.managed_schema import MANAGED_TABLES, MISSION_REVISION_GUARD
 from omnis.core.model_schema import MODEL_TABLES
-from omnis.core.provider_schema import PROVIDER_TABLES
+from omnis.core.provider_schema import MODEL_RETIRE_GUARD, PROVIDER_TABLES
 
 type ColumnSpec = tuple[str, bool, str | None]
 type ConstraintSpec = tuple[str, str, str, bool, bool]
@@ -386,7 +386,12 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
     # historical authority contracts below remain unchanged. Never resolve the
     # extension again through the caller's search_path after this OID lookup.
     physical_oids: dict[str, int] = {}
-    for name in ("managed_mission_revision", "managed_record", *MODEL_TABLES):
+    for name in (
+        "managed_mission_revision",
+        "managed_record",
+        "provider_model_entry",
+        *MODEL_TABLES,
+    ):
         identities = (
             await connection.execute(
                 text(
@@ -471,6 +476,24 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
     ).one_or_none()
     if index is None or tuple(index) != (True, True, True, "2", "(state <> 'FINISHED'::text)"):
         return False
+    available_index = (
+        await connection.execute(
+            text(
+                "SELECT indisunique,indisvalid,indisready,indkey::text,pg_get_expr(indpred,indrelid) "
+                "FROM pg_catalog.pg_index WHERE indexrelid=pg_catalog.to_regclass('public.provider_model_available_unique') "
+                "AND indrelid=:table"
+            ),
+            {"table": physical_oids["provider_model_entry"]},
+        )
+    ).one_or_none()
+    if available_index is None or tuple(available_index) != (
+        True,
+        True,
+        True,
+        "1 3 4",
+        "(removed_registry_revision IS NULL)",
+    ):
+        return False
     for table, name, function, message in (
         (
             "managed_record",
@@ -527,10 +550,10 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
                 {"table": table},
             )
         ).all()
-        if [tuple(row) for row in immutable] != [
+        expected_immutable = [
             (
                 name,
-                58,
+                42 if table == "provider_model_entry" else 58,
                 "O",
                 function,
                 f"BEGIN\n        RAISE EXCEPTION '{message}';\n        END;",
@@ -542,7 +565,25 @@ async def authority_schema_matches(connection: AsyncConnection) -> bool:
                 "",
                 "trigger",
             )
-        ]:
+        ]
+        if table == "provider_model_entry":
+            expected_immutable.append(
+                (
+                    "provider_model_retire",
+                    19,
+                    "O",
+                    "provider_model_retire_guard",
+                    MODEL_RETIRE_GUARD,
+                    "plpgsql",
+                    False,
+                    0,
+                    0,
+                    True,
+                    "",
+                    "trigger",
+                )
+            )
+        if sorted(tuple(row) for row in immutable) != sorted(expected_immutable):
             return False
     # Only the mission extension has a second guard. Preserve the exact single
     # immutable-trigger contract for every historical authority table above.

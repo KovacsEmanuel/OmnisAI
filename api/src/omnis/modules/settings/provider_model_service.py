@@ -14,6 +14,7 @@ from omnis.modules.settings.provider_model_models import (
     ModelRegistryView,
     ReadModels,
     RegistryState,
+    RemoveModel,
     SaveModels,
 )
 
@@ -41,6 +42,7 @@ async def registry(db: AsyncConnection, instance: str) -> RegistryState:
                     "r.connection_revision,e.model,r.output_tokens FROM public.provider_model_entry_revision r "
                     "JOIN public.provider_model_entry e USING(instance_id,entry_id,connection_id) "
                     "WHERE r.instance_id=:instance AND r.registry_revision<=:revision "
+                    "AND e.removed_registry_revision IS NULL "
                     "ORDER BY r.entry_id,r.revision DESC"
                 ),
                 {"instance": instance, "revision": revision},
@@ -89,6 +91,45 @@ def merge_models(current: RegistryState, request: SaveModels) -> RegistryState:
         revision=current.revision + 1,
         entries=sorted(entries.values(), key=lambda item: item.entry_id),
     )
+
+
+def remove_model(current: RegistryState, request: RemoveModel) -> RegistryState:
+    if (
+        current.revision != request.expected_registry_revision
+        or current.revision == 9223372036854775807
+    ):
+        raise SettingsConflict("REVISION_CONFLICT")
+    entry = next((item for item in current.entries if item.entry_id == request.entry_id), None)
+    if entry is None:
+        raise SettingsConflict("NOT_FOUND")
+    if entry.revision != request.expected_revision:
+        raise SettingsConflict("REVISION_CONFLICT")
+    return RegistryState(
+        revision=current.revision + 1,
+        entries=[item for item in current.entries if item.entry_id != request.entry_id],
+    )
+
+
+async def require_removable(
+    owner: "ProviderSettingsOwner", db: AsyncConnection, entry: ModelEntry
+) -> None:
+    selected = await owner.selection(db)
+    if selected is not None and any(
+        choice is not None
+        and (choice.connection_id, choice.model) == (entry.connection_id, entry.model)
+        for choice in (selected.default, selected.brain, selected.investigator, selected.validator)
+    ):
+        raise SettingsConflict("MODEL_IN_USE")
+    if (
+        await db.execute(
+            text(
+                "SELECT 1 FROM public.system_operation WHERE instance_id=:instance "
+                "AND state <> 'FINISHED' LIMIT 1"
+            ),
+            {"instance": owner.vault.instance_id},
+        )
+    ).first() is not None:
+        raise SettingsConflict("OPERATION_ACTIVE")
 
 
 def page(
@@ -161,17 +202,35 @@ async def handle_models(
     if str(status.instance_id) != instance:
         raise SettingsConflict("CONNECTION_UNAVAILABLE")
     async with owner.service.admission(status.generation, owner.owner, owner.epoch) as db:
-        await owner.require_selection(
-            db,
-            ModelSelection(
-                connection_id=request.connection_id,
-                connection_revision=request.connection_revision,
-                model=request.models[0].model,
-                output_tokens=request.models[0].output_tokens,
-            ),
-        )
         current = await registry(db, instance)
-        updated = merge_models(current, request)
+        if isinstance(request, RemoveModel):
+            updated = remove_model(current, request)
+            entry = next(item for item in current.entries if item.entry_id == request.entry_id)
+            await require_removable(owner, db, entry)
+        else:
+            await owner.require_selection(
+                db,
+                ModelSelection(
+                    connection_id=request.connection_id,
+                    connection_revision=request.connection_revision,
+                    model=request.models[0].model,
+                    output_tokens=request.models[0].output_tokens,
+                ),
+            )
+            updated = merge_models(current, request)
+            # An archived identity is never reused, even with a fresh registry revision.
+            for requested in request.models:
+                retired = (
+                    await db.execute(
+                        text(
+                            "SELECT 1 FROM public.provider_model_entry WHERE instance_id=:instance "
+                            "AND entry_id=:entry AND removed_registry_revision IS NOT NULL"
+                        ),
+                        {"instance": instance, "entry": requested.entry_id},
+                    )
+                ).first()
+                if retired is not None:
+                    raise SettingsConflict("REVISION_CONFLICT")
         result = page(updated, ReadModels(action="read"), request.command_id)
         await db.execute(
             text(
@@ -181,7 +240,17 @@ async def handle_models(
             {"instance": instance, "revision": updated.revision},
         )
         previous_ids = {item.entry_id for item in current.entries}
-        changed_ids = {item.entry_id for item in request.models}
+        if isinstance(request, RemoveModel):
+            await db.execute(
+                text(
+                    "UPDATE public.provider_model_entry SET removed_registry_revision=:revision "
+                    "WHERE instance_id=:instance AND entry_id=:entry"
+                ),
+                {"instance": instance, "entry": request.entry_id, "revision": updated.revision},
+            )
+        changed_ids = (
+            {item.entry_id for item in request.models} if isinstance(request, SaveModels) else set()
+        )
         for item in updated.entries:
             if item.entry_id not in changed_ids:
                 continue

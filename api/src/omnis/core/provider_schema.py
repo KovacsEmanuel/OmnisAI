@@ -7,6 +7,15 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from omnis.core.schema import AuthoritySpec
 
+MODEL_RETIRE_GUARD = """BEGIN
+        IF OLD.removed_registry_revision IS NOT NULL OR NEW.removed_registry_revision IS NULL
+            OR (NEW.instance_id, NEW.entry_id, NEW.connection_id, NEW.model)
+                IS DISTINCT FROM (OLD.instance_id, OLD.entry_id, OLD.connection_id, OLD.model) THEN
+            RAISE EXCEPTION 'model identity and retirement are immutable';
+        END IF;
+        RETURN NEW;
+        END;"""
+
 PROVIDER_TABLES: dict[str, AuthoritySpec] = {
     "provider_model_registry_revision": (
         {
@@ -43,6 +52,7 @@ PROVIDER_TABLES: dict[str, AuthoritySpec] = {
             "entry_id": ("uuid", True, None),
             "connection_id": ("uuid", True, None),
             "model": ("text", True, None),
+            "removed_registry_revision": ("bigint", False, None),
         },
         {
             ("provider_model_entry_pkey", "p", "PRIMARY KEY (instance_id, entry_id)", True, True),
@@ -54,9 +64,9 @@ PROVIDER_TABLES: dict[str, AuthoritySpec] = {
                 True,
             ),
             (
-                "provider_model_entry_instance_id_connection_id_model_key",
-                "u",
-                "UNIQUE (instance_id, connection_id, model)",
+                "provider_model_removed_registry_fk",
+                "f",
+                "FOREIGN KEY (instance_id, removed_registry_revision) REFERENCES provider_model_registry_revision(instance_id, revision)",
                 True,
                 True,
             ),

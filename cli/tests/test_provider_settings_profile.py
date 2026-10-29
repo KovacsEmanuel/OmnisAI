@@ -294,6 +294,7 @@ class ProviderSettingsBundleTest(unittest.TestCase):
                 "omnis/migrations/versions/0014_provider_settings.py",
                 "omnis/migrations/versions/0015_model_test_v2.py",
                 "omnis/migrations/versions/0016_provider_models.py",
+                "omnis/migrations/versions/0017_model_removal.py",
                 "omnis/modules/settings/provider_model_models.py",
                 "omnis/modules/settings/provider_model_routes.py",
                 "omnis/modules/settings/provider_model_service.py",

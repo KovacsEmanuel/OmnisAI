@@ -57,7 +57,7 @@ from .start_runtime import (
     settings_overlay,
 )
 
-EXPECTED_SCHEMA = "0016_provider_models"
+EXPECTED_SCHEMA = "0017_model_removal"
 READY_FIELDS = {
     "format",
     "phase",

@@ -40,6 +40,8 @@ class SettingsConflict(ValueError):
             "NOT_FOUND",
             "REGISTRY_FULL",
             "MODEL_NOT_REGISTERED",
+            "MODEL_IN_USE",
+            "OPERATION_ACTIVE",
         }:
             raise ValueError("Invalid Settings reason")
         self.code = code
@@ -214,6 +216,7 @@ class ProviderSettingsOwner:
                     "SELECT 1 FROM public.provider_model_entry e "
                     "JOIN public.provider_model_entry_revision r USING(instance_id,entry_id,connection_id) "
                     "WHERE e.instance_id=:instance AND e.connection_id=:connection AND e.model=:model "
+                    "AND e.removed_registry_revision IS NULL "
                     "AND r.connection_revision=:connection_revision "
                     "AND r.revision=(SELECT max(h.revision) FROM public.provider_model_entry_revision h "
                     "WHERE h.instance_id=e.instance_id AND h.entry_id=e.entry_id) LIMIT 1"

@@ -48,6 +48,10 @@ export function settingsBackend(initial: KeySettings = configured, entries: Mode
     }
     if (path === '/api/v1/settings/models') {
       if (method === 'PUT') {
+        if (body.action === 'remove_model') {
+          state.entries = state.entries.filter(item => item.entry_id !== body.entry_id); state.revision += 1;
+          const value = registry(String(body.command_id)); state.receipts.set(String(body.command_id), value); return Response.json(value);
+        }
         if (!Array.isArray(body.models)) throw new Error('Malformed SOURCE fixture intent');
         const added: ModelEntry[] = body.models.map((item: unknown) => {
           if (!isRecord(item) || typeof item.entry_id !== 'string' || typeof item.model !== 'string' || typeof item.output_tokens !== 'number' || typeof item.expected_revision !== 'number') throw new Error('Malformed SOURCE model intent');

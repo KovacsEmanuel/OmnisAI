@@ -40,6 +40,15 @@ function backend(options: { empty?: boolean; lost?: boolean } = {}) {
 }
 function mount() { return render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>); }
 beforeEach(() => { sessionStorage.clear(); writes = []; });
+it('offers Remove only in expanded details and names exact confirmation without sending on cancel', async () => {
+  backend(); vi.spyOn(window, 'confirm').mockReturnValue(false); mount();
+  await screen.findByRole('region', { name: 'Configured models' });
+  expect(screen.queryByRole('button', { name: 'Remove Exact/Model via OpenRouter' })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Details for Exact/Model via OpenRouter' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' }));
+  expect(window.confirm).toHaveBeenCalledWith('Remove Exact/Model via OpenRouter? Saved history remains.');
+  expect(writes).toEqual([]);
+});
 it('opens on persisted models, not a wizard, and does not invent a persisted default', async () => {
   backend(); mount();
   expect(await screen.findByRole('region', { name: 'Configured models' })).toHaveTextContent('Exact/Model');
@@ -50,6 +59,38 @@ it('opens on persisted models, not a wizard, and does not invent a persisted def
   expect(writes).toEqual([]);
   expect(screen.queryByRole('button', { name: '+ Add model' })).not.toBeInTheDocument();
   expect(screen.queryByText('Test details')).not.toBeInTheDocument();
+});
+it.each([false, true])('persists Remove with exact receipt and no resend on lost reply=%s', async lost => {
+  const { state, hook } = settingsBackend();
+  vi.spyOn(window, 'confirm').mockReturnValue(true);
+  hook.intercept = (_path, body, method): Response | undefined => {
+    if (!lost || method !== 'PUT' || body.action !== 'remove_model') return undefined;
+    state.entries = []; state.revision += 1;
+    state.receipts.set(String(body.command_id), { schema_version: 1, command_id: body.command_id, registry_revision: state.revision, total: 0, after: null, next_after: null, entries: [] });
+    throw new TypeError('SOURCE committed reply lost');
+  };
+  const mounted = mount(); await screen.findByRole('region', { name: 'Configured models' });
+  fireEvent.click(screen.getByRole('button', { name: 'Details for Exact/Model via OpenRouter' }));
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' })).toHaveAttribute('aria-disabled', 'false'));
+  fireEvent.click(screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' }));
+  if (lost) { fireEvent.click(await screen.findByRole('button', { name: 'Recover exact receipt' })); }
+  await screen.findByText('No models configured.');
+  expect(state.writes).toHaveLength(1);
+  expect(state.writes[0]!.body).toMatchObject({ action: 'remove_model', entry_id: entryId, expected_registry_revision: 1, expected_revision: 1 });
+  expect(state.reads).toContain('/api/v1/settings/models/commands/' + String(state.writes[0]!.body.command_id));
+  mounted.unmount(); mount(); await screen.findByText('No models configured.');
+  expect(state.writes).toHaveLength(1);
+});
+it('enumerates assignments without confirmation, replacement or writes', async () => {
+  const choice = { connection_id: connectionId, connection_revision: 1, model: entry.model, output_tokens: 512 };
+  settingsBackend({ ...configured, selection: { selection_id: entryId, revision: 1, default: choice, brain: choice, investigator: null, validator: choice } });
+  vi.spyOn(window, 'confirm').mockReturnValue(true); mount();
+  await screen.findByRole('region', { name: 'Configured models' });
+  fireEvent.click(screen.getByRole('button', { name: 'Details for Exact/Model via OpenRouter' }));
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' })).toHaveAttribute('aria-disabled', 'false'));
+  fireEvent.click(screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' }));
+  expect(await screen.findByText('Used by Default, Brain, Validator. Reassign explicitly in Model assignments before removing this model.')).toBeVisible();
+  expect(window.confirm).not.toHaveBeenCalled();
 });
 it('groups quiet reload with Add models and confirms a read without writes', async () => {
   backend(); mount();

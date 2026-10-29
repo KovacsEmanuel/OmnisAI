@@ -372,6 +372,126 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                         "connections"
                     ] + other_saved.json()["connections"][1:]
                     assert (await reloaded.get(models_path)).json()["total"] == 64
+                # Remove uses the same authenticated PUT, owner lock, admission and durable receipts.
+                remove = {
+                    "action": "remove_model",
+                    "command_id": str(uuid4()),
+                    "expected_registry_revision": 3,
+                    "entry_id": model_rows[1]["entry_id"],
+                    "expected_revision": 1,
+                }
+                for changes, code in (
+                    (
+                        {"entry_id": model_rows[0]["entry_id"], "expected_revision": 2},
+                        "MODEL_IN_USE",
+                    ),
+                    ({"entry_id": str(uuid4())}, "NOT_FOUND"),
+                    ({"expected_registry_revision": 2}, "REVISION_CONFLICT"),
+                    ({"expected_revision": 2}, "REVISION_CONFLICT"),
+                ):
+                    denied = await http.put(
+                        models_path, json={**remove, **changes}, headers=headers
+                    )
+                    assert (
+                        denied.status_code in (404, 409) and denied.json()["error"]["code"] == code
+                    )
+                denied = await http.put(
+                    models_path, json=remove, headers={**headers, "X-CSRF-Token": "invalid"}
+                )
+                assert denied.status_code == 403
+                # Synthetic owned operation row probes lifecycle admission without provider IO.
+                operation = str(uuid4())
+                async with engine.begin() as db:
+                    await db.execute(
+                        text(
+                            "INSERT INTO system_operation(instance_id,operation_id,command_id,payload_digest,"
+                            "schema_version,purpose,state,state_revision,generation,execution_owner_id,owner_epoch,"
+                            "cancel_epoch,deadline,config_snapshot_ref,input_projection_ref) VALUES "
+                            "(:instance,:operation,:operation,:digest,1,'SETTINGS_TEST','NEEDS_RECONCILIATION',"
+                            "1,:generation,:owner,:epoch,1,clock_timestamp()+interval '300 seconds','{}','{}')"
+                        ),
+                        {
+                            "instance": str(initial.instance_id),
+                            "operation": operation,
+                            "digest": "a" * 64,
+                            "generation": generation,
+                            "owner": str(process),
+                            "epoch": epoch,
+                        },
+                    )
+                denied = await http.put(models_path, json=remove, headers=headers)
+                assert (
+                    denied.status_code == 409
+                    and denied.json()["error"]["code"] == "OPERATION_ACTIVE"
+                )
+                async with engine.begin() as db:
+                    await db.execute(
+                        text(
+                            "UPDATE system_operation SET state='FINISHED',state_revision=2,"
+                            "finish_reason='OWNER_LOST' WHERE operation_id=:operation"
+                        ),
+                        {"operation": operation},
+                    )
+                retired = await http.put(models_path, json=remove, headers=headers)
+                # The same owner serializes competing saves at the old registry revision.
+                competing_stale = await http.put(
+                    models_path,
+                    json={**competing, "command_id": str(uuid4()), "expected_registry_revision": 3},
+                    headers=headers,
+                )
+                assert competing_stale.status_code == 409
+                assert retired.status_code == 200
+                retired_receipt = retired.json()
+                assert retired_receipt["registry_revision"] == 4 and retired_receipt["total"] == 63
+                remove_command = models_path + "/commands/" + str(remove["command_id"])
+                assert (await http.get(remove_command)).json() == retired_receipt
+                assert (
+                    await http.put(models_path, json=remove, headers=headers)
+                ).json() == retired_receipt
+                denied = await http.put(
+                    models_path, json={**remove, "expected_revision": 2}, headers=headers
+                )
+                assert (
+                    denied.status_code == 409
+                    and denied.json()["error"]["code"] == "COMMAND_CONFLICT"
+                )
+                async with engine.connect() as db:
+                    archive = (
+                        await db.execute(
+                            text(
+                                "SELECT removed_registry_revision FROM provider_model_entry WHERE entry_id=:entry"
+                            ),
+                            {"entry": remove["entry_id"]},
+                        )
+                    ).scalar_one()
+                    assert archive == 4
+                    assert (
+                        await db.execute(
+                            text(
+                                "SELECT count(*) FROM provider_model_entry_revision WHERE entry_id=:entry"
+                            ),
+                            {"entry": remove["entry_id"]},
+                        )
+                    ).scalar_one() == 1
+                stale_save = {
+                    **registry_payload,
+                    "command_id": str(uuid4()),
+                    "expected_registry_revision": 4,
+                    "models": [{**model_rows[1], "expected_revision": 1}],
+                }
+                denied = await http.put(models_path, json=stale_save, headers=headers)
+                assert (
+                    denied.status_code == 409
+                    and denied.json()["error"]["code"] == "REVISION_CONFLICT"
+                )
+                readd = {
+                    **stale_save,
+                    "command_id": str(uuid4()),
+                    "models": [{**model_rows[1], "entry_id": str(uuid4())}],
+                }
+                assert (await http.put(models_path, json=readd, headers=headers)).status_code == 200
+                assert (await http.get(models_path)).json()["total"] == 64
+                assert (await http.get(path)).json()["selection"] == selected
                 revoked = await http.put(
                     path,
                     json={
@@ -386,7 +506,7 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                 stale_model = {
                     **competing,
                     "command_id": str(uuid4()),
-                    "expected_registry_revision": 3,
+                    "expected_registry_revision": 5,
                     "models": [{**model_rows[0], "expected_revision": 2}],
                 }
                 denied = await http.put(models_path, json=stale_model, headers=headers)
@@ -394,9 +514,13 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                     denied.status_code == 409
                     and denied.json()["error"]["code"] == "CONNECTION_UNAVAILABLE"
                 )
-                assert (await http.get(models_path)).json()["registry_revision"] == 3
+                assert (await http.get(models_path)).json()["registry_revision"] == 5
                 latest_page = (await http.get(models_path)).json()
                 await service.shutdown(uuid4(), generation, process, epoch)
+                assert (await http.get(remove_command)).json() == retired_receipt
+                assert (
+                    await http.put(models_path, json=remove, headers=headers)
+                ).json() == retired_receipt
                 assert (await http.get(path + "/commands/" + command_id)).json() == saved.json()
                 assert (await http.put(path, json=payload, headers=headers)).json() == saved.json()
                 refused = await http.put(
@@ -435,6 +559,7 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
             ) as http:
                 assert (await http.get(registry_command)).json() == receipt
                 assert (await http.get(models_path)).json() == latest_page
+                assert (await http.get(remove_command)).json() == retired_receipt
                 assert (await http.get(path)).json()["selection"] == selected
             stopped.set()
         assert heartbeat.result() > 0
@@ -542,7 +667,7 @@ async def test_registry_schema_empty_upgrade_backfill_and_constraints(
     migrate("head")
     with connect_test_database(empty_database_url) as db:
         assert db.execute("SELECT version_num FROM alembic_version").fetchone() == (
-            "0016_provider_models",
+            "0017_model_removal",
         )
         identity_row = db.execute("SELECT instance_id FROM instance_control").fetchone()
         assert identity_row is not None
@@ -572,11 +697,11 @@ async def test_registry_schema_empty_upgrade_backfill_and_constraints(
             db.execute("INSERT INTO provider_model_registry_revision VALUES (%s,2)", (instance,))
             invalid_sql = [
                 (
-                    "INSERT INTO provider_model_entry VALUES (%s,%s,%s,'Exact/ID')",
+                    "INSERT INTO provider_model_entry(instance_id,entry_id,connection_id,model) VALUES (%s,%s,%s,'Exact/ID')",
                     (instance, str(uuid4()), connection),
                 ),
                 (
-                    "INSERT INTO provider_model_entry VALUES (%s,%s,%s,'bad model')",
+                    "INSERT INTO provider_model_entry(instance_id,entry_id,connection_id,model) VALUES (%s,%s,%s,'bad model')",
                     (instance, str(uuid4()), connection),
                 ),
                 (
@@ -597,7 +722,7 @@ async def test_registry_schema_empty_upgrade_backfill_and_constraints(
                 ),
             ]
             expected_constraints = (
-                "provider_model_entry_instance_id_connection_id_model_key",
+                "provider_model_available_unique",
                 "provider_model_entry_model_check",
                 "provider_model_entry_connection_fk",
                 "provider_model_entry_registry_fk",

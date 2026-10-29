@@ -1124,7 +1124,7 @@ export interface components {
          * ErrorCode
          * @enum {string}
          */
-        ErrorCode: "INVALID_HOST" | "INVALID_ORIGIN" | "QUERY_NOT_ALLOWED" | "BODY_TOO_LARGE" | "UNAUTHENTICATED" | "CONTROL_UNAVAILABLE" | "INVALID_CSRF" | "CONTROL_TIMEOUT" | "PAIRING_DENIED" | "PAIRING_RATE_LIMITED" | "INVALID_INPUT" | "ENGAGEMENT_CONFLICT" | "COMMAND_CONFLICT" | "REVISION_CONFLICT" | "CONNECTION_UNAVAILABLE" | "REGISTRY_FULL" | "MODEL_NOT_REGISTERED" | "CAPABILITIES_REQUIRED" | "OPERATION_ACTIVE" | "OPERATION_FINISHED" | "NOT_FOUND" | "METHOD_NOT_ALLOWED" | "HTTP_ERROR" | "INTERNAL_ERROR" | "WEB_UNAVAILABLE";
+        ErrorCode: "INVALID_HOST" | "INVALID_ORIGIN" | "QUERY_NOT_ALLOWED" | "BODY_TOO_LARGE" | "UNAUTHENTICATED" | "CONTROL_UNAVAILABLE" | "INVALID_CSRF" | "CONTROL_TIMEOUT" | "PAIRING_DENIED" | "PAIRING_RATE_LIMITED" | "INVALID_INPUT" | "ENGAGEMENT_CONFLICT" | "COMMAND_CONFLICT" | "REVISION_CONFLICT" | "CONNECTION_UNAVAILABLE" | "REGISTRY_FULL" | "MODEL_NOT_REGISTERED" | "MODEL_IN_USE" | "CAPABILITIES_REQUIRED" | "OPERATION_ACTIVE" | "OPERATION_FINISHED" | "NOT_FOUND" | "METHOD_NOT_ALLOWED" | "HTTP_ERROR" | "INTERNAL_ERROR" | "WEB_UNAVAILABLE";
         /** ErrorDetail */
         ErrorDetail: {
             code: components["schemas"]["ErrorCode"];
@@ -1528,6 +1528,18 @@ export interface components {
             command_id: components["schemas"]["Identity"];
             expected_selection_revision: components["schemas"]["PositiveRevision"];
         };
+        /** RemoveModel */
+        RemoveModel: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "remove_model";
+            command_id: components["schemas"]["Identity"];
+            entry_id: components["schemas"]["Identity"];
+            expected_registry_revision: components["schemas"]["Revision"];
+            expected_revision: components["schemas"]["PositiveRevision"];
+        };
         /** @enum {string} */
         ResultState: "NOT_SENT" | "COMPLETED" | "INCOMPLETE" | "FAILED" | "UNKNOWN";
         Revision: number;
@@ -1597,8 +1609,8 @@ export interface components {
         /** SaveModels */
         SaveModels: {
             /**
-             * Action
-             * @constant
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
              */
             action: "save_models";
             command_id: components["schemas"]["Identity"];
@@ -3710,7 +3722,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SaveModels"];
+                "application/json": components["schemas"]["SaveModels"] | components["schemas"]["RemoveModel"];
             };
         };
         responses: {

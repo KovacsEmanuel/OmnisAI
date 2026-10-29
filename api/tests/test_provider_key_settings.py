@@ -746,6 +746,53 @@ async def test_registry_http_body_exception_is_exact_and_keeps_auth(
             assert response.status_code == expected
 
 
+def test_remove_model_cas_and_strict_bounded_command() -> None:
+    from omnis.modules.settings.provider_key_service import SettingsConflict
+    from omnis.modules.settings.provider_model_models import (
+        ModelEntry,
+        ModelRegistryControl,
+        RegistryState,
+        RemoveModel,
+    )
+    from omnis.modules.settings.provider_model_service import remove_model
+
+    entry = ModelEntry(
+        entry_id=str(uuid4()),
+        revision=2,
+        connection_id=str(uuid4()),
+        connection_revision=1,
+        model="Exact/Model",
+        output_tokens=64,
+    )
+    state = RegistryState(revision=3, entries=[entry])
+    request = RemoveModel(
+        action="remove_model",
+        command_id=str(uuid4()),
+        expected_registry_revision=3,
+        entry_id=entry.entry_id,
+        expected_revision=2,
+    )
+    assert remove_model(state, request) == RegistryState(revision=4, entries=[])
+    for update, code in (
+        ({"expected_registry_revision": 2}, "REVISION_CONFLICT"),
+        ({"expected_revision": 1}, "REVISION_CONFLICT"),
+        ({"entry_id": str(uuid4())}, "NOT_FOUND"),
+    ):
+        with pytest.raises(SettingsConflict, match=code):
+            remove_model(state, request.model_copy(update=update))
+    wire = ModelRegistryControl(op="provider_models", request=request)
+    assert ModelRegistryControl.model_validate_json(wire.wire_bytes()) == wire
+    assert len(wire.wire_bytes()) + 106 < 65536
+    for field, value in (
+        ("expected_revision", True),
+        ("expected_registry_revision", "3"),
+        ("entry_id", "foreign"),
+        ("expected_revision", 0),
+    ):
+        with pytest.raises(ValueError):
+            RemoveModel.model_validate({**request.model_dump(), field: value})
+
+
 def test_registry_authority_uses_typed_identity_revision_and_foreign_keys() -> None:
     from omnis.core.provider_schema import PROVIDER_TABLES
 
@@ -759,10 +806,8 @@ def test_registry_authority_uses_typed_identity_revision_and_foreign_keys() -> N
         "registry_revision",
         "output_tokens",
     } <= revision.keys()
-    assert any(
-        row[1:3] == ("u", "UNIQUE (instance_id, connection_id, model)")
-        for row in identity_constraints
-    )
+    assert identity["removed_registry_revision"] == ("bigint", False, None)
+    assert any(row[0] == "provider_model_removed_registry_fk" for row in identity_constraints)
     assert any(
         row[1:3]
         == (

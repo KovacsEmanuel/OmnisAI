@@ -28,6 +28,10 @@
 .modelRow > button:not(.modelToggle) { flex-shrink: 0; }
 .modelDetails { margin: 8px 0 0; padding: 4px 4px 0; font-size: 13px; overflow-wrap: anywhere; }
 .modelDetails[hidden] { display: none; }
+.modelSummary { display: flex; align-items: center; gap: 24px; }
+.modelMetrics { flex: 1; min-width: 0; }
+.workspace .removeModel { color: var(--color-danger); flex-shrink: 0; }
+@media (max-width: 760px) { .modelSummary { flex-direction: column; align-items: stretch; gap: 8px; } .workspace .removeModel { align-self: flex-start; } }
 .usage { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 0; }
 .usage > div { display: grid; gap: 4px; min-width: 0; }
 .usage dt { color: var(--color-secondary); }

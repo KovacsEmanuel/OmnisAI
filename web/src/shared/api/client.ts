@@ -14,7 +14,7 @@ import type { SearchCatalog, RefreshCatalog, CancelCatalog } from './providerCat
 import { decodeKeySettings } from './providerKeys';
 import type { KeyCommand } from './providerKeys';
 import { decodeProviderModels } from './providerModels';
-import type { SaveModels } from './providerModels';
+import type { RemoveModel, SaveModels } from './providerModels';
 
 type Session = components['schemas']['SessionView'];
 type ApiPath = keyof paths;
@@ -115,7 +115,7 @@ export const api = {
     if (!response.ok) throw decodeError(value);
     return decodeProviderModels(value, null, revision, after);
   },
-  async saveProviderModels(payload: SaveModels, csrf: string, signal?: AbortSignal) {
+  async saveProviderModels(payload: SaveModels | RemoveModel, csrf: string, signal?: AbortSignal) {
     const response = await request('/api/v1/settings/models', { method: 'PUT', headers: {
       'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify(payload) }, signal);
     const value = await body(response);

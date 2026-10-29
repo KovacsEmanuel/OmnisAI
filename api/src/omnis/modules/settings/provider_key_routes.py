@@ -86,6 +86,8 @@ async def settings_exchange(
                     "NOT_FOUND",
                     "REGISTRY_FULL",
                     "MODEL_NOT_REGISTERED",
+                    "MODEL_IN_USE",
+                    "OPERATION_ACTIVE",
                 }:
                     raise SettingsConflict(str(reason))
                 raise ValueError("Control unavailable")

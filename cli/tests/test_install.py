@@ -61,7 +61,7 @@ class InstallTest(unittest.TestCase):
         self.manifest = {
             "format": 1,
             "release": "0.1.0",
-            "schema": "0016_provider_models",
+            "schema": "0017_model_removal",
             "platform": "linux/amd64",
             "files": {},
         }
@@ -300,12 +300,12 @@ class InstallTest(unittest.TestCase):
         self.assertEqual(install_release(self.bundle, self.data_home), result)
 
     def test_settings_schema_bundle_is_admitted_and_old_heads_are_refused(self):
-        self.manifest["schema"] = "0016_provider_models"
+        self.manifest["schema"] = "0017_model_removal"
         self.write_manifest()
         installed = install_release(self.bundle, self.data_home)
         self.assertEqual(
             json.loads((installed / "release.json").read_text())["schema"],
-            "0016_provider_models",
+            "0017_model_removal",
         )
         before = (installed / "release.json").read_bytes()
         for previous in (

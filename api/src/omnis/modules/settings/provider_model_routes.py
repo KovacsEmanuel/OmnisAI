@@ -2,8 +2,9 @@
 
 import asyncio
 import json
+from typing import Annotated
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Body, Request
 from starlette.responses import JSONResponse
 
 from omnis.core.errors import error_responses
@@ -13,6 +14,7 @@ from omnis.modules.settings.provider_model_models import (
     ModelRegistryControl,
     ModelRegistryView,
     ReadModels,
+    RemoveModel,
     SaveModels,
 )
 from omnis.security.host_origin import error_response, reject_json_constant, unique_json_object
@@ -20,7 +22,9 @@ from omnis.security.host_origin import error_response, reject_json_constant, uni
 router = APIRouter(prefix="/api/v1/settings/models")
 
 
-async def result(request: SaveModels | ReadModels) -> ModelRegistryView | JSONResponse:
+async def result(
+    request: SaveModels | RemoveModel | ReadModels,
+) -> ModelRegistryView | JSONResponse:
     try:
         view = await settings_exchange(ModelRegistryControl(op="provider_models", request=request))
         if (
@@ -89,7 +93,9 @@ async def read_command(command_id: str) -> ModelRegistryView | JSONResponse:
 @router.put(
     "", response_model=ModelRegistryView, responses=error_responses(401, 404, 409, 413, 422, 503)
 )
-async def save_models(body: SaveModels, request: Request) -> ModelRegistryView | JSONResponse:
+async def save_models(
+    body: Annotated[SaveModels | RemoveModel, Body(discriminator="action")], request: Request
+) -> ModelRegistryView | JSONResponse:
     try:
         raw = await request.body()
         if raw.startswith(b"\xef\xbb\xbf"):

@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_en
 
 from omnis.core.schema import authority_schema_matches
 
-SCHEMA_REVISION = "0016_provider_models"
+SCHEMA_REVISION = "0017_model_removal"
 
 
 class ReadinessReason(StrEnum):

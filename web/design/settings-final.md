@@ -53,9 +53,11 @@ same visual unit. Keep status and the useful action; no separate Read check or a
 no nested interactive controls, and no global panel for a normal saved result. Disclosure
 reads only; Test requires its separate consent. Active/unconfirmed Cancel and receive-only
 recovery stay visible even when details are closed, bound to that operation rather than the
-historical result being inspected. The operator's subsequent feedback on the actual build
-requires a finer, simpler disclosure capsule: show real **Input / Output / Cost** without
-repeating a successful state or matching model identities. Remove **Operation details** from
+historical result being inspected. The operator's latest inspection rejects the single-line
+usage pill and large white row outline: use a simple elegant vertical list of **Input tokens /
+Output tokens / Cost**, with aligned labels and real values, not another decorative panel.
+Keep keyboard focus visible and contrasting but restrained with existing house tokens.
+Do not repeat a successful state or matching model identities. Remove **Operation details** from
 the UI, including UUID/revision/raw diagnostic dumps; preserve the complete backend/API
 records for maintenance. Keep short actionable failure/partial/UNKNOWN and mismatched-model
 information when relevant, plus visible recovery/Cancel. Unknown usage/cost never becomes

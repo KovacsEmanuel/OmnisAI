@@ -53,9 +53,11 @@ same visual unit. Keep status and the useful action; no separate Read check or a
 no nested interactive controls, and no global panel for a normal saved result. Disclosure
 reads only; Test requires its separate consent. Active/unconfirmed Cancel and receive-only
 recovery stay visible even when details are closed, bound to that operation rather than the
-historical result being inspected. The operator's latest inspection rejects the single-line
-usage pill and large white row outline: use a simple elegant vertical list of **Input tokens /
-Output tokens / Cost**, with aligned labels and real values, not another decorative panel.
+historical result being inspected. The operator approved replacing the narrow left-aligned
+usage list with a full-width, unboxed summary: three equal desktop columns for **Input tokens /
+Output tokens / Cost**, each label above its real value, both left-aligned within the column.
+On mobile use three compact rows with left labels and right-aligned values. Keep the model
+row's content edges, restrained typography and existing separator; no metric cards or pill.
 Keep keyboard focus visible and contrasting but restrained with existing house tokens.
 Do not repeat a successful state or matching model identities. Remove **Operation details** from
 the UI, including UUID/revision/raw diagnostic dumps; preserve the complete backend/API

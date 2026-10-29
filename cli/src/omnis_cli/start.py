@@ -14,7 +14,7 @@ import sys
 import time
 from collections.abc import Iterator
 from contextlib import ExitStack, contextmanager
-from dataclasses import asdict, dataclass, replace
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from types import FrameType
 from uuid import UUID, uuid4
@@ -1147,8 +1147,7 @@ def start_instance(
     refuse_upgrade(
         data_home / "omnis", str(_upgrade["upgrade_id"]) if _upgrade is not None else None
     )
-    if _upgrade is not None:
-        config = replace(config, development_workspace=None)
+
     startup_seconds = config_integer(
         config.startup_timeout_seconds if startup_timeout is None else startup_timeout,
         30,

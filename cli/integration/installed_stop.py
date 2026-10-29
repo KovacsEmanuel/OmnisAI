@@ -637,6 +637,19 @@ def run_installed_stop(
                 assert_resources_absent(runtime, root, control, record)
                 proof = cleanup = True
                 return
+            # Candidate sources are mounted only after old0016 has stopped.
+            source = Path(__file__).resolve().parents[2]
+            shutil.copytree(
+                source / "api/src/omnis",
+                workspace / "api/src/omnis",
+                ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+            )
+            shutil.copytree(Path(upgrade["bundle"]) / "web", workspace / "web/dist")
+            validate_new(str(workspace))
+            config.write_text(
+                f"port = {port}\ndevelopment_workspace = {json.dumps(str(workspace))}\n"
+            )
+            upgrade_config = config.read_bytes()
             restarted = command(
                 "upgrade",
                 "--bundle",
@@ -653,6 +666,13 @@ def run_installed_stop(
                 root / ("stopped-" + old["stop_command"] + ".json")
             ).read_bytes() == first_receipt
             assert restarted["release"] == "0.1.1" and restarted["schema"] == "0017_model_removal"
+            assert restarted["mode"] == "DEVELOPMENT"
+            assert upgraded_record["development_workspace"] == str(workspace)
+            assert config.read_bytes() == upgrade_config
+            reused = command("start", "--no-open", "--json")
+            assert reused["reused"] is True and reused["mode"] == "DEVELOPMENT"
+            assert json.loads((root / "startup.json").read_text()) == upgraded_record
+            assert config.read_bytes() == upgrade_config
             assert all(
                 upgraded_record[key] == old[key]
                 for key in (

@@ -89,14 +89,14 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   const canCancel = !!observed?.state_revision && observed.state !== 'FINISHED';
   const operationEntryId = observed?.entry_id ?? operationEntry ?? data?.library.entries.find(entry => { const check = data.checks[entry.entry_id]; return check && check !== 'UNKNOWN' && check.operation_id === operation; })?.entry_id;
   const operationInList = data?.library.entries.some(entry => entry.entry_id === operationEntryId);
-  const operationPending = !!operation && (!observed || observed.state !== 'FINISHED' || observed.result_state === 'UNKNOWN' || testUnknown || test.isError);
+  const operationPending = !!operation && (!observed || observed.state !== 'FINISHED' || testUnknown || test.isError);
   const activeTest = connecting || operationPending || Object.values(data?.checks ?? {}).some(check => check && check !== 'UNKNOWN' && check.state !== 'FINISHED');
   const blocked = !authReady || stale || (!!pending && !sending) || current.isError || !data;
   const busy = sending || reading || current.isFetching;
   // Fresh tabs recover the admitted operation from the existing latest-entry projection, never from consent.
   useEffect(() => {
     if (operationPending || sending || connecting) return;
-    const active = Object.values(data?.checks ?? {}).find(check => check && check !== 'UNKNOWN' && (check.state !== 'FINISHED' || check.result_state === 'UNKNOWN'));
+    const active = Object.values(data?.checks ?? {}).find(check => check && check !== 'UNKNOWN' && check.state !== 'FINISHED');
     if (active && active !== 'UNKNOWN') {
       client.setQueryData(['private', 'settings-entry-test', scope, active.operation_id], active);
       setOperation(active.operation_id ?? null);
@@ -324,7 +324,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
 
     {!data?.settings.connections.some(connection => connection.connection_id === (catalogOperation?.connection ?? catalogNotice?.connection)) && catalogRecovery()}
 
-    {operationPending && !operationInList && <section className={styles.notice} aria-label="Unconfirmed model check">
+    {(operationPending || observed?.result_state === 'UNKNOWN') && !operationInList && <section className={styles.notice} aria-label="Unconfirmed model check">
       <p>{observed?.requested_model ?? 'Test outcome unconfirmed.'} Read the same operation; no automatic resend.</p>
       {testNotice && <p>{testNotice}</p>}
       {operationControls()}
@@ -352,6 +352,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
         <ul className={styles.list}>{entries.map(entry => {
           const latest = data.checks[entry.entry_id], bound = operationEntryId === entry.entry_id && !!operation;
           const check = latest && latest !== 'UNKNOWN' ? latest : bound && observed ? observed : null;
+          const terminalUnknown = check?.state === 'FINISHED' && check.result_state === 'UNKNOWN';
           const open = expanded.includes(entry.entry_id), uncertain = latest === 'UNKNOWN' || check?.result_state === 'UNKNOWN' || check?.state === 'NEEDS_RECONCILIATION' || (bound && (testUnknown || test.isError));
           const needsRecovery = bound && (operationPending || connecting || !!testNotice);
           const detailsId = `model-details-${entry.entry_id}`, statusId = `model-status-${entry.entry_id}`;
@@ -368,7 +369,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
               {uncertain && !testNotice && <p>Test outcome unconfirmed. Read the same operation; no test is resent.</p>}
               {operationControls(false)}
             </div>}
-            {!needsRecovery && uncertain && <p className={styles.hint}>Saved check could not be read. Reload settings to confirm its result.</p>}
+            {!needsRecovery && uncertain && <p className={styles.hint}>{terminalUnknown ? <>Remote outcome remains unknown. <button type="button" className={styles.quiet} disabled={checkSelectionBlocked(check)} onClick={() => readCheck(check)}>Read test status</button></> : 'Saved check could not be read. Reload settings to confirm its result.'}</p>}
             <section id={detailsId} hidden={!open} className={styles.modelDetails} aria-label={`Model details for ${entry.model} via ${providerName(connection.provider)}`}>
               {check ? <>
                 <p>{check.state === 'FINISHED' ? check.result_state === 'COMPLETED' && check.finish_reason === 'COMPLETED' ? 'Test completed.' : check.finish_reason === 'CANCELLED' ? 'Test cancelled. Read the saved result before testing again.' : 'Test did not complete successfully. Read the saved result before testing again.' : check.state === 'STOPPING' ? 'Test is stopping. Remote completion is not yet confirmed.' : check.state === 'NEEDS_RECONCILIATION' ? 'Test outcome unconfirmed. Read the same operation; no test is resent.' : 'Test in progress.'}</p>
@@ -379,7 +380,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
                 {check.output_state === 'TRUNCATED' && <p>Response truncated.</p>}
                 <div className={styles.usage}>{check.input_tokens !== null && <span>Input tokens: {check.input_tokens}</span>}{check.output_tokens !== null && <span>Output tokens: {check.output_tokens}</span>}{check.reasoning_tokens !== null && <span>Reasoning tokens: {check.reasoning_tokens}</span>}{check.cost_observed !== null && <span>Cost: {check.cost_observed}</span>}</div>
                 {check.usage_state !== 'KNOWN' && <p className={styles.hint}>{check.usage_state === 'PARTIAL' ? 'Usage is incomplete.' : 'Usage was not reported.'}</p>}
-                {!needsRecovery && <button type="button" className={styles.quiet} disabled={checkSelectionBlocked(check)} onClick={() => readCheck(check)}>Read test status</button>}
+                {!needsRecovery && !terminalUnknown && <button type="button" className={styles.quiet} disabled={checkSelectionBlocked(check)} onClick={() => readCheck(check)}>Read test status</button>}
                 <details><summary>Operation details</summary><p className={styles.mono}>Operation {check.operation_id}</p><p>{check.state} · {check.result_state ?? 'NOT_VERIFIED'} · {check.finish_reason ?? 'No finish reason'}{check.reason ? ` · ${check.reason}` : ''}</p><p className={styles.mono}>Entry {check.entry_id} revision {check.entry_revision} · connection {check.connection_id} revision {check.connection_revision}</p><p>Requested output cap: {check.requested_output_tokens}. Provider status: {check.provider_status ?? 'Not reported'}.</p></details>
               </> : <p>{uncertain ? 'No result confirmed. Read back before another test.' : 'No saved test for this model.'}</p>}
             </section>

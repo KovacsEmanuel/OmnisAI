@@ -518,17 +518,57 @@ it.each(['sequence', 'single', 'pending', 'hydrated'] as const)('expands history
   expect(modelRow('Exact/Model')).toHaveTextContent('FINISHED · COMPLETED');
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(mode === 'hydrated' ? 0 : 1);
 });
-it('recovers an active latest check even when this tab remembers a finished historical operation', async () => {
-  const target = { ...entry, entry_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', model: 'Catalog/00' };
-  const old = { ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', result_state: 'COMPLETED', finish_reason: 'COMPLETED' };
-  const active = operation('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', target);
+it.each(['remembered-completed', 'fresh-unknown-first', 'remembered-unknown'] as const)('recovers the actual active check with %s history', async mode => {
+  const target = { ...entry, entry_id: mode === 'remembered-unknown' ? '00000000-0000-4000-8000-000000000001' : 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', model: 'Catalog/00' };
+  const old: EntryTestView = { ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', state_revision: 3, result_state: mode === 'remembered-completed' ? 'COMPLETED' : 'UNKNOWN', finish_reason: mode === 'remembered-completed' ? 'COMPLETED' : 'OWNER_LOST' };
+  let active = operation('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', target);
   const { state, hook } = settingsBackend(configured, [entry, target], models);
-  hook.intercept = path => path.endsWith(entryId) || path.endsWith(old.operation_id!) ? Response.json(old) : path.endsWith(target.entry_id) || path.endsWith(active.operation_id!) ? Response.json(active) : undefined;
-  remember(testStorage, await sessionScope(session.csrf_token), old.operation_id!); mount();
-  await screen.findByRole('region', { name: 'Configured models' });
-  const cancel = await within(modelRow(target.model)).findByRole('button', { name: 'Cancel test' }); expect(cancel).toBeEnabled();
-  fireEvent.click(within(modelRow(target.model)).getByRole('button', { name: 'Read test status' }));
-  await waitFor(() => expect(state.reads).toContain('/api/v1/model-test/entries/' + active.operation_id)); expect(state.writes).toEqual([]);
+  hook.intercept = (path, _body, method) => {
+    if (path.endsWith(entryId) || path.endsWith(old.operation_id!)) return Response.json(old);
+    if (path.endsWith(target.entry_id) || path.includes(active.operation_id!)) {
+      if (method === 'POST') active = { ...active, state: 'FINISHED', state_revision: 3, result_state: 'NOT_SENT', finish_reason: 'CANCELLED' };
+      return Response.json(active);
+    }
+  };
+  if (mode !== 'fresh-unknown-first') remember(testStorage, await sessionScope(session.csrf_token), old.operation_id!);
+  mount(); await screen.findByRole('region', { name: 'Configured models' });
+  const row = modelRow(target.model), cancel = await within(row).findByRole('button', { name: 'Cancel test' }); expect(cancel).toBeEnabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Details for Exact/Model via OpenRouter' }));
+  expect(modelRow(entry.model)).toHaveTextContent(`FINISHED · ${old.result_state}`);
+  expect(within(modelRow(entry.model)).getByRole('button', { name: 'Read test status' })).toBeDisabled();
+  const before = state.reads.length;
+  fireEvent.click(within(row).getByRole('button', { name: 'Read test status' }));
+  await waitFor(() => expect(state.reads.slice(before)).toContain('/api/v1/model-test/entries/' + active.operation_id));
+  expect(state.reads.slice(before)).not.toContain('/api/v1/model-test/entries/' + old.operation_id); expect(state.writes).toEqual([]);
+  fireEvent.click(cancel);
+  await waitFor(() => expect(state.writes).toEqual([{ path: `/api/v1/model-test/entries/${active.operation_id}/cancel`, body: expect.objectContaining({ expected_state_revision: 2 }) }]));
+  await waitFor(() => expect(row).toHaveTextContent('FINISHED · NOT_SENT'));
+});
+it.each(['FINISHED', 'NEEDS_RECONCILIATION'] as const)('remote UNKNOWN with local %s preserves history and requires fresh consent after readback', async status => {
+  const old: EntryTestView = { ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: status, state_revision: 3, result_state: 'UNKNOWN', finish_reason: status === 'FINISHED' ? 'OWNER_LOST' : null };
+  const { state, hook } = settingsBackend();
+  hook.intercept = (path, body, method) => {
+    if (path === '/api/v1/model-test/entries' && method === 'PUT') return Response.json(operation(String(body.operation_id), entry));
+    if (path.includes('/model-test/entries/')) return Response.json(old);
+  };
+  mount(); const row = await screen.findByRole('listitem', { name: 'Model Exact/Model via OpenRouter' });
+  const read = await within(row).findByRole('button', { name: 'Read test status' }), before = state.reads.filter(path => path.endsWith(old.operation_id!)).length;
+  fireEvent.click(read);
+  await waitFor(() => expect(state.reads.filter(path => path.endsWith(old.operation_id!)).length).toBeGreaterThan(before));
+  expect(row).toHaveTextContent(`${status} · UNKNOWN`); expect(state.writes).toEqual([]);
+  expect(within(row).getByText('Unconfirmed')).toBeVisible();
+  if (status === 'NEEDS_RECONCILIATION') {
+    expect(within(row).queryByRole('button', { name: 'Test Exact/Model via OpenRouter' })).not.toBeInTheDocument();
+    expect(within(row).getByRole('button', { name: 'Cancel test' })).toBeEnabled();
+    return;
+  }
+  expect(within(row).queryByRole('button', { name: 'Cancel test' })).not.toBeInTheDocument();
+  const test = await within(row).findByRole('button', { name: 'Test Exact/Model via OpenRouter' }); expect(test).toBeEnabled(); fireEvent.click(test);
+  expect(screen.getByRole('checkbox')).not.toBeChecked(); expect(screen.getByRole('button', { name: 'Send model test' })).toBeDisabled();
+  expect(state.writes).toEqual([]); expect(row).toHaveTextContent('FINISHED · UNKNOWN');
+  fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Send model test' }));
+  await waitFor(() => expect(state.writes).toEqual([{ path: '/api/v1/model-test/entries', body: expect.objectContaining({ entry_id: entryId, expected_generation: 1, consent: true }) }]));
+  expect(state.writes[0]!.body.operation_id).not.toBe(old.operation_id);
 });
 it.each(['RUNNING', 'UNKNOWN'] as const)('preserves receive-only recovery for an orphan %s operation', async status => {
   const orphan = { ...entry, entry_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', model: 'Orphan/Model' };

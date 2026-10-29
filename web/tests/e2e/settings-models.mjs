@@ -153,6 +153,126 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
 }
 
 export async function runSettingsModels({ page, check, paired, origin, output, screenshot, secretChecks, remember }) {
+  if (process.argv[2] === 'settings-cancel-current') {
+    assert.equal(process.env.OMNIS_E2E_STAGE, 'before', 'No restart or second Start is admitted');
+    const tests = '/api/v1/model-test/entries';
+    remember('synthetic-not-provider-key');
+    const intents = [];
+    page.on('request', request => {
+      const path = new URL(request.url()).pathname;
+      if (request.method() === 'PUT' || /\/(cancel|refresh)$/.test(path)) intents.push({ path });
+    });
+    await paired();
+    await page.goto(`${origin}/settings/providers`);
+    const row = page.getByRole('listitem', { name: 'Model fixture/model via OpenRouter', exact: true });
+    await row.getByRole('button', { name: 'Test fixture/model via OpenRouter', exact: true }).click();
+    const consent = page.getByRole('region', { name: 'Test consent', exact: true });
+    await consent.getByRole('checkbox').check();
+    const started = page.waitForResponse(response => response.request().method() === 'PUT' && response.url() === `${origin}${tests}`);
+    await consent.getByRole('button', { name: 'Send model test', exact: true }).click();
+    const start = await started;
+    const startBody = await start.json();
+    assert.equal(start.status(), 202);
+    const operation = start.request().postDataJSON().operation_id;
+    assert.equal(startBody.operation_id, operation);
+    let running;
+    await check.poll(async () => {
+      const read = page.waitForResponse(response => response.request().method() === 'GET' && response.url() === `${origin}${tests}/${operation}`);
+      const latest = page.waitForResponse(response => response.request().method() === 'GET' && response.url() === `${origin}${tests}/latest/${startBody.entry_id}`);
+      await row.getByRole('button', { name: 'Read test status', exact: true }).click();
+      const reply = await read;
+      assert.equal(reply.status(), 200);
+      running = await reply.json();
+      assert.equal(running.operation_id, operation);
+      const tail = await latest;
+      assert.equal(tail.status(), 200);
+      const current = await tail.json();
+      assert.equal(current.operation_id, operation);
+      await tail.finished();
+      // readTest has no busy flag: its latest-entry tail and rendered frame fence the handler.
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      return [running.state, running.state_revision, current.state, current.state_revision];
+    }).toEqual(['RUNNING', 2, 'RUNNING', 2]);
+    await check(row.getByRole('button', { name: 'Cancel test', exact: true })).toBeVisible();
+    const cancelled = page.waitForResponse(response => response.url() === `${origin}${tests}/${operation}/cancel`);
+    await row.getByRole('button', { name: 'Cancel test', exact: true }).click();
+    const reply = await cancelled;
+    const body = await reply.json();
+    assert.equal(reply.request().postDataJSON().expected_state_revision, running.state_revision);
+    assert.equal(reply.status(), 202);
+    assert.equal(body.operation_id, operation);
+    assert.equal(body.state, 'FINISHED');
+    assert.equal(body.finish_reason, 'CANCELLED');
+    assert.equal(body.state_revision, 4);
+    const readback = await page.evaluate(async path => {
+      const response = await fetch(path);
+      if (!response.ok) throw new Error('Same-operation readback refused');
+      const view = await response.json();
+      return { operation_id: view.operation_id, state: view.state, state_revision: view.state_revision, finish_reason: view.finish_reason };
+    }, `${tests}/${operation}`);
+    assert.deepEqual(readback, { operation_id: operation, state: 'FINISHED', state_revision: 4, finish_reason: 'CANCELLED' });
+    assert.equal(intents.filter(item => item.path === tests).length, 1);
+    assert.equal(intents.filter(item => item.path === `${tests}/${operation}/cancel`).length, 1);
+    assert.ok(intents.every(item => [tests, `${tests}/${operation}/cancel`].includes(item.path)), 'No assignments, model writes or Refresh');
+    await secretChecks();
+    return { classification: 'CURRENT_REVISION_CANCEL', functionalPass: true,
+      running: { operation_id: running.operation_id, state: running.state, state_revision: running.state_revision },
+      cancel: { status: reply.status(), requested_revision: reply.request().postDataJSON().expected_state_revision }, readback };
+  }
+  if (process.argv[2] === 'settings-cancel-probe') {
+    assert.equal(process.env.OMNIS_E2E_STAGE, 'before', 'No restart or second Start is admitted');
+    const tests = '/api/v1/model-test/entries';
+    remember('synthetic-not-provider-key');
+    const intents = [];
+    page.on('request', request => {
+      const path = new URL(request.url()).pathname;
+      if (request.method() === 'PUT' || /\/(cancel|refresh)$/.test(path)) intents.push({ path });
+    });
+    await paired();
+    await page.goto(`${origin}/settings/providers`);
+    const row = page.getByRole('listitem', { name: 'Model fixture/model via OpenRouter', exact: true });
+    await row.getByRole('button', { name: 'Test fixture/model via OpenRouter', exact: true }).click();
+    const consent = page.getByRole('region', { name: 'Test consent', exact: true });
+    await consent.getByRole('checkbox').check();
+    const started = page.waitForResponse(response => response.request().method() === 'PUT' && response.url() === `${origin}${tests}`);
+    await consent.getByRole('button', { name: 'Send model test', exact: true }).click();
+    const start = await started;
+    const startBody = await start.json();
+    assert.equal(start.status(), 202);
+    const operation = start.request().postDataJSON().operation_id;
+    assert.equal(startBody.operation_id, operation);
+    const cancelled = page.waitForResponse(response => response.url() === `${origin}${tests}/${operation}/cancel`);
+    // Deliberately use the first visible Cancel; no revision-refresh or retry.
+    await row.getByRole('button', { name: 'Cancel test', exact: true }).click();
+    const reply = await cancelled;
+    const body = await reply.json();
+    const diagnostic = { status: reply.status(), error_code: body.error?.code ?? null,
+      operation_id: operation, requested_revision: reply.request().postDataJSON().expected_state_revision,
+      response_operation_id: body.operation_id ?? null, response_state: body.state ?? null, response_revision: body.state_revision ?? null };
+    console.log('CANCEL_HTTP_DIAGNOSTIC ' + JSON.stringify(diagnostic));
+    assert.ok([202, 409].includes(reply.status()), JSON.stringify(diagnostic));
+    let readback;
+    await check.poll(async () => {
+      readback = await page.evaluate(async path => {
+        const response = await fetch(path);
+        if (!response.ok) throw new Error('Same-operation readback refused');
+        const view = await response.json();
+        return { operation_id: view.operation_id, state: view.state, state_revision: view.state_revision, finish_reason: view.finish_reason };
+      }, `${tests}/${operation}`);
+      assert.equal(readback.operation_id, operation);
+      return readback.state;
+    }).toBe('FINISHED');
+    if (reply.status() === 202) {
+      assert.equal(body.operation_id, operation);
+      assert.equal(body.finish_reason, 'CANCELLED');
+      assert.equal(readback.finish_reason, 'CANCELLED');
+    }
+    assert.equal(intents.filter(item => item.path === tests).length, 1);
+    assert.equal(intents.filter(item => item.path === `${tests}/${operation}/cancel`).length, 1);
+    assert.ok(intents.every(item => [tests, `${tests}/${operation}/cancel`].includes(item.path)), 'No assignments, model writes or Refresh');
+    await secretChecks();
+    return { classification: 'DIAGNOSTIC_ONLY', functionalPass: false, cancel: diagnostic, readback };
+  }
   const providers = '/api/v1/settings/providers';
   const catalog = '/api/v1/settings/provider-catalog';
   const configured = page.getByRole('region', { name: 'Configured models' });

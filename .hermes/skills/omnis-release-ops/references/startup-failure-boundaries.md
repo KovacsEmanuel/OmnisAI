@@ -80,6 +80,13 @@ failure matrix, not a new process-owner framework or authorization for Docker/DB
    child, no CLI effects, the original error and FAIL/UNCERTAIN receipt preserved;
    keep the admitted positive on the same channel and label DB seams separately.
 
+## Diagnose intermittent supervisor lease loss
+
+- Preserve sanitized exit/stdout/stderr before asserting success; a discarded refusal cannot be explained by a later successful retry.
+- Trace the actual caller covered by a phase label before attributing the failure. Lease expiry proves loss of authority, not CPU starvation, a clock jump or a timeout defect; never extend the lease merely to hide it.
+- When timing is missing, collect a finite task-scoped failure trace using monotonic/wall clocks and existing DB clock/expiry values across connection, locks, status and transaction exit. Preserve the last completed heartbeat; distinguish a stale lease snapshot and connection return from a fresh expiry or server commit ACK. Keep SQL/await/authority unchanged, isolate concurrent tasks, and verify the complete real writer's byte bound and secret exclusions before operational observation.
+- A bounded normal observation without recurrence is not a repair. Preserve the unresolved incident, stop the finite observer and require fresh evidence before another experiment; do not add a permanent watcher or automatic model replay.
+
 ## Verify the installed refusal protocol
 
 1. Choose malformed input that reaches the intended decoder/validation branch

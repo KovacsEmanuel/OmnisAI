@@ -85,15 +85,18 @@ await test('Settings C SOURCE: painted focus, shared 900px axis, mobile and long
             assert.ok(await page.getByRole('link', { name: 'Skip to content', exact: true }).evaluate(link => link.getBoundingClientRect().bottom <= 0), 'Unfocused skip link must be outside the viewport');
             if (name === 'settings-models-assignments') {
               const notification = page.getByRole('complementary', { name: 'Settings notification', exact: true });
-              await notification.getByRole('button', { name: 'Dismiss notification', exact: true }).focus();
-              await check(notification).toBeInViewport();
+              await check(notification).toBeVisible(); await check(notification).toContainText('Assignments saved.'); await check(notification).toBeInViewport();
               assert.ok(await notification.evaluate(node => {
                 const rect = node.getBoundingClientRect();
-                return [...document.querySelectorAll('button, input, select, summary, a, [role="alert"]')].filter(target => !node.contains(target)).every(target => {
+                const hintClass = document.querySelector('[aria-labelledby="assignments-heading"] h2 + p').className;
+                return [...document.querySelectorAll(`button, input, select, summary, a, [role="alert"], label, .${hintClass}`)].filter(target => !node.contains(target)).every(target => {
                   const box = target.getBoundingClientRect();
                   return !box.width || !box.height || rect.left >= box.right || rect.right <= box.left || rect.top >= box.bottom || rect.bottom <= box.top;
                 });
-              }), `Notification overlaps an interactive target at ${width}px`);
+              }), `Notification overlaps a control, label or contextual hint at ${width}px`);
+              console.log(JSON.stringify({ boundary: 'SOURCE actual viewport before notification focus', width, notification: await notification.boundingBox(), text: await notification.innerText() }));
+              if (process.env.OMNIS_E2E_OUTPUT) await page.screenshot({ path: join(process.env.OMNIS_E2E_OUTPUT, `SOURCE-${name}-${width}-before-focus-viewport.png`), fullPage: false });
+              await notification.getByRole('button', { name: 'Dismiss notification', exact: true }).focus();
             }
             if (process.env.OMNIS_E2E_OUTPUT) {
               await page.screenshot({ path: join(process.env.OMNIS_E2E_OUTPUT, `SOURCE-${name}-${width}-loaded.png`), fullPage: true });

@@ -133,7 +133,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       if (node.contains(document.activeElement)) return;
       node.style.bottom = '';
       let bottom = Math.max(16, parseFloat(getComputedStyle(node).bottom) || 16), rect = node.getBoundingClientRect();
-      const targets = [...document.querySelectorAll('button, input, select, summary, a, :focus, [role="alert"]')].filter(target => !node.contains(target)).map(target => target.getBoundingClientRect()).filter(box => box.width > 0 && box.height > 0);
+      const targets = [...document.querySelectorAll(`button, input, select, summary, a, :focus, [role="alert"], label, .${styles.hint}`)].filter(target => !node.contains(target)).map(target => target.getBoundingClientRect()).filter(box => box.width > 0 && box.height > 0);
       const collision = () => targets.find(box => rect.left < box.right + 4 && rect.right > box.left - 4 && rect.top < box.bottom + 4 && rect.bottom > box.top - 4);
       for (let index = 0; index < targets.length; index++) {
         const box = collision(); if (!box) break;

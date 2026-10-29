@@ -277,6 +277,25 @@ it('moves passive feedback above a collision without hiding it or stealing focus
   collision = false; fireEvent(window, new Event('scroll')); expect(feedback).toBeVisible();
   expect(writes).toEqual([]);
 });
+it.each(['label', 'hint'] as const)('keeps assignment %s text clear of passive feedback after blur', async target => {
+  settingsBackend(configured, [entry, { ...entry, entry_id: catalogId, model: 'Other/Model' }], [metadata, { ...metadata, model: 'Other/Model' }]);
+  let obstacle: HTMLElement | null = null;
+  vi.stubGlobal('innerHeight', 1000);
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+    if (this.tagName === 'ASIDE') return new DOMRect(116, 919 - (parseFloat(this.style.bottom || '16') - 16), 188, 51);
+    return this === obstacle ? new DOMRect(80, 930, 220, 22) : new DOMRect(0, 0, 0, 0);
+  });
+  mount(); await screen.findByRole('region', { name: 'Configured models' });
+  fireEvent.click(screen.getByRole('button', { name: 'Save assignments' }));
+  const feedback = await screen.findByRole('complementary', { name: 'Settings notification' });
+  const dismiss = within(feedback).getByRole('button', { name: 'Dismiss notification' }); dismiss.focus();
+  obstacle = target === 'label' ? screen.getByText('Default model', { selector: 'label' }) : screen.getByText('For future runs. Existing runs keep their pinned settings.');
+  fireEvent(window, new Event('resize')); expect(feedback.style.bottom).toBe(''); expect(dismiss).toHaveFocus();
+  await act(async () => { dismiss.blur(); });
+  expect(feedback).toBeVisible();
+  expect(feedback.getBoundingClientRect().bottom).toBeLessThanOrEqual(obstacle.getBoundingClientRect().top - 4);
+  expect(document.body).toHaveFocus();
+});
 it('does not expire a notification while no safe viewport position is available', async () => {
   backend(); let blocked = true;
   vi.stubGlobal('innerHeight', 1000);

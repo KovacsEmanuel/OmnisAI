@@ -1212,6 +1212,7 @@ def start_instance(
         raise StartError("PRIVATE_PATH_OVERLAP")
     with ExitStack() as locks:
         locks.enter_context(lifecycle_lock(data_root, deadline))
+        refuse_upgrade(data_root, str(_upgrade["upgrade_id"]) if _upgrade is not None else None)
         ensure_private(root)
         locks.enter_context(lifecycle_lock(root, deadline))
         journal = root / "startup.json"

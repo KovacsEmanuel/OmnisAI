@@ -598,6 +598,9 @@ def cold_command(command: str, path: Path, key: Path | None = None) -> int:
         data_home = Path(data) if data else Path.home() / ".local/share"
         runtime = ControlRuntime(data_home, time.monotonic() + 180)
         with lifecycle_lock(data_home / "omnis", runtime.deadline):
+            from .start_runtime import refuse_upgrade
+
+            refuse_upgrade(data_home / "omnis")
             if command == "restore":
                 restore(runtime, root, path, key)
             else:

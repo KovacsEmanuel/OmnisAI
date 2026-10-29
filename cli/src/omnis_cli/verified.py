@@ -13,7 +13,7 @@ from .control import ControlUnavailable
 from .instance import control_dir, private_dir, state_dir
 from .lifecycle import StartError, lifecycle_lock, read_record
 from .start import _check_pgdata, _ready_record, verify_running
-from .start_runtime import ControlRuntime
+from .start_runtime import ControlRuntime, refuse_upgrade
 
 
 @contextmanager
@@ -38,6 +38,7 @@ def verified_instance() -> Iterator[tuple[dict[str, object], Path]]:
         runtime = ControlRuntime(data_home, deadline)
         with ExitStack() as locks:
             locks.enter_context(lifecycle_lock(data_home / "omnis", deadline))
+            refuse_upgrade(data_home / "omnis")
             locks.enter_context(lifecycle_lock(root, deadline))
             if os.path.lexists(root / "unreconciled.json"):
                 raise StartError("RECOVERY_REQUIRED", 4)

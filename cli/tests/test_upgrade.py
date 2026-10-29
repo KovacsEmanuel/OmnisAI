@@ -36,6 +36,39 @@ class UpgradeTest(unittest.TestCase):
             with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
                 _bound_instance(view, root, control, stopped)
 
+    def test_queued_lifecycle_callers_recheck_upgrade_intent_under_data_lock(self):
+        from omnis_cli.start_runtime import refuse_upgrade
+
+        for name in ("start", "stop", "verified"):
+            with (
+                self.subTest(caller=name),
+                cold_fixture.ColdBackupTest().source() as (base, root, record, runtime),
+            ):
+                module = importlib.import_module("omnis_cli." + name)
+                if name == "verified":
+                    start = importlib.import_module("omnis_cli.start")
+                    ready = {
+                        k: v
+                        for k, v in record.items()
+                        if k in start.READY_FIELDS | start.vault_fields(record)
+                    }
+                    ready["phase"] = "READY"
+                    start._ready_record(ready)
+                    write_record(root / "startup.json", ready, replace=True)
+
+                def admitted_then_queued(*_args):
+                    refuse_upgrade(base / "d/omnis")
+                    write_record(base / "d/omnis/upgrade.json", {"state": "IMAGE_PENDING"})
+                    return runtime
+
+                with patch.object(module, "ControlRuntime", side_effect=admitted_then_queued):
+                    with self.assertRaisesRegex(StartError, "UPGRADE_RECOVERY_REQUIRED"):
+                        if name == "verified":
+                            with module.verified_instance():
+                                self.fail("No verified effect admission")
+                        else:
+                            getattr(module, name + "_instance")()
+
     def test_restart_cross_binding_keeps_original_grant_and_completion_bytes(self):
         from uuid import uuid4
 

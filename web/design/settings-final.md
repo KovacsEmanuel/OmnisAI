@@ -113,6 +113,26 @@ without duplicates or inheriting Connected. Exact receipt GET is receive-only, i
 64 available entries/16 per page/65536-byte complete frame remain. Upgrade retains archives;
 DB rollback requires reviewed restoration, not Git revert. No Replace/operator rollout/T2.
 
+## Settings refinement — inline confirmation and concise feedback
+
+Implement in order: inline Remove confirmation, quiet save feedback, then concise model approval.
+Keep the accepted house palette, typography, metric layout and44px/focus targets. Replace only
+the model retirement OS confirmation with a compact panel in that model's expanded details:
+exact model/provider, Cancel and Remove; keyboard Escape/cancel restores focus when appropriate.
+Bind confirmation to its displayed entry/registry revisions; revalidate current barriers before
+send, never silently rebase consent after a change. Keep Stop and unrelated navigation reachable.
+
+Normal in-flight saves use local busy state, not a page-top recovery/diagnostic banner.
+After exact receipt/readback, show one short bottom-right confirmation such as `Assignments saved.`,
+`Model removed.` or `Models saved.`. Genuine error/UNKNOWN/lost receipt keeps persistent actionable
+recovery without resend; do not convert it to an expiring toast or hide the affected context.
+
+In Add models and exact Test, use `I approve using this model.` / `I approve using these models.`
+with the selected model/provider context and one separate brief charge hint. Remove the visible
+`Fixed input` disclosure and technical300s/no-tools/refund copy, not the fixed synthetic request,
+per-model call bound/deadline, generation pin, caps or explicit consent/reset guards. No automatic
+tests, upstream Refresh, key changes, backend/protocol migration or T2 in this UI slice.
+
 ## Model assignments — separate from registration
 
 - Zero configured models: `Add a model first.`

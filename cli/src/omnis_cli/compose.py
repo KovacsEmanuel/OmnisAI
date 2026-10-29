@@ -13,7 +13,13 @@ from pathlib import Path
 from uuid import uuid4
 
 from .instance import private_dir, private_file, unique_pairs
-from .release import PROVIDER_SETTINGS_PROFILE, _installed_pointer, _manifest, publish_directory
+from .release import (
+    PROVIDER_SETTINGS_PROFILE,
+    _installed_pointer,
+    _manifest,
+    installed_version,
+    publish_directory,
+)
 
 _BASE = "python:3.13.15-slim-bookworm@sha256:3e2de9c40ca4e3d73240059f9d48baff27908f10293e985a2f382a0378e6df4a"
 _DIGEST = re.compile(r"sha256:[0-9a-f]{64}\Z")
@@ -35,6 +41,7 @@ class ImageReceipt:
     profile: str | None = None
     runtime_tag: str | None = None
     runtime_image_id: str | None = None
+    release: str = "0.1.0"
 
 
 def _run(
@@ -170,10 +177,10 @@ def _record(path: Path, manifest_sha: str, *, complete: bool) -> ImageReceipt | 
     if (
         type(raw["format"]) is not int
         or raw["format"] not in (1, 2, 3)
-        or raw["release"] != "0.1.0"
+        or raw["release"] not in ("0.1.0", "0.1.1")
         or not isinstance(project, str)
         or not _PROJECT.fullmatch(project)
-        or tag != f"omnis-control-{project.removeprefix('omnis-local-')}:0.1.0"
+        or tag != f"omnis-control-{project.removeprefix('omnis-local-')}:{raw['release']}"
         or not isinstance(digest, str)
         or not re.fullmatch(r"[0-9a-f]{64}", digest)
         or not isinstance(image_id, str)
@@ -208,6 +215,7 @@ def _record(path: Path, manifest_sha: str, *, complete: bool) -> ImageReceipt | 
         raw["profile"] if native or provider_settings else None,
         runtime_tag,
         runtime_image,
+        raw["release"],
     )
 
 
@@ -222,7 +230,7 @@ def _sync_parent(path: Path) -> None:
 def _put_record(path: Path, receipt: ImageReceipt, *, complete: bool) -> None:
     record: dict[str, object] = {
         "format": 1,
-        "release": "0.1.0",
+        "release": receipt.release,
         "project": receipt.project,
         "tag": receipt.tag,
         "manifest_sha256": receipt.manifest_sha256,
@@ -346,10 +354,13 @@ def install_control_image(data_home: Path, *, runtime_context: Path | None = Non
     """Build only on explicit operator action; reconcile one recorded intent on retry."""
     try:
         root = data_home / "omnis"
+        from .start_runtime import refuse_upgrade
+
+        refuse_upgrade(root)
         private_dir(root)
         if not _installed_pointer(root / "installed.json"):
             raise ImageInstallError("Install the release bundle first")
-        bundle = root / "releases/0.1.0"
+        bundle = root / "releases" / installed_version(root)
         manifest, payloads = _manifest(bundle)
         native = json.loads(manifest).get("profile") in {"p4a-settings-offline", "p4a-codex-auth"}
         if native != (runtime_context is not None):
@@ -377,6 +388,7 @@ def install_control_image(data_home: Path, *, runtime_context: Path | None = Non
                 runtime_context=runtime_context,
                 payloads=payloads,
                 profile=json.loads(manifest).get("profile"),
+                version=installed_version(root),
             )
         finally:
             os.close(fd)
@@ -392,7 +404,12 @@ def _install_locked(
     runtime_context: Path | None = None,
     payloads: dict[str, bytes] | None = None,
     profile: str | None = None,
+    project: str | None = None,
+    version: str = "0.1.0",
 ) -> ImageReceipt:
+    from .start_runtime import refuse_upgrade
+
+    refuse_upgrade(root)
     host = _preflight(bundle)
     docker_id = _docker_id(bundle, host)
     receipt_path = root / "image.json"
@@ -436,10 +453,11 @@ def _install_locked(
         # An absent tag does not prove a timed-out daemon build will not publish it later.
         raise ImageInstallError("Interrupted image install requires manual recovery")
     _base_image(bundle, host)
-    project = f"omnis-local-{uuid4().hex}"
+    project = project if project is not None else f"omnis-local-{uuid4().hex}"
+
     intent = ImageReceipt(
         project,
-        f"omnis-control-{project.removeprefix('omnis-local-')}:0.1.0",
+        f"omnis-control-{project.removeprefix('omnis-local-')}:{version}",
         "",
         manifest_sha,
         host,
@@ -448,6 +466,7 @@ def _install_locked(
         f"omnis-runtime-{project.removeprefix('omnis-local-')}:0.1.0"
         if runtime_context is not None
         else None,
+        release=version,
     )
     staged = None
     if runtime_context is not None:
@@ -562,6 +581,7 @@ def _install_locked(
         intent.profile,
         intent.runtime_tag,
         runtime_image_id,
+        version,
     )
     _put_record(receipt_path, final, complete=True)
     if _record(receipt_path, manifest_sha, complete=True) != final:

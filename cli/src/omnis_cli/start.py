@@ -14,7 +14,7 @@ import sys
 import time
 from collections.abc import Iterator
 from contextlib import ExitStack, contextmanager
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from types import FrameType
 from uuid import UUID, uuid4
@@ -468,7 +468,10 @@ def database_identity(runtime: ControlRuntime, ident: str) -> tuple[str, str]:
     instance_id = runtime.psql(ident, "SELECT instance_id FROM instance_control WHERE id = 1")
     if not system_id.isdecimal() or str(UUID(instance_id)) != instance_id:
         raise StartError("DATABASE_IDENTITY_INVALID", 3)
-    if runtime.psql(ident, "SELECT version_num FROM alembic_version") != EXPECTED_SCHEMA:
+    expected = (
+        runtime.schema if isinstance(getattr(runtime, "schema", None), str) else EXPECTED_SCHEMA
+    )
+    if runtime.psql(ident, "SELECT version_num FROM alembic_version") != expected:
         raise StartError("SCHEMA_UPDATE_REQUIRED", 3)
     return system_id, instance_id
 
@@ -1013,8 +1016,16 @@ def _bound_instance(
     if (
         record["project"] != instance.project
         or instance.project != runtime.receipt.project
-        or instance.release != _RELEASE
-        or instance.schema != EXPECTED_SCHEMA
+        or instance.release
+        != (
+            runtime.receipt.release
+            if isinstance(getattr(runtime.receipt, "release", None), str)
+            else _RELEASE
+        )
+        or instance.schema
+        != (
+            runtime.schema if isinstance(getattr(runtime, "schema", None), str) else EXPECTED_SCHEMA
+        )
         or record["release_digest"] != runtime.digest
         or record["image_id"] != runtime.receipt.image_id
         or record["docker_id"] != runtime.receipt.docker_id
@@ -1123,12 +1134,15 @@ def start_instance(
     *,
     startup_timeout: int | None = None,
     cleanup_timeout: int | None = None,
+    _upgrade: dict[str, object] | None = None,
 ) -> dict[str, object]:
     from .backup import admit_restore, prepare_restore
     from .restart import prepare_restart, reconcile_database
     from .stop import _integer, _preflight_record, readback_stopped, refuse_interrupted_recovery
 
     config = load_config()
+    if _upgrade is not None:
+        config = replace(config, development_workspace=None)
     startup_seconds = config_integer(
         config.startup_timeout_seconds if startup_timeout is None else startup_timeout,
         30,
@@ -1165,7 +1179,13 @@ def start_instance(
     data = os.environ.get("XDG_DATA_HOME")
     data_home = Path(data) if data else Path.home() / ".local/share"
     try:
-        runtime = ControlRuntime(data_home, deadline)
+        runtime = (
+            ControlRuntime(data_home, deadline, upgrade_id=str(_upgrade["upgrade_id"]))
+            if _upgrade is not None
+            else ControlRuntime(data_home, deadline)
+        )
+        if isinstance(getattr(runtime, "schema", None), str) and runtime.schema != EXPECTED_SCHEMA:
+            raise StartError("UPGRADE_REQUIRED", 2)
     except StartError:
         raise
     except (OSError, ValueError, subprocess.SubprocessError):
@@ -1207,7 +1227,8 @@ def start_instance(
             if record.get("phase") == "STOPPED":
                 if initial_phase != "STOPPED":
                     raise StartError("INSTANCE_SHUTTING_DOWN", 4)
-                readback_stopped(runtime, root, control, record)
+                if _upgrade is None:
+                    readback_stopped(runtime, root, control, record)
                 restarting = record
             else:
                 if config.development_workspace != development.selection(record):
@@ -1321,11 +1342,20 @@ def start_instance(
         if restarting is not None:
             record["system_id"] = restarting["system_id"]
             try:
-                restart_intent = (
-                    prepare_restore(runtime, root, str(record["attempt"]))
-                    if restored
-                    else prepare_restart(runtime, root, control, restarting, str(record["attempt"]))
-                )
+                if _upgrade is not None:
+                    from .upgrade import prepare_restart as prepare_upgrade
+
+                    restart_intent = prepare_upgrade(
+                        runtime, root, restarting, str(record["attempt"]), _upgrade
+                    )
+                else:
+                    restart_intent = (
+                        prepare_restore(runtime, root, str(record["attempt"]))
+                        if restored
+                        else prepare_restart(
+                            runtime, root, control, restarting, str(record["attempt"])
+                        )
+                    )
             except (OSError, ValueError, KeyboardInterrupt):
                 raise StartError("RESTART_RECONCILIATION_REQUIRED", 4) from None
         runtime.development_workspace = config.development_workspace
@@ -1566,7 +1596,9 @@ def start_instance(
             # publication does not. Persist the exact identity before the effect.
             instance = Instance(
                 identity,
-                "0.1.0",
+                runtime.receipt.release
+                if isinstance(getattr(runtime.receipt, "release", None), str)
+                else _RELEASE,
                 EXPECTED_SCHEMA,
                 runtime.receipt.project,
                 f"http://127.0.0.1:{selected}",
@@ -1575,6 +1607,10 @@ def start_instance(
                 write_record(root / "instance.json", {"version": 1, **asdict(instance)})
             elif load_instance(root) != instance:
                 raise StartError("DATABASE_IDENTITY_MISMATCH", 4)
+            if _upgrade is not None:
+                from .upgrade import persist
+
+                persist(data_root, _upgrade, "OPEN_PENDING")
             current = request(
                 control,
                 {
@@ -1607,6 +1643,25 @@ def start_instance(
                 if signal.getsignal(sig) is _interrupt:
                     signal.signal(sig, signal.SIG_IGN)
             failed_phase = record["phase"]
+            if (
+                _upgrade is not None
+                and _upgrade.get("state") == "STARTING"
+                and "open_command" not in record
+            ):
+                problems = cleanup_attempt(
+                    runtime,
+                    root,
+                    control,
+                    selected,
+                    owner.process,
+                    owner.pidfd,
+                    cleanup_timeout=cleanup_seconds,
+                )
+                if not problems:
+                    from .upgrade import rollback
+
+                    rollback(runtime, data_root, root, _upgrade)
+                    raise StartError("UPGRADE_ROLLED_BACK_STOPPED", 3) from None
             if restarting is not None:
                 # The new host child still belongs to this caller, even while
                 # the DB must remain available for reconciliation. Never use

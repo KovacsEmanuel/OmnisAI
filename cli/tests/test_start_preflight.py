@@ -18,8 +18,9 @@ class RuntimePreflightTest(unittest.TestCase):
     def test_supported_control_and_refusal_matrix_have_zero_resource_effects(self):
         with tempfile.TemporaryDirectory(prefix="pf-", dir=os.environ["TMPDIR"]) as name:
             data = Path(name)
-            digest = hashlib.sha256(b"{}").hexdigest()
+            digest = hashlib.sha256(b'{"schema":"0017_model_removal"}').hexdigest()
             receipt = SimpleNamespace(
+                release="0.1.0",
                 profile=None,
                 project="omnis-local-" + "a" * 32,
                 image_id="sha256:" + "b" * 64,
@@ -109,7 +110,13 @@ class RuntimePreflightTest(unittest.TestCase):
                         patch("omnis_cli.start_runtime._installed_pointer", return_value=True)
                     )
                     scope.enter_context(
-                        patch("omnis_cli.start_runtime._manifest", return_value=(b"{}", {}))
+                        patch("omnis_cli.start_runtime.installed_version", return_value="0.1.0")
+                    )
+                    scope.enter_context(
+                        patch(
+                            "omnis_cli.start_runtime._manifest",
+                            return_value=(b'{"schema":"0017_model_removal"}', {}),
+                        )
                     )
                     scope.enter_context(
                         patch(

@@ -27,7 +27,7 @@ from . import development
 from .compose import ImageReceipt, _checked_socket, _one_image, _record
 from .instance import private_dir, private_file
 from .lifecycle import StartError, mapping, read_record, remaining
-from .release import PROVIDER_SETTINGS_PROFILE, _installed_pointer, _manifest
+from .release import PROVIDER_SETTINGS_PROFILE, _installed_pointer, _manifest, installed_version
 
 POSTGRES = (
     "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650"
@@ -193,28 +193,51 @@ def _network_identity(
     return ident
 
 
+def refuse_upgrade(root: Path, upgrade_id: str | None = None) -> None:
+    if os.path.lexists(root / "upgrade.json"):
+        intent = read_record(root / "upgrade.json")
+        if intent.get("state") not in {"COMPLETE", "ROLLED_BACK", "REFUSED"} and (
+            upgrade_id is None or intent.get("upgrade_id") != upgrade_id
+        ):
+            raise StartError("UPGRADE_RECOVERY_REQUIRED", 4)
+
+
 class ControlRuntime:
     development_workspace: str | None = None
+    upgrading: bool = False
 
-    def __init__(self, data_home: Path, deadline: float) -> None:
+    def __init__(
+        self,
+        data_home: Path,
+        deadline: float,
+        *,
+        upgrade_id: str | None = None,
+        binding: Path | None = None,
+        version: str | None = None,
+    ) -> None:
         self.deadline = deadline
         self.uncertain = False
         self.family_drained = True
         self.attempt: str | None = None
-        self.release = data_home / "omnis/releases/0.1.0"
+        data_root = data_home / "omnis"
+        refuse_upgrade(data_root, upgrade_id)
         try:
             private_dir(data_home / "omnis")
             if not _installed_pointer(data_home / "omnis/installed.json"):
                 raise FileNotFoundError()
+            self.release = data_root / "releases" / (version or installed_version(data_root))
             manifest, self.files = _manifest(self.release)
         except FileNotFoundError:
             raise StartError("RELEASE_REQUIRED") from None
         self.digest = hashlib.sha256(manifest).hexdigest()
+        self.schema = str(json.loads(manifest)["schema"])
         self.model_test = "model-test/profile.yaml" in self.files
-        receipt = _record(data_home / "omnis/image.json", self.digest, complete=True)
+        receipt = _record((binding or data_root) / "image.json", self.digest, complete=True)
         if receipt is None:
             raise StartError("IMAGE_REQUIRED")
         self.receipt: ImageReceipt = receipt
+        if receipt.release != self.release.name:
+            raise StartError("IMAGE_RELEASE_MISMATCH", 4)
         if ("native/source-manifest.json" in self.files) != (self.native) or json.loads(
             manifest
         ).get("profile") != receipt.profile:
@@ -596,7 +619,13 @@ class ControlRuntime:
             "db": ["postgres"],
             "api": ["python", "-I", "-m", "omnis.serve"],
             "supervisor": ["python", "-I", "-m", "omnis.supervisor"],
-            "migrate": ["python", "-I", "-m", "omnis.migrate", "--initialize"],
+            "migrate": [
+                "python",
+                "-I",
+                "-m",
+                "omnis.migrate",
+                "--upgrade-t1" if getattr(self, "upgrading", False) else "--initialize",
+            ],
             "reconcile": ["python", "-I", "-m", "omnis.stop_reconcile"],
         }[role]
         if restore:

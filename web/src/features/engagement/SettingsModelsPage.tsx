@@ -415,7 +415,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
         </div>
         <ul className={styles.list}>{entries.map(entry => {
           const latest = data.checks[entry.entry_id], bound = operationEntryId === entry.entry_id && !!operation;
-          const starting = bound && sending && !testUnknown && !testNotice;
+          const starting = bound && operationPending && sending && !testUnknown && !testNotice;
           const check = latest && latest !== 'UNKNOWN' ? latest : bound && observed ? observed : null;
           const terminalUnknown = check?.state === 'FINISHED' && check.result_state === 'UNKNOWN';
           const open = expanded.includes(entry.entry_id), uncertain = (latest === 'UNKNOWN' && !starting) || check?.result_state === 'UNKNOWN' || check?.state === 'NEEDS_RECONCILIATION' || (bound && (testUnknown || test.isError));

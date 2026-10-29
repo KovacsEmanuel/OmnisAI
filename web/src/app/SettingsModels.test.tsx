@@ -5,6 +5,7 @@ import { beforeEach, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { health, instance, session } from '../../tests/fixtures';
 import { configured, connection as savedConnection, settingsBackend } from '../../tests/settings-fixtures';
+import { remember, sessionScope, testStorage } from '../features/engagement/SettingsModels';
 
 const connectionId = '11111111-1111-4111-8111-111111111111';
 const entryId = '22222222-2222-4222-8222-222222222222';
@@ -233,6 +234,39 @@ it('keeps actionable save recovery local without a duplicate error notification'
   expect(recovery).toHaveTextContent('Save unconfirmed. Recover the exact receipt before another mutation.');
   expect(within(recovery).getByRole('button', { name: 'Read current state' })).toBeEnabled();
   expect(screen.getByRole('button', { name: 'Recover exact receipt' })).toBeEnabled(); expect(writes).toHaveLength(1);
+});
+it('keeps the completed check Connected during an assignment-only save receipt', async () => {
+  const { state, hook } = settingsBackend();
+  const id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  const completed = {
+    schema_version: 2, operation_id: id, state: 'FINISHED', state_revision: 3, finish_reason: 'COMPLETED', selection_revision: null,
+    metadata_command_id: null, metadata_state: 'NOT_REQUESTED', reason: null, requested_provider: 'openrouter', requested_model: entry.model, requested_output_tokens: entry.output_tokens,
+    observed_model: entry.model, provider_status: null, result_state: 'COMPLETED', output_state: 'COMPLETE', response_text: 'OMNIS_MODEL_TEST_OK', usage_state: 'UNKNOWN', input_tokens: null, output_tokens: null, reasoning_tokens: null, cost_observed: null,
+    system_message: 'Respond only with OMNIS_MODEL_TEST_OK. Use no tools.', user_message: 'This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.', calls_limit: 1, wall_seconds: 300,
+    entry_id: entry.entry_id, entry_revision: entry.revision, connection_id: entry.connection_id, connection_revision: entry.connection_revision, current: true,
+  };
+  let held = false, release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async path => {
+    if (path.includes('/entries/latest/') || path === '/api/v1/model-test/entries/' + id) return Response.json(completed);
+    if (path.includes('/providers/commands/')) { held = true; await gate; }
+    return undefined;
+  };
+  remember(testStorage, await sessionScope(session.csrf_token), id);
+  const mounted = mount();
+  try {
+    await screen.findByText('Connected');
+    fireEvent.click(within(screen.getByRole('region', { name: 'Model assignments' })).getByRole('button', { name: 'Save assignments' }));
+    await waitFor(() => expect(held).toBe(true));
+    expect(state.writes.map(write => write.body.action)).toEqual(['save_selection']);
+    const row = within(screen.getByRole('listitem', { name: 'Model Exact/Model via OpenRouter' }));
+    expect(row.queryByText('Connecting', { exact: true })).not.toBeInTheDocument();
+    expect(row.getByText('Connected', { exact: true })).toBeVisible();
+    await act(async () => { release(); await gate; });
+    await screen.findByText('Assignments saved.');
+    expect(row.getByText('Connected', { exact: true })).toBeVisible();
+    expect(state.writes.map(write => write.body.action)).toEqual(['save_selection']);
+  } finally { release(); mounted.unmount(); }
 });
 it('keeps assignment drafts quiet and lost-save recovery beside assignments without a success claim', async () => {
   const { state, hook } = settingsBackend();

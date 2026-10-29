@@ -5,6 +5,21 @@
   "evidence": "PASS_LOCAL_RECORDED_BROWSER_API_PRIVATE_PG_SYNTHETIC_TLS_SCOPED",
   "review": "APPROVED_SOURCE_SCOPED_COMPOSED",
   "acceptance": "REMOVE_AND_COMPATIBLE_UPGRADE_INTEGRATED_INSTALLED; OPERATOR_READY27_RELEASE0.1.1_SCHEMA0017; DATA_QA_AND_NATIVE_UI_ACCEPTED_SCOPED; SUPERVISOR_DEFAULT_WEB_BLOCKED; CANONICAL_FINAL_NOT_RUN_UNCONSUMED; T1_NOT_CLOSED_T2_NOT_AUTHORIZED",
+  "models_refinement_20261030": {
+    "status": "IMPLEMENTED_CANDIDATE_SOURCE_APPROVED_SCOPED_REAL_ACCEPTANCE_BLOCKED_NOT_INTEGRATED_NOT_INSTALLED",
+    "candidate": "baf592220415b7e5d199d77b71c1538e9dcec748",
+    "tree": "aa53b50706e84ba494825a1581e4bdc6d9e75557",
+    "branch": "feat/settings-inline-feedback-20261029",
+    "worktree": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029",
+    "recovery_record": "models-polish-20261029/blocked-resume.md",
+    "source": "172 component PASS; retained/moved/stale/long64 native SOURCE PASS; independent composed SOURCE reviews including cleanup-only baf5922. Not runtime/aesthetic acceptance or all combinations.",
+    "control_sites": {"total": 58, "real_prefix": 21, "source_component": 37, "all_native_claim": false},
+    "latest_qa": "proc_b9e5ca260a65: one existing entry_remove_ui invocation, outer2,1FAIL55.34s,total70.393165719s. After explicit Stop and settled route cleanup, fixture01 stays Connecting/Cancel/Remaining checks stopped; expected Connected at mjs223. Cause operation/worker/UI/oracle UNADJUDICATED; terminal/latest witness not retained. No route-already-handled error in this run.",
+    "missing": "Final admitted operation COMPLETED/current/latest, second direct Test, real Assignments/quiet-toast/key effects, exact final traffic/census13 and actual API restart equality NOT_REACHED. Source/prefix not promoted to complete runtime PASS.",
+    "history": "Three refinement real FAILs55.01s/45.69s/55.34s preserved. Native narrowed default-vs-wait diagnostic proved route-cleanup mechanism before third run. Legacy two broad FAILs/counter2 and two SOURCE observer cycles unchanged; no reset/automatic further replay.",
+    "preservation": "All candidate changes committed; no source writers or QA jobs assigned. Latest own CID/project/network/socket absent/family drained, PGDATA/logs retained; parent read back exact CID absence. Operator read-only status0 READY27/epoch16/DEVELOPMENT/0.1.1/0017 same UUID/origin8780, mounted web untouched. Protected files unaccessed, no upstream/provider/model/Refresh/real model deletion/T2/push.",
+    "next": "Narrow Stop remaining -> receive-only same-operation/latest readback and worker/peer state before changing product or oracle. No new harness, timeout, weakened guard or blind full journey. Operator integration/build remains blocked; T1 supervisor/default-web/canonical blockers unchanged."
+  },
   "finalization_handoff": {
     "deliverable": "REMOVE_AND_SAME_INSTANCE_UPGRADE_DELIVERED_SCOPED; FINALIZATION_BLOCKED_SUPERVISOR_DEFAULT_WEB; CURRENT_RECOVERY_POINT_IN_EXECUTION.finalization_execution.operator_rollout",
     "prompt": "../settings-finalization-prompt.md",

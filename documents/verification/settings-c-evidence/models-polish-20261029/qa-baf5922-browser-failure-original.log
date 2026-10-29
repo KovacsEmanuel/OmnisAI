@@ -1,0 +1,58 @@
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+ExpectError: expect(locator).toContainText(expected) failed
+
+Locator: getByRole('region', { name: 'Configured models' }).getByRole('listitem', { name: 'Model fixture/01 via OpenRouter', exact: true })
+Expected substring: "Connected"
+Received string:    "Synthetic model 1fixture/01ConnectingCancel testRemaining checks stopped. Read the admitted check.Read test statusInput tokensUnknownOutput tokensUnknownCostUnknownRemove model"
+Timeout: 15000ms
+
+Call log:
+  - Expect "toContainText" getByRole('region', { name: 'Configured models' }).getByRole('listitem', { name: 'Model fixture/01 via OpenRouter', exact: true }) with timeout 15000ms
+  - waiting for getByRole('region', { name: 'Configured models' }).getByRole('listitem', { name: 'Model fixture/01 via OpenRouter', exact: true })
+    34 × locator resolved to <li class="_model_1vz81_23" aria-label="Model fixture/01 via OpenRouter">…</li>
+       - unexpected value "Synthetic model 1fixture/01ConnectingCancel testRemaining checks stopped. Read the admitted check.Read test statusInput tokensUnknownOutput tokensUnknownCostUnknownRemove model"
+
+    at captureRawStack (/home/kali/OmnisAI/web/node_modules/playwright-core/lib/coreBundle.js:8588:17)
+    at callMatcherAsStep (/home/kali/OmnisAI/web/node_modules/playwright/lib/matchers/expect.js:13310:57)
+    at Object.toContainText (/home/kali/OmnisAI/web/node_modules/playwright/lib/matchers/expect.js:13302:23)
+    at runSettingsRemove (/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/tests/e2e/settings-models.mjs:223:34)
+    at async file:///home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/tests/e2e/run.mjs:184:23 {
+  matcherResult: {
+    name: 'toContainText',
+    expected: 'Connected',
+    message: 'expect(locator).toContainText(expected) failed\n' +
+      '\n' +
+      "Locator: getByRole('region', { name: 'Configured models' }).getByRole('listitem', { name: 'Model fixture/01 via OpenRouter', exact: true })\n" +
+      'Expected substring: "Connected"\n' +
+      'Received string:    "Synthetic model 1fixture/01ConnectingCancel testRemaining checks stopped. Read the admitted check.Read test statusInput tokensUnknownOutput tokensUnknownCostUnknownRemove model"\n' +
+      'Timeout: 15000ms\n' +
+      '\n' +
+      'Call log:\n' +
+      `  - Expect "toContainText" getByRole('region', { name: 'Configured models' }).getByRole('listitem', { name: 'Model fixture/01 via OpenRouter', exact: true }) with timeout 15000ms\n` +
+      "  - waiting for getByRole('region', { name: 'Configured models' }).getByRole('listitem', { name: 'Model fixture/01 via OpenRouter', exact: true })\n" +
+      '    34 × locator resolved to <li class="_model_1vz81_23" aria-label="Model fixture/01 via OpenRouter">…</li>\n' +
+      '       - unexpected value "Synthetic model 1fixture/01ConnectingCancel testRemaining checks stopped. Read the admitted check.Read test statusInput tokensUnknownOutput tokensUnknownCostUnknownRemove model"\n',
+    pass: false,
+    actual: 'Synthetic model 1fixture/01ConnectingCancel testRemaining checks stopped. Read the admitted check.Read test statusInput tokensUnknownOutput tokensUnknownCostUnknownRemove model',
+    log: [
+      `  - Expect "toContainText" getByRole('region', { name: 'Configured models' }).getByRole('listitem', { name: 'Model fixture/01 via OpenRouter', exact: true }) with timeout 15000ms`,
+      "  - waiting for getByRole('region', { name: 'Configured models' }).getByRole('listitem', { name: 'Model fixture/01 via OpenRouter', exact: true })",
+      '    34 × locator resolved to <li class="_model_1vz81_23" aria-label="Model fixture/01 via OpenRouter">…</li>',
+      '       - unexpected value "Synthetic model 1fixture/01ConnectingCancel testRemaining checks stopped. Read the admitted check.Read test statusInput tokensUnknownOutput tokensUnknownCostUnknownRemove model"'
+    ],
+    timeout: 15000,
+    ariaSnapshot: '- listitem "Model fixture/01 via OpenRouter":\n' +
+      '  - button "Details for fixture/01 via OpenRouter":\n' +
+      '    - strong: Synthetic model 1\n' +
+      '    - text: fixture/01 Connecting\n' +
+      '  - button "Cancel test"\n' +
+      '  - status: Remaining checks stopped. Read the admitted check.\n' +
+      '  - button "Read test status"'
+  }
+}
+
+Node.js v24.21.0

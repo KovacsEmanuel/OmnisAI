@@ -1,0 +1,40 @@
+{
+  "fixture": {
+    "schema_version": 1,
+    "project": "omnis-p01-942eee02005e4b5f945a75bba64ce5ae",
+    "container_id": "ebb9d1f98fc887fdf828f1c62fb28430c61c1afa3f9d55a635e375d6fb4ad7b6",
+    "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+    "docker_endpoint": "unix:///run/docker.sock",
+    "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+    "root": "/home/kali/.hermes/cache/scratch/db-de8fb0f36b7d4dc4",
+    "system_identifier": "7702229154460082206"
+  },
+  "daemon_matches": true,
+  "exact_container_absent": true,
+  "container_inspect_exit": 1,
+  "container_inspect_stdout": "[]",
+  "container_inspect_stderr": "Error response from daemon: No such container: ebb9d1f98fc887fdf828f1c62fb28430c61c1afa3f9d55a635e375d6fb4ad7b6",
+  "project_containers_exit": 0,
+  "project_container_ids": [],
+  "project_networks_exit": 0,
+  "project_network_ids": [],
+  "socket_dir_entries": [],
+  "owned_unix_socket_paths": [],
+  "data_retained": true,
+  "data_identity": {
+    "device": 2049,
+    "inode": 10121484,
+    "uid": 1000,
+    "mode": "0o700"
+  },
+  "gate_log_retained": true,
+  "pg_log_retained": true,
+  "gate_result": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "same_identity_pinned_process_survivors": [],
+  "tcp_endpoint_readback": "NOT_RETAINED exact port: optional /proc read hit unrelated nonUTF8 Unix path; corrected read ran after family exit; no new probe",
+  "resource_readback_utc_ns": 1793315120204660872
+}

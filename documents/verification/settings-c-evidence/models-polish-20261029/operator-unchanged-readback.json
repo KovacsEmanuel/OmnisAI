@@ -1,0 +1,41 @@
+{
+  "status": "REFINEMENT_NOT_INSTALLED; previous operator public assets and metadata unchanged",
+  "candidate": "baf592220415b7e5d199d77b71c1538e9dcec748",
+  "operator": {
+    "instance_id": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+    "origin": "http://127.0.0.1:8780",
+    "state": "READY",
+    "generation": 27,
+    "mode": "DEVELOPMENT",
+    "release": "0.1.1",
+    "schema": "0017_model_removal",
+    "supervisor_epoch": 16,
+    "api_ready": true,
+    "dashboard_ready": true
+  },
+  "public_assets": [
+    {
+      "path": "/assets/fonts-OFL-bSaZbgNk.txt",
+      "status": 200,
+      "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4"
+    },
+    {
+      "path": "/assets/index-BeK4BAZY.js",
+      "status": 200,
+      "sha256": "077119c1489d05e8fcb0eb08adb4d05661ba2c37dcc7232eb5bfb095f3ca2c5d"
+    },
+    {
+      "path": "/assets/index-CANG2g38.css",
+      "status": 200,
+      "sha256": "45f1a87ad36cc97890e7802d4d5e500706729c143db9c7200f740839c3ea1ee9"
+    },
+    {
+      "path": "/settings/providers",
+      "status": 200,
+      "sha256": "445cbf12466ef228ff51a94fbca54e428ef740e69c7120060ac5e160b6507511"
+    }
+  ],
+  "dist_device": 2049,
+  "dist_inode": 8693620,
+  "limit": "Read-only public assets/status only; no new DB-domain census, stability or new refinement runtime acceptance claim."
+}

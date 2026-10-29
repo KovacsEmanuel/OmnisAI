@@ -1,0 +1,198 @@
+{
+  "status": "FROZEN_TEST_ONLY_CANDIDATE; parent focused review pending; no integration or runtime acceptance",
+  "worktree": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029",
+  "base": "0c8bff7676b0f0be23b27b77da63ff57ee08cdf0",
+  "head": "baf592220415b7e5d199d77b71c1538e9dcec748",
+  "tree": "aa53b50706e84ba494825a1581e4bdc6d9e75557",
+  "changed_paths": [
+    "web/tests/e2e/settings-models.mjs"
+  ],
+  "diff_sha256": "8db1242eca45f6a744a6f7c2aaa03f84882dc7bd52d474997044e15bae9bc20a",
+  "tracked_status": "",
+  "files": [
+    {
+      "path": "api/tests/test_model_test_v2.py",
+      "blob": "ee4ae889dc0060aecf28c5f8f4b730cf35d4e86d",
+      "sha256": "8d4ab3550ae59cc341034e46e235b110480f0e9dbc61e6faf368a1869e871be5",
+      "unchanged_from_0c8bff": true
+    },
+    {
+      "path": "web/src/app/ProviderKeySettings.test.tsx",
+      "blob": "5f0e640131b7c5a55b3ddc08f6fe49b5abad94f2",
+      "sha256": "fc9e7f0d6946eb039d66aad015f3de744fd0fbe14ae022ed3d3a17cfbf7aa53f",
+      "unchanged_from_0c8bff": true
+    },
+    {
+      "path": "web/src/app/SettingsModels.test.tsx",
+      "blob": "686715e04befcd98e3f6f518ad695414326e65cf",
+      "sha256": "f0cbe66850446c84ffacbd752e827a43a4515a1eec43a5d5eeac9fab74bbb048",
+      "unchanged_from_0c8bff": true
+    },
+    {
+      "path": "web/src/app/SettingsWizard.test.tsx",
+      "blob": "fc18bd94ea60b6e9a363a922354be2b50fa8cad8",
+      "sha256": "17310aefe9f30cb369ed8f2a6cc803ac13bdd0804955fb361b3ac1861b03b6ce",
+      "unchanged_from_0c8bff": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsAssignments.tsx",
+      "blob": "baf3f066327d9d2335cc0eb9a10e29db2f806759",
+      "sha256": "a52600f0cd6f108ab69e28290381465421d606c6c28cb3c692bb249ac64734d2",
+      "unchanged_from_0c8bff": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModelWizard.tsx",
+      "blob": "f289e2f5138736a8545998be35a26fcc689c828f",
+      "sha256": "801e06fb826a48ac878c61f0b1373507f7a4ac75195b721d6e1b8067a77a25fe",
+      "unchanged_from_0c8bff": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModels.module.css",
+      "blob": "8a813cc48454f75dabeb065e0373d2b5e1ce6a16",
+      "sha256": "9a63338ca6182aa82db5d9d4da203cf4df612a9b635c34344a59123bfbfa310d",
+      "unchanged_from_0c8bff": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModelsPage.tsx",
+      "blob": "c3a2081901a758a6207218bdeca6eba3e6407bd7",
+      "sha256": "808f2893df824267e343bbadc582e2585012c398d51d7f256533ab81f313f75a",
+      "unchanged_from_0c8bff": true
+    },
+    {
+      "path": "web/tests/e2e/provider-settings-focus.mjs",
+      "blob": "23459c139c195583a02c0a60fa25d5b7d0447378",
+      "sha256": "3f6780c1dc696f5865e4e81adae430978e79be234a60e93eef3256ac3c23f4f6",
+      "unchanged_from_0c8bff": true
+    },
+    {
+      "path": "web/tests/e2e/run.mjs",
+      "blob": "f7819bd85fb4a7a7c708f65920ae0ce09860b2e8",
+      "sha256": "f5094f22925e9e6b0d739708045480aecd69e24cf89d64c045cbfe626235f276",
+      "unchanged_from_0c8bff": true
+    },
+    {
+      "path": "web/tests/e2e/settings-models.mjs",
+      "blob": "ce1467963f44ec807da8ee9505563bd1a09daf14",
+      "sha256": "308aab45563af7856960c3059a32074ba27aa6182a42645337353393d0081ce7",
+      "unchanged_from_0c8bff": false
+    }
+  ],
+  "builds": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/dist/assets/fonts-OFL-bSaZbgNk.txt",
+      "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+      "unchanged_from_0c8bff": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/dist/assets/index-6ubBtIU9.css",
+      "sha256": "caa87c3f87499aae6a28c0d63928446042b16eb60510ce6a700552bbda651a5e",
+      "unchanged_from_0c8bff": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/dist/assets/index-Cz2ykhnr.js",
+      "sha256": "5522809b31b81458d6d85bc43472823bdff2ea6ba638a34168c82d4a87746810",
+      "unchanged_from_0c8bff": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/dist/index.html",
+      "sha256": "ee929625459a6b65e78b1cc20f12c09cd7ed2f0627d48d5750c641ad5487378d",
+      "unchanged_from_0c8bff": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/dist/omnis-web.json",
+      "sha256": "935698c2e77259b3050d098fc51842f9a084da569a3382d755f17fa74698415d",
+      "unchanged_from_0c8bff": true
+    }
+  ],
+  "all_four_product_components_css_unchanged": true,
+  "preserved_evidence": [
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/freeze-supplement.json",
+      "sha256": "3e02bd774e13304d8eca89272ce43325cb9b1432f9a794e53410049dfa65f346",
+      "untouched": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-text-occlusion-20261030/freeze-supplement.json",
+      "sha256": "905cedc80d1439863743c2e9d8f457e8dc89842952228cec5cf42bef59dd4497",
+      "untouched": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-source-supplement-20261030/freeze-supplement.json",
+      "sha256": "b0f2acc78bb5862fbd3d421494ebe300c9b5b571a6afb5fc6fb2bcc30afbe160",
+      "untouched": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-r2fix-freeze-20261029.json",
+      "sha256": "ccf982f039d1e145ba884e94d391e03b5f72ddbf3bb26e245a4d42d664125534",
+      "untouched": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-freeze-20261029.json",
+      "sha256": "e70a7effbe3b2ebf4d6304da6f327501ea2e7f3310cbef8f054b0d9dde897f97",
+      "untouched": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-r1-independent-d34f110-20261029.json",
+      "sha256": "740e2894f2fc638e433c126402750f48f909cf87422d79c8a7d5505bb5f81e4b",
+      "untouched": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-r2-review-d34f110-20261029.md",
+      "sha256": "88984b630f016264a9db7797b0f04a72e2d3437fb4344fa245e10c10f3ea7195",
+      "untouched": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-r2fix-independent-a4f5dbc.md",
+      "sha256": "3d899ebe344376c6e1ec50796c90c6d1c8750c28719ab3d02f1cd1dc65a6c5bc",
+      "untouched": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-focused-review-0c8bff-20261030.md",
+      "sha256": "6a2fe4dba03d87b6cec1bdb3a5a46b5d6e495d23e3ae995f1a4692956e1ee7e2",
+      "untouched": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-a4f5dbc-20261030/result.json",
+      "sha256": "bb6ffc11337551a2c7a2dd3f2f6dec40b11d3e0c4f9c1be4e8a1e74195e48803",
+      "untouched": true
+    },
+    {
+      "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-0c8bff-20261030/result.json",
+      "sha256": "4ceabff18f3431688ce358e50db5b5d079ab3b499ee9b7ba5d3d5d6ab7d73e1e",
+      "untouched": true
+    }
+  ],
+  "checks": [
+    {
+      "command": "node --check web/tests/e2e/settings-models.mjs",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "parent_paired_diagnostic": {
+    "provenance": "delegated parent evidence, not rerun by developer",
+    "boundary": "native Chromium and owned minimal Node HTTP server; same context origin allowlist and held PUT202; no App or PG",
+    "default_unroute": "Route is already handled; browser status202",
+    "native_unrouteAll_wait": "error null; browser status202",
+    "cases_per_variant": 1,
+    "limit": "not product RED/GREEN; no exclusive retrospective cause or App defect claim"
+  },
+  "counters": {
+    "legacy_harness_only": 2,
+    "native_source_observer": 2,
+    "reset": false
+  },
+  "not_run": [
+    "component/source tests",
+    "native browser tests",
+    "rebuild",
+    "API/PG",
+    "provider/model",
+    "schema"
+  ],
+  "dependency_links": "four preexisting untracked links preserved/unadopted",
+  "scope": "two finally lines only; existing gate resolve remains before native wait; settled Remove unroute and context allowlist untouched"
+}

@@ -1,0 +1,16 @@
+{
+  "summary": [
+    "1 failed in 55.34s"
+  ],
+  "failure_projection": [
+    "api/tests/test_web_e2e.py:364: in settings_models_browser",
+    "E   AssertionError: Settings browser journey failed; inspect owned sanitized output"
+  ],
+  "milestones": [
+    "PRIVATE_DB_PROBE_OK version=18.6 network_none=true socket_private=true system_id=7702229154460082206",
+    "TARGETED_GATE_BEGIN target=test-settings-remove-ui-pg log=/home/kali/.hermes/cache/scratch/db-de8fb0f36b7d4dc4/gate.log",
+    "TARGETED_GATE_EXIT code=2 log=/home/kali/.hermes/cache/scratch/db-de8fb0f36b7d4dc4/gate.log",
+    "OWNED_DB_READBACK absent=True networks_absent=True socket_absent=True uncertain=False",
+    "DISPOSABLE_DATA_RETAINED /home/kali/.hermes/cache/scratch/db-de8fb0f36b7d4dc4"
+  ]
+}

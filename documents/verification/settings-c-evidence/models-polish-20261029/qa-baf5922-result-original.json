@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "verdict": "FAIL_REAL_CONSUMER_NEW_ASSERTION; full refinement acceptance BLOCKED",
+  "stage1": {
+    "verdict": "APPROVED_FOCUSED_SOURCE_SCOPED",
+    "report": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-review-baf5922-20261030.md",
+    "sha256": "ebd3e5a2c3652e6c164c3562b26897086a35706565def920450a8c98086e86fa",
+    "recorded_before_runtime": true,
+    "findings": []
+  },
+  "head": "baf592220415b7e5d199d77b71c1538e9dcec748",
+  "tree": "aa53b50706e84ba494825a1581e4bdc6d9e75557",
+  "freeze_sha256": "94cea4956ed9c61267b5e8e86d703060bda83cc72d7bb08df2735f24ede30065",
+  "runtime": {
+    "start_unix_ns": 1793314970242388554,
+    "end_unix_ns": 1793315040635554273,
+    "outer_exit": 2,
+    "wall_seconds": 70.393165719,
+    "invocations": 1,
+    "session": "proc_b9e5ca260a65",
+    "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-settings-remove-ui-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600",
+    "cwd": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029",
+    "deadline_seconds": 600,
+    "inner_driver_deadline_seconds": 120,
+    "pytest": "1 failed in 55.34s",
+    "pytest_seconds": 55.34,
+    "gate_result": {
+      "schema_version": 1,
+      "code": 2,
+      "family_drained": true
+    },
+    "failure": {
+      "id": "QA-BAF5922-01",
+      "type": "ExpectError",
+      "location": "web/tests/e2e/settings-models.mjs:223:34",
+      "assertion": "await check(row(\"fixture/01\")).toContainText(\"Connected\")",
+      "timeout_ms": 15000,
+      "actual": "Synthetic model 1 / fixture/01 / Connecting / Cancel test / Remaining checks stopped. Read the admitted check. / Read test status",
+      "outer_assertion": "api/tests/test_web_e2e.py:364 browser returncode/pass marker",
+      "root_cause": "NOT_ADJUDICATED; no diagnosis/fix/retry authorized",
+      "route_cleanup_error": "No route.fulfill/already-handled exception in retained browser log; reached next assertion223 after awaited cleanup222",
+      "first_retained_error": "ExpectError toContainText Connected at223; not replaced by cleanup error"
+    },
+    "retry": false
+  },
+  "requirements": {
+    "remove": "REAL_PREFIX18->17; exact receipt/history/recovery/reload no resend; keyboard/inline cancel at4widths",
+    "readd": "REAL_PREFIX newID receipt18 / Not tested / latest404",
+    "provider_back": "REAL_PREFIX both cancel/escape pass via unchanged exact combobox",
+    "save_connect": "REAL_PREFIX actual202, wizard closed, rowConnecting, one Stop remaining, viewport capture. Stop click returned, route wait settled; Connected ASSERTION FAIL. No COMPLETED/current/latest credit.",
+    "direct_selected_test": "NOT_REACHED",
+    "assignments_quiet_save_toast_roles": "NOT_REACHED in real consumer; current172component and4nativeSOURCE reused unchanged",
+    "replacement_disable_reconnect": "NOT_REACHED",
+    "traffic_final": "NOT_REACHED: unchanged12browser mutations/8peerGET/2newpeerPOST oracle not satisfied or relaxed",
+    "census13tables_and_actual_api_restart": "NOT_REACHED; browser-result.json/settings-controls-census.json absent; no readback/restart/resend to recreate them"
+  },
+  "matrix": {
+    "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-baf5922-20261030/matrix.json",
+    "rows": 58,
+    "counts": {
+      "SOURCE_COMPONENT_REUSED": 37,
+      "REAL_BROWSER_API_PG_PREFIX": 21
+    },
+    "limits": "55JSX+3nav actuated at declared level; prefix/source distinction retained after FAIL, not58native/allvariants"
+  },
+  "source_reuse": {
+    "component_passed": 172,
+    "native_cases": [
+      "retained",
+      "moved",
+      "stale",
+      "long64"
+    ],
+    "reruns_this_task": 0,
+    "evidence_root": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-identities-20261030/"
+  },
+  "captures": {
+    "manifest": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-baf5922-20261030/captures.json",
+    "png_count": 10,
+    "current_vision_inspected": 1,
+    "vision": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-baf5922-20261030/vision.md",
+    "quietSave_toast_captures": "NOT_REACHED; not inferred from pending row screenshot",
+    "aesthetic_approval": false
+  },
+  "identity": {
+    "changed_frozen_inputs": [],
+    "head_same": true,
+    "tree_same": true,
+    "tracked_clean": true,
+    "source_count": 11,
+    "build_count": 5,
+    "links_unchanged": true
+  },
+  "cleanup": {
+    "fixture": {
+      "schema_version": 1,
+      "project": "omnis-p01-942eee02005e4b5f945a75bba64ce5ae",
+      "container_id": "ebb9d1f98fc887fdf828f1c62fb28430c61c1afa3f9d55a635e375d6fb4ad7b6",
+      "daemon_id": "94260307-c33f-46ac-af7c-8a5ac1a7ffdc",
+      "docker_endpoint": "unix:///run/docker.sock",
+      "image_id": "sha256:8d76d8de17e883d3995f76252e260bc6b7761e9c23edbf3356b0676d37c49ddb",
+      "root": "/home/kali/.hermes/cache/scratch/db-de8fb0f36b7d4dc4",
+      "system_identifier": "7702229154460082206"
+    },
+    "daemon_matches": true,
+    "exact_container_absent": true,
+    "container_inspect_exit": 1,
+    "container_inspect_stdout": "[]",
+    "container_inspect_stderr": "Error response from daemon: No such container: ebb9d1f98fc887fdf828f1c62fb28430c61c1afa3f9d55a635e375d6fb4ad7b6",
+    "project_containers_exit": 0,
+    "project_container_ids": [],
+    "project_networks_exit": 0,
+    "project_network_ids": [],
+    "socket_dir_entries": [],
+    "owned_unix_socket_paths": [],
+    "data_retained": true,
+    "data_identity": {
+      "device": 2049,
+      "inode": 10121484,
+      "uid": 1000,
+      "mode": "0o700"
+    },
+    "gate_log_retained": true,
+    "pg_log_retained": true,
+    "gate_result": {
+      "schema_version": 1,
+      "code": 2,
+      "family_drained": true
+    },
+    "same_identity_pinned_process_survivors": [],
+    "tcp_endpoint_readback": "NOT_RETAINED exact port: optional /proc read hit unrelated nonUTF8 Unix path; corrected read ran after family exit; no new probe",
+    "resource_readback_utc_ns": 1793315120204660872
+  },
+  "preserved_failures": {
+    "original_a4": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-a4f5dbc-20261030/result.json",
+    "original_0c": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-0c8bff-20261030/result.json",
+    "legacy_harness_only": 2,
+    "native_source_observer": 2,
+    "reset": false,
+    "refinement_invocations_total": 3
+  },
+  "limits": [
+    "No automatic retry, code fix, new framework, timeout/oracle change, installation or integration",
+    "No operator8780/provider/model/realkey/target/T2/push/canonical/default-full/legacy rerun",
+    "Reticle NOT_INTEGRATED; Chisel BLOCKED_NO_GO",
+    "Exact API TCP port not retained; stock family_drained plus pinned original process absence and Unix/project/container/network readback verified",
+    "PG logs captured while owned container live, not a complete final shutdown log; PGDATA and gate/browser logs retained",
+    "Optional read-only endpoint observation first failed UnicodeDecodeError in unrelated Unix path; corrected decoding only after exit, no effect replay",
+    "Shell printed zle option warnings outside runner sink; inner consumer actually executed and new assertion retained",
+    "No aesthetics/screenreader/crossbrowser/allstates certification"
+  ],
+  "files_changed": "Private scratch reports/logs/captures only; candidate own dist rebuilt byte-equal5files,11source+extra inputs unchanged;4links preserved; no tracked/Git/main/operator write",
+  "parent_decision": "Parent adjudicates new assertion; no integration approval or T1 closure by child"
+}

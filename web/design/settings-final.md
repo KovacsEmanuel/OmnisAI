@@ -53,8 +53,13 @@ same visual unit. Keep status and the useful action; no separate Read check or a
 no nested interactive controls, and no global panel for a normal saved result. Disclosure
 reads only; Test requires its separate consent. Active/unconfirmed Cancel and receive-only
 recovery stay visible even when details are closed, bound to that operation rather than the
-historical result being inspected. Show real outcome, actionable reason, requested/observed
-identity and known usage where useful; technical IDs remain secondary and closed.
+historical result being inspected. The operator's subsequent feedback on the actual build
+requires a finer, simpler disclosure capsule: show real **Input / Output / Cost** without
+repeating a successful state or matching model identities. Remove **Operation details** from
+the UI, including UUID/revision/raw diagnostic dumps; preserve the complete backend/API
+records for maintenance. Keep short actionable failure/partial/UNKNOWN and mismatched-model
+information when relevant, plus visible recovery/Cancel. Unknown usage/cost never becomes
+zero or invented currency. This refinement is not yet the operator's visual acceptance.
 
 Use one compact bottom-right confirmation pill per useful action, with restrained house
 tokens and no mobile action/focus overlap. Noncritical confirmations expire; actionable

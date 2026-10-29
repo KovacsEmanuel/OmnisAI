@@ -1,0 +1,63 @@
+{
+  "resources": [
+    {
+      "id": "sha256:306af02dd8adc654ec05f7ad5124fe4f40dcb86e9a5dc4a65e4bf365a67920aa",
+      "command": [
+        "docker",
+        "image",
+        "rm",
+        "--no-prune",
+        "sha256:306af02dd8adc654ec05f7ad5124fe4f40dcb86e9a5dc4a65e4bf365a67920aa"
+      ],
+      "exit": 0,
+      "stdout": "Untagged: omnis-control-faa2b6c553ea4258b78a46039a53e481:0.1.1\nDeleted: sha256:306af02dd8adc654ec05f7ad5124fe4f40dcb86e9a5dc4a65e4bf365a67920aa",
+      "verified_absent": true
+    },
+    {
+      "id": "sha256:e62e39d8d037951b0973c87e45e72379cc7c80ea1820ca2721c888afee53afce",
+      "command": [
+        "docker",
+        "image",
+        "rm",
+        "--no-prune",
+        "sha256:e62e39d8d037951b0973c87e45e72379cc7c80ea1820ca2721c888afee53afce"
+      ],
+      "exit": 0,
+      "stdout": "Untagged: omnis-control-faa2b6c553ea4258b78a46039a53e481:0.1.0\nDeleted: sha256:e62e39d8d037951b0973c87e45e72379cc7c80ea1820ca2721c888afee53afce",
+      "verified_absent": true
+    },
+    {
+      "id": "sha256:7a3122c90b298259ab5c4b5f022fba6e3bc4e21eada4b0d5edd16cdff37aa39c",
+      "command": [
+        "docker",
+        "image",
+        "rm",
+        "--no-prune",
+        "sha256:7a3122c90b298259ab5c4b5f022fba6e3bc4e21eada4b0d5edd16cdff37aa39c"
+      ],
+      "exit": 0,
+      "stdout": "Untagged: omnis-control-d698c3a1ff894ae4b0f6399c005e59df:0.1.1\nDeleted: sha256:7a3122c90b298259ab5c4b5f022fba6e3bc4e21eada4b0d5edd16cdff37aa39c",
+      "verified_absent": true
+    },
+    {
+      "id": "sha256:cd7ac9aaaada8d7e39fc25daa3bfcb4bb905bd9b4b556717e1fd59ae0b25e920",
+      "command": [
+        "docker",
+        "image",
+        "rm",
+        "--no-prune",
+        "sha256:cd7ac9aaaada8d7e39fc25daa3bfcb4bb905bd9b4b556717e1fd59ae0b25e920"
+      ],
+      "exit": 0,
+      "stdout": "Untagged: omnis-control-d698c3a1ff894ae4b0f6399c005e59df:0.1.0\nDeleted: sha256:cd7ac9aaaada8d7e39fc25daa3bfcb4bb905bd9b4b556717e1fd59ae0b25e920",
+      "verified_absent": true
+    }
+  ],
+  "removed_verified": 4,
+  "filesystem_available_before": 59000893440,
+  "filesystem_available_after": 59000963072,
+  "net_available_delta": 69632,
+  "exclusive_reclaimed_bytes": "NOT_ATTRIBUTABLE",
+  "allocated_unique_image_bytes": "NOT_MEASURED_SHARED_LAYERS",
+  "data_deleted": false
+}

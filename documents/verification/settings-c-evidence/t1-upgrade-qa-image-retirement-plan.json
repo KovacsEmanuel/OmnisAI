@@ -1,0 +1,18 @@
+{
+  "scope": "Selective deletion authorized by settings-finalization-prompt.md; only four completed synthetic installed-QA image configurations, not operator or old retained installations",
+  "source_candidate": "bb760e5b9bf9256f1ca31036d8a395590f2c0507",
+  "producer": "Two existing ReleaseBundleTest installed upgrade/known-preOPEN rollback scenarios, both PASS exit0 and STOPPED, 17 exact CIDs absent",
+  "classification": "DELETE: no unsettled effects or unique application data in these images; logs, source/release/wheel/bundle, cold snapshots, trial restores, quarantine and synthetic data are retained",
+  "consumers": "Parent verified same daemon, exact project labels/tags and no ancestor-container consumers for all four; image Parent fields empty. No process cwd/bind-mount points into an image configuration",
+  "reconstruction": "Rebuild from preserved old/new frozen bundles via existing install-image in a new isolated QA project. Exact old OCI configuration replay is relinquished; rebuild is not promised byte-identical",
+  "owning_command": "docker image rm --no-prune <exact-image-id>, no force, no system/volume prune",
+  "resources": [
+    {"id":"sha256:306af02dd8adc654ec05f7ad5124fe4f40dcb86e9a5dc4a65e4bf365a67920aa","project":"omnis-local-faa2b6c553ea4258b78a46039a53e481","release":"0.1.1"},
+    {"id":"sha256:e62e39d8d037951b0973c87e45e72379cc7c80ea1820ca2721c888afee53afce","project":"omnis-local-faa2b6c553ea4258b78a46039a53e481","release":"0.1.0"},
+    {"id":"sha256:7a3122c90b298259ab5c4b5f022fba6e3bc4e21eada4b0d5edd16cdff37aa39c","project":"omnis-local-d698c3a1ff894ae4b0f6399c005e59df","release":"0.1.1"},
+    {"id":"sha256:cd7ac9aaaada8d7e39fc25daa3bfcb4bb905bd9b4b556717e1fd59ae0b25e920","project":"omnis-local-d698c3a1ff894ae4b0f6399c005e59df","release":"0.1.0"}
+  ],
+  "retention": "Operator image321b7052, original operator/current and old releases/toolchains, all unique/uncertain historical data and protected files are KEEP; no database, key, backup or worktree deletion admitted here",
+  "measurement": "Use exact filesystem available bytes immediately before/after. Allocated unique image bytes NOT_MEASURED: Docker layers shared and daemon storage is not readable without administrator; never sum virtual image sizes",
+  "status": "ADMITTED_NOT_YET_EXECUTED"
+}

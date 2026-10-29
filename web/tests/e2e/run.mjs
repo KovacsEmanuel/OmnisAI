@@ -11,7 +11,7 @@ import { assertSecretFree } from './leaks.mjs';
 import { runB03 } from './b03.mjs';
 import { runB04 } from './b04.mjs';
 import { runCatalog } from './catalog.mjs';
-import { runSettingsModels } from './settings-models.mjs';
+import { runSettingsModels, runSettingsRemove } from './settings-models.mjs';
 
 const check = expect.configure({ timeout: 15000 });
 const origin = process.env.OMNIS_E2E_ORIGIN;
@@ -122,7 +122,7 @@ async function secretChecks(inspected = page) {
     cookies: document.cookie, caches: await caches.keys(), databases: await indexedDB.databases(),
     workers: (await navigator.serviceWorker.getRegistrations()).length }));
   assert.equal(storage.local, 0);
-  if (scenario !== 'settings-models') assert.equal(storage.session, 0);
+  if (!['settings-models', 'settings-remove'].includes(scenario)) assert.equal(storage.session, 0);
   else {
     const retained = await inspected.evaluate(() => Object.fromEntries(Object.keys(sessionStorage).map(key => [key, sessionStorage.getItem(key)])));
     assert.ok(Object.keys(retained).every(key => ['omnis-entry-test-v1', 'omnis-entry-test-v1-refused', 'omnis-settings-command-v1', 'omnis-settings-catalog-v1'].includes(key)), 'Unexpected retained Settings data');
@@ -151,7 +151,7 @@ try {
     // Open the inert admission barrier only after API/dashboard readiness;
     // this is fixture setup, not proof of installed CLI lifecycle.
     const initial = (await control({ op: 'status' })).status;
-    if (scenario === 'settings-models' || (scenario === 'b04' && process.env.OMNIS_E2E_STAGE === 'after')) {
+    if (['settings-models', 'settings-remove'].includes(scenario) || (scenario === 'b04' && process.env.OMNIS_E2E_STAGE === 'after')) {
       assert.equal(initial.admission_open, true, 'Backend restart must preserve the same admitted instance');
       assert.equal(initial.generation, 1);
     } else {
@@ -180,6 +180,8 @@ try {
     await runB04({ page, context, check, paired, fault, output, origin, screenshot, secretChecks });
   } else if (scenario === 'catalog') {
     catalogEvidence = await runCatalog({ page, check, paired, output, origin, screenshot, secretChecks });
+  } else if (scenario === 'settings-remove') {
+    catalogEvidence = await runSettingsRemove({ page, check, paired, origin, output, screenshot, secretChecks });
   } else if (scenario === 'settings-models') {
     catalogEvidence = await runSettingsModels({ page, check, paired, origin, output, screenshot, secretChecks, remember });
   } else if (scenario === 'flow') {

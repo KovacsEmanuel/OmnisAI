@@ -275,7 +275,9 @@ def wait_api(api: subprocess.Popen[str], origin: str) -> None:
     pytest.fail("Built dashboard/control failed real readiness")
 
 
-async def settings_models_browser(database_url: URL, control_dir: Path, output: Path) -> None:
+async def settings_models_browser(
+    database_url: URL, control_dir: Path, output: Path, *, scenario: str = "settings-models"
+) -> None:
     """Reuse the existing API/JS/family with the model test's real owner and TLS peer."""
     assert (ROOT / "web/dist/omnis-web.json").is_file(), "Build current web assets first"
     tables = (
@@ -321,7 +323,7 @@ async def settings_models_browser(database_url: URL, control_dir: Path, output: 
         try:
             before: dict[str, list[str]] | None = None
             for stage in ("before", "after"):
-                api = launch_api(listener, database_url, control_dir)
+                api = launch_api(listener, database_url, control_dir, own_source=True)
                 resources.append((api, False))
                 await asyncio.to_thread(wait_api, api, origin)
                 marker_read, marker_write = os.pipe()
@@ -329,7 +331,7 @@ async def settings_models_browser(database_url: URL, control_dir: Path, output: 
                 os.set_blocking(marker_write, False)
                 try:
                     driver = subprocess.Popen(
-                        ["node", str(ROOT / "web/tests/e2e/run.mjs"), "settings-models"],
+                        ["node", str(ROOT / "web/tests/e2e/run.mjs"), scenario],
                         cwd=ROOT / "web",
                         env={
                             **os.environ,
@@ -356,7 +358,7 @@ async def settings_models_browser(database_url: URL, control_dir: Path, output: 
                     markers = decode_markers(os.read(marker_read, 16385))
                     assert_secret_free(markers + ["synthetic-not-provider-key"], [stdout, stderr])
                     observations.extend((stdout, stderr))
-                    assert driver.returncode == 0 and "E2E PASS settings-models" in stdout, (
+                    assert driver.returncode == 0 and f"E2E PASS {scenario}" in stdout, (
                         "Settings browser journey failed; inspect owned sanitized output"
                     )
                 finally:

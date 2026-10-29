@@ -1034,6 +1034,7 @@ def main() -> int:
             "test-instance-drain-pg",
             "test-provider-settings-pg",
             "test-settings-remove-pg",
+            "test-settings-remove-ui-pg",
             "test-model-test-v2-pg",
             "test-settings-models-ui-pg",
             "test-migrations",

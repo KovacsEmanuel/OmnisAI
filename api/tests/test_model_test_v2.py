@@ -82,6 +82,13 @@ def tls_contexts(root: Path) -> tuple[ssl.SSLContext, ssl.SSLContext]:
         "complete",
         "entry_catalog",
         "entry_remove",
+        pytest.param(
+            "entry_remove_ui",
+            marks=pytest.mark.skipif(
+                os.environ.get("OMNIS_SETTINGS_REMOVE_UI") != "1",
+                reason="Explicit narrow Remove built-browser fixture only",
+            ),
+        ),
         "entry_generation_before_first",
         "entry_generation_between",
         "entry_generation_unchanged",
@@ -314,7 +321,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                 else:
                     assert first == "POST /api/v1/chat/completions HTTP/1.1"
                     data = json.loads(body)
-                    if scenario == "entry_remove":
+                    if scenario in {"entry_remove", "entry_remove_ui"}:
                         await remove_peer_release.wait()
                     if scenario == "settings_ui":
                         assert data["model"] in {"fixture/02", "fixture/03"}
@@ -323,7 +330,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                     else:
                         assert data["model"] == (
                             "fixture/selected"
-                            if scenario in {"entry_catalog", "entry_remove"}
+                            if scenario in {"entry_catalog", "entry_remove", "entry_remove_ui"}
                             else "fixture/model"
                         )
                     assert data["max_tokens"] == 64
@@ -335,7 +342,9 @@ async def test_api_pg_sdk_protocol_and_replay(
                         "id": "synthetic-protocol-not-provider-live",
                         "object": "chat.completion",
                         "created": 0,
-                        "model": data["model"] if scenario == "settings_ui" else "fixture/observed",
+                        "model": data["model"]
+                        if scenario in {"settings_ui", "entry_remove_ui"}
+                        else "fixture/observed",
                         "choices": [
                             {
                                 "index": 0,
@@ -408,7 +417,7 @@ async def test_api_pg_sdk_protocol_and_replay(
     ) -> list[tuple[object, ...]]:
         assert family in (0, network_socket.AF_INET) and type in (0, network_socket.SOCK_STREAM)
         assert proto in (0, network_socket.IPPROTO_TCP) and flags == 0
-        if scenario == "settings_ui" and host == "127.0.0.1":
+        if scenario in {"settings_ui", "entry_remove_ui"} and host == "127.0.0.1":
             assert 0 < port <= 65535
             return [
                 (
@@ -712,6 +721,8 @@ async def test_api_pg_sdk_protocol_and_replay(
                     assert empty.status_code == 200 and empty.json()["state"] == "NOT_REQUESTED"
                     assert not received
                     ids = [str(uuid4()) for _ in range(3)]
+                    if scenario == "entry_remove_ui":
+                        ids[0] = "ffffffff-ffff-4fff-bfff-ffffffffffff"
                     saved = await http.put(
                         "/api/v1/settings/models",
                         headers=headers,
@@ -769,7 +780,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                         x["model"] for x in second.json()["entries"]
                     ] == ["fixture/selected"]
                     assert second.json()["next_offset"] is None
-                    if scenario == "entry_remove":
+                    if scenario in {"entry_remove", "entry_remove_ui"}:
                         models = "/api/v1/settings/models"
                         tests = "/api/v1/model-test/entries"
                         providers = "/api/v1/settings/providers"
@@ -827,6 +838,56 @@ async def test_api_pg_sdk_protocol_and_replay(
                             and exact["input_tokens"] == 9
                             and exact["output_tokens"] == 7
                         )
+                        if scenario == "entry_remove_ui":
+                            extra = await http.put(
+                                models,
+                                headers=headers,
+                                json={
+                                    "action": "save_models",
+                                    "command_id": str(uuid4()),
+                                    "expected_registry_revision": 1,
+                                    **context,
+                                    "models": [
+                                        {
+                                            "entry_id": str(uuid4()),
+                                            "expected_revision": 0,
+                                            "model": f"fixture/extra-{i:02}",
+                                            "output_tokens": 64,
+                                        }
+                                        for i in range(15)
+                                    ],
+                                },
+                            )
+                            assert extra.status_code == 200 and extra.json()["total"] == 18
+                            assigned = await http.put(
+                                providers,
+                                headers=headers,
+                                json={
+                                    "action": "save_selection",
+                                    "command_id": str(uuid4()),
+                                    "expected_revision": 0,
+                                    "default": {
+                                        **context,
+                                        "model": "fixture/00",
+                                        "output_tokens": 64,
+                                    },
+                                    "brain": None,
+                                    "investigator": None,
+                                    "validator": None,
+                                },
+                            )
+                            assert assigned.status_code == 200
+                            from test_web_e2e import settings_models_browser
+
+                            traffic = len(received)
+                            await settings_models_browser(
+                                migrated_database_url,
+                                control_dir,
+                                tmp_path,
+                                scenario="settings-remove",
+                            )
+                            assert len(received) == traffic, "Remove UI must never Test or Refresh"
+                            return
                         history = await census_remove()
                         settings_before = (await http.get(providers)).json()
                         remove = {
@@ -965,6 +1026,12 @@ async def test_api_pg_sdk_protocol_and_replay(
                                 assert results[1].status_code in (404, 409)
                                 if first_path != tests:
                                     assert await census_remove() == first_snapshot
+                                else:
+                                    assert first_snapshot is not None
+                                    final_snapshot = await census_remove()
+                                    for table in tables:
+                                        if table.startswith("provider_"):
+                                            assert final_snapshot[table] == first_snapshot[table]
                                 reason = results[1].json()["error"]["code"]
                                 assert isinstance(reason, str)
                                 return reason

@@ -3,6 +3,137 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+export async function runSettingsRemove({ page, check, paired, origin, output, screenshot, secretChecks }) {
+  const models = '/api/v1/settings/models';
+  const tests = '/api/v1/model-test/entries';
+  const providers = '/api/v1/settings/providers';
+  const writes = [];
+  page.on('request', request => {
+    const path = new URL(request.url()).pathname;
+    if (request.method() === 'PUT' || (request.method() === 'POST' && path.endsWith('/refresh'))) {
+      writes.push({ path, body: path === models ? request.postDataJSON() : null });
+    }
+  });
+  async function read(path) {
+    return page.evaluate(async path => {
+      const response = await fetch(path);
+      return { status: response.status, body: await response.json() };
+    }, path);
+  }
+  async function put(body) {
+    return page.evaluate(async ({ models, body }) => {
+      const session = await (await fetch('/api/session')).json();
+      const response = await fetch(models, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': session.csrf_token }, body: JSON.stringify(body) });
+      return { status: response.status, body: await response.json() };
+    }, { models, body });
+  }
+  await paired();
+  await page.goto(`${origin}/settings/providers`);
+  const configured = page.getByRole('region', { name: 'Configured models' });
+  const row = model => configured.getByRole('listitem', { name: `Model ${model} via OpenRouter`, exact: true });
+  const details = model => row(model).getByRole('button', { name: `Details for ${model} via OpenRouter`, exact: true });
+  if (process.env.OMNIS_E2E_STAGE === 'after') {
+    const previous = JSON.parse(await readFile(join(output, 'browser-result.json'), 'utf8'));
+    assert.equal(previous.scenario, 'settings-remove');
+    const saved = previous.catalog;
+    assert.deepEqual((await read(`${models}/commands/${saved.command.command_id}`)).body, saved.receipt);
+    assert.deepEqual((await read(`${tests}/${saved.history.operation_id}`)).body, saved.history);
+    assert.equal((await read(`${tests}/latest/${saved.newEntry}`)).status, 404);
+    await check(row('fixture/selected')).toContainText('Not tested');
+    assert.deepEqual(writes, [], 'Restart readback must not resend any command');
+    await secretChecks();
+    return { ...saved, apiRestartReadback: true };
+  }
+  const library = (await read(models)).body;
+  assert.equal(library.total, 18);
+  assert.equal(library.entries.length, 16);
+  assert.equal(library.entries.some(entry => entry.model === 'fixture/selected'), false);
+  const second = (await read(`${models}/pages/${library.registry_revision}/${library.next_after}`)).body;
+  assert.equal(second.registry_revision, library.registry_revision);
+  const entry = second.entries.find(entry => entry.model === 'fixture/selected');
+  assert.ok(entry, 'Remove target must be on page two');
+  const baseline = (await read(providers)).body;
+  const historyBefore = (await read(`${tests}/latest/${entry.entry_id}`)).body;
+  assert.equal(historyBefore.result_state, 'COMPLETED');
+  await check(row('fixture/selected')).toContainText('Connected');
+  await details('fixture/00').focus(); await page.keyboard.press('Enter');
+  await row('fixture/00').getByRole('button', { name: 'Remove fixture/00 via OpenRouter', exact: true }).focus();
+  await page.keyboard.press('Enter');
+  await check(page.getByRole('region', { name: 'Settings recovery' })).toContainText('Used by Default');
+  assert.deepEqual(writes, []);
+  await details('fixture/selected').focus(); await page.keyboard.press('Enter');
+  const remove = row('fixture/selected').getByRole('button', { name: 'Remove fixture/selected via OpenRouter', exact: true });
+  for (const width of [1440, 1280, 390, 320]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await remove.scrollIntoViewIfNeeded();
+    await page.keyboard.press('Tab'); await remove.focus();
+    await check(remove).toBeFocused();
+    const geometry = await remove.evaluate(button => {
+      const box = button.getBoundingClientRect(), style = getComputedStyle(button);
+      const metrics = button.parentElement.querySelector('dl').getBoundingClientRect();
+      return { height: box.height, width: box.width, outline: style.outlineStyle,
+        hit: button.contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)),
+        overlaps: box.left < metrics.right && box.right > metrics.left && box.top < metrics.bottom && box.bottom > metrics.top,
+        overflow: document.documentElement.scrollWidth > innerWidth };
+    });
+    assert.ok(geometry.height >= 44 && geometry.width >= 44 && geometry.hit);
+    assert.notEqual(geometry.outline, 'none');
+    assert.equal(geometry.overlaps, false); assert.equal(geometry.overflow, false);
+    await secretChecks(); await screenshot(`settings-remove-focus-${width}x1000`);
+  }
+  page.once('dialog', async dialog => {
+    assert.equal(dialog.message(), 'Remove fixture/selected via OpenRouter? Saved history remains.');
+    await dialog.dismiss();
+  });
+  await remove.focus(); await page.keyboard.press('Enter');
+  assert.deepEqual((await read(models)).body, library);
+  assert.deepEqual((await read(providers)).body, baseline);
+  assert.deepEqual(writes, []);
+  let command, receipt;
+  await page.route(`**${models}`, async route => {
+    if (route.request().method() !== 'PUT') return route.continue();
+    command = route.request().postDataJSON();
+    assert.equal(command.action, 'remove_model');
+    const response = await route.fetch();
+    assert.equal(response.status(), 200); receipt = await response.json();
+    await route.abort('failed');
+  });
+  page.once('dialog', dialog => dialog.accept());
+  await remove.focus(); await page.keyboard.press('Enter');
+  await check(page.getByRole('region', { name: 'Settings recovery' })).toContainText('Save unconfirmed');
+  await page.unroute(`**${models}`);
+  await page.getByRole('button', { name: 'Read current state', exact: true }).click();
+  await check(row('fixture/selected')).toHaveCount(0);
+  assert.deepEqual((await read(`${models}/commands/${command.command_id}`)).body, receipt);
+  assert.equal(command.entry_id, entry.entry_id);
+  assert.equal(command.expected_revision, entry.revision);
+  assert.equal(command.expected_registry_revision, library.registry_revision);
+  let pageRead = (await read(models)).body, membership = [...pageRead.entries];
+  while (pageRead.next_after !== null) {
+    pageRead = (await read(`${models}/pages/${receipt.registry_revision}/${pageRead.next_after}`)).body;
+    assert.equal(pageRead.registry_revision, receipt.registry_revision);
+    membership.push(...pageRead.entries);
+  }
+  assert.equal(receipt.total, 17); assert.notEqual(receipt.next_after, null);
+  assert.equal(membership.length, new Set(membership.map(item => item.entry_id)).size);
+  assert.equal(membership.length, receipt.total); assert.equal(membership.some(item => item.entry_id === entry.entry_id), false);
+  const history = (await read(`${tests}/${historyBefore.operation_id}`)).body;
+  assert.deepEqual(history, { ...historyBefore, current: false });
+  assert.deepEqual((await read(`${tests}/latest/${entry.entry_id}`)).body, history);
+  assert.deepEqual((await read(providers)).body, baseline);
+  await page.reload(); await check(row('fixture/selected')).toHaveCount(0);
+  assert.equal(writes.length, 1, 'Lost reply/recovery/reload must not resend Remove/Test/Refresh');
+  const newEntry = crypto.randomUUID();
+  assert.equal((await put({ action: 'save_models', command_id: crypto.randomUUID(), expected_registry_revision: receipt.registry_revision,
+    connection_id: entry.connection_id, connection_revision: entry.connection_revision,
+    models: [{ entry_id: newEntry, expected_revision: 0, model: entry.model, output_tokens: entry.output_tokens }] })).status, 200);
+  await page.getByRole('button', { name: 'Reload current settings', exact: true }).click();
+  await check(row('fixture/selected')).toContainText('Not tested');
+  assert.equal((await read(`${tests}/latest/${newEntry}`)).status, 404);
+  await secretChecks();
+  return { command, receipt, history, newEntry, lostReplyRecovered: true, entries: 18 };
+}
+
 export async function runSettingsModels({ page, check, paired, origin, output, screenshot, secretChecks, remember }) {
   const providers = '/api/v1/settings/providers';
   const catalog = '/api/v1/settings/provider-catalog';

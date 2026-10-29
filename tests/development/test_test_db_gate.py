@@ -391,6 +391,8 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
                 for target in (
                     "test-model-test-v2-pg",
                     "test-settings-models-ui-pg",
+                    "test-settings-remove-pg",
+                    "test-settings-remove-ui-pg",
                     "test-contract-method-pg",
                 )
                 for flag in ("-n", "-t", "-q", "-i")

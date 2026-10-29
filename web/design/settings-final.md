@@ -46,6 +46,26 @@ critical/uncertain errors do not auto-dismiss or vanish from the model state. No
 on Continue or query refresh. Active Cancel and same-operation readback remain reachable.
 Global Stop/run identity and Default/override/output controls remain; no new visual direction.
 
+### Operator finalization — current presentation delta
+
+The primary model row itself toggles accessible in-place details, immediately below it in the
+same visual unit. Keep status and the useful action; no separate Read check or arrow button,
+no nested interactive controls, and no global panel for a normal saved result. Disclosure
+reads only; Test requires its separate consent. Active/unconfirmed Cancel and receive-only
+recovery stay visible even when details are closed, bound to that operation rather than the
+historical result being inspected. Show real outcome, actionable reason, requested/observed
+identity and known usage where useful; technical IDs remain secondary and closed.
+
+Use one compact bottom-right confirmation pill per useful action, with restrained house
+tokens and no mobile action/focus overlap. Noncritical confirmations expire; actionable
+errors and uncertainty remain beside their model/list/command. Catalog progress belongs to
+the affected control/list, not duplicate raw states in the page, wizard and notification.
+Keep the three-step flow, selections, exact consent, and explicit provider actions. A saved
+key, a successful saved test, readable current metadata and assignment eligibility are
+different facts: explain the actual missing prerequisite, never revoke/reassign/retest or
+refresh upstream implicitly. The live catalog error still requires diagnosis, not cosmetic
+green badges. The operator must approve the actual built UI, not just these instructions.
+
 ### Lifecycle-bound consent — minimal safety correction
 
 Before enabling consent for an exact-entry test or Save & connect, capture the generation

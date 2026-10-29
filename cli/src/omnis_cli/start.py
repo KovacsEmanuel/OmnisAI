@@ -1647,6 +1647,9 @@ def start_instance(
                 _upgrade is not None
                 and _upgrade.get("state") == "STARTING"
                 and "open_command" not in record
+                and isinstance(exc, StartError)
+                and exc.code != 4
+                and (restart_intent is None or restart_intent.get("state") in {"PREPARED", "ACKED"})
             ):
                 problems = cleanup_attempt(
                     runtime,

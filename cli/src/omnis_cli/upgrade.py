@@ -4,6 +4,8 @@ import hashlib
 import json
 import os
 import re
+import subprocess
+import tarfile
 import time
 from dataclasses import asdict
 from pathlib import Path
@@ -377,7 +379,13 @@ def upgrade_command(bundle: Path, snapshot: Path, *, as_json: bool) -> int:
     try:
         result = upgrade(bundle, snapshot)
         code = 0
-    except (OSError, ValueError, KeyboardInterrupt) as exc:
+    except (
+        OSError,
+        ValueError,
+        subprocess.SubprocessError,
+        tarfile.TarError,
+        KeyboardInterrupt,
+    ) as exc:
         code = exc.code if isinstance(exc, StartError) else 2
         data = Path(os.environ.get("XDG_DATA_HOME", str(Path.home() / ".local/share"))) / "omnis"
         if os.path.lexists(data / "upgrade.json"):

@@ -22,6 +22,12 @@ stop = importlib.import_module("omnis_cli.stop")
 
 
 class RestartWiringTest(unittest.TestCase):
+    def test_upgrade_new_image_reconciles_original_grant_before_open(self):
+        self.restart(provider_settings=True, upgrading=True)
+
+    def test_upgrade_lost_reconciliation_ack_never_rolls_back_or_resends(self):
+        self.restart("lost", provider_settings=True, upgrading=True)
+
     def test_development_switches_only_new_attempt_after_stopped_in_both_directions(self):
         for direction in ("to-development", "to-release"):
             with self.subTest(direction=direction):
@@ -74,7 +80,13 @@ class RestartWiringTest(unittest.TestCase):
         self.restart("forwarder-fault")
 
     def restart(
-        self, fault=None, *, provider_settings=False, restored=False, development_direction=None
+        self,
+        fault=None,
+        *,
+        provider_settings=False,
+        restored=False,
+        development_direction=None,
+        upgrading=False,
     ):
         with private_stop_fixture() as (base, root, _foreign, control, old, runtime):
             retained = {}
@@ -132,6 +144,32 @@ class RestartWiringTest(unittest.TestCase):
             completion_raw = (json.dumps(completion, indent=3) + "\r\n").encode()
             receipt_path(root, old).write_bytes(completion_raw)
             receipt_path(root, old).chmod(0o600)
+            upgrade_intent = None
+            if upgrading:
+                data = base / "d/omnis"
+                saved = data / "upgrade-source"
+                saved.mkdir(mode=0o700)
+                for name, content in (
+                    ("startup.json", old_raw),
+                    ("completion.json", completion_raw),
+                ):
+                    (saved / name).write_bytes(content)
+                    (saved / name).chmod(0o600)
+                runtime.release = data / "releases/0.1.1"
+                runtime.digest = "9" * 64
+                runtime.receipt.image_id = "sha256:" + "8" * 64
+                runtime.receipt.release = "0.1.1"
+                instance = json.loads((root / "instance.json").read_text())
+                instance["release"] = "0.1.1"
+                write_record(root / "instance.json", instance, replace=True)
+                upgrade_intent = {
+                    "state": "STARTING",
+                    "upgrade_id": str(uuid4()),
+                    "saved": saved.name,
+                    "target_digest": runtime.digest,
+                    "old_attempt": old["attempt"],
+                }
+                write_record(data / "upgrade.json", upgrade_intent)
             if restored:
                 from omnis_cli import backup as cold
                 from stopped_fixture import completed_fixture
@@ -463,7 +501,14 @@ class RestartWiringTest(unittest.TestCase):
                     scope.enter_context(
                         patch("omnis_cli.backup.cold_identity", return_value=old["system_id"])
                     )
-                code, result = start.start_result(None)
+                if upgrading:
+                    try:
+                        result = start.start_instance(None, _upgrade=upgrade_intent)
+                        code = 0
+                    except StartError as exc:
+                        code, result = exc.code, {"reason": exc.reason}
+                else:
+                    code, result = start.start_result(None)
                 if fault == "forwarder-fault":
                     self.assertEqual(children[0].returncode, 0, "Restart abandoned its held child")
                 self.assertEqual(code, 4 if fault else 0, result)

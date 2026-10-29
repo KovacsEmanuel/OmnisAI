@@ -40,14 +40,48 @@ function backend(options: { empty?: boolean; lost?: boolean } = {}) {
 }
 function mount() { return render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>); }
 beforeEach(() => { sessionStorage.clear(); writes = []; });
-it('offers Remove only in expanded details and names exact confirmation without sending on cancel', async () => {
-  backend(); vi.spyOn(window, 'confirm').mockReturnValue(false); mount();
+it('opens inline Remove without effects and cancels by button or Escape with focus restored', async () => {
+  const { state } = settingsBackend(); const confirm = vi.spyOn(window, 'confirm'); mount();
   await screen.findByRole('region', { name: 'Configured models' });
   expect(screen.queryByRole('button', { name: 'Remove Exact/Model via OpenRouter' })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Details for Exact/Model via OpenRouter' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' }));
-  expect(window.confirm).toHaveBeenCalledWith('Remove Exact/Model via OpenRouter? Saved history remains.');
-  expect(writes).toEqual([]);
+  const remove = screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' });
+  await waitFor(() => expect(remove).toHaveAttribute('aria-disabled', 'false'));
+  for (const escape of [false, true]) {
+    remove.focus(); fireEvent.click(remove);
+    const confirmation = screen.getByRole('region', { name: 'Remove model confirmation' });
+    expect(confirmation).toHaveTextContent('Exact/Model · OpenRouter');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    const cancel = within(confirmation).getByRole('button', { name: 'Cancel' }); cancel.focus();
+    if (escape) fireEvent.keyDown(cancel, { key: 'Escape' }); else fireEvent.click(cancel);
+    expect(screen.queryByRole('region', { name: 'Remove model confirmation' })).not.toBeInTheDocument();
+    expect(remove).toHaveFocus();
+  }
+  expect(confirm).not.toHaveBeenCalled(); expect(state.writes).toEqual([]);
+});
+it.each(['registry', 'entry', 'assignment', 'unknown', 'active', 'collapse', 'unmount'] as const)('refuses old inline Remove consent after %s changes', async change => {
+  const { state } = settingsBackend(); const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const mounted = render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>);
+  const toggle = await screen.findByRole('button', { name: 'Details for Exact/Model via OpenRouter' }); fireEvent.click(toggle);
+  const remove = screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' });
+  await waitFor(() => expect(remove).toHaveAttribute('aria-disabled', 'false')); fireEvent.click(remove);
+  const confirmation = screen.getByRole('region', { name: 'Remove model confirmation' });
+  const confirm = within(confirmation).getByRole('button', { name: 'Remove' });
+  const elsewhere = screen.getByRole('link', { name: 'Models' }); elsewhere.focus();
+  if (change === 'collapse') { fireEvent.click(toggle); fireEvent.click(toggle); expect(screen.queryByRole('region', { name: 'Remove model confirmation' })).not.toBeInTheDocument(); }
+  else if (change === 'unmount') mounted.unmount();
+  else {
+    const query = client.getQueryCache().findAll({ queryKey: ['private', 'settings-model-library'] })[0]!;
+    // Change the real cached projection, not the confirmation snapshot.
+    await act(async () => { client.setQueryData(query.queryKey, (value: { library: { revision: number; entries: typeof entry[] }; settings: typeof configured; checks: Record<string, unknown> }) => ({ ...value,
+      library: { ...value.library, revision: value.library.revision + (change === 'registry' ? 1 : 0), entries: change === 'entry' ? [{ ...entry, revision: 2 }] : value.library.entries },
+      settings: change === 'assignment' ? { ...value.settings, selection: { selection_id: entryId, revision: 1, default: { connection_id: connectionId, connection_revision: 1, model: entry.model, output_tokens: 512 }, brain: null, investigator: null, validator: null } } : value.settings,
+      checks: change === 'unknown' ? { [entryId]: 'UNKNOWN' } : change === 'active' ? { [entryId]: { operation_id: catalogId, entry_id: entryId, state: 'RUNNING', state_revision: 2 } } : value.checks,
+    })); });
+  }
+  fireEvent.click(confirm);
+  if (change !== 'unmount') expect(elsewhere).toHaveFocus();
+  expect(state.writes).toEqual([]);
 });
 it('opens on persisted models, not a wizard, and does not invent a persisted default', async () => {
   backend(); mount();
@@ -62,7 +96,6 @@ it('opens on persisted models, not a wizard, and does not invent a persisted def
 });
 it.each([false, true])('persists Remove with exact receipt and no resend on lost reply=%s', async lost => {
   const { state, hook } = settingsBackend();
-  vi.spyOn(window, 'confirm').mockReturnValue(true);
   hook.intercept = (_path, body, method): Response | undefined => {
     if (!lost || method !== 'PUT' || body.action !== 'remove_model') return undefined;
     state.entries = []; state.revision += 1;
@@ -73,6 +106,8 @@ it.each([false, true])('persists Remove with exact receipt and no resend on lost
   fireEvent.click(screen.getByRole('button', { name: 'Details for Exact/Model via OpenRouter' }));
   await waitFor(() => expect(screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' })).toHaveAttribute('aria-disabled', 'false'));
   fireEvent.click(screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' }));
+  const confirm = within(screen.getByRole('region', { name: 'Remove model confirmation' })).getByRole('button', { name: 'Remove' });
+  fireEvent.click(confirm); fireEvent.click(confirm);
   if (lost) { fireEvent.click(await screen.findByRole('button', { name: 'Recover exact receipt' })); }
   await screen.findByText('No models configured.');
   expect(state.writes).toHaveLength(1);
@@ -83,7 +118,6 @@ it.each([false, true])('persists Remove with exact receipt and no resend on lost
 });
 it.each([[false, false], [false, true], [true, false], [true, true]])('keeps or restores focus after Remove lost=%s moved=%s', async (lost, moved) => {
   const { state, hook } = settingsBackend();
-  vi.spyOn(window, 'confirm').mockReturnValue(true);
   let release = () => {}, held = false;
   const gate = new Promise<void>(resolve => { release = resolve; });
   hook.intercept = async (path, body, method) => {
@@ -100,6 +134,8 @@ it.each([[false, false], [false, true], [true, false], [true, true]])('keeps or 
   const remove = screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' });
   await waitFor(() => expect(remove).toHaveAttribute('aria-disabled', 'false'));
   remove.focus(); fireEvent.click(remove);
+  const confirm = within(screen.getByRole('region', { name: 'Remove model confirmation' })).getByRole('button', { name: 'Remove' });
+  confirm.focus(); fireEvent.click(confirm);
   if (lost) { const recover = await screen.findByRole('button', { name: 'Read current state' }); recover.focus(); fireEvent.click(recover); }
   await waitFor(() => expect(held).toBe(true));
   const reload = screen.getByRole('link', { name: 'Models' });

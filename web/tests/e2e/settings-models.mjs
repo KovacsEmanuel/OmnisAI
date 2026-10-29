@@ -95,12 +95,20 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
     assert.notEqual(geometry.outline, 'none');
     assert.equal(geometry.overlaps, false); assert.equal(geometry.overflow, false);
     await secretChecks(); await screenshot(`settings-remove-focus-${width}x1000`, { fullPage: false });
+    await page.keyboard.press('Enter');
+    const confirmation = row('fixture/selected').getByRole('region', { name: 'Remove model confirmation', exact: true });
+    await check(confirmation).toContainText('fixture/selected · OpenRouter');
+    await page.keyboard.press('Tab');
+    await check(confirmation.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
+    await confirmation.scrollIntoViewIfNeeded();
+    await screenshot(`settings-remove-inline-${width}x1000`, { fullPage: false });
+    await page.keyboard.press('Enter'); await check(confirmation).toHaveCount(0);
+    await check(remove).toBeFocused();
   }
-  page.once('dialog', async dialog => {
-    assert.equal(dialog.message(), 'Remove fixture/selected via OpenRouter? Saved history remains.');
-    await dialog.dismiss();
-  });
   await page.keyboard.press('Enter');
+  const confirmation = row('fixture/selected').getByRole('region', { name: 'Remove model confirmation', exact: true });
+  await page.keyboard.press('Tab'); await page.keyboard.press('Escape');
+  await check(confirmation).toHaveCount(0);
   await check(remove).toBeFocused();
   assert.deepEqual((await read(models)).body, library);
   assert.deepEqual((await read(providers)).body, baseline);
@@ -114,7 +122,11 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
     assert.equal(response.status(), 200); receipt = await response.json();
     await route.abort('failed');
   });
-  page.once('dialog', dialog => dialog.accept());
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Tab');
+  await check(confirmation.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await check(confirmation.getByRole('button', { name: 'Remove', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
   await check(page.getByRole('region', { name: 'Settings recovery' })).toContainText('Save unconfirmed');
   await page.unroute(`**${models}`);

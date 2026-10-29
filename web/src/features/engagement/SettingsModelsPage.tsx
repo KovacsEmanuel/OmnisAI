@@ -35,6 +35,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   const [testNotice, setTestNotice] = useState('');
   const [operationEntry, setOperationEntry] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string[]>([]);
+  const [removal, setRemoval] = useState<{ entry: ModelEntry; connection: Connection; registry: number; selection: number; generation: number | null; trigger: HTMLButtonElement } | null>(null);
   const [catalogNotice, setCatalogNotice] = useState<{ connection: string; revision: number; text: string; detail: string } | null>(null);
   const [refusedTest, setRefusedTest] = useState<string | null>(() => { const value = remembered(testStorage + '-refused', scope); return isUuid(value) ? value : null; });
   const mutationBusy = useRef(false);
@@ -95,6 +96,10 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   const activeTest = connecting || operationPending || Object.values(data?.checks ?? {}).some(check => check && check !== 'UNKNOWN' && check.state !== 'FINISHED');
   const blocked = !authReady || stale || (!!pending && !sending) || current.isError || !data;
   const busy = sending || reading || current.isFetching;
+  const removalCurrent = !!removal && !!data && data.library.revision === removal.registry && (data.settings.selection?.revision ?? 0) === removal.selection && generation === removal.generation
+    && JSON.stringify(data.library.entries.find(entry => entry.entry_id === removal.entry.entry_id)) === JSON.stringify(removal.entry)
+    && JSON.stringify(data.settings.connections.find(connection => connection.connection_id === removal.connection.connection_id)) === JSON.stringify(removal.connection);
+  useEffect(() => { if (removal && !removalCurrent) setRemoval(null); }, [removal, removalCurrent]);
   // Fresh tabs recover the admitted operation from the existing latest-entry projection, never from consent.
   useEffect(() => {
     if (operationPending || sending || connecting) return;
@@ -329,10 +334,14 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       return choice && choice.connection_id === entry.connection_id && choice.model === entry.model;
     }) : [];
   }
-  async function removeModel(entry: ModelEntry, provider: Connection['provider']) {
-    if (blocked || busy || activeTest || !data || removeDependencies(entry).length) return;
-    if (!window.confirm(`Remove ${entry.model} via ${providerName(provider)}? Saved history remains.`)) return;
-    const command = { action: 'remove_model' as const, command_id: crypto.randomUUID(), expected_registry_revision: data.library.revision, entry_id: entry.entry_id, expected_revision: entry.revision };
+  function cancelRemoval() {
+    const trigger = removal?.trigger, inside = document.activeElement?.closest('[aria-label="Remove model confirmation"]');
+    setRemoval(null);
+    if (inside && trigger?.isConnected) trigger.focus({ preventScroll: true });
+  }
+  async function removeModel() {
+    if (!removal || !removalCurrent || blocked || busy || activeTest || mutationBusy.current || lifetime.current.signal.aborted || !data || !expanded.includes(removal.entry.entry_id) || !Object.hasOwn(data.checks, removal.entry.entry_id) || data.checks[removal.entry.entry_id] === 'UNKNOWN' || removeDependencies(removal.entry).length) return;
+    const command = { action: 'remove_model' as const, command_id: crypto.randomUUID(), expected_registry_revision: removal.registry, entry_id: removal.entry.entry_id, expected_revision: removal.entry.revision };
     const settleFocus = removedControlFocus();
     try {
       const receipt = await mutate('models', command.command_id, () => api.saveProviderModels(command, session.data!.csrf_token, lifetime.current.signal));
@@ -393,7 +402,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
           const detailsId = `model-details-${entry.entry_id}`, statusId = `model-status-${entry.entry_id}`;
           return <li className={styles.model} key={entry.entry_id} aria-label={`Model ${entry.model} via ${providerName(connection.provider)}`}>
             <div className={styles.modelRow}>
-              <button type="button" className={styles.modelToggle} aria-label={`Details for ${entry.model} via ${providerName(connection.provider)}`} aria-describedby={statusId} aria-expanded={open} aria-controls={detailsId} onClick={() => setExpanded(previous => open ? previous.filter(id => id !== entry.entry_id) : [...previous, entry.entry_id])}>
+              <button type="button" className={styles.modelToggle} aria-label={`Details for ${entry.model} via ${providerName(connection.provider)}`} aria-describedby={statusId} aria-expanded={open} aria-controls={detailsId} onClick={() => { if (open && removal?.entry.entry_id === entry.entry_id) setRemoval(null); setExpanded(previous => open ? previous.filter(id => id !== entry.entry_id) : [...previous, entry.entry_id]); }}>
                 <span className={styles.identity}><strong>{name}</strong>{name !== entry.model && <small className={styles.mono}>{entry.model}</small>}</span>
                 <span id={statusId} className={styles.state}>{stale || current.isError ? 'Unconfirmed — reload settings' : entryStatus(entry, data.settings, data.evidence, latest, data.catalogs)}</span>
               </button>
@@ -410,12 +419,16 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
             {check?.state === 'FINISHED' && !passed && (check.finish_reason === 'CANCELLED' || !terminalUnknown) && <p className={styles.hint}>{check.finish_reason === 'CANCELLED' ? 'Test cancelled. Read the saved result before testing again.' : check.result_state === 'INCOMPLETE' ? 'Test incomplete. Read the saved result before testing again.' : 'Test did not complete successfully. Read the saved result before testing again.'}</p>}
             {check?.output_state === 'TRUNCATED' && <p className={styles.hint}>Response truncated.</p>}
             {check?.usage_state === 'PARTIAL' && <p className={styles.hint}>Usage is incomplete.</p>}
-            <section id={detailsId} hidden={!open} className={styles.modelDetails} aria-label={`Model details for ${entry.model} via ${providerName(connection.provider)}`}>
+            <section id={detailsId} hidden={!open} className={styles.modelDetails} aria-label={`Model details for ${entry.model} via ${providerName(connection.provider)}`} onKeyDown={event => { if (event.key === 'Escape' && removal?.entry.entry_id === entry.entry_id) { event.stopPropagation(); cancelRemoval(); } }}>
               <div className={styles.modelSummary}><div className={styles.modelMetrics}>{check ? <>
                 <dl className={styles.usage} aria-label="Test usage"><div><dt>Input tokens</dt><dd>{check.input_tokens ?? 'Unknown'}</dd></div><div><dt>Output tokens</dt><dd>{check.output_tokens ?? 'Unknown'}</dd></div><div><dt>Cost</dt><dd>{check.cost_observed ?? 'Unknown'}</dd></div></dl>
                 {!needsRecovery && !terminalUnknown && (!passed || !matching || check.observed_model !== check.requested_model) && <button type="button" className={styles.quiet} disabled={checkSelectionBlocked(check)} onClick={() => readCheck(check)}>Read test status</button>}
               </> : <p>{uncertain ? 'No result confirmed. Read back before another test.' : 'No saved test for this model.'}</p>}</div>
-              <button type="button" className={`${styles.quiet} ${styles.removeModel}`} aria-label={`Remove ${entry.model} via ${providerName(connection.provider)}`} aria-describedby={dependencies.length ? dependencyId : undefined} disabled={blocked || activeTest || latest === 'UNKNOWN' || dependencies.length > 0} aria-disabled={busy} onClick={() => { void removeModel(entry, connection.provider); }}>Remove model</button></div>
+              <button type="button" className={`${styles.quiet} ${styles.removeModel}`} aria-label={`Remove ${entry.model} via ${providerName(connection.provider)}`} aria-describedby={dependencies.length ? dependencyId : undefined} aria-expanded={removal?.entry.entry_id === entry.entry_id} aria-controls={`model-remove-${entry.entry_id}`} disabled={blocked || activeTest || !Object.hasOwn(data.checks, entry.entry_id) || latest === 'UNKNOWN' || dependencies.length > 0} aria-disabled={busy} onClick={event => { if (!busy) setRemoval({ entry, connection, registry: data.library.revision, selection: data.settings.selection?.revision ?? 0, generation, trigger: event.currentTarget }); }}>Remove model</button></div>
+              {removalCurrent && removal?.entry.entry_id === entry.entry_id && <section id={`model-remove-${entry.entry_id}`} className={styles.removeConfirmation} aria-label="Remove model confirmation">
+                <div><strong>Remove model?</strong><p>{removal.entry.model} · {providerName(removal.connection.provider)}</p><small>Saved history remains.</small></div>
+                <div className={styles.actions}><button type="button" className={styles.secondary} onClick={cancelRemoval}>Cancel</button><button type="button" className={`${styles.secondary} ${styles.removeModel}`} disabled={blocked || activeTest || latest === 'UNKNOWN' || dependencies.length > 0} aria-disabled={busy} aria-busy={sending} onClick={() => { void removeModel(); }}>Remove</button></div>
+              </section>}
               {dependencies.length > 0 && <p id={dependencyId} className={styles.hint}>Used by {dependencies.map(role => role[0]!.toUpperCase() + role.slice(1)).join(', ')}. Reassign explicitly in Model assignments before removing this model.</p>}
             </section>
           </li>;

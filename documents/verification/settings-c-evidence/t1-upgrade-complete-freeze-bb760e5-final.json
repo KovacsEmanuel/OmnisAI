@@ -1,0 +1,343 @@
+{
+  "base": "ed611aa40c90f62f4f511cc1951a68970e2ba51b",
+  "continuation_base": "4044fa952cadae8d491f215d62551b11e488065f",
+  "candidate": "bb760e5b9bf9256f1ca31036d8a395590f2c0507",
+  "tree": "724d5cb1736cc0def5e0d3eb25eaef18b1d848ec",
+  "branch": "impl/t1-compatible-upgrade-20261029",
+  "worktree": "/home/kali/.hermes/cache/scratch/t1-upgrade-20261029",
+  "main_unchanged": "06040a97e1066e5faf8807c7410a9315d40b1811",
+  "paths": {
+    "Makefile": {
+      "blob": "c377b25624926f921dc5b97d50638b00a2b786ef",
+      "sha256": "bfbacabc935d6c3c81e6683f6609877f86c7d050dd80f4db74df0face76d71e0"
+    },
+    "api/pyproject.toml": {
+      "blob": "118c6483a83088bee917d60198ab8e31f94b4216",
+      "sha256": "cfaac612f8e06eb9a109f2ef1354566d16d5a43b2a3d2a58222dc5386cb5894a"
+    },
+    "api/src/omnis/core/db.py": {
+      "blob": "b2fd741be8f16086de8f7ff818d9b904b92220e5",
+      "sha256": "09a515999035aa6468e22044f1c439074187c78ee83e7ee24418cfa1abfbb4c2"
+    },
+    "api/src/omnis/core/schema.py": {
+      "blob": "de8daaa7da1471c7b0ae21847efd84ee85e79fe0",
+      "sha256": "fd51f0c7ea000782dcb94901e0b4482238ac59784fd40e9690f6fa0dc38ce441"
+    },
+    "api/src/omnis/migrate.py": {
+      "blob": "af16a7e97fb1a85e5af094b740bfa67e731a4bc1",
+      "sha256": "cb669dd85021ad0cb6b7bb5e5215ebde1403b2c64c4d196c7022ef1c1a56977d"
+    },
+    "api/src/omnis/migrations/env.py": {
+      "blob": "d4667169791ef85ff5d850123e4f97f4454cee0a",
+      "sha256": "0c2ab9dae731631bfd2963d1e16d8d1a5ea4b5d639ba6742e086d309142784db"
+    },
+    "api/tests/test_t1_upgrade.py": {
+      "blob": "defbad23ed18785f6d19d5c19252875bc1df98e1",
+      "sha256": "ddfc631ae16bfa3a0251526b039e8f6b2763a31af7da10e98466e52abec035b1"
+    },
+    "api/uv.lock": {
+      "blob": "a1e0cecdeee52608db6ac4274e4fdd598dd59761",
+      "sha256": "99fe23c6e92408ad8b1b9888d43499ddc97da078bf832e64d435494bfb414c26"
+    },
+    "cli/integration/control_topology.py": {
+      "blob": "042e95936087725e7fb43efcd37dd56432570d62",
+      "sha256": "aa93cffd7370d3873106bc564440b33071e4066929dd2ffa01ae55b3a464524e"
+    },
+    "cli/integration/installed_start.py": {
+      "blob": "45f3006206621b04bef2e423e0a3d5bbd70a3050",
+      "sha256": "667d9fd5309eb436af55e0b8f34bfe900285dc5acf038e0ec309c2769383be5a"
+    },
+    "cli/integration/installed_stop.py": {
+      "blob": "265bf60aee2ae3307340eb3fd891c43478a6ccb4",
+      "sha256": "8c6ffc6467f37bfe9aa2130b1ec3d1bf0a5baf0aebdda05a5b6f81af8d44fbcd"
+    },
+    "cli/integration/test_release.py": {
+      "blob": "26a3e84efedf2ed2bef10506578eb7c26b73f627",
+      "sha256": "eaaf118a706469bdc576d428ed9739c6333b764393b6d9a02b0b2c30feb7350f"
+    },
+    "cli/integration/upgrade_history.py": {
+      "blob": "e348080f796299aa98a4d1818e30aa128ae514bf",
+      "sha256": "d5d813b5c05a8ebfe274620c1424a8d7155b5a1d5d0cc7cc2d31288ec26c8030"
+    },
+    "cli/pyproject.toml": {
+      "blob": "e6ecdee53c594a3ef7a8d73532fb05f20665cae9",
+      "sha256": "98da1e6a7341db883141e9410b69d9cb5b3001de70c1086513b1c6c30c6e4f89"
+    },
+    "cli/src/omnis_cli/backup.py": {
+      "blob": "77d93828bf7ec4a167b6c156fc1425288be5c075",
+      "sha256": "59a23420b11d64f04483b0b902b95a75f392f07fbd4c0ed8edd35ff4cfaad1a8"
+    },
+    "cli/src/omnis_cli/compose.py": {
+      "blob": "93a959cefc6c84ad87b22149dddcb25fd7ecedc0",
+      "sha256": "9d26b79ac8e5bd38e8ee2166a43e532fd8b79171b3077a3e6bb35228d27cedc3"
+    },
+    "cli/src/omnis_cli/instance.py": {
+      "blob": "a4e3319ce5c625ef956e69972cb1360e9dd578e4",
+      "sha256": "ca020907384c1b2b3637271bef094874815704299389f1b369ee5bf5256cd424"
+    },
+    "cli/src/omnis_cli/main.py": {
+      "blob": "1fc318b44477aace767b9fc90c7e9933345b27bc",
+      "sha256": "e00ab9ca05b7f497d3bb8a65ea7094c88fb86d40e836ab9a45ffa9f3234e4308"
+    },
+    "cli/src/omnis_cli/release.py": {
+      "blob": "c1a8aaa577a95dc961552f7cf3d2e663e1a32232",
+      "sha256": "a406d3d7dc416eaf9b53d68be467d246695d38bd8d48c5bbad631bda29bbe9e4"
+    },
+    "cli/src/omnis_cli/start.py": {
+      "blob": "a7aec2f05b06293e50fa288ebc18165b723e06e6",
+      "sha256": "773632c449332f937d6bc7d33ee51bd8f4605b0174b1015c5544cd278e689af3"
+    },
+    "cli/src/omnis_cli/start_runtime.py": {
+      "blob": "29a1f19d1123d9b047b41ccc8dffac47ba10d91b",
+      "sha256": "83d8daf87d8023d7eba72fa62a60b461d72ceee9cd63f265b1c27525342c298f"
+    },
+    "cli/src/omnis_cli/stop.py": {
+      "blob": "6421173c3b3d466c6e2f23aeec05ea78b6aa46a4",
+      "sha256": "fdb8fb2f8c09d44a54da0edba31237a7f78c148bcbf9cdc2b06c0e7415b73280"
+    },
+    "cli/src/omnis_cli/stop_owner.py": {
+      "blob": "cf0ceb15fbd2ac9e8da35b12d6495ea91696ed4d",
+      "sha256": "c46f101167cb4e0a5a7a2cb5902e67b7653baeebc9e4fe57a9efc251d8fe729c"
+    },
+    "cli/src/omnis_cli/upgrade.py": {
+      "blob": "3ae2f254c6b0add4d05844848e229559190f5b53",
+      "sha256": "71268ed5b9f51ba09d70f955632d4b7b02b362993c3649223c4053e4e61ca6c3"
+    },
+    "cli/src/omnis_cli/verified.py": {
+      "blob": "2ce07a126fe3eb73370471878fca2edd21051d4e",
+      "sha256": "2e73c266b5c32f1ba4db7d860ed2e1f1004750120a7ece8009a10f32f19b20d3"
+    },
+    "cli/tests/test_cold_backup.py": {
+      "blob": "61ff3e987149c6a3adcc13b56dc2cc5980a0b844",
+      "sha256": "fb2190917c989cb80b948c4add0157cc3f23a3eea313cc4d67d07f87fe7b3e28"
+    },
+    "cli/tests/test_restart_wiring.py": {
+      "blob": "caaaf30d65a098ee739ba0844be07b93925c498a",
+      "sha256": "7665f9f5e06805079424ee208bed1d3a309700072693e25ebe47f2198b715e0d"
+    },
+    "cli/tests/test_start_preflight.py": {
+      "blob": "d9eaa4970ef9fcbbfd794b0da53de6b3f027b14a",
+      "sha256": "1ff3f6407ad9c6d21fa730cd6a1817fd53a1556842c42b0fcf2622d185ba3564"
+    },
+    "cli/tests/test_upgrade.py": {
+      "blob": "de94f8a718d4cd629e8471286b916a903e1f6338",
+      "sha256": "39c6b880339dfde92a18577f15349d77d60839ed6153ec25d2d1152658278300"
+    },
+    "cli/uv.lock": {
+      "blob": "81114e8109a36f9dc35ca2e68981200f2857f79d",
+      "sha256": "2517d39fdce8070075a7e7132f54e4656822d5a81c7ff5553b17b7feff495643"
+    },
+    "ops/Dockerfile.control": {
+      "blob": "fdf17e38803efd72732873b299bd814bbe88feb0",
+      "sha256": "50b0381a3716d079671bf35e435da7673fd6ab793aad84fdfc53f1c590b2d086"
+    },
+    "ops/build_control_bundle.py": {
+      "blob": "ff51535042355b031ae30be3e5bc744afe074dcd",
+      "sha256": "b7245d9e82f11e387d88d8446e14c8ba6728d66fcebd95c654d3689c140324e0"
+    },
+    "ops/run_test_db_gate.py": {
+      "blob": "9ae072ad92f9620a1f33170c0f24578e3db1bec5",
+      "sha256": "24cc5a9696bbe7e1f3595ca09c74ec2ae2f8d48b006bdf24fd652b7495954506"
+    }
+  },
+  "remedy_changed_paths": [
+    "cli/integration/installed_stop.py",
+    "cli/integration/test_release.py",
+    "cli/integration/upgrade_history.py",
+    "cli/src/omnis_cli/backup.py",
+    "cli/src/omnis_cli/start.py",
+    "cli/src/omnis_cli/stop.py",
+    "cli/src/omnis_cli/stop_owner.py",
+    "cli/src/omnis_cli/verified.py",
+    "cli/tests/test_cold_backup.py",
+    "cli/tests/test_restart_wiring.py",
+    "cli/tests/test_upgrade.py"
+  ],
+  "path_count": 33,
+  "remedy_path_count": 11,
+  "diff": {
+    "path": "/home/kali/.hermes/cache/scratch/t1-upgrade-complete-bb760e5.diff",
+    "sha256": "7e1ba2adc08eadf9b4a90ecc3ba92d2324904a160bd122d8550bc0ccae8e7a29"
+  },
+  "remedy_diff": {
+    "path": "/home/kali/.hermes/cache/scratch/t1-upgrade-remedies-bb760e5.diff",
+    "sha256": "fff9a90c611362cb1727bd2f4b0f4a2e9861181966068423522752a4d01e0cc7"
+  },
+  "artifacts": {
+    "/home/kali/.hermes/cache/scratch/t1-cli-r1r2-bb760e5-wheel/omnis_cli-0.1.1-py3-none-any.whl": "c4dcde4d120e8314c777a393cf6ea1f7b7652a31e49f34f3a296d7a2bce47702",
+    "/home/kali/.hermes/cache/scratch/t1-upgrade-bundle-r1r2-bb760e5/release.json": "f09766be6239f6eed62c0e22aed0b5acd6ee2a3658f239e6e78636ff99260262",
+    "/home/kali/.hermes/cache/scratch/t1-api-wheel-011/omnis_api-0.1.1-py3-none-any.whl": "125d510abc5c127bb755d7445fd5c8c2a47f7b4180b3de2ee6f95e25de3332b5",
+    "/home/kali/.hermes/cache/scratch/t1-upgrade-complete-freeze-4044fa9.json": "fa2f1953d0afa53b65f646e86d2698ece96a6dbf0503e6a5432b93ab8bff9515",
+    "/home/kali/.hermes/cache/scratch/t1-fix-bundle.log": "9e7b883a6d08d13bfa6f4ac1a536fe3ae19626cdfec027a61b56270c8e4fe924",
+    "/home/kali/.hermes/cache/scratch/t1-fix-development-green.log": "d052643c816a02410fa759a32efe80f8c0b0e3c053fe23431f08997b5a105d19",
+    "/home/kali/.hermes/cache/scratch/t1-fix-development-red.log": "43f8616d22ec8678822648f00782325a5d00bc40ee54c6037b6306ebca216a3a",
+    "/home/kali/.hermes/cache/scratch/t1-fix-fence-green.log": "0cd8606380de621badfb0cf2d5953ddad1df7d31a1f3957f87ce4cae18430a88",
+    "/home/kali/.hermes/cache/scratch/t1-fix-fence-red.log": "dcdc97bf884acb42849267e90ab23fda96860555d81f3bda28294bace3a390e2",
+    "/home/kali/.hermes/cache/scratch/t1-fix-fence-siblings-red.log": "40a230c482288868f58133dd532eba0a0c17fa944a8841b81529b8d4b20ac961",
+    "/home/kali/.hermes/cache/scratch/t1-fix-history-green.log": "620d0f9e84a565bf709df1111261e879c0bd052dc884e31e13cf79748472f778",
+    "/home/kali/.hermes/cache/scratch/t1-fix-history-red.log": "6ec155345fc20aafde1618c9c8beaae3f81b917f02cfae134c22a5052826364a",
+    "/home/kali/.hermes/cache/scratch/t1-fix-oracle-green.log": "e098b5e44d36c35468c2e9459f0bcf235c24a89038f944d3c384e331d0bf784d",
+    "/home/kali/.hermes/cache/scratch/t1-fix-oracle-red.log": "bc3cf8f6fd3dfcd24536e310dd4ca31f1ab18de83908c0c34c4065c00bcf53e1",
+    "/home/kali/.hermes/cache/scratch/t1-fix-private-wheel-affected.log": "c6e7c5f649d0bedd5a97d9f065c9c4ed2e1edfd6201050ca7124130e7471c5ae",
+    "/home/kali/.hermes/cache/scratch/t1-fix-qa-collect.log": "7bf846d68b268864fc2139588df4762ac30c599c89ad88022ace6ae63913d89c",
+    "/home/kali/.hermes/cache/scratch/t1-fix-quality.log": "4c4a1f687213d361065f9094b27b15c087d3754121b66f0e8580a9c699ab6426",
+    "/home/kali/.hermes/cache/scratch/t1-fix-stop-green.log": "b98d8c323e99963147ae65a05850e1e6a63cbed86f62c15b36c53669cf66b42c",
+    "/home/kali/.hermes/cache/scratch/t1-fix-stop-red.log": "e135c03ef8849cd79ead134712d81d8ccb76de4b480b4687323cf06d723c42e7",
+    "/home/kali/.hermes/cache/scratch/t1-fix-stop-source-red.log": "20ef1fa9ecd7eb86eadb5fd5ad66e2c70692d60f4ddc4e19683636bc9bb85733",
+    "/home/kali/.hermes/cache/scratch/t1-fix-bindings-preflight.json": "a920f3ba0d96f26b6a75522c981713c3cf40acabcfde927b96022bb570647766",
+    "/home/kali/.hermes/cache/scratch/t1-fix-history-oldwheel-green.log": "ab9e34eec21ef58789d0a5bc0fdae649a90e27a429934100d83e1b4dc1dd5d14"
+  },
+  "bundle": {
+    "path": "/home/kali/.hermes/cache/scratch/t1-upgrade-bundle-r1r2-bb760e5",
+    "files": {
+      "api/omnis_api-0.1.1-py3-none-any.whl": "125d510abc5c127bb755d7445fd5c8c2a47f7b4180b3de2ee6f95e25de3332b5",
+      "api/requirements.txt": "0ff023a2dd4d86fc1cec02fbbc624f2a910e8f24f0ffff6a240d7426394e12c2",
+      "cli/omnis_cli-0.1.1-py3-none-any.whl": "c4dcde4d120e8314c777a393cf6ea1f7b7652a31e49f34f3a296d7a2bce47702",
+      "ops/Dockerfile": "50b0381a3716d079671bf35e435da7673fd6ab793aad84fdfc53f1c590b2d086",
+      "ops/compose.yaml": "5cb3300a5ecb310eb0f7a5dfb3a10f4441000029951bea62de2077016f94cd65",
+      "web/assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+      "web/assets/index-BeK4BAZY.js": "077119c1489d05e8fcb0eb08adb4d05661ba2c37dcc7232eb5bfb095f3ca2c5d",
+      "web/assets/index-CANG2g38.css": "45f1a87ad36cc97890e7802d4d5e500706729c143db9c7200f740839c3ea1ee9",
+      "web/index.html": "445cbf12466ef228ff51a94fbca54e428ef740e69c7120060ac5e160b6507511",
+      "web/omnis-web.json": "38c02b40f3261693ee7faba374bf9cebd30763f2e80ff9aac41ac208ec469222"
+    }
+  },
+  "preserved_untracked_symlinks": [
+    "api/.venv",
+    "cli/.venv",
+    "web/node_modules"
+  ],
+  "qa_interpreter": "/home/kali/.hermes/cache/scratch/t1-cli-r1r2-bb760e5-venv/bin/python",
+  "qa_environment": {
+    "OMNIS_CLI_BIN": "/home/kali/.hermes/cache/scratch/t1-cli-r1r2-bb760e5-venv/bin/omnis",
+    "OMNIS_T1_OLD_BUNDLE": "/home/kali/.hermes/cache/scratch/t1-upgrade-old-bundle-0016",
+    "OMNIS_T1_OLD_CLI": "/home/kali/.hermes/cache/scratch/t1-upgrade-old-cli-venv/bin/omnis",
+    "OMNIS_T1_UPGRADE_BUNDLE": "/home/kali/.hermes/cache/scratch/t1-upgrade-bundle-r1r2-bb760e5",
+    "OMNIS_T1_UPGRADE_PROBE": "1"
+  },
+  "qa_tests": [
+    "test_t1_populated0016_upgrade_installed",
+    "test_t1_upgrade_known_preopen_failure_restores_installed_snapshot"
+  ],
+  "commits": [
+    "93d20e349d88ea1238f693b13c1379bd612323d9 fix(cli): retain admitted schema in Stop owner view",
+    "d8c5e5b02397ee1d3b84c31ae8e0aca60feda705 fix(cli): recheck upgrade fence after data lifecycle lock",
+    "6079b3ec96ec042f69b01b8e80fb4d3504aca646 test(cli): compare stable0016 row projection across upgrade",
+    "c17468aedfff264723ba8265fcb34956d3a0205b fix(cli): preserve configured development mode through upgrade",
+    "bb760e5b9bf9256f1ca31036d8a395590f2c0507 test(cli): populate installed upgrade with settled typed history"
+  ],
+  "checks": {
+    "cli_private_wheel_affected": {
+      "count": 98,
+      "exit": 0,
+      "seconds": 8.204,
+      "modules": [
+        "test_upgrade",
+        "test_cold_backup",
+        "test_restart_wiring",
+        "test_runtime_completeness",
+        "test_stop_wiring",
+        "test_development",
+        "test_start_preflight",
+        "test_browser"
+      ]
+    },
+    "source_stop": {
+      "count": 40,
+      "exit": 0,
+      "seconds": 2.223
+    },
+    "source_fence": {
+      "count": 63,
+      "exit": 0,
+      "seconds": 3.015
+    },
+    "source_development": {
+      "count": 39,
+      "exit": 0,
+      "seconds": 5.551
+    },
+    "source_history": {
+      "exit": 0,
+      "boundary": "real DTO/store; explicit recording AsyncConnection substitute, not PostgreSQL",
+      "sql_writes": 18,
+      "archive_records": 9,
+      "events": [
+        "RESERVED",
+        "SENT",
+        "SETTLED"
+      ],
+      "outcome": "UNKNOWN",
+      "usage": "KNOWN",
+      "input_tokens": 9,
+      "output_tokens": 7
+    },
+    "oracle_preflight": {
+      "count": 2,
+      "exit": 0
+    },
+    "qa_selectors": {
+      "collected": 2,
+      "skipped": 2,
+      "executed": 0,
+      "exit": 0
+    },
+    "bindings": {
+      "preflight": "PASS_NO_DAEMON",
+      "cli_modules": 29,
+      "api_modules": 123,
+      "payloads": 10,
+      "old_artifacts_unchanged": 6,
+      "subprocess_status_exit": 3,
+      "subprocess_status_state": "NOT_INSTALLED",
+      "module_origin": "/home/kali/.hermes/cache/scratch/t1-cli-r1r2-bb760e5-venv/lib/python3.13/site-packages/omnis_cli/start.py",
+      "new_manifest_sha256": "f09766be6239f6eed62c0e22aed0b5acd6ee2a3658f239e6e78636ff99260262"
+    },
+    "quality": "Ruff/format CLI src/tests/integration and bundle builder exit0; strict mypy29 CLI modules exit0",
+    "bundle_build": "PASS exit0; new paths; API wheel, web, lock payloads unchanged",
+    "canonical": "NOT_RUN",
+    "operator": "UNCHANGED_NO_EFFECTS",
+    "native_upgrade": "NOT_RUN_PENDING_TWO_FOCUSED_REVIEWS",
+    "native_rollback": "NOT_RUN_PENDING_TWO_FOCUSED_REVIEWS",
+    "source_history_old0016": {
+      "exit": 0,
+      "sql_writes": 18,
+      "archive_records": 9,
+      "boundary": "actual old0016 API wheel DTO/store imported from original bundle ZIP; recording DB boundary; no DB/OCI/provider",
+      "origin": "/home/kali/.hermes/cache/scratch/t1-upgrade-old-bundle-0016/api/omnis_api-0.1.0-py3-none-any.whl/omnis/modules/runs/model_test_store.py"
+    }
+  },
+  "red_green_commands": {
+    "source_pattern": "XDG_CONFIG_HOME=$TMPDIR/t1-empty-config cli/.venv/bin/python -I -B -c \"sys.path[:0]=[cli/src,cli/tests]; unittest suite named above\" (SOURCE explicit, no installed claim)",
+    "private_wheel_affected": "XDG_CONFIG_HOME=\"$TMPDIR/t1-empty-config\" /home/kali/.hermes/cache/scratch/t1-cli-r1r2-bb760e5-venv/bin/python -I -B -c 'import sys,unittest;import omnis_cli.start as s;assert \"/t1-cli-r1r2-bb760e5-venv/\" in s.__file__;sys.path.insert(0,\"/home/kali/.hermes/cache/scratch/t1-upgrade-20261029/cli/tests\");names=(\"test_upgrade\",\"test_cold_backup\",\"test_restart_wiring\",\"test_runtime_completeness\",\"test_stop_wiring\",\"test_development\",\"test_start_preflight\",\"test_browser\");suite=unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromName(n) for n in names);assert suite.countTestCases()>0;r=unittest.TextTestRunner(verbosity=1).run(suite);sys.exit(not r.wasSuccessful())'",
+    "build": "UV_OFFLINE=1 uv0.12.19 build --no-config --wheel cli --out-dir <new wheel>; uv venv --no-config --no-python-downloads --python3.13.15 <new venv>; uv pip install --no-config --no-deps <new wheel>",
+    "bundle": "OMNIS_UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19 UV_OFFLINE=1 <new python> -I -B ops/build_control_bundle.py --api-wheel <unchanged API wheel> --cli-wheel <new CLI wheel> --requirements <old frozen bundle>/api/requirements.txt --web-root <old frozen bundle>/web --output <new bundle> --profile t1-provider-settings",
+    "collect": "unset OMNIS_T1_UPGRADE_PROBE; <new python> -I -B unittest named two installed selectors + two no-effect source controls; four collected,2PASS2SKIP"
+  },
+  "reuse_and_limits": {
+    "prior_freeze_unchanged": true,
+    "prior_artifacts_verified": 6,
+    "api_web_source_unchanged": true,
+    "api_wheel_source_equal_modules": 123,
+    "cli_wheel_source_equal_modules": 29,
+    "old_api_fixture_contract": "seed_history reuses DTO/store pattern from api/tests/test_provider_key_api.py typed archival migration input; never provider IO",
+    "previous_api_pg40": "reused at 618ae9c on unchanged API source; not rerun or claimed as current installed proof",
+    "previous_cli420": "prior scope only; replaced for changed CLI subset by98 current private-wheel tests",
+    "previous_packaging1": "unchanged builder scope only; new bundle build/parser/payload checks run, old artifact not resealed",
+    "review": "CHANGES_REQUESTED at4044fa9; five parent-adjudicated findings remedied in candidate, focused R1/R2 decisions pending",
+    "harness_cycles": "legacy default-web/Cancel counter2 unchanged; fixture/oracle remedies cycle1; product Stop/fence/DEVELOPMENT fixes included",
+    "not_run": [
+      "Docker/OCI/PG/new services",
+      "operator Start/Stop/config/source",
+      "browser/provider/target",
+      "canonical",
+      "two independent focused rereviews (parent-owned)"
+    ],
+    "attempts": [
+      "Rejected unrelated installed shared-venv direct discovery; reran explicit SOURCE bindings",
+      "Rejected missing private-empty config environment; used manifest env",
+      "Bundle refused symlink OMNIS_UV input; reran with actual canonical pinned uv path, no product edit"
+    ],
+    "old0016_fixture": "Direct old-wheel SOURCE seed executed successfully. Whole module equality intentionally not claimed: old store.operation reader/provider removal unions differ, while seed remains executable against old DTO/store."
+  }
+}

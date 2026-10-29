@@ -20,6 +20,15 @@
 
 .list, .chips, .steps { list-style: none; padding: 0; margin: 0; }
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; border-top: 1px solid var(--color-divider); padding: 8px 0; }
+.model { border-top: 1px solid var(--color-divider); padding-block: 4px; }
+.modelRow { display: flex; align-items: center; gap: 12px; }
+.workspace .modelToggle { display: flex; flex: 1; flex-wrap: wrap; align-items: center; gap: 8px 12px; min-width: 0; padding: 10px 4px; text-align: left; background: transparent; border-color: transparent; border-radius: var(--radius-sm); box-shadow: none; font-weight: 400; }
+.modelToggle:hover, .modelToggle[aria-expanded=true] { background: var(--color-elevated); }
+.modelRow > button:not(.modelToggle) { flex-shrink: 0; }
+.modelDetails { padding: 4px 4px 16px; font-size: 13px; overflow-wrap: anywhere; }
+.modelDetails[hidden] { display: none; }
+.response { white-space: pre-wrap; max-height: 240px; overflow: auto; }
+.usage { display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--color-secondary); }
 .review .row { padding-block: 12px; }
 .identity { min-width: 0; flex: 1 1 240px; overflow-wrap: anywhere; }
 .identity strong { font-weight: 500; }
@@ -53,10 +62,9 @@
 .chips button { width: 44px; padding: 8px; font-size: 12px; font-weight: 400; line-height: 1; background: transparent; border-color: transparent; box-shadow: none; flex-shrink: 0; }
 .operation { margin-block: 16px; padding: 12px 0; border-top: 1px solid var(--color-divider); font-size: 13px; overflow-wrap: anywhere; }
 .operation .actions { margin-top: 8px; }
-.notification { position: fixed; bottom: max(16px, env(safe-area-inset-bottom)); right: max(16px, env(safe-area-inset-right)); max-width: min(380px, calc(100vw - 32px)); padding: 14px 16px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-elevated); color: var(--color-text); font-size: 13px; overflow-wrap: anywhere; z-index: 2; box-shadow: 0 4px 20px #0006; }
-.notification output > span { display: block; margin-top: 8px; }
-.notification .actions { margin-top: 4px; justify-content: flex-end; }
+.notification { position: fixed; display: flex; align-items: center; gap: 4px; bottom: max(16px, env(safe-area-inset-bottom)); right: max(16px, env(safe-area-inset-right)); max-width: min(320px, calc(100vw - 32px)); padding: 4px 4px 4px 16px; border: 1px solid var(--color-border); border-radius: var(--radius-pill); background: var(--color-elevated); color: var(--color-text); font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; z-index: 2; box-shadow: 0 2px 12px #0005; }
 .notification button[aria-label="Dismiss notification"] { width: 44px; padding: 8px; font-size: 12px; font-weight: 400; }
+.catalogStatus { min-height: 36px; padding-block: 8px; color: var(--color-secondary); font-size: 13px; }
 .assignmentGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 20px; }
 .defaultField { max-width: 440px; }
 .check { display: flex; align-items: center; gap: 12px; min-height: 46px; margin-top: 16px; overflow-wrap: anywhere; }

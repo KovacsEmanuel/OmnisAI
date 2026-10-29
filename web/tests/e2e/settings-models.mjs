@@ -9,7 +9,9 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   const configured = page.getByRole('region', { name: 'Configured models' });
   const wizard = page.getByRole('region', { name: 'Add models wizard' });
   const assignments = page.getByRole('region', { name: 'Model assignments' });
-  const test = page.getByRole('region', { name: 'Model test operation' });
+  const test = configured.getByRole('listitem', { name: 'Model fixture/03 via OpenRouter', exact: true });
+  const modelDetails = test.getByRole('button', { name: 'Details for fixture/03 via OpenRouter', exact: true });
+  const recovery = page.getByRole('region', { name: 'Settings recovery', exact: true });
   const notification = page.getByRole('complementary', { name: 'Settings notification', exact: true }).getByRole('status');
   const writes = [];
   page.on('request', request => {
@@ -27,7 +29,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
     }, providers);
   }
   async function catalogReady() {
-    await check(wizard).toContainText('READY · 32 matching cached models');
+    await check(wizard).toContainText('32 matching models');
     const recovery = page.getByRole('region', { name: 'Catalog recovery' });
     if (await recovery.count()) {
       await recovery.getByRole('button', { name: 'Read catalog status', exact: true }).click();
@@ -46,7 +48,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
       await page.setViewportSize({ width, height: 1000 });
       await check(ready).toBeVisible();
       await check(page.getByText('Loading current settings…', { exact: true })).toHaveCount(0);
-      await check(page.getByText('Reading cached models…', { exact: true })).toHaveCount(0);
+      await check(page.getByText('Loading models…', { exact: true })).toHaveCount(0);
       await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${state}: overflow at ${width}px`);
       await secretChecks();
@@ -188,8 +190,9 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   assert.equal(denied.request().postDataJSON().expected_revision, 1);
   assert.equal(denied.status(), 409);
   assert.equal((await denied.json()).error.code, 'REVISION_CONFLICT');
-  await check(notification).toContainText('Settings changed. Reload the current revision before saving.');
-  await check(notification).toBeVisible();
+  await check(recovery).toContainText('Settings changed. Reload the current revision before saving.');
+  await check(recovery).toBeVisible();
+  await check(notification).toHaveText('Settings need attention.');
   assert.deepEqual((await readSettings()).selection, preserved);
   await page.getByRole('button', { name: 'Reload current settings', exact: true }).click();
   await check(notification).toContainText('Settings reloaded.');
@@ -210,12 +213,12 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await search.focus();
   const searchScroll = await page.evaluate(() => scrollY);
   await search.fill('fixture/01');
-  await check(wizard).toContainText('READY · 1 matching cached models');
+  await check(wizard).toContainText('1 matching models');
   await check(search).toBeFocused();
   assert.equal(await page.evaluate(() => scrollY), searchScroll, 'Cached search must preserve viewport and focus');
   await wizard.getByRole('button', { name: 'Add fixture/01', exact: true }).click();
   await search.fill('');
-  await check(wizard).toContainText('READY · 32 matching cached models');
+  await check(wizard).toContainText('32 matching models');
   await check(wizard.getByRole('button', { name: 'Selected fixture/01', exact: true })).toBeDisabled();
   for (let pageNumber = 0; pageNumber < 2; pageNumber++) {
     for (let index = pageNumber * 16; index < (pageNumber + 1) * 16; index++) {
@@ -264,7 +267,12 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   assert.notEqual(testIntents[0].entry_id, testIntents[1].entry_id);
   const testIntent = testIntents[0];
   const operations = testIntents.map((intent, index) => ({ operation_id: intent.operation_id, entry_id: intent.entry_id, model: ['fixture/02', 'fixture/03'][index] }));
+  await check(page.getByRole('region', { name: 'Model test operation', exact: true })).toHaveCount(0);
+  await check(modelDetails).toHaveAttribute('aria-expanded', 'false');
+  await modelDetails.focus(); await page.keyboard.press('Enter');
+  await check(modelDetails).toBeFocused(); await check(modelDetails).toHaveAttribute('aria-expanded', 'true');
   await check(test).toContainText('COMPLETED'); await check(test).toContainText('fixture/03');
+  await check(test.getByText('Test completed.', { exact: true })).toBeVisible();
   await check(configured.getByRole('button', { name: /^Test fixture\// })).toHaveCount(32);
   assert.deepEqual((await configured.getByRole('button', { name: /^Test fixture\// }).evaluateAll(elements => elements.map(element => element.getAttribute('aria-label')))).sort(), Array.from({ length: 32 }, (_, index) => `Test fixture/${String(index).padStart(2, '0')} via OpenRouter`));
   assert.deepEqual((await readSettings()).selection, preserved, 'Save & connect must preserve Default, explicit override, caps and revision');
@@ -277,6 +285,8 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await capture('test-completed', test, operationDetails);
   assert.equal(testIntents[1].operation_id, operation);
   await page.reload();
+  await check(modelDetails).toHaveAttribute('aria-expanded', 'false');
+  await modelDetails.click();
   await operationDetails.click();
   await check(test.getByText(`Operation ${operation}`, { exact: true })).toBeVisible();
   await operationDetails.click();
@@ -288,6 +298,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
     await check(fresh.getByRole('region', { name: 'Configured models' }).getByText('Connected', { exact: true })).toHaveCount(2);
     assert.equal(await fresh.evaluate(() => sessionStorage.getItem('omnis-entry-test-v1')), null);
     await check(fresh.getByRole('button', { name: 'Add models', exact: true })).toHaveCount(1);
+    await check(fresh.getByRole('button', { name: 'Details for fixture/03 via OpenRouter', exact: true })).toHaveAttribute('aria-expanded', 'false');
   } finally { await fresh.close(); }
   await check(page.getByLabel('Brain', { exact: true }).locator('option:checked')).toHaveText(/^fixture\/00 · OpenRouter$/);
   const brain = page.getByLabel('Brain', { exact: true });
@@ -297,7 +308,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await assignments.getByText('Output controls', { exact: true }).click();
   await check(page.getByLabel('Brain output tokens', { exact: true })).toHaveValue('37');
   await assignments.getByRole('button', { name: 'Save assignments', exact: true }).click();
-  await check(assignments).toContainText('Assignments saved. Applies to future runs only.');
+  await check(notification).toContainText('Assignments saved. Applies to future runs only.');
   await page.reload();
   const savedSelection = (await loadedMany()).selection;
   await capture('saved-many-assignments', brain, assignments.getByText('Output controls', { exact: true }));
@@ -320,12 +331,15 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   const staleDenied = await staleRefresh;
   assert.equal(staleDenied.status(), 409);
   assert.equal((await staleDenied.json()).error.code, 'CONNECTION_UNAVAILABLE');
-  await check(page.getByText(/Catalog outcome unknown\./)).toBeVisible();
+  const catalogFailure = wizard.getByText('Models could not be loaded. Reload settings before trying again.', { exact: true });
+  await check(catalogFailure).toBeVisible();
+  await check(wizard.getByText('Catalog details', { exact: true })).toBeVisible();
+  await check(page.getByRole('complementary', { name: 'Settings notification', exact: true }).filter({ hasText: /Catalog|Models could not/ })).toHaveCount(0);
   await check(wizard.getByRole('button', { name: 'Continue', exact: true })).toBeDisabled();
   await check(wizard.getByRole('button', { name: /^Add fixture\// })).toHaveCount(0);
   assert.deepEqual((await readSettings()).selection, savedSelection);
   assert.equal((await readSettings()).connections[0].enabled, false);
-  await capture('stale-wizard-denied', page.getByText(/Catalog outcome unknown\./));
+  await capture('stale-wizard-denied', catalogFailure);
   await page.getByRole('button', { name: 'Reload current settings', exact: true }).click();
   await check(wizard.getByRole('alert')).toContainText('This connection changed or was disabled.');
   await check(wizard.getByRole('button', { name: 'Continue', exact: true })).toBeDisabled();

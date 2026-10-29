@@ -42,7 +42,7 @@ it.each(['lost', 'wrong receipt', 'invalid current'])('uncertain key %s remains 
     if (!valid && fault === 'invalid current' && state.writes.length && path.endsWith('/providers')) return Response.json({ ...configured, reachable: 'READY' });
   };
   const mounted = mount(); await open(); const key = screen.getByLabelText('API key'); fireEvent.change(key, { target: { value: 'synthetic-key' } }); await next();
-  await screen.findByText(/Outcome unknown/); expect(key).toHaveValue('');
+  await screen.findByText(/Save unconfirmed/); expect(key).toHaveValue('');
   fireEvent.click(screen.getByRole('button', { name: 'Cancel' })); mounted.unmount(); mount();
   fireEvent.click(await screen.findByRole('button', { name: 'Recover exact receipt' }));
   await screen.findByText('Receipt not confirmed. Do not repeat this command.');
@@ -82,14 +82,14 @@ it('authenticated grant rotation never adopts the previous grants UNKNOWN pendin
   hook.intercept = (path, _body, method) => { if (path.endsWith('/providers') && method === 'PUT') throw new TypeError('SOURCE lost reply'); return undefined; };
   const rotate = rotatedSession(); const client = new QueryClient({ defaultOptions: { queries: { retry: false } } }); mount(client); await open();
   fireEvent.change(screen.getByLabelText('API key'), { target: { value: 'synthetic-key' } }); await next();
-  await screen.findByText(/Outcome unknown/); fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await screen.findByText(/Save unconfirmed/); fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   await act(async () => { await client.invalidateQueries({ queryKey: ['session'] }); });
   expect(screen.getByRole('button', { name: 'Recover exact receipt' })).toBeEnabled();
   rotate(); await act(async () => { await client.invalidateQueries({ queryKey: ['session'] }); });
   expect(client.getQueryData(['session'])).toMatchObject({ csrf_token: 'b'.repeat(64) });
   await waitFor(() => expect(screen.queryByRole('button', { name: 'Recover exact receipt' })).not.toBeInTheDocument());
   await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled());
-  expect(screen.queryByText(/Outcome unknown/)).not.toBeInTheDocument(); expect(state.writes).toHaveLength(1);
+  expect(screen.queryByText(/Save unconfirmed/)).not.toBeInTheDocument(); expect(state.writes).toHaveLength(1);
   expect(state.reads.some(path => path.includes('/commands/'))).toBe(false);
 });
 it('locked and disabled states never claim an absent key is usable, and local Disable remains available', async () => {
@@ -212,5 +212,5 @@ it('cancel before an in-flight key save settles cannot launch a catalog for anot
   const { state, hook } = settingsBackend(empty, []); let resolve: () => void = () => {}; const paused = new Promise<void>(done => { resolve = done; });
   hook.intercept = async (path, _body, method) => { if (path.endsWith('/providers') && method === 'PUT') await paused; return undefined; };
   mount(); await open(); fireEvent.change(screen.getByLabelText('API key'), { target: { value: 'synthetic-key' } }); await next(); await waitFor(() => expect(state.writes).toHaveLength(1));
-  fireEvent.click(screen.getByRole('button', { name: 'Cancel' })); resolve(); await screen.findByText(/Saved locally/); expect(state.writes).toHaveLength(1); expect(state.keys.connections).toHaveLength(1);
+  fireEvent.click(screen.getByRole('button', { name: 'Cancel' })); resolve(); await screen.findByText('Key saved.'); expect(state.writes).toHaveLength(1); expect(state.keys.connections).toHaveLength(1);
 });

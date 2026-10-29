@@ -74,10 +74,39 @@ it('expires confirmations but retains actionable uncertainty and its inline stat
   try {
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Continue' })); await vi.advanceTimersByTimeAsync(50); });
     await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
-    expect(screen.getByRole('complementary', { name: 'Settings notification' })).toHaveTextContent('Outcome unknown');
+    expect(screen.getByRole('region', { name: 'Settings recovery' })).toHaveTextContent('Save unconfirmed');
     expect(screen.getByRole('button', { name: 'Recover exact receipt' })).toBeEnabled();
     expect(screen.getByText('Save unconfirmed. Recover the exact receipt before another mutation.')).toBeVisible();
   } finally { vi.useRealTimers(); }
+});
+it('shows passive feedback only where it does not cover controls or focus', async () => {
+  backend(); let collision = false;
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+    if (this.matches('aside')) return new DOMRect(700, 900, 280, 52);
+    if (this.matches('main')) return new DOMRect(0, 0, 1000, 1000);
+    if (collision && this.getAttribute('aria-label') === 'Reload current settings') return new DOMRect(750, 910, 100, 44);
+    return new DOMRect(0, 0, 0, 0);
+  });
+  mount(); await screen.findByRole('region', { name: 'Configured models' });
+  fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
+  const feedback = await screen.findByRole('complementary', { name: 'Settings notification' });
+  expect(feedback).toBeVisible();
+  collision = true; fireEvent(window, new Event('resize')); expect(feedback).not.toBeVisible();
+  collision = false; fireEvent(window, new Event('scroll')); expect(feedback).toBeVisible();
+  expect(writes).toEqual([]);
+});
+it('keeps actionable save recovery inline after dismissing the compact feedback', async () => {
+  backend({ empty: true, lost: true }); mount(); await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled());
+  fireEvent.click(screen.getByRole('button', { name: 'Add models' })); fireEvent.change(screen.getByLabelText('API key'), { target: { value: 'synthetic-only' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+  const feedback = await screen.findByRole('complementary', { name: 'Settings notification' });
+  expect(feedback).toHaveTextContent('Settings need attention.'); expect(feedback).not.toHaveTextContent(/Command|Recover the exact|No success/);
+  expect(within(feedback).getAllByRole('button')).toHaveLength(1);
+  fireEvent.click(within(feedback).getByRole('button', { name: 'Dismiss notification' }));
+  const recovery = screen.getByRole('region', { name: 'Settings recovery' });
+  expect(recovery).toHaveTextContent('Save unconfirmed. Recover the exact receipt before another mutation.');
+  expect(within(recovery).getByRole('button', { name: 'Read current state' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'Recover exact receipt' })).toBeEnabled(); expect(writes).toHaveLength(1);
 });
 it('uses the saved key without a password field or key resubmission; Back preserves selection', async () => {
   backend(); mount();
@@ -97,7 +126,7 @@ it('lost connection save wipes the DOM secret and recovery never starts a fresh 
   const key = screen.getByLabelText('API key');
   fireEvent.change(key, { target: { value: 'synthetic-only-secret' } });
   fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
-  await within(screen.getByRole('complementary', { name: 'Settings notification' })).findByText(/Outcome unknown/); expect(key).toHaveValue('');
+  await within(screen.getByRole('region', { name: 'Settings recovery' })).findByText(/Save unconfirmed/); expect(key).toHaveValue('');
   fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   mounted.unmount(); mount();
   fireEvent.click(await screen.findByRole('button', { name: 'Recover exact receipt' }));

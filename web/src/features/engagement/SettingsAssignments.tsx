@@ -45,7 +45,7 @@ export function SettingsAssignments({ settings, library, evidence, catalogs, blo
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (blocked || working || !valid || !draft.default) return;
-    if (await save({ action: 'save_selection', command_id: crypto.randomUUID(), expected_revision: settings.selection?.revision ?? 0, default: draft.default, brain: draft.brain, investigator: draft.investigator, validator: draft.validator })) setNotice('Assignments saved. Applies to future runs only.');
+    if (await save({ action: 'save_selection', command_id: crypto.randomUUID(), expected_revision: settings.selection?.revision ?? 0, default: draft.default, brain: draft.brain, investigator: draft.investigator, validator: draft.validator })) setNotice('');
   }
   return <section className={styles.panel} aria-labelledby="assignments-heading"><div className={styles.core}>
     <h2 id="assignments-heading">Model assignments</h2><p className={styles.hint}>For future runs. Existing runs keep their pinned settings.</p>

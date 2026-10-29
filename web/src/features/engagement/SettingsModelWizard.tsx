@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import { ApiError } from '../../shared/api/errors';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../shared/api/client';
 import { printable } from '../../shared/api/providerKeys';
@@ -11,9 +13,10 @@ import type { Connection, Library, ModelEntry } from './SettingsModels';
 import styles from './SettingsModels.module.css';
 
 export type ModelDraft = { entry_id: string; expected_revision: number; model: string; name: string; output_tokens: number; known: boolean };
-export function SettingsModelWizard({ settings, library, provider: initialProvider, replace = false, blocked, working, canTest, generation, close, saveKey, refresh, saveModels }: {
+export function SettingsModelWizard({ settings, library, provider: initialProvider, replace = false, blocked, working, canTest, generation, catalogFeedback, catalogRead, close, saveKey, refresh, saveModels }: {
   settings: KeySettings; library: Library; provider: Connection['provider']; replace?: boolean | undefined;
   blocked: boolean; working: boolean; canTest: boolean; generation: number | null; close: () => void;
+  catalogFeedback: ReactNode; catalogRead: (value: CatalogView) => void;
   saveKey: (provider: Connection['provider'], connection: Connection | undefined, secret: string) => Promise<Connection | undefined>;
   refresh: (connection: Connection) => Promise<CatalogView | undefined>;
   saveModels: (payload: SaveModels, test: { catalog: string; generation: number } | null) => Promise<ModelEntry[] | undefined>;
@@ -47,12 +50,14 @@ export function SettingsModelWizard({ settings, library, provider: initialProvid
   const transient = working || loading;
   const catalog = useQuery({ queryKey: ['private', 'settings-catalog', connection?.connection_id, connection?.revision, catalogId, query, offset],
     queryFn: ({ signal }) => readPrivate(() => api.providerCatalog({ action: 'search', connection_id: connection!.connection_id, connection_revision: connection!.revision, catalog_command_id: catalogId, query, offset }, session.data!.csrf_token, signal), signal),
-    enabled: step > 0 && savedKey && !stale && !blocked && !!session.data, retry: false, gcTime: 0,
+    enabled: step > 0 && savedKey && !stale && !blocked && !loading && !!session.data, retry: false, gcTime: 0,
+    placeholderData: (previous, previousQuery) => previousQuery && previousQuery.queryKey[2] === connection?.connection_id && previousQuery.queryKey[3] === connection?.revision && previousQuery.queryKey[4] === catalogId ? previous : undefined,
     refetchOnWindowFocus: false, refetchOnReconnect: false,
     refetchInterval: state => state.state.data?.state === 'PENDING' ? 750 : false });
   useEffect(() => { alive.current = true; heading.current?.focus({ preventScroll: true }); return () => { alive.current = false; if (keyNode.current) keyNode.current.value = ''; }; }, []);
   useEffect(() => { if (locked && keyInput.current) { keyInput.current.value = ''; setValidKey(false); } }, [locked]);
   const view = catalog.data;
+  useEffect(() => { if (view && !catalog.isPlaceholderData) catalogRead(view); }, [view, catalog.isPlaceholderData, catalogRead]);
 
   // Selected metadata remains pinned even when the operator searches another page.
   const selectedMetadata = useRef(new Map<string, { max_output_tokens: number | null; supports_max_tokens: boolean | null; catalog: string }>());
@@ -112,16 +117,17 @@ export function SettingsModelWizard({ settings, library, provider: initialProvid
     <ol className={styles.steps} aria-label="Setup steps">{['Connection', 'Models', 'Review'].map((name, index) => <li key={name} aria-current={step === index ? 'step' : undefined}>{index + 1} · {name}</li>)}</ol>
     {stale && <p role="alert" className={styles.notice}>This connection changed or was disabled. Cancel and reopen to use its current revision.</p>}
     {notice && <p role="alert" className={styles.notice}>{notice}</p>}
+    {step !== 1 && catalogFeedback}
     {step === 0 && <><div className={styles.fields}><label className={styles.field}>Provider<select value={provider} disabled={blocked} aria-disabled={transient} onChange={event => chooseProvider(event.target.value)}><option value="openrouter">OpenRouter</option><option value="orcarouter">OrcaRouter</option></select></label>
       {savedKey ? <div className={styles.field}><span>API key</span><span className={styles.saved}>Saved key</span></div> : <label className={styles.field}>API key<input ref={node => { keyInput.current = node; if (node) keyNode.current = node; }} type="password" name="secret" autoComplete="new-password" spellCheck={false} maxLength={512} disabled={locked} aria-disabled={transient} onChange={event => setValidKey(printable(event.target.value, 512))} /></label>}
     </div><p className={styles.hint}>{savedKey ? 'Continue loads the catalog using your saved key.' : 'Continue saves this key locally and loads the catalog.'} Cancel discards model choices, not the saved key.</p></>}
     {step === 1 && <>
       <div className={styles.search}><label className={styles.field}>Search models<input type="search" value={query} placeholder="Search by name or exact model ID" onChange={event => { if (Array.from(event.target.value).length <= 256) { setQuery(event.target.value); setOffset(0); } }} /></label><button type="button" className={styles.secondary} disabled={locked || !savedKey} aria-disabled={transient || view?.state === 'PENDING'} onClick={() => { if (!transient && view?.state !== 'PENDING' && connection) { setLoading(true); void load(connection).finally(() => { if (alive.current) setLoading(false); }); } }}>Refresh</button></div>
-      <output className={styles.hint}>{catalog.isFetching ? 'Reading cached models…' : catalog.isError ? 'Catalog read failed. No results are confirmed.' : view ? `${view.state} · ${view.total} matching cached models · showing ${view.entries.length ? offset + 1 : 0}–${offset + view.entries.length}${view.reason ? ' · ' + view.reason : ''}` : 'Catalog not requested.'}</output>
-      {view?.state === 'PARTIAL' && <p className={styles.notice}>Partial catalog. These are loaded results, not all provider models.</p>}
-      {view && ['FAILED', 'STALE', 'NOT_REQUESTED'].includes(view.state) && <p className={styles.notice}>Catalog {view.state.toLowerCase()}. Refresh explicitly or enter an exact model ID.</p>}
+      {catalogFeedback || <div className={styles.catalogStatus}><output aria-live="polite">{loading || catalog.isFetching || view?.state === 'PENDING' ? 'Loading models…' : catalog.isError || view?.state === 'FAILED' ? 'Models could not be loaded. Refresh the list or enter an exact model ID.' : view?.state === 'STALE' ? 'This model list is out of date. Refresh it before connecting.' : !view || view.state === 'NOT_REQUESTED' ? 'Load models with Refresh, or enter an exact model ID.' : `${view.total} matching models · showing ${view.entries.length ? offset + 1 : 0}–${offset + view.entries.length}${view.state === 'PARTIAL' ? '. Some models could not be loaded.' : ''}`}</output>
+        {(catalog.isError || (view && view.state !== 'READY' && view.state !== 'PENDING')) && <details><summary>Catalog details</summary><p className={styles.mono}>{catalog.isError ? catalog.error instanceof ApiError ? catalog.error.code : 'API_UNAVAILABLE' : `${view?.state} · ${view?.reason ?? 'No reason reported'}`}</p></details>}
+      </div>}
       {view && ['READY', 'PARTIAL'].includes(view.state) && !view.entries.length && <p>No matching models.</p>}
-      <ul className={`${styles.list} ${styles.catalog}`} aria-label="Provider models">{!catalog.isError && view?.entries.map(item => {
+      <ul className={`${styles.list} ${styles.catalog}`} aria-label="Provider models" aria-busy={loading || catalog.isFetching || view?.state === 'PENDING'}>{!catalog.isError && view && ['READY', 'PARTIAL'].includes(view.state) && view.entries.map(item => {
         const previous = library.entries.find(entry => entry.connection_id === connection?.connection_id && entry.model === item.model), added = !!previous && previous.connection_revision === connection?.revision, selected = chosen.some(entry => entry.model === item.model);
         return <li key={item.model} className={styles.row}><div className={styles.identity}><strong>{item.name ?? item.model}</strong><small className={styles.mono}>{item.model}</small>{!supports(item, 1) && <small>Details unavailable for testing</small>}</div><button type="button" className={styles.secondary} disabled={locked || added || selected} aria-label={`${added ? 'Added' : selected ? 'Selected' : previous ? 'Update' : 'Add'} ${item.model}`} onClick={() => add(item.model, item.name ?? item.model, true)}>{added ? 'Added' : selected ? 'Selected' : previous ? 'Update' : '+ Add'}</button></li>;
       })}</ul>

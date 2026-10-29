@@ -1,4 +1,5 @@
 import { StrictMode } from 'react';
+import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
@@ -18,6 +19,7 @@ function mount(strict = false) {
 }
 async function wizard() { await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled()); fireEvent.click(screen.getByRole('button', { name: 'Add models' })); fireEvent.click(screen.getByRole('button', { name: 'Continue' })); await screen.findByLabelText('Search models'); await screen.findByRole('button', { name: 'Add Catalog/00' }); return screen.getByRole('region', { name: 'Add models wizard' }); }
 async function review() { const button = screen.getByRole('button', { name: 'Continue' }); await waitFor(() => expect(button).not.toHaveAttribute('aria-disabled', 'true')); fireEvent.click(button); return screen.findByRole('button', { name: 'Save models' }); }
+const modelRow = (model: string) => screen.getByRole('listitem', { name: `Model ${model} via OpenRouter` });
 function operation(id: string, target: ModelEntry): EntryTestView { return {
   schema_version: 2, operation_id: id, state: 'RUNNING', state_revision: 2, finish_reason: null, selection_revision: null,
   metadata_command_id: null, metadata_state: 'NOT_REQUESTED', reason: null, requested_provider: 'openrouter', requested_model: target.model, requested_output_tokens: target.output_tokens,
@@ -25,6 +27,33 @@ function operation(id: string, target: ModelEntry): EntryTestView { return {
   system_message: 'Respond only with OMNIS_MODEL_TEST_OK. Use no tools.', user_message: 'This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.', calls_limit: 1, wall_seconds: 300,
   entry_id: target.entry_id, entry_revision: target.revision, connection_id: target.connection_id, connection_revision: target.connection_revision, current: true,
 }; }
+it('expands the model row with native keyboard, real saved details and no test or redundant disclosure action', async () => {
+  const user = userEvent.setup();
+  const { state, hook } = settingsBackend();
+  const saved = { ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', finish_reason: 'COMPLETED', result_state: 'COMPLETED', response_text: 'OMNIS_MODEL_TEST_OK', observed_model: 'Exact/Observed', usage_state: 'KNOWN', input_tokens: 12, output_tokens: 7, reasoning_tokens: 0, cost_observed: '0.001' };
+  hook.intercept = path => path.includes('/entries/latest/') ? Response.json(saved) : undefined;
+  mount();
+  const toggle = await screen.findByRole('button', { name: 'Details for Exact/Model via OpenRouter' });
+  expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  const details = document.getElementById(toggle.getAttribute('aria-controls')!)!;
+  expect(details).not.toBeVisible();
+  expect(screen.queryByRole('region', { name: 'Model test operation' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /Read check/ })).not.toBeInTheDocument();
+  const reads = [...state.reads];
+  toggle.focus(); await user.keyboard('{Enter}');
+  expect(toggle).toHaveFocus(); expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  expect(details).toBeVisible();
+  expect(within(details).getByLabelText('Model response')).toHaveTextContent('OMNIS_MODEL_TEST_OK');
+  expect(details).toHaveTextContent('Requested model: Exact/Model'); expect(details).toHaveTextContent('Observed model: Exact/Observed');
+  expect(details).toHaveTextContent('Input tokens: 12'); expect(details).toHaveTextContent('Output tokens: 7'); expect(details).toHaveTextContent('Cost: 0.001');
+  const diagnostics = within(details).getByText('Operation details').closest('details');
+  expect(diagnostics).not.toHaveAttribute('open'); expect(within(details).getByText(`Operation ${saved.operation_id}`)).not.toBeVisible();
+  await user.keyboard(' '); expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  expect(state.reads).toEqual(reads); expect(state.writes).toEqual([]);
+  await user.tab(); expect(screen.getByRole('button', { name: 'Test Exact/Model via OpenRouter' })).toHaveFocus();
+  await user.keyboard('{Enter}'); expect(screen.getByRole('region', { name: 'Test consent' })).toBeVisible();
+  expect(toggle).toHaveAttribute('aria-expanded', 'false'); expect(state.writes).toEqual([]);
+});
 it.each(['FAILED', 'UNKNOWN', 'RUNNING', 'stale', 'missing', 'unavailable'] as const)('never resurrects an older stored green result when latest is %s', async status => {
   const { hook, state } = settingsBackend();
   const oldId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', newId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
@@ -47,7 +76,7 @@ it('marks prior Connected state unconfirmed after a settings read fails, includi
     if (path.includes('/entries/latest/')) return Response.json({ ...operation(crypto.randomUUID(), entry), state: 'FINISHED', finish_reason: 'COMPLETED', result_state: 'COMPLETED' });
   };
   mount(); await screen.findByText('Connected'); failed = true; fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
-  await screen.findByText('Unconfirmed — reload settings'); fireEvent.click(screen.getByRole('button', { name: 'Dismiss notification' }));
+  await screen.findByText('Unconfirmed — reload settings'); fireEvent.click(await screen.findByRole('button', { name: 'Dismiss notification' }));
   expect(screen.getByText('Unconfirmed — reload settings')).toBeVisible(); expect(screen.queryByText('Connected')).not.toBeInTheDocument();
 });
 it('keeps a saved successful test distinct from a failed current catalog and preserves assignments', async () => {
@@ -335,10 +364,10 @@ it.each([false, true])('manual read uncertainty=%s stops only unsent checks unti
   finish = true; await new Promise(resolve => setTimeout(resolve, 1100));
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(uncertain ? 1 : 2);
   if (uncertain) {
-    const panel = screen.getByRole('region', { name: 'Model test operation' }), list = screen.getByRole('region', { name: 'Configured models' });
-    await waitFor(() => expect(panel).toHaveTextContent('Catalog/00 · FINISHED · COMPLETED'));
+    const panel = modelRow('Catalog/00'), list = screen.getByRole('region', { name: 'Configured models' });
+    await waitFor(() => expect(panel).toHaveTextContent('FINISHED · COMPLETED'));
     expect(panel).toHaveTextContent(`Operation ${first.operation_id}`);
-    fireEvent.click(screen.getByRole('button', { name: 'Dismiss notification' }));
+    expect(within(panel).getByText('UNKNOWN — keep the same operation ID. No test was resent.')).toBeVisible();
     expect(within(list).getByText('Unconfirmed')).toBeVisible(); expect(within(list).queryByText('Connected')).not.toBeInTheDocument();
     expect(screen.queryByText('Models connected.')).not.toBeInTheDocument();
     fireEvent.click(within(panel).getByRole('button', { name: 'Read test status' }));
@@ -422,14 +451,14 @@ it('Save & connect keeps Cancel/readback outside wizard, and unmount abandons re
   };
   const mounted = mount(); await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
   expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled(); fireEvent.click(screen.getByRole('checkbox', { name: /I approve the fixed synthetic input/ })); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
-  const panel = await screen.findByRole('region', { name: 'Model test operation' }); await waitFor(() => expect(within(panel).getByRole('button', { name: 'Cancel test' })).toBeEnabled());
+  const panel = await screen.findByRole('listitem', { name: 'Model Catalog/00 via OpenRouter' }); await waitFor(() => expect(within(panel).getByRole('button', { name: 'Cancel test' })).toBeEnabled());
   expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument(); expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
   expect(view?.requested_model).toBe('Catalog/00'); expect(state.keys.selection).toBeNull(); expect(view?.entry_id).toBe(state.entries[0]!.entry_id);
   await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled()); fireEvent.click(screen.getByRole('button', { name: 'Add models' }));
   expect(within(panel).getByRole('button', { name: 'Read test status' })).toBeEnabled(); fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-  mounted.unmount(); mount(); await screen.findByRole('region', { name: 'Model test operation' }); expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
+  mounted.unmount(); mount(); await screen.findByRole('button', { name: 'Cancel test' }); expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
 });
-it.each(['sequence', 'single', 'pending', 'hydrated'] as const)('keeps historical Read check away from the %s active Cancel target', async mode => {
+it.each(['sequence', 'single', 'pending', 'hydrated'] as const)('expands history without replacing the %s active Cancel target', async mode => {
   const target: ModelEntry = { ...entry, entry_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', model: 'Catalog/00' };
   const { state, hook } = settingsBackend(configured, mode === 'sequence' ? [entry] : [entry, target], models);
   const old: EntryTestView = { ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', state_revision: 3, finish_reason: 'COMPLETED', result_state: 'COMPLETED' };
@@ -458,32 +487,61 @@ it.each(['sequence', 'single', 'pending', 'hydrated'] as const)('keeps historica
     fireEvent.click(screen.getByRole('checkbox'));
     if (mode === 'pending') {
       fireEvent.click(screen.getByRole('button', { name: 'Send model test' })); await admission;
-      const history = screen.getByRole('button', { name: 'Read check for Exact/Model' }); await waitFor(() => expect(history).toBeDisabled()); fireEvent.click(history);
+      const history = screen.getByRole('button', { name: 'Details for Exact/Model via OpenRouter' }); expect(history).toBeEnabled(); fireEvent.click(history);
+      expect(within(modelRow('Exact/Model')).getByRole('button', { name: 'Read test status' })).toBeDisabled();
       release();
     } else fireEvent.click(screen.getByRole('button', { name: 'Send model test' }));
   } else {
-    expect(screen.queryByRole('region', { name: 'Model test operation' })).not.toBeInTheDocument();
-    const read = screen.getByRole('button', { name: 'Read check for Catalog/00' }); expect(read).toBeEnabled(); fireEvent.click(read);
+    // Fresh-page hydration must expose Cancel without requiring a history selection.
+    expect(sessionStorage.getItem(testStorage)).toBeNull();
   }
-  const panel = await screen.findByRole('region', { name: 'Model test operation' });
+  const panel = await screen.findByRole('listitem', { name: 'Model Catalog/00 via OpenRouter' });
   await waitFor(() => expect(within(panel).getByRole('button', { name: 'Cancel test' })).toBeEnabled());
   const id = active!.operation_id, before = state.reads.length;
-  const history = screen.getByRole('button', { name: 'Read check for Exact/Model' }); fireEvent.click(history);
+  const history = screen.getByRole('button', { name: 'Details for Exact/Model via OpenRouter' });
+  if (history.getAttribute('aria-expanded') !== 'true') fireEvent.click(history);
+  const historicalRead = within(modelRow('Exact/Model')).getByRole('button', { name: 'Read test status' }); expect(historicalRead).toBeDisabled(); fireEvent.click(historicalRead);
   fireEvent.click(within(panel).getByRole('button', { name: 'Read test status' }));
   await waitFor(() => expect(panel).toHaveTextContent(`Operation ${id}`));
-  expect(history).toBeDisabled(); expect(panel).toHaveTextContent('Catalog/00 · RUNNING');
-  const read = screen.getByRole('button', { name: 'Read check for Catalog/00' }); expect(read).toBeEnabled(); fireEvent.click(read);
+  expect(history).toBeEnabled(); expect(panel).toHaveTextContent('RUNNING');
+  const read = within(panel).getByRole('button', { name: 'Read test status' }); expect(read).toBeEnabled(); fireEvent.click(read);
   await waitFor(() => expect(state.reads.slice(before)).toContain('/api/v1/model-test/entries/' + id));
   expect(state.reads.slice(before)).not.toContain('/api/v1/model-test/entries/' + old.operation_id);
   const cancel = within(panel).getByRole('button', { name: 'Cancel test' }); expect(cancel).toBeEnabled(); fireEvent.click(cancel);
   await waitFor(() => expect(state.writes.filter(item => item.path.endsWith('/cancel'))).toEqual([{ path: `/api/v1/model-test/entries/${id}/cancel`, body: expect.objectContaining({ expected_state_revision: 2 }) }]));
-  await waitFor(() => expect(panel).toHaveTextContent('Catalog/00 · FINISHED · NOT_SENT'));
+  await waitFor(() => expect(panel).toHaveTextContent('FINISHED · NOT_SENT'));
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(mode === 'hydrated' ? 0 : 1);
   expect(active!.operation_id).toBe(id); expect(state.keys.selection).toBeNull();
-  await waitFor(() => expect(history).toBeEnabled()); fireEvent.click(history);
-  await waitFor(() => expect(panel).toHaveTextContent(`Operation ${old.operation_id}`));
-  await waitFor(() => expect(panel).toHaveTextContent('Exact/Model · FINISHED · COMPLETED'));
+  await waitFor(() => expect(historicalRead).toBeEnabled()); fireEvent.click(historicalRead);
+  await waitFor(() => expect(state.reads).toContain('/api/v1/model-test/entries/' + old.operation_id));
+  expect(modelRow('Exact/Model')).toHaveTextContent(`Operation ${old.operation_id}`);
+  expect(modelRow('Exact/Model')).toHaveTextContent('FINISHED · COMPLETED');
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(mode === 'hydrated' ? 0 : 1);
+});
+it('recovers an active latest check even when this tab remembers a finished historical operation', async () => {
+  const target = { ...entry, entry_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', model: 'Catalog/00' };
+  const old = { ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', result_state: 'COMPLETED', finish_reason: 'COMPLETED' };
+  const active = operation('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', target);
+  const { state, hook } = settingsBackend(configured, [entry, target], models);
+  hook.intercept = path => path.endsWith(entryId) || path.endsWith(old.operation_id!) ? Response.json(old) : path.endsWith(target.entry_id) || path.endsWith(active.operation_id!) ? Response.json(active) : undefined;
+  remember(testStorage, await sessionScope(session.csrf_token), old.operation_id!); mount();
+  await screen.findByRole('region', { name: 'Configured models' });
+  const cancel = await within(modelRow(target.model)).findByRole('button', { name: 'Cancel test' }); expect(cancel).toBeEnabled();
+  fireEvent.click(within(modelRow(target.model)).getByRole('button', { name: 'Read test status' }));
+  await waitFor(() => expect(state.reads).toContain('/api/v1/model-test/entries/' + active.operation_id)); expect(state.writes).toEqual([]);
+});
+it.each(['RUNNING', 'UNKNOWN'] as const)('preserves receive-only recovery for an orphan %s operation', async status => {
+  const orphan = { ...entry, entry_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', model: 'Orphan/Model' };
+  const view = { ...operation('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', orphan), state: status === 'UNKNOWN' ? 'FINISHED' : 'RUNNING', result_state: status === 'UNKNOWN' ? 'UNKNOWN' : null };
+  const { state, hook } = settingsBackend(configured, [], models);
+  hook.intercept = path => path.endsWith(view.operation_id!) ? Response.json(view) : undefined;
+  remember(testStorage, await sessionScope(session.csrf_token), view.operation_id!); mount();
+  const result = await screen.findByText(/Orphan\/Model/); expect(result).toBeVisible();
+  const recovery = screen.getByRole('region', { name: 'Unconfirmed model check' });
+  if (status === 'UNKNOWN') expect(within(recovery).queryByRole('button', { name: 'Cancel test' })).not.toBeInTheDocument();
+  const before = state.reads.length; fireEvent.click(within(recovery).getByRole('button', { name: 'Read test status' }));
+  await waitFor(() => expect(state.reads.slice(before)).toContain('/api/v1/model-test/entries/' + view.operation_id));
+  expect(state.writes).toEqual([]); expect(sessionStorage.getItem(testStorage)).toContain(view.operation_id!);
 });
 it('UNKNOWN entry admission keeps the same operation and cannot start a fresh test on readback', async () => {
   const { state, hook } = settingsBackend(); let id: string | undefined;
@@ -506,8 +564,12 @@ it.each(['RUNNING', 'FINISHED', 'NEEDS_RECONCILIATION'] as const)('keeps %s test
   };
   mount(); fireEvent.click(await screen.findByRole('button', { name: 'Test Exact/Model via OpenRouter' }));
   fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Send model test' }));
-  const panel = await screen.findByRole('region', { name: 'Model test operation' });
-  await waitFor(() => expect(panel).toHaveTextContent(`OpenRouter · Exact/Model · ${status}`));
+  const panel = modelRow('Exact/Model');
+  await waitFor(() => expect(panel).toHaveTextContent(status));
+  const toggle = within(panel).getByRole('button', { name: 'Details for Exact/Model via OpenRouter' });
+  expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  if (status !== 'FINISHED') expect(within(panel).getByRole('button', { name: 'Read test status' })).toBeVisible();
+  fireEvent.click(toggle);
   const id = within(panel).getByText(`Operation ${view!.operation_id}`);
   const details = within(panel).getByText('Operation details').closest('details');
   expect(details).not.toHaveAttribute('open'); expect(id).not.toBeVisible();
@@ -525,14 +587,45 @@ it.each(['RUNNING', 'FINISHED', 'NEEDS_RECONCILIATION'] as const)('keeps %s test
   await waitFor(() => expect(state.reads).toContain('/api/v1/model-test/entries/' + view!.operation_id));
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
 });
+it('updates saved-model eligibility after an explicit catalog refresh without retesting or changing assignments', async () => {
+  const { state, hook } = settingsBackend(configured, [entry], models.concat({ model: entry.model, name: 'Exact model', max_output_tokens: 4096, supports_max_tokens: true, reason: null }));
+  let refreshed = false;
+  hook.intercept = (path, body) => {
+    if (path.includes('/entries/latest/')) return Response.json({ ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', result_state: 'COMPLETED', finish_reason: 'COMPLETED' });
+    if (path.endsWith('/refresh')) refreshed = true;
+    if (!refreshed && path.endsWith('/search')) return Response.json({ schema_version: 1, connection_id: entry.connection_id, connection_revision: 1, provider: 'openrouter', catalog_command_id: catalogId, state: 'FAILED', reason: 'METADATA_UNAVAILABLE', query: body.query, offset: 0, next_offset: null, total: 0, entries: [] });
+  };
+  mount(); await screen.findByText('Test passed · catalog unavailable');
+  await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await screen.findByText('Connected'); expect(screen.getByRole('button', { name: 'Test Exact/Model via OpenRouter' })).toBeEnabled();
+  expect(state.writes.map(item => item.body.action)).toEqual(['refresh']); expect(state.keys.selection).toBeNull();
+});
+it('keeps catalog failure beside its list with a secondary cause and no catalog notification', async () => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  hook.intercept = (path, body) => path.endsWith('/search') || path.endsWith('/refresh') ? Response.json({ schema_version: 1, connection_id: entry.connection_id, connection_revision: 1, provider: 'openrouter', catalog_command_id: body.command_id ?? body.catalog_command_id ?? catalogId, state: 'FAILED', reason: 'METADATA_UNAVAILABLE', query: body.query ?? '', offset: 0, next_offset: null, total: 0, entries: [] }) : undefined;
+  mount(); await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled()); fireEvent.click(screen.getByRole('button', { name: 'Add models' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+  const panel = screen.getByRole('region', { name: 'Add models wizard' });
+  await within(panel).findByText('Models could not be loaded. Refresh the list or enter an exact model ID.');
+  expect(screen.getAllByText('Models could not be loaded. Refresh the list or enter an exact model ID.')).toHaveLength(1);
+  expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
+  const details = within(panel).getByText('Catalog details').closest('details'); expect(details).not.toHaveAttribute('open');
+  expect(within(panel).getByText(/METADATA_UNAVAILABLE/)).not.toBeVisible();
+  fireEvent.click(within(panel).getByText('Catalog details')); expect(within(panel).getByText(/METADATA_UNAVAILABLE/)).toBeVisible();
+  expect(within(panel).getByRole('button', { name: 'Refresh' })).toBeEnabled();
+  expect(screen.getByText('Key saved')).toBeVisible(); expect(state.keys).toEqual(configured);
+  expect(state.writes.map(item => item.body.action)).toEqual(['refresh']);
+});
 it('catalog lost reply has receive-only recovery after closing its wizard', async () => {
   const { state, hook } = settingsBackend(configured, [], models);
   hook.intercept = (path, _body, method) => { if (path.endsWith('/refresh') && method === 'POST') throw new TypeError('SOURCE lost catalog response'); return undefined; };
   mount(); await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled()); fireEvent.click(screen.getByRole('button', { name: 'Add models' })); fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
   await screen.findByRole('button', { name: 'Read catalog status' }); fireEvent.click(screen.getByRole('button', { name: 'Cancel' })); fireEvent.click(screen.getByRole('button', { name: 'Read catalog status' }));
-  await screen.findByText('Catalog READY.'); expect(state.writes).toHaveLength(1); expect(state.writes[0]!.body.action).toBe('refresh'); expect(catalogId).not.toBe('');
+  await waitFor(() => expect(screen.queryByRole('region', { name: 'Catalog recovery' })).not.toBeInTheDocument());
+  expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
+  expect(state.writes).toHaveLength(1); expect(state.writes[0]!.body.action).toBe('refresh'); expect(sessionStorage.getItem(catalogStorage)).toBeNull();
 });
-it.each(['READY', 'PARTIAL', 'FAILED', 'PENDING', 'UNKNOWN'] as const)('catalog readback %s expires only success at five seconds without clearing safety state or resending', async status => {
+it.each(['READY', 'PARTIAL', 'FAILED', 'PENDING', 'UNKNOWN'] as const)('keeps catalog readback %s local without clearing receipt safety state or resending', async status => {
   const { state, hook } = settingsBackend();
   const scope = await sessionScope(session.csrf_token);
   remember(catalogStorage, scope, { id: catalogId, connection: entry.connection_id, revision: entry.connection_revision });
@@ -550,19 +643,22 @@ it.each(['READY', 'PARTIAL', 'FAILED', 'PENDING', 'UNKNOWN'] as const)('catalog 
     expect(within(list).getByText('Not tested')).toBeVisible();
     vi.useFakeTimers();
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Read catalog status' })); });
-    const notice = screen.getByText(/^Catalog (READY|PARTIAL|FAILED|PENDING|status unconfirmed)/);
-    const text = notice.textContent;
-    expect(notice).toBeVisible();
-    if (reason) expect(notice).toHaveTextContent(reason);
-    await act(async () => { await vi.advanceTimersByTimeAsync(4999); });
-    expect(notice).toBeVisible();
-    await act(async () => { await vi.advanceTimersByTimeAsync(1); });
-    if (status === 'READY') expect(notice).not.toBeInTheDocument();
-    else { expect(notice).toBeVisible(); expect(notice.textContent).toBe(text); }
-    const notification = screen.getByRole('complementary', { name: 'Settings notification' });
-    expect(notification).toHaveTextContent(`Outcome unknown. Command ${entryId}. Recover its exact receipt before another mutation.`);
+    expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
+    if (status === 'READY') expect(screen.queryByRole('region', { name: 'Catalog recovery' })).not.toBeInTheDocument();
+    else {
+      const catalog = screen.getByRole('region', { name: 'Catalog recovery' });
+      expect(within(catalog).getByRole('status')).toBeVisible();
+      const text = catalog.textContent;
+      expect(within(catalog).getByText('Catalog details').closest('details')).not.toHaveAttribute('open');
+      if (reason) { expect(within(catalog).getByText(new RegExp(reason))).not.toBeVisible(); fireEvent.click(within(catalog).getByText('Catalog details')); expect(within(catalog).getByText(new RegExp(reason))).toBeVisible(); }
+      await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
+      expect(catalog).toHaveTextContent(text!);
+    }
+    const recovery = screen.getByRole('region', { name: 'Settings recovery' });
+    expect(recovery).toHaveTextContent('Save unconfirmed. Recover the exact receipt before another mutation.');
+    expect(within(recovery).getByText(`Command ${entryId}`)).not.toBeVisible();
     expect(screen.getByRole('button', { name: 'Recover exact receipt' })).toBeEnabled();
-    expect(within(notification).getByRole('button', { name: 'Read current state' })).toBeEnabled();
+    expect(within(recovery).getByRole('button', { name: 'Read current state' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Add models' })).toBeDisabled();
     if (status === 'PENDING' || status === 'UNKNOWN') {
       expect(screen.getByRole('region', { name: 'Catalog recovery' })).toHaveTextContent(catalogId);

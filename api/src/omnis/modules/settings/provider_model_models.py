@@ -44,6 +44,14 @@ class SaveModels(KeyDTO):
         return self
 
 
+class RemoveModel(KeyDTO):
+    action: Literal["remove_model"]
+    command_id: Identity
+    expected_registry_revision: Revision
+    entry_id: Identity
+    expected_revision: PositiveRevision
+
+
 class ReadModels(KeyDTO):
     action: Literal["read"]
     command_id: Identity | None = None
@@ -63,7 +71,7 @@ class ReadModels(KeyDTO):
 
 class ModelRegistryControl(KeyDTO):
     op: Literal["provider_models"]
-    request: Annotated[SaveModels | ReadModels, Field(discriminator="action")]
+    request: Annotated[SaveModels | RemoveModel | ReadModels, Field(discriminator="action")]
 
     def wire(self) -> dict[str, object]:
         return self.model_dump(mode="json")

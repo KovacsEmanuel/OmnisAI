@@ -3,6 +3,7 @@ import { ApiError, isRecord, isUuid } from './errors';
 
 export type ProviderModels = components['schemas']['ModelRegistryView'];
 export type SaveModels = components['schemas']['SaveModels'];
+export type RemoveModel = components['schemas']['RemoveModel'];
 const revision = (value: unknown, minimum = 1): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= minimum;
 const keys = (value: Record<string, unknown>, names: string[]) => Object.keys(value).length === names.length && names.every(name => Object.hasOwn(value, name));
 

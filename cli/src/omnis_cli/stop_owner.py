@@ -60,6 +60,7 @@ class _View(ControlRuntime):
     def __init__(self, runtime: ControlRuntime, engine: StopEngine) -> None:
         self.deadline, self.engine = engine.deadline, engine
         self.release, self.digest, self.receipt = runtime.release, runtime.digest, runtime.receipt
+        self.schema = getattr(runtime, "schema", "0017_model_removal")
         self.host, self.pg_image = runtime.host, runtime.pg_image
         self.attempt = runtime.attempt
         self.model_test = runtime.model_test
@@ -117,8 +118,13 @@ def _load_runtime(data_home: Path, record: dict[str, object], deadline: float) -
     private_dir(data_home / "omnis")
     if not _installed_pointer(data_home / "omnis/installed.json"):
         raise StartError("STOP_RELEASE_INVALID", 4)
-    runtime.release = data_home / "omnis/releases/0.1.0"
+    from .release import installed_version
+    from .start_runtime import refuse_upgrade
+
+    refuse_upgrade(data_home / "omnis")
+    runtime.release = data_home / "omnis/releases" / installed_version(data_home / "omnis")
     manifest, runtime.files = _manifest(runtime.release)
+    runtime.schema = str(json.loads(manifest)["schema"])
     runtime.model_test = "model-test/profile.yaml" in runtime.files
     runtime.digest = hashlib.sha256(manifest).hexdigest()
     receipt = _record(data_home / "omnis/image.json", runtime.digest, complete=True)

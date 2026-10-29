@@ -707,7 +707,9 @@ def run_probe(data_home: Path, recorded: dict[str, object], scratch: Path, cli: 
     private_dir(root)
     if not _installed_pointer(root / "installed.json"):
         raise ValueError("Installed release required")
-    release = root / "releases/0.1.0"
+    from omnis_cli.release import installed_version
+
+    release = root / "releases" / installed_version(root)
     manifest, _ = _manifest(release)
     digest = hashlib.sha256(manifest).hexdigest()
     receipt = _record(root / "image.json", digest, complete=True)

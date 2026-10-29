@@ -21,6 +21,7 @@ export const errorCopy: Record<ErrorCode, string> = {
   CONNECTION_UNAVAILABLE: 'The selected connection is foreign, stale or revoked. No provider call was admitted.',
   REGISTRY_FULL: 'The instance already has 64 configured models. No models were saved.',
   MODEL_NOT_REGISTERED: 'The chosen model is not registered for this connection revision. Save the model before assigning it.',
+  MODEL_IN_USE: 'This model is assigned. Reload settings and reassign it explicitly in Model assignments before removing it.',
   CAPABILITIES_REQUIRED: 'Refresh metadata explicitly for the saved default before testing.',
   OPERATION_ACTIVE: 'Another finite operation is active. No test was queued.',
   OPERATION_FINISHED: 'This operation is already finished. Read its outcome.',

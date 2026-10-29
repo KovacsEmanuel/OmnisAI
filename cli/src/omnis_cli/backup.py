@@ -310,8 +310,13 @@ def snapshot_metadata(
         or manifest["version"] != 1
         or manifest["profile"] != PROVIDER_SETTINGS_PROFILE
         or not runtime.provider_settings
-        or manifest["release"] != "0.1.0"
-        or manifest["schema"] != "0016_provider_models"
+        or manifest["release"] != runtime.release.name
+        or (manifest["release"], manifest["schema"])
+        not in {
+            ("0.1.0", "0016_provider_models"),
+            ("0.1.0", "0017_model_removal"),
+            ("0.1.1", "0017_model_removal"),
+        }
         or manifest["release_digest"] != runtime.digest
     ):
         raise StartError("COLD_SNAPSHOT_INCOMPATIBLE", 4)
@@ -593,6 +598,9 @@ def cold_command(command: str, path: Path, key: Path | None = None) -> int:
         data_home = Path(data) if data else Path.home() / ".local/share"
         runtime = ControlRuntime(data_home, time.monotonic() + 180)
         with lifecycle_lock(data_home / "omnis", runtime.deadline):
+            from .start_runtime import refuse_upgrade
+
+            refuse_upgrade(data_home / "omnis")
             if command == "restore":
                 restore(runtime, root, path, key)
             else:

@@ -21,7 +21,8 @@ class ReleaseError(ValueError):
 
 
 _RELEASE = "0.1.0"
-_SCHEMA = "0016_provider_models"
+T1_RELEASE = "0.1.1"
+_SCHEMA = "0017_model_removal"
 PROVIDER_SETTINGS_PROFILE = "t1-provider-settings"
 _BASE_FILES = {
     f"api/omnis_api-{_RELEASE}-py3-none-any.whl",
@@ -69,14 +70,23 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
     if (
         type(raw["format"]) is not int
         or raw["format"] not in (1, 2, 3)
-        or raw["release"] != _RELEASE
-        or raw["schema"] != _SCHEMA
+        or (raw["release"], raw["schema"])
+        not in (
+            (_RELEASE, _SCHEMA),
+            (_RELEASE, "0016_provider_models"),
+            (T1_RELEASE, _SCHEMA),
+        )
+        or raw["release"] == T1_RELEASE
+        and not provider_settings
+        or raw["schema"] == "0016_provider_models"
+        and not provider_settings
         or raw["platform"] != "linux/amd64"
         or not isinstance(raw["files"], dict)
     ):
         raise ReleaseError("Incompatible release")
     files = raw["files"]
-    base = _BASE_FILES
+    version = raw["release"]
+    base = {name.replace(_RELEASE, version) for name in _BASE_FILES}
     if native:
         from .native_artifacts import FILES
 
@@ -137,6 +147,7 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
             "omnis/migrations/versions/0014_provider_settings.py",
             "omnis/migrations/versions/0015_model_test_v2.py",
             "omnis/migrations/versions/0016_provider_models.py",
+            "omnis/migrations/versions/0017_model_removal.py",
             "omnis/modules/settings/provider_model_models.py",
             "omnis/modules/settings/provider_model_routes.py",
             "omnis/modules/settings/provider_model_service.py",
@@ -145,11 +156,15 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
             "omnis/modules/runs/model_test_store.py",
             "omnis/supervisor/model_sender.py",
         }
+        if raw["schema"] == "0016_provider_models":
+            required.remove("omnis/migrations/versions/0017_model_removal.py")
+        if version == T1_RELEASE:
+            required |= {"omnis/migrate.py", "omnis/stop_reconcile.py"}
         try:
-            with ZipFile(io.BytesIO(result[f"api/omnis_api-{_RELEASE}-py3-none-any.whl"])) as wheel:
+            with ZipFile(io.BytesIO(result[f"api/omnis_api-{version}-py3-none-any.whl"])) as wheel:
                 if not required <= set(wheel.namelist()) or any(
                     ("Requires-Dist: " + dependency + "\n").encode()
-                    not in wheel.read(f"omnis_api-{_RELEASE}.dist-info/METADATA")
+                    not in wheel.read(f"omnis_api-{version}.dist-info/METADATA")
                     for dependency in (
                         "cryptography==50.0.1",
                         "openai==2.24.0",
@@ -160,6 +175,20 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
                     raise ReleaseError("Provider Settings production closure required")
         except (BadZipFile, KeyError):
             raise ReleaseError("Provider Settings wheel required") from None
+        if version == T1_RELEASE:
+            try:
+                with ZipFile(
+                    io.BytesIO(result[f"cli/omnis_cli-{version}-py3-none-any.whl"])
+                ) as wheel:
+                    metadata = wheel.read(f"omnis_cli-{version}.dist-info/METADATA")
+                    if (
+                        "omnis_cli/upgrade.py" not in wheel.namelist()
+                        or b"Version: 0.1.1\n" not in metadata
+                        or b"Requires-Dist:" in metadata
+                    ):
+                        raise ReleaseError("Standalone upgrade CLI required")
+            except (BadZipFile, KeyError):
+                raise ReleaseError("Standalone upgrade CLI required") from None
     return source, result
 
 
@@ -238,6 +267,9 @@ def _sync_tree(root: Path) -> None:
 def install_release(bundle: Path, data_home: Path) -> Path:
     """Install only a verified, immutable-version bundle; never start or migrate."""
     try:
+        from .start_runtime import refuse_upgrade
+
+        refuse_upgrade(data_home / "omnis")
         manifest, payloads = _manifest(bundle)
         if bundle == data_home or bundle in data_home.parents or data_home in bundle.parents:
             raise ReleaseError("Bundle and data home must not overlap")
@@ -279,21 +311,36 @@ def _installed_pointer(path: Path) -> bool:
         or set(value) != {"format", "release"}
         or type(value["format"]) is not int
         or value["format"] != 1
-        or value["release"] != _RELEASE
+        or value["release"] not in (_RELEASE, T1_RELEASE)
     ):
         raise ReleaseError("Another release is installed")
     return True
 
 
-def _install_locked(root: Path, manifest: bytes, payloads: dict[str, bytes]) -> Path:
+def installed_version(root: Path) -> str:
+    if not _installed_pointer(root / "installed.json"):
+        raise ReleaseError("Release required")
+    return str(json.loads(_bytes(root / "installed.json"))["release"])
+
+
+def _install_locked(
+    root: Path, manifest: bytes, payloads: dict[str, bytes], *, activate: bool = True
+) -> Path:
     try:
+        if activate:
+            from .start_runtime import refuse_upgrade
+
+            refuse_upgrade(root)
         releases = root / "releases"
         releases.mkdir(mode=0o700, exist_ok=True)
         private_dir(releases)
         _sync_dir(root)
-        destination = releases / _RELEASE
+        version = str(json.loads(manifest)["release"])
+        destination = releases / version
         pointer = root / "installed.json"
         present = _installed_pointer(pointer)
+        if activate and present and installed_version(root) != version:
+            raise ReleaseError("Use explicit upgrade for a different release")
         if destination.exists() or destination.is_symlink():
             existing, existing_files = _manifest(destination)
             if existing != manifest or existing_files != payloads:
@@ -318,11 +365,13 @@ def _install_locked(root: Path, manifest: bytes, payloads: dict[str, bytes]) -> 
                     shutil.rmtree(stage)
         _sync_tree(destination)
         _sync_dir(releases)
+        if not activate:
+            return destination
         if not present:
             fd, name = tempfile.mkstemp(prefix=".installed-", dir=root)
             try:
                 with os.fdopen(fd, "wb") as output:
-                    output.write(b'{"format":1,"release":"0.1.0"}\n')
+                    output.write((json.dumps({"format": 1, "release": version}) + "\n").encode())
                     output.flush()
                     os.fsync(output.fileno())
                 try:

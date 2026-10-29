@@ -372,6 +372,126 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                         "connections"
                     ] + other_saved.json()["connections"][1:]
                     assert (await reloaded.get(models_path)).json()["total"] == 64
+                # Remove uses the same authenticated PUT, owner lock, admission and durable receipts.
+                remove = {
+                    "action": "remove_model",
+                    "command_id": str(uuid4()),
+                    "expected_registry_revision": 3,
+                    "entry_id": model_rows[1]["entry_id"],
+                    "expected_revision": 1,
+                }
+                for changes, code in (
+                    (
+                        {"entry_id": model_rows[0]["entry_id"], "expected_revision": 2},
+                        "MODEL_IN_USE",
+                    ),
+                    ({"entry_id": str(uuid4())}, "NOT_FOUND"),
+                    ({"expected_registry_revision": 2}, "REVISION_CONFLICT"),
+                    ({"expected_revision": 2}, "REVISION_CONFLICT"),
+                ):
+                    denied = await http.put(
+                        models_path, json={**remove, **changes}, headers=headers
+                    )
+                    assert (
+                        denied.status_code in (404, 409) and denied.json()["error"]["code"] == code
+                    )
+                denied = await http.put(
+                    models_path, json=remove, headers={**headers, "X-CSRF-Token": "invalid"}
+                )
+                assert denied.status_code == 403
+                # Synthetic owned operation row probes lifecycle admission without provider IO.
+                operation = str(uuid4())
+                async with engine.begin() as db:
+                    await db.execute(
+                        text(
+                            "INSERT INTO system_operation(instance_id,operation_id,command_id,payload_digest,"
+                            "schema_version,purpose,state,state_revision,generation,execution_owner_id,owner_epoch,"
+                            "cancel_epoch,deadline,config_snapshot_ref,input_projection_ref) VALUES "
+                            "(:instance,:operation,:operation,:digest,1,'SETTINGS_TEST','NEEDS_RECONCILIATION',"
+                            "1,:generation,:owner,:epoch,1,clock_timestamp()+interval '300 seconds','{}','{}')"
+                        ),
+                        {
+                            "instance": str(initial.instance_id),
+                            "operation": operation,
+                            "digest": "a" * 64,
+                            "generation": generation,
+                            "owner": str(process),
+                            "epoch": epoch,
+                        },
+                    )
+                denied = await http.put(models_path, json=remove, headers=headers)
+                assert (
+                    denied.status_code == 409
+                    and denied.json()["error"]["code"] == "OPERATION_ACTIVE"
+                )
+                async with engine.begin() as db:
+                    await db.execute(
+                        text(
+                            "UPDATE system_operation SET state='FINISHED',state_revision=2,"
+                            "finish_reason='OWNER_LOST' WHERE operation_id=:operation"
+                        ),
+                        {"operation": operation},
+                    )
+                retired = await http.put(models_path, json=remove, headers=headers)
+                # The same owner serializes competing saves at the old registry revision.
+                competing_stale = await http.put(
+                    models_path,
+                    json={**competing, "command_id": str(uuid4()), "expected_registry_revision": 3},
+                    headers=headers,
+                )
+                assert competing_stale.status_code == 409
+                assert retired.status_code == 200
+                retired_receipt = retired.json()
+                assert retired_receipt["registry_revision"] == 4 and retired_receipt["total"] == 63
+                remove_command = models_path + "/commands/" + str(remove["command_id"])
+                assert (await http.get(remove_command)).json() == retired_receipt
+                assert (
+                    await http.put(models_path, json=remove, headers=headers)
+                ).json() == retired_receipt
+                denied = await http.put(
+                    models_path, json={**remove, "expected_revision": 2}, headers=headers
+                )
+                assert (
+                    denied.status_code == 409
+                    and denied.json()["error"]["code"] == "COMMAND_CONFLICT"
+                )
+                async with engine.connect() as db:
+                    archive = (
+                        await db.execute(
+                            text(
+                                "SELECT removed_registry_revision FROM provider_model_entry WHERE entry_id=:entry"
+                            ),
+                            {"entry": remove["entry_id"]},
+                        )
+                    ).scalar_one()
+                    assert archive == 4
+                    assert (
+                        await db.execute(
+                            text(
+                                "SELECT count(*) FROM provider_model_entry_revision WHERE entry_id=:entry"
+                            ),
+                            {"entry": remove["entry_id"]},
+                        )
+                    ).scalar_one() == 1
+                stale_save = {
+                    **registry_payload,
+                    "command_id": str(uuid4()),
+                    "expected_registry_revision": 4,
+                    "models": [{**model_rows[1], "expected_revision": 1}],
+                }
+                denied = await http.put(models_path, json=stale_save, headers=headers)
+                assert (
+                    denied.status_code == 409
+                    and denied.json()["error"]["code"] == "REVISION_CONFLICT"
+                )
+                readd = {
+                    **stale_save,
+                    "command_id": str(uuid4()),
+                    "models": [{**model_rows[1], "entry_id": str(uuid4())}],
+                }
+                assert (await http.put(models_path, json=readd, headers=headers)).status_code == 200
+                assert (await http.get(models_path)).json()["total"] == 64
+                assert (await http.get(path)).json()["selection"] == selected
                 revoked = await http.put(
                     path,
                     json={
@@ -386,7 +506,7 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                 stale_model = {
                     **competing,
                     "command_id": str(uuid4()),
-                    "expected_registry_revision": 3,
+                    "expected_registry_revision": 5,
                     "models": [{**model_rows[0], "expected_revision": 2}],
                 }
                 denied = await http.put(models_path, json=stale_model, headers=headers)
@@ -394,9 +514,13 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                     denied.status_code == 409
                     and denied.json()["error"]["code"] == "CONNECTION_UNAVAILABLE"
                 )
-                assert (await http.get(models_path)).json()["registry_revision"] == 3
+                assert (await http.get(models_path)).json()["registry_revision"] == 5
                 latest_page = (await http.get(models_path)).json()
                 await service.shutdown(uuid4(), generation, process, epoch)
+                assert (await http.get(remove_command)).json() == retired_receipt
+                assert (
+                    await http.put(models_path, json=remove, headers=headers)
+                ).json() == retired_receipt
                 assert (await http.get(path + "/commands/" + command_id)).json() == saved.json()
                 assert (await http.put(path, json=payload, headers=headers)).json() == saved.json()
                 refused = await http.put(
@@ -435,6 +559,7 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
             ) as http:
                 assert (await http.get(registry_command)).json() == receipt
                 assert (await http.get(models_path)).json() == latest_page
+                assert (await http.get(remove_command)).json() == retired_receipt
                 assert (await http.get(path)).json()["selection"] == selected
             stopped.set()
         assert heartbeat.result() > 0
@@ -453,7 +578,7 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("previous", [None, "0015_model_test_v2"])
+@pytest.mark.parametrize("previous", [None, "0015_model_test_v2", "0016_provider_models"])
 async def test_registry_schema_empty_upgrade_backfill_and_constraints(
     empty_database_url: URL, previous: str | None, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -496,7 +621,7 @@ async def test_registry_schema_empty_upgrade_backfill_and_constraints(
         "provider_settings_command",
     )
     if previous is not None:
-        migrate(previous)
+        migrate("0015_model_test_v2" if previous == "0016_provider_models" else previous)
         with connect_test_database(empty_database_url) as db:
             identity_row = db.execute("SELECT instance_id FROM instance_control").fetchone()
             assert identity_row is not None
@@ -539,15 +664,265 @@ async def test_registry_schema_empty_upgrade_backfill_and_constraints(
             )
             for table in historical:
                 before[table] = db.execute(f"SELECT * FROM {table} ORDER BY 1,2,3").fetchall()
+        if previous == "0016_provider_models":
+            migrate(previous)
+            # Synthetic SQL migration input, not an upstream/provider test result.
+            from datetime import UTC, datetime, timedelta
+
+            from omnis.modules.runs import model_test_store as store
+            from omnis.modules.runs.model_test_contract import (
+                Caps,
+                Dispatch,
+                EntryCapabilities,
+                EntrySnapshot,
+                Operation,
+                Outcome,
+                Projection,
+            )
+            from omnis.modules.settings.provider_catalog_models import CatalogModel, CatalogView
+            from omnis.modules.settings.provider_key_service import ConnectionRevision
+            from omnis.modules.settings.provider_model_models import ModelEntry, ModelRegistryView
+
+            with connect_test_database(empty_database_url) as db:
+                seeded_entries = [
+                    ModelEntry(
+                        entry_id=str(row[0]),
+                        connection_id=connection,
+                        connection_revision=1,
+                        model=str(row[1]),
+                        revision=1,
+                        output_tokens=int(str(row[2])),
+                    )
+                    for row in db.execute(
+                        "SELECT e.entry_id,e.model,r.output_tokens FROM provider_model_entry e JOIN provider_model_entry_revision r USING(instance_id,entry_id,connection_id) ORDER BY e.entry_id"
+                    ).fetchall()
+                ]
+                seeded_command = str(uuid4())
+                seeded_receipt = ModelRegistryView(
+                    command_id=seeded_command,
+                    registry_revision=1,
+                    entries=seeded_entries,
+                    total=2,
+                    after=None,
+                    next_after=None,
+                )
+                db.execute(
+                    "INSERT INTO provider_model_command VALUES (%s,%s,%s,%s::jsonb)",
+                    (
+                        instance,
+                        seeded_command,
+                        "b" * 64,
+                        seeded_receipt.model_dump_json(),
+                    ),
+                )
+            seed_engine = database_engine(empty_database_url.render_as_string(hide_password=False))
+            try:
+                async with seed_engine.begin() as seed_db:
+                    # Typed archival records are synthetic migration inputs, never a claimed model call.
+                    seed_connection = ConnectionRevision(
+                        connection_id=connection,
+                        provider="openrouter",
+                        revision=1,
+                        enabled=True,
+                        secret_id=str(uuid4()),
+                        credential_revision=1,
+                    )
+                    catalog = CatalogView(
+                        connection_id=connection,
+                        connection_revision=1,
+                        provider="openrouter",
+                        catalog_command_id=str(uuid4()),
+                        state="READY",
+                        query="",
+                        offset=0,
+                        total=1,
+                        entries=[
+                            CatalogModel(
+                                model=seeded_entries[0].model,
+                                max_output_tokens=128,
+                                supports_max_tokens=True,
+                            )
+                        ],
+                    )
+                    catalog_ref = await store.put(
+                        seed_db, instance, "catalog-result", catalog.model_dump(mode="json")
+                    )
+                    capabilities = EntryCapabilities(
+                        entry=seeded_entries[0],
+                        connection=seed_connection,
+                        catalog_ref=catalog_ref,
+                        max_output_tokens=128,
+                    )
+                    capability = await store.put(
+                        seed_db,
+                        instance,
+                        "model-entry-capabilities-v1",
+                        capabilities.model_dump(mode="json"),
+                    )
+                    snapshot = EntrySnapshot(
+                        entry=seeded_entries[0],
+                        connection=seed_connection,
+                        capabilities_ref=capability,
+                        endpoint="https://openrouter.ai/api/v1",
+                    )
+                    config = await store.put(
+                        seed_db,
+                        instance,
+                        "model-entry-snapshot-v1",
+                        snapshot.model_dump(mode="json"),
+                    )
+                    projection = Projection(
+                        model=seeded_entries[0].model, output_tokens=seeded_entries[0].output_tokens
+                    )
+                    projected = await store.put(
+                        seed_db, instance, "model-input-v2", projection.model_dump(mode="json")
+                    )
+                    identity = str(uuid4())
+                    operation = Operation(
+                        instance_id=instance,
+                        operation_id=identity,
+                        command_id=identity,
+                        payload_digest="c" * 64,
+                        config_snapshot_ref=config,
+                        input_projection_ref=projected,
+                        execution_owner_id=str(uuid4()),
+                        generation=1,
+                        owner_epoch=1,
+                        cancel_epoch=1,
+                        deadline=datetime.now(UTC) + timedelta(seconds=300),
+                        state_revision=1,
+                        state="PENDING",
+                        finish_reason=None,
+                        outcome_ref=None,
+                    )
+                    await store.save_operation(seed_db, operation, initial=True)
+                    scope = await store.put(
+                        seed_db, instance, "system-operation", operation.model_dump(mode="json")
+                    )
+                    dispatch_owner = await store.put(
+                        seed_db,
+                        instance,
+                        "dispatch-owner-v2",
+                        {
+                            "execution_owner_id": operation.execution_owner_id,
+                            "owner_epoch": 1,
+                            "generation": 1,
+                            "scope_ref": scope.model_dump(mode="json"),
+                        },
+                    )
+                    permit = await store.put(
+                        seed_db,
+                        instance,
+                        "model-permit-v2",
+                        {
+                            "scope_ref": scope.model_dump(mode="json"),
+                            "owner_ref": dispatch_owner.model_dump(mode="json"),
+                            "config_ref": config.model_dump(mode="json"),
+                            "calls": 1,
+                        },
+                    )
+                    dispatch = Dispatch(
+                        scope_ref=scope,
+                        dispatch_attempt_id=str(uuid4()),
+                        dispatch_owner_ref=dispatch_owner,
+                        config_snapshot_ref=config,
+                        projection_ref=projected,
+                        projection_digest=projected.digest,
+                        reservation_ref=permit,
+                        instance_generation=1,
+                        owner_epoch=1,
+                        cancel_epoch=1,
+                        deadline=operation.deadline,
+                        technical_caps=Caps(output_tokens=projection.output_tokens),
+                    )
+                    await seed_db.execute(
+                        text(
+                            "INSERT INTO model_dispatch_v2(instance_id,dispatch_attempt_id,operation_id,payload) VALUES (:instance,:id,:operation,CAST(:payload AS jsonb))"
+                        ),
+                        {
+                            "instance": instance,
+                            "id": dispatch.dispatch_attempt_id,
+                            "operation": identity,
+                            "payload": dispatch.model_dump_json(),
+                        },
+                    )
+                    await store.event(seed_db, instance, dispatch.dispatch_attempt_id, "RESERVED")
+                    await store.event(seed_db, instance, dispatch.dispatch_attempt_id, "SENT")
+                    dispatch_ref = await store.put(
+                        seed_db, instance, "model-dispatch-v2", dispatch.model_dump(mode="json")
+                    )
+                    outcome = Outcome(
+                        operation_or_run_ref=scope,
+                        dispatch_ref=dispatch_ref,
+                        requested=config,
+                        result_state="UNKNOWN",
+                        reason_code="SYNTHETIC_MIGRATION_INPUT",
+                        usage_state="KNOWN",
+                        input_tokens=9,
+                        output_tokens=7,
+                        cost_observed="0.000016",
+                        recorded_at=datetime.now(UTC),
+                    )
+                    outcome_ref = await store.put(
+                        seed_db, instance, "model-outcome-v2", outcome.model_dump(mode="json")
+                    )
+                    await store.event(
+                        seed_db, instance, dispatch.dispatch_attempt_id, "SETTLED", outcome_ref
+                    )
+                    finished = Operation.model_validate(
+                        {
+                            **operation.model_dump(),
+                            "state": "FINISHED",
+                            "state_revision": 2,
+                            "finish_reason": "OWNER_LOST",
+                            "outcome_ref": outcome_ref,
+                        }
+                    )
+                    await store.save_operation(seed_db, finished)
+                    await store.command(seed_db, instance, identity, "c" * 64, "start", identity)
+            finally:
+                await seed_engine.dispose()
+            with connect_test_database(empty_database_url) as db:
+                for table in (
+                    "provider_model_registry_revision",
+                    "provider_model_entry",
+                    "provider_model_entry_revision",
+                    "provider_model_command",
+                    "model_record_v2",
+                    "system_operation",
+                    "system_operation_event",
+                    "model_command_v2",
+                    "model_dispatch_v2",
+                    "model_dispatch_event_v2",
+                ):
+                    before[table] = db.execute(f"SELECT * FROM {table} ORDER BY 1,2").fetchall()
     migrate("head")
     with connect_test_database(empty_database_url) as db:
         assert db.execute("SELECT version_num FROM alembic_version").fetchone() == (
-            "0016_provider_models",
+            "0017_model_removal",
         )
         identity_row = db.execute("SELECT instance_id FROM instance_control").fetchone()
         assert identity_row is not None
         instance = str(identity_row[0])
         if previous is not None:
+            if previous == "0016_provider_models":
+                for table in (
+                    "provider_model_registry_revision",
+                    "provider_model_entry",
+                    "provider_model_entry_revision",
+                    "provider_model_command",
+                    "model_record_v2",
+                    "system_operation",
+                    "system_operation_event",
+                    "model_command_v2",
+                    "model_dispatch_v2",
+                    "model_dispatch_event_v2",
+                ):
+                    rows = db.execute(f"SELECT * FROM {table} ORDER BY 1,2").fetchall()
+                    if table == "provider_model_entry":
+                        assert all(row[-1] is None for row in rows)
+                        rows = [row[:-1] for row in rows]
+                    assert rows == before[table]
             for table in historical:
                 assert (
                     db.execute(f"SELECT * FROM {table} ORDER BY 1,2,3").fetchall() == before[table]
@@ -572,11 +947,11 @@ async def test_registry_schema_empty_upgrade_backfill_and_constraints(
             db.execute("INSERT INTO provider_model_registry_revision VALUES (%s,2)", (instance,))
             invalid_sql = [
                 (
-                    "INSERT INTO provider_model_entry VALUES (%s,%s,%s,'Exact/ID')",
+                    "INSERT INTO provider_model_entry(instance_id,entry_id,connection_id,model) VALUES (%s,%s,%s,'Exact/ID')",
                     (instance, str(uuid4()), connection),
                 ),
                 (
-                    "INSERT INTO provider_model_entry VALUES (%s,%s,%s,'bad model')",
+                    "INSERT INTO provider_model_entry(instance_id,entry_id,connection_id,model) VALUES (%s,%s,%s,'bad model')",
                     (instance, str(uuid4()), connection),
                 ),
                 (
@@ -597,7 +972,7 @@ async def test_registry_schema_empty_upgrade_backfill_and_constraints(
                 ),
             ]
             expected_constraints = (
-                "provider_model_entry_instance_id_connection_id_model_key",
+                "provider_model_available_unique",
                 "provider_model_entry_model_check",
                 "provider_model_entry_connection_fk",
                 "provider_model_entry_registry_fk",
@@ -618,11 +993,106 @@ async def test_registry_schema_empty_upgrade_backfill_and_constraints(
             ):
                 with pytest.raises(psycopg.Error), db.transaction():
                     db.execute(f"DELETE FROM {table}")
+            for statement, guard_parameters in (
+                ("UPDATE provider_model_entry SET model='rewritten' WHERE entry_id=%s", (entry,)),
+                (
+                    "UPDATE provider_model_entry SET entry_id=%s WHERE entry_id=%s",
+                    (str(uuid4()), entry),
+                ),
+                (
+                    "UPDATE provider_model_entry SET connection_id=%s WHERE entry_id=%s",
+                    (str(uuid4()), entry),
+                ),
+                (
+                    "UPDATE provider_model_entry SET instance_id=%s WHERE entry_id=%s",
+                    (str(uuid4()), entry),
+                ),
+                ("TRUNCATE provider_model_entry CASCADE", ()),
+            ):
+                with pytest.raises(psycopg.Error), db.transaction():
+                    db.execute(statement, guard_parameters)
+            with pytest.raises(psycopg.errors.ForeignKeyViolation) as refused, db.transaction():
+                db.execute(
+                    "UPDATE provider_model_entry SET removed_registry_revision=999 WHERE entry_id=%s",
+                    (entry,),
+                )
+            assert refused.value.diag.constraint_name == "provider_model_removed_registry_fk"
+            with db.transaction(force_rollback=True):
+                # A second namespace exists only inside this rolled-back negative fixture.
+                db.execute(
+                    "ALTER TABLE instance_control DROP CONSTRAINT ck_instance_control_singleton"
+                )
+                foreign = str(uuid4())
+                db.execute("INSERT INTO instance_control(id,instance_id) VALUES (2,%s)", (foreign,))
+                db.execute(
+                    "INSERT INTO provider_model_registry_revision VALUES (%s,999)", (foreign,)
+                )
+                with (
+                    pytest.raises(psycopg.errors.ForeignKeyViolation) as foreign_refused,
+                    db.transaction(),
+                ):
+                    db.execute(
+                        "UPDATE provider_model_entry SET removed_registry_revision=999 WHERE entry_id=%s",
+                        (entry,),
+                    )
+                assert (
+                    foreign_refused.value.diag.constraint_name
+                    == "provider_model_removed_registry_fk"
+                )
+            db.execute(
+                "UPDATE provider_model_entry SET removed_registry_revision=2 WHERE entry_id=%s",
+                (entry,),
+            )
+            for removed_revision in (None, 1, 2):
+                with pytest.raises(psycopg.Error), db.transaction():
+                    db.execute(
+                        "UPDATE provider_model_entry SET removed_registry_revision=%s WHERE entry_id=%s",
+                        (removed_revision, entry),
+                    )
+            new_entry = str(uuid4())
+            db.execute(
+                "INSERT INTO provider_model_entry(instance_id,entry_id,connection_id,model) VALUES (%s,%s,%s,'Exact/ID')",
+                (instance, new_entry, connection),
+            )
+            with pytest.raises(psycopg.errors.UniqueViolation) as refused, db.transaction():
+                db.execute(
+                    "INSERT INTO provider_model_entry(instance_id,entry_id,connection_id,model) VALUES (%s,%s,%s,'Exact/ID')",
+                    (instance, str(uuid4()), connection),
+                )
+            assert refused.value.diag.constraint_name == "provider_model_available_unique"
         else:
             assert db.execute("SELECT count(*) FROM provider_model_entry").fetchone() == (0,)
     engine = database_engine(empty_database_url.render_as_string(hide_password=False))
     try:
         assert await readiness_reason(engine) is None
+        mutations = (
+            "DROP INDEX provider_model_available_unique",
+            "DROP INDEX provider_model_available_unique; CREATE INDEX provider_model_available_unique ON provider_model_entry(instance_id,connection_id,model) WHERE removed_registry_revision IS NULL",
+            "DROP TRIGGER provider_model_retire ON provider_model_entry",
+            "ALTER TABLE provider_model_entry DISABLE TRIGGER provider_model_retire",
+            "CREATE OR REPLACE FUNCTION provider_model_retire_guard() RETURNS trigger LANGUAGE plpgsql AS $$BEGIN RETURN NEW; END;$$",
+            "ALTER TABLE provider_model_entry DROP CONSTRAINT provider_model_removed_registry_fk",
+            "ALTER TABLE provider_model_entry DROP CONSTRAINT provider_model_removed_registry_fk; ALTER TABLE provider_model_entry ADD CONSTRAINT provider_model_removed_registry_fk FOREIGN KEY(instance_id,removed_registry_revision) REFERENCES provider_model_registry_revision(instance_id,revision) NOT VALID",
+        )
+        for mutation in mutations:
+            async with engine.connect() as connection_db:
+                transaction = await connection_db.begin()
+                try:
+                    statements = (
+                        [mutation]
+                        if mutation.startswith("CREATE OR REPLACE FUNCTION")
+                        else mutation.split("; ")
+                    )
+                    for statement in statements:
+                        await connection_db.execute(text(statement))
+                    from omnis.core.db import ReadinessReason, schema_reason_on
+
+                    assert (
+                        await schema_reason_on(connection_db) == ReadinessReason.SCHEMA_INCOMPATIBLE
+                    )
+                finally:
+                    await transaction.rollback()
+            assert await readiness_reason(engine) is None
         async with engine.begin() as connection_db:
             await connection_db.execute(
                 text(

@@ -14,8 +14,8 @@ import { availabilityIssue, catalogEvidence, catalogStorage, currentConnection, 
 import type { CatalogOperation, CatalogRead, Connection, EntryCheck, Evidence, ModelEntry, Pending } from './SettingsModels';
 import styles from './SettingsModels.module.css';
 
-const definitive = (error: unknown) => error instanceof ApiError && ['REVISION_CONFLICT', 'CONNECTION_UNAVAILABLE', 'MODEL_NOT_REGISTERED', 'REGISTRY_FULL', 'CAPABILITIES_REQUIRED', 'OPERATION_ACTIVE', 'INVALID_INPUT', 'INVALID_CSRF', 'BODY_TOO_LARGE'].includes(error.code);
-const confirmations = ['Key saved.', 'Connection disabled.', 'Assignments saved. Applies to future runs only.', 'Settings reloaded.', 'Models saved. Assignments stay unchanged.', 'Models connected.', 'Exact receipt recovered; current settings loaded. No catalog refresh or test was sent.', 'Test was not admitted. A new test requires new consent.'];
+const definitive = (error: unknown) => error instanceof ApiError && ['MODEL_IN_USE', 'NOT_FOUND', 'REVISION_CONFLICT', 'CONNECTION_UNAVAILABLE', 'MODEL_NOT_REGISTERED', 'REGISTRY_FULL', 'CAPABILITIES_REQUIRED', 'OPERATION_ACTIVE', 'INVALID_INPUT', 'INVALID_CSRF', 'BODY_TOO_LARGE'].includes(error.code);
+const confirmations = ['Model removed. Saved history remains.', 'Key saved.', 'Connection disabled.', 'Assignments saved. Applies to future runs only.', 'Settings reloaded.', 'Models saved. Assignments stay unchanged.', 'Models connected.', 'Exact receipt recovered; current settings loaded. No catalog refresh or test was sent.', 'Test was not admitted. A new test requires new consent.'];
 export function SettingsModelsPage({ scope }: { scope: string }) {
   const { session, readPrivate } = useSession();
   const client = useQueryClient();
@@ -144,8 +144,19 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     if (blocked || sending) return;
     const id = ++wizardGeneration.current; setWizard({ id, provider, connection: data?.settings.connections.find(item => item.provider === provider), replace });
   }
+  function removedControlFocus() {
+    const origin = document.activeElement;
+    let moved = false;
+    const observe = (event: FocusEvent) => { if (event.target !== origin) moved = true; };
+    document.addEventListener('focusin', observe);
+    return () => requestAnimationFrame(() => {
+      document.removeEventListener('focusin', observe);
+      if (!lifetime.current.signal.aborted && !moved && origin && !origin.isConnected && document.activeElement === document.body) addButton.current?.focus();
+    });
+  }
   async function readCurrent(recover = false) {
     if (!authReady || reading || mutationBusy.current || continuation.current || (pending && !recover)) return;
+    const settleFocus = removedControlFocus();
     setReading(true); setNotice(''); const abort = new AbortController(); readController.current = abort;
     try {
       if (recover && pending) await readPrivate(async () => { if (pending.kind === 'keys') await api.providerKeys(pending.id, abort.signal); else await api.providerModels(pending.id, abort.signal); }, abort.signal);
@@ -154,7 +165,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       remember(pendingStorage, scope, null); setPending(null); setStale(false); client.setQueryData(queryKey, value);
       setNotice(recover ? 'Exact receipt recovered; current settings loaded. No catalog refresh or test was sent.' : 'Settings reloaded.');
     } catch (error) { if (!abort.signal.aborted && !lifetime.current.signal.aborted) { setStale(true); setNotice(recover ? 'Receipt not confirmed. Do not repeat this command.' : message(error)); } }
-    finally { if (!lifetime.current.signal.aborted) setReading(false); }
+    finally { if (!lifetime.current.signal.aborted) setReading(false); settleFocus(); }
   }
   async function mutate<T>(kind: Pending['kind'], id: string, send: () => Promise<T>): Promise<T | undefined> {
     if (blocked || reading || current.isFetching || mutationBusy.current) return;
@@ -311,6 +322,23 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     if (testIntent && connection && generation === wizardGeneration.current && !lifetime.current.signal.aborted) void connectEntries(payload.models.map(request => entries.find(item => item.entry_id === request.entry_id)!), testIntent.catalog, connection.provider, testIntent.generation);
     return entries;
   }
+  function removeDependencies(entry: ModelEntry) {
+    const selected = data?.settings.selection;
+    return selected ? (['default', 'brain', 'investigator', 'validator'] as const).filter(role => {
+      const choice = selected[role];
+      return choice && choice.connection_id === entry.connection_id && choice.model === entry.model;
+    }) : [];
+  }
+  async function removeModel(entry: ModelEntry, provider: Connection['provider']) {
+    if (blocked || busy || activeTest || !data || removeDependencies(entry).length) return;
+    if (!window.confirm(`Remove ${entry.model} via ${providerName(provider)}? Saved history remains.`)) return;
+    const command = { action: 'remove_model' as const, command_id: crypto.randomUUID(), expected_registry_revision: data.library.revision, entry_id: entry.entry_id, expected_revision: entry.revision };
+    const settleFocus = removedControlFocus();
+    try {
+      const receipt = await mutate('models', command.command_id, () => api.saveProviderModels(command, session.data!.csrf_token, lifetime.current.signal));
+      if (receipt) { setTestChoice(null); setConsent(false); setNotice('Model removed. Saved history remains.'); }
+    } finally { settleFocus(); }
+  }
   return <>
     <div className={styles.heading}><h2>Models</h2><fieldset className={styles.headingActions} aria-label="Model library actions">
       <button type="button" className={pending || stale || current.isError ? undefined : styles.quiet} aria-label={pending ? undefined : 'Reload current settings'} disabled={!authReady} aria-disabled={reading || sending || connecting} onClick={() => { if (!reading) void readCurrent(!!pending); }}>{pending ? 'Recover exact receipt' : stale || current.isError ? 'Reload current settings' : 'Reload'}</button>
@@ -361,6 +389,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
           const passed = check?.state === 'FINISHED' && check.result_state === 'COMPLETED' && check.finish_reason === 'COMPLETED';
           const matching = check && exactCheck(entry, connection.provider, check);
           const name = data.evidence[entry.entry_id]?.model.name ?? entry.model;
+          const dependencies = removeDependencies(entry), dependencyId = `model-remove-dependencies-${entry.entry_id}`;
           const detailsId = `model-details-${entry.entry_id}`, statusId = `model-status-${entry.entry_id}`;
           return <li className={styles.model} key={entry.entry_id} aria-label={`Model ${entry.model} via ${providerName(connection.provider)}`}>
             <div className={styles.modelRow}>
@@ -382,10 +411,12 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
             {check?.output_state === 'TRUNCATED' && <p className={styles.hint}>Response truncated.</p>}
             {check?.usage_state === 'PARTIAL' && <p className={styles.hint}>Usage is incomplete.</p>}
             <section id={detailsId} hidden={!open} className={styles.modelDetails} aria-label={`Model details for ${entry.model} via ${providerName(connection.provider)}`}>
-              {check ? <>
+              <div className={styles.modelSummary}><div className={styles.modelMetrics}>{check ? <>
                 <dl className={styles.usage} aria-label="Test usage"><div><dt>Input tokens</dt><dd>{check.input_tokens ?? 'Unknown'}</dd></div><div><dt>Output tokens</dt><dd>{check.output_tokens ?? 'Unknown'}</dd></div><div><dt>Cost</dt><dd>{check.cost_observed ?? 'Unknown'}</dd></div></dl>
                 {!needsRecovery && !terminalUnknown && (!passed || !matching || check.observed_model !== check.requested_model) && <button type="button" className={styles.quiet} disabled={checkSelectionBlocked(check)} onClick={() => readCheck(check)}>Read test status</button>}
-              </> : <p>{uncertain ? 'No result confirmed. Read back before another test.' : 'No saved test for this model.'}</p>}
+              </> : <p>{uncertain ? 'No result confirmed. Read back before another test.' : 'No saved test for this model.'}</p>}</div>
+              <button type="button" className={`${styles.quiet} ${styles.removeModel}`} aria-label={`Remove ${entry.model} via ${providerName(connection.provider)}`} aria-describedby={dependencies.length ? dependencyId : undefined} disabled={blocked || activeTest || latest === 'UNKNOWN' || dependencies.length > 0} aria-disabled={busy} onClick={() => { void removeModel(entry, connection.provider); }}>Remove model</button></div>
+              {dependencies.length > 0 && <p id={dependencyId} className={styles.hint}>Used by {dependencies.map(role => role[0]!.toUpperCase() + role.slice(1)).join(', ')}. Reassign explicitly in Model assignments before removing this model.</p>}
             </section>
           </li>;
         })}</ul>

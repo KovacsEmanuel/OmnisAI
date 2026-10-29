@@ -25,7 +25,7 @@ SOURCE_OIDS = {
 def test_mission_revision_head_keeps_historical_chain() -> None:
     config = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
     scripts = ScriptDirectory.from_config(config)
-    assert scripts.get_current_head() == SCHEMA_REVISION == "0016_provider_models"
+    assert scripts.get_current_head() == SCHEMA_REVISION == "0017_model_removal"
     revision = scripts.get_revision("0013_mission_revisions")
     assert revision is not None and revision.down_revision == "0012_contract_methods"
 

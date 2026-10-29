@@ -9,7 +9,7 @@ CLI_PY = cli/.venv/bin/python
 .DEFAULT_GOAL := check
 .PHONY: check-components test-db-contract test-sl04-pg
 # Dry-run/touch/ignore-errors must not produce a successful verification receipt.
-ifneq ($(filter check test check-components test-db-contract test-instance-drain-pg test-provider-settings-pg test-model-test-v2-pg test-settings-models-ui-pg test-sl04-pg test-b06b-publish-pg test-b06b-pure-probe-pg test-native-preparation-pg test-managed-admission-pg test-contract-method-pg test-contract-method-native-pg test-owned-initialization-native-pg test-model-test-prepare-native-pg test-model-test-execute-native-pg test-managed-composition-pg test-c03-pg test-model-projection-pg test-model-budget-pg test-model-admission-pg test-catalog-settings-e2e check-installed-start check-installed-pair-open check-installed-stop,$(or $(MAKECMDGOALS),check)),)
+ifneq ($(filter check test check-components test-t1-upgrade-pg test-db-contract test-instance-drain-pg test-provider-settings-pg test-settings-remove-pg test-settings-remove-ui-pg test-model-test-v2-pg test-settings-models-ui-pg test-sl04-pg test-b06b-publish-pg test-b06b-pure-probe-pg test-native-preparation-pg test-managed-admission-pg test-contract-method-pg test-contract-method-native-pg test-owned-initialization-native-pg test-model-test-prepare-native-pg test-model-test-execute-native-pg test-managed-composition-pg test-c03-pg test-model-projection-pg test-model-budget-pg test-model-admission-pg test-catalog-settings-e2e check-installed-start check-installed-pair-open check-installed-stop,$(or $(MAKECMDGOALS),check)),)
 _verification_short_flags := $(filter-out --%,$(firstword $(MAKEFLAGS)))
 ifneq ($(findstring n,$(_verification_short_flags))$(findstring t,$(_verification_short_flags))$(findstring q,$(_verification_short_flags))$(findstring i,$(_verification_short_flags)),)
 $(error Unsafe Make flags for verification; execute the real gate)
@@ -33,7 +33,11 @@ test-instance-drain-pg:
 
 .PHONY: test-dashboard
 .PHONY: test-model-test-v2-pg
-.PHONY: test-settings-models-ui-pg
+.PHONY: test-settings-models-ui-pg test-settings-remove-ui-pg
+test-settings-remove-ui-pg: build-web
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS OMNIS_SETTINGS_REMOVE_UI=1 $(API_PY) -I -B -m pytest -c api/pyproject.toml 'api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[entry_remove_ui]' -q -s --tb=short
+
 test-settings-models-ui-pg: build-web
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS OMNIS_SETTINGS_MODELS_UI=1 $(API_PY) -I -B -m pytest -c api/pyproject.toml 'api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[settings_ui]' -q -s --tb=short
@@ -43,6 +47,11 @@ test-model-test-v2-pg:
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py api/tests/test_model_relay_protocol.py api/tests/test_model_relay_scopes.py -q --tb=short
 
 .PHONY: test-provider-settings-pg
+.PHONY: test-settings-remove-pg
+test-settings-remove-pg:
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_key_api.py::test_registry_schema_empty_upgrade_backfill_and_constraints 'api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[entry_remove]' -q --tb=short
+
 test-provider-settings-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests/test_provider_key_settings.py api/tests/test_provider_key_api.py api/tests/test_provider_vault.py api/tests/test_cold_restore_pg.py -q
@@ -50,6 +59,11 @@ test-provider-settings-pg:
 test-dashboard:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_dashboard.py -q
+
+.PHONY: test-t1-upgrade-pg
+test-t1-upgrade-pg:
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(API_PY) -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider -c api/pyproject.toml api/tests/test_t1_upgrade.py api/tests/test_health.py api/tests/test_cold_restore_reconciliation.py -q --tb=short
 
 .PHONY: test-p1-api
 test-p1-api:
@@ -263,7 +277,7 @@ test-b04-e2e: build-web
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_web_e2e.py -q -s -k b04
 
 .PHONY: test-e2e
-test-e2e: build-web test-settings-models-ui-pg
+test-e2e: build-web test-settings-models-ui-pg test-settings-remove-ui-pg
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_web_e2e.py -q -s
 
 # The existing PG/browser family owns this one authentic records-v3 journey.
@@ -290,7 +304,7 @@ check-cli-wheel:
 	@test -n "$$TMPDIR" || { printf 'Set TMPDIR to a private scratch directory\n' >&2; exit 2; }
 	$(UV) build --no-config --wheel --clear cli --out-dir "$$TMPDIR/omnis-p04-cli-wheel"
 	$(UV) venv --clear --no-config --no-python-downloads --python 3.13.15 "$$TMPDIR/omnis-p04-cli-check"
-	$(UV) pip install --no-config --python "$$TMPDIR/omnis-p04-cli-check/bin/python" --no-deps "$$TMPDIR/omnis-p04-cli-wheel/omnis_cli-0.1.0-py3-none-any.whl"
+	$(UV) pip install --no-config --python "$$TMPDIR/omnis-p04-cli-check/bin/python" --no-deps "$$TMPDIR/omnis-p04-cli-wheel/omnis_cli-0.1.1-py3-none-any.whl"
 	@output="$$(XDG_CONFIG_HOME="$$TMPDIR/omnis-p04-empty-config" XDG_STATE_HOME="$$TMPDIR/omnis-p04-empty-xdg" "$$TMPDIR/omnis-p04-cli-check/bin/omnis" status --json)"; code=$$?; test "$$code" -eq 3 || { printf 'Installed CLI status exited %s instead of 3\n' "$$code" >&2; exit 1; }; printf '%s' "$$output" | $(CLI_PY) -I -c 'import json,sys; x=json.load(sys.stdin); assert x["state"] == "NOT_INSTALLED" and not x["dashboard_ready"]'
 	cd "$$TMPDIR" && XDG_CONFIG_HOME="$$TMPDIR/omnis-p04-empty-config" "$$TMPDIR/omnis-p04-cli-check/bin/python" -I -m unittest discover -s "$(CURDIR)/cli/tests" -v
 

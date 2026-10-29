@@ -11,9 +11,9 @@ from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import ArgumentError, DBAPIError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 
-from omnis.core.schema import authority_schema_matches
+from omnis.core.schema import authority_schema_matches, schema0016_matches
 
-SCHEMA_REVISION = "0016_provider_models"
+SCHEMA_REVISION = "0017_model_removal"
 
 
 class ReadinessReason(StrEnum):
@@ -84,6 +84,17 @@ async def _probe_schema(engine: AsyncEngine) -> ReadinessReason | None:
 
 
 async def schema_reason_on(connection: AsyncConnection) -> ReadinessReason | None:
+    return await _schema_reason_on(connection, previous=False)
+
+
+async def schema0016_reason_on(connection: AsyncConnection) -> ReadinessReason | None:
+    """Only the explicit T1 migrator admits the predecessor, never API readiness."""
+    return await _schema_reason_on(connection, previous=True)
+
+
+async def _schema_reason_on(
+    connection: AsyncConnection, *, previous: bool
+) -> ReadinessReason | None:
     await connection.execute(text("SELECT 1"))
     try:
         revisions = (
@@ -100,9 +111,14 @@ async def schema_reason_on(connection: AsyncConnection) -> ReadinessReason | Non
                 )
             )
         ).first()
-        if revisions != [SCHEMA_REVISION] or instance is None:
+        if (
+            revisions != ["0016_provider_models" if previous else SCHEMA_REVISION]
+            or instance is None
+        ):
             return ReadinessReason.SCHEMA_INCOMPATIBLE
-        if not await authority_schema_matches(connection):
+        if not await (
+            schema0016_matches(connection) if previous else authority_schema_matches(connection)
+        ):
             return ReadinessReason.SCHEMA_INCOMPATIBLE
         columns = (
             await connection.execute(

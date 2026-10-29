@@ -35,7 +35,7 @@ def build_bundle(
     output: Path,
     *,
     runtime_metadata: Path | None = None,
-    profile: str = "p4a-settings-offline",
+    profile: str = PROVIDER_SETTINGS_PROFILE,
 ) -> None:
     if profile not in {"p4a-settings-offline", "p4a-codex-auth", PROVIDER_SETTINGS_PROFILE} or (
         profile == "p4a-codex-auth" and runtime_metadata is None
@@ -51,8 +51,9 @@ def build_bundle(
     root_info = web_root.lstat()
     if not stat.S_ISDIR(root_info.st_mode):
         raise BundleError("Missing web build")
-    expected_api = "omnis_api-0.1.0-py3-none-any.whl"
-    expected_cli = "omnis_cli-0.1.0-py3-none-any.whl"
+    release_version = "0.1.1" if profile == PROVIDER_SETTINGS_PROFILE else "0.1.0"
+    expected_api = f"omnis_api-{release_version}-py3-none-any.whl"
+    expected_cli = f"omnis_cli-{release_version}-py3-none-any.whl"
     if api_wheel.name != expected_api or cli_wheel.name != expected_cli:
         raise BundleError("Wrong pinned wheel version")
     api_content = _canonical_file(api_wheel)
@@ -170,8 +171,8 @@ def build_bundle(
         raise BundleError("Web build contains unlisted files")
     manifest = {
         "format": 1,
-        "release": "0.1.0",
-        "schema": "0016_provider_models",
+        "release": release_version,
+        "schema": "0017_model_removal",
         "platform": "linux/amd64",
         "files": {name: hashlib.sha256(content).hexdigest() for name, content in payloads.items()},
     }
@@ -205,7 +206,7 @@ def main() -> int:
     parser.add_argument(
         "--profile",
         choices=("p4a-settings-offline", "p4a-codex-auth", PROVIDER_SETTINGS_PROFILE),
-        default="p4a-settings-offline",
+        default=PROVIDER_SETTINGS_PROFILE,
     )
     args = parser.parse_args()
     # Selected explicitly in the sealed manifest, never by ambient environment.

@@ -18,11 +18,74 @@ from uuid import uuid4
 
 from omnis_cli.compose import _checked_socket, _docker_id, _record
 from omnis_cli.instance import private_dir
+from omnis_cli.release import installed_version
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 class ReleaseBundleTest(unittest.TestCase):
+    def test_upgrade_census_normalizes_only_new_model_removal_field(self):
+        from installed_stop import _upgrade_census_sql
+
+        model = _upgrade_census_sql("provider_model_entry")
+        self.assertEqual(model.count("to_jsonb(t) - 'removed_registry_revision'"), 2)
+        history = _upgrade_census_sql("model_record_v2")
+        self.assertNotIn("removed_registry_revision", history)
+        self.assertEqual(history.count("(to_jsonb(t))::text"), 2)
+        with self.assertRaises(ValueError):
+            _upgrade_census_sql("model_record_v2; DROP TABLE model_record_v2")
+
+    def test_t1_upgrade_preflight_refuses_missing_inputs_before_daemon(self):
+        from installed_stop import upgrade_preflight
+
+        with patch("subprocess.run", side_effect=AssertionError("preflight must have no effects")):
+            with self.assertRaisesRegex(ValueError, "UPGRADE_PROBE_INPUTS"):
+                upgrade_preflight({})
+
+    def test_t1_populated0016_upgrade_installed(self):
+        self.t1_upgrade()
+
+    def test_t1_upgrade_known_preopen_failure_restores_installed_snapshot(self):
+        self.t1_upgrade(known_failure=True)
+
+    def t1_upgrade(self, *, known_failure=False):
+        """Opt-in existing Stop consumer; no operator profile or source mounts."""
+        from installed_stop import run_installed_stop, upgrade_preflight
+
+        keys = {
+            "old_bundle": "OMNIS_T1_OLD_BUNDLE",
+            "bundle": "OMNIS_T1_UPGRADE_BUNDLE",
+            "old_cli": "OMNIS_T1_OLD_CLI",
+            "cli": "OMNIS_CLI_BIN",
+        }
+        if os.environ.get("OMNIS_T1_UPGRADE_PROBE") != "1":
+            self.skipTest("Explicit isolated installed upgrade QA required")
+        options = {name: os.environ.get(key, "") for name, key in keys.items()}
+        upgrade_preflight(options)
+        with self.bundle_scratch() as scratch:
+            data = scratch / "data"
+            env = {
+                "PATH": "/usr/bin:/bin",
+                "HOME": str(scratch),
+                "XDG_DATA_HOME": str(data),
+                "XDG_CONFIG_HOME": str(scratch / "config"),
+                "XDG_STATE_HOME": str(scratch / "unused"),
+                "TMPDIR": str(scratch),
+            }
+            copied = scratch / "old-bundle"
+            shutil.copytree(options["old_bundle"], copied)
+            for path in (copied, *copied.rglob("*")):
+                path.chmod(0o700 if path.is_dir() else 0o600)
+            for args in (("install", "--bundle", str(copied)), ("install-image",)):
+                result = self.run_cli_scope(
+                    [options["old_cli"], *args], cwd=scratch, env=env, timeout=360
+                )
+                self.assertEqual(result.returncode, 0, "Fresh old fixture installation failed")
+            receipt = json.loads((data / "omnis/image.json").read_text())
+            run_installed_stop(
+                data, receipt, options["old_cli"], upgrade=options, upgrade_failure=known_failure
+            )
+
     def run_cli_scope(self, argv, *, cwd, env, timeout):
         """Own the CLI and its Docker child as one process group on timeout."""
         process = subprocess.Popen(
@@ -97,7 +160,7 @@ class ReleaseBundleTest(unittest.TestCase):
                 print(f"IMAGE_RECOVERY_INTENT retained at {scratch}", file=sys.stderr)
             raise
         finally:
-            if not keep:
+            if not keep and not (scratch / "data/omnis/upgrade.json").exists():
                 shutil.rmtree(scratch)
 
     def test_uncertain_install_preserves_private_recovery_intent(self):
@@ -461,7 +524,12 @@ class ReleaseBundleTest(unittest.TestCase):
             return
         private_dir(root)
         manifest_sha = hashlib.sha256(
-            (root / "releases/0.1.0/release.json").read_bytes()
+            (
+                root
+                / "releases"
+                / (installed_version(root) if (root / "installed.json").exists() else "0.1.0")
+                / "release.json"
+            ).read_bytes()
         ).hexdigest()
         record = None
         malformed = False
@@ -1201,7 +1269,7 @@ class ReleaseBundleTest(unittest.TestCase):
             bundle = scratch / "bundle"
             run(
                 [
-                    str(ROOT / "cli/.venv/bin/python"),
+                    sys.executable,
                     "-I",
                     str(ROOT / "ops/build_control_bundle.py"),
                     "--api-wheel",
@@ -1222,7 +1290,7 @@ class ReleaseBundleTest(unittest.TestCase):
                 ]
             )
             manifest = json.loads((bundle / "release.json").read_text())
-            self.assertEqual(manifest["release"], "0.1.0")
+            self.assertEqual(manifest["release"], "0.1.1")
             self.assertEqual(
                 set(manifest["files"]),
                 {
@@ -1241,7 +1309,7 @@ class ReleaseBundleTest(unittest.TestCase):
             }
             installed = run([cli, "install", "--bundle", str(bundle)], env=env)
             self.assertNotIn(str(ROOT), installed.stdout + installed.stderr)
-            installed_root = data / "omnis/releases/0.1.0"
+            installed_root = data / "omnis/releases/0.1.1"
             self.assertEqual(
                 (installed_root / "web/index.html").read_bytes(),
                 (ROOT / "web/dist/index.html").read_bytes(),
@@ -1327,7 +1395,7 @@ class ReleaseBundleTest(unittest.TestCase):
             forged = scratch / "forged-bundle"
             run(
                 [
-                    str(ROOT / "cli/.venv/bin/python"),
+                    sys.executable,
                     "-I",
                     str(ROOT / "ops/build_control_bundle.py"),
                     "--api-wheel",
@@ -1359,7 +1427,7 @@ class ReleaseBundleTest(unittest.TestCase):
             wrong_uv_bundle = scratch / "wrong-uv-bundle"
             run(
                 [
-                    str(ROOT / "cli/.venv/bin/python"),
+                    sys.executable,
                     "-I",
                     str(ROOT / "ops/build_control_bundle.py"),
                     "--api-wheel",
@@ -1381,7 +1449,7 @@ class ReleaseBundleTest(unittest.TestCase):
             os.mkfifo(fifo)
             refused = run(
                 [
-                    str(ROOT / "cli/.venv/bin/python"),
+                    sys.executable,
                     "-I",
                     str(ROOT / "ops/build_control_bundle.py"),
                     "--api-wheel",

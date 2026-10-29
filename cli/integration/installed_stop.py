@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -9,6 +10,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
+from uuid import uuid4
 
 from installed_pair_open import http_request, run_browser, tty_pair
 from installed_start import (
@@ -22,6 +24,15 @@ from omnis_cli.development import selection, validate_new
 from omnis_cli.health import http_probe
 from omnis_cli.lifecycle import lifecycle_lock
 from omnis_cli.start_runtime import ControlRuntime
+
+
+def _upgrade_census_sql(table):
+    if re.fullmatch(r"[a-z_0-9]+", table) is None:
+        raise ValueError("Invalid census table")
+    row = "to_jsonb(t)"
+    if table == "provider_model_entry":
+        row += " - 'removed_registry_revision'"
+    return f"SELECT md5(coalesce(string_agg(({row})::text,',' ORDER BY ({row})::text),'')) FROM {table} t"
 
 
 def _lock_effect_snapshot(runtime, root, control, port, record):
@@ -72,8 +83,46 @@ def development_preflight(options):
     validate_new(str(source))
 
 
-def run_installed_stop(data, receipt, cli, *, settings_browser=None, development=None):
+def upgrade_preflight(options):
+    """Decode exact old/new bundle inputs without creating a fixture or daemon IO."""
+    from omnis_cli.release import _manifest
+
+    if not isinstance(options, dict) or set(options) != {"old_bundle", "bundle", "old_cli", "cli"}:
+        raise ValueError("UPGRADE_PROBE_INPUTS")
+    for name in options:
+        path = Path(options[name])
+        if not path.is_absolute() or path.resolve() != path or not path.exists():
+            raise ValueError("UPGRADE_PROBE_INPUTS")
+    for name, version, schema in (
+        ("old_bundle", "0.1.0", "0016_provider_models"),
+        ("bundle", "0.1.1", "0017_model_removal"),
+    ):
+        manifest = json.loads(_manifest(Path(options[name]))[0])
+        if (manifest["release"], manifest["schema"], manifest.get("profile")) != (
+            version,
+            schema,
+            "t1-provider-settings",
+        ):
+            raise ValueError("UPGRADE_PROBE_PROFILE")
+    if not all(os.access(options[name], os.X_OK) for name in ("old_cli", "cli")):
+        raise ValueError("UPGRADE_PROBE_CLI")
+
+
+def run_installed_stop(
+    data,
+    receipt,
+    cli,
+    *,
+    settings_browser=None,
+    development=None,
+    upgrade=None,
+    upgrade_failure=False,
+):
     """Opt-in finite Settings visits share this fixture and its normal Stop owner."""
+    if upgrade is not None:
+        upgrade_preflight(upgrade)
+        if development is not None or settings_browser is not None:
+            raise ValueError("UPGRADE_PROBE_PROFILE")
     if development is not None:
         development_preflight(development)
         if settings_browser is not None or receipt.get("profile") != "t1-provider-settings":
@@ -308,6 +357,119 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None, development
         require_observer_settled()
         runtime.psql(db, "INSERT INTO sl04_sentinel VALUES (7)")
         require_observer_settled()
+        census = {}
+        vault_before = {}
+        if upgrade is not None:
+            # Synthetic disabled connection, model and role caps: never a provider request.
+            connection, entry, secret, selection_id = (str(uuid4()) for _ in range(4))
+            identity = record["instance_id"]
+            runtime.run(
+                "exec",
+                record["containers"]["supervisor"],
+                "python",
+                "-I",
+                "-c",
+                "from pathlib import Path; from omnis.modules.settings.provider_vault import ProviderVault,CredentialRef; "
+                + f"v=ProviderVault(Path('/vault'),Path('/vault-key'),{identity!r}); v.bootstrap(); v.put(CredentialRef({identity!r},{secret!r},1,'openrouter'),'synthetic-upgrade-key')",
+                effect=True,
+            )
+            vault_before = {
+                name: (root / name).read_bytes()
+                for name in ("vault/vault.json", "vault-key/master.key")
+            }
+            choice = {
+                "connection_id": connection,
+                "connection_revision": 1,
+                "model": "synthetic/upgrade",
+                "output_tokens": 37,
+            }
+            payload = json.dumps(
+                {"default": choice, "brain": choice, "investigator": None, "validator": None}
+            )
+            runtime.psql(
+                db,
+                f"INSERT INTO provider_connection_revision VALUES ('{identity}','{connection}','openrouter',1,false,'{secret}',1); INSERT INTO provider_model_registry_revision VALUES ('{identity}',1); INSERT INTO provider_model_entry VALUES ('{identity}','{entry}','{connection}','synthetic/upgrade'); INSERT INTO provider_model_entry_revision VALUES ('{identity}','{entry}',1,'{connection}',1,1,37); INSERT INTO provider_selection_revision VALUES ('{identity}','{selection_id}',1,'{payload}'::jsonb)",
+            )
+            operation_id, dispatch_id = str(uuid4()), str(uuid4())
+            seed_history = Path(__file__).with_name("upgrade_history.py").read_text()
+            runtime.run(
+                "exec",
+                record["containers"]["supervisor"],
+                "python",
+                "-I",
+                "-c",
+                seed_history,
+                json.dumps(
+                    dict(
+                        instance=identity,
+                        connection=connection,
+                        entry_id=entry,
+                        secret=secret,
+                        operation_id=operation_id,
+                        dispatch_id=dispatch_id,
+                    )
+                ),
+                effect=True,
+            )
+            history_sql = (
+                "SELECT jsonb_build_object('operation',to_jsonb(o),'dispatch',to_jsonb(d),"
+                "'outcome',r.payload,'receipt',e.receipt_ref) FROM system_operation o "
+                "JOIN model_dispatch_v2 d USING(instance_id,operation_id) "
+                "JOIN model_record_v2 r ON r.instance_id=o.instance_id AND r.id::text=o.outcome_ref->>'id' "
+                "JOIN model_dispatch_event_v2 e ON e.instance_id=o.instance_id AND e.dispatch_attempt_id=d.dispatch_attempt_id "
+                f"WHERE o.operation_id='{operation_id}' AND e.state='SETTLED'"
+            )
+            history_before = json.loads(runtime.psql(db, history_sql))
+            assert history_before["operation"]["operation_id"] == operation_id
+            assert history_before["operation"]["command_id"] == operation_id
+            assert history_before["operation"]["state"] == "FINISHED"
+            assert history_before["dispatch"]["dispatch_attempt_id"] == dispatch_id
+            assert history_before["receipt"] == history_before["operation"]["outcome_ref"]
+            assert {
+                key: history_before["outcome"][key]
+                for key in (
+                    "result_state",
+                    "usage_state",
+                    "input_tokens",
+                    "output_tokens",
+                    "cost_observed",
+                )
+            } == dict(
+                result_state="UNKNOWN",
+                usage_state="KNOWN",
+                input_tokens=9,
+                output_tokens=7,
+                cost_observed="0.000016",
+            )
+            for table in (
+                "provider_connection_revision",
+                "provider_selection_revision",
+                "provider_settings_command",
+                "provider_model_registry_revision",
+                "provider_model_entry",
+                "provider_model_entry_revision",
+                "provider_model_command",
+                "model_record_v2",
+                "system_operation",
+                "model_command_v2",
+                "model_dispatch_v2",
+                "model_dispatch_event_v2",
+                "system_operation_event",
+            ):
+                assert re.fullmatch(r"[a-z_0-9]+", table)
+                if table in {
+                    "model_record_v2",
+                    "system_operation",
+                    "model_command_v2",
+                    "model_dispatch_v2",
+                    "model_dispatch_event_v2",
+                    "system_operation_event",
+                }:
+                    assert int(runtime.psql(db, f"SELECT count(*) FROM {table}")) > 0
+                census[table] = runtime.psql(
+                    db,
+                    _upgrade_census_sql(table),
+                )
 
         runtime.deadline = time.monotonic() + 30
         before_lock = _lock_effect_snapshot(runtime, root, control, port, record)
@@ -452,7 +614,177 @@ def run_installed_stop(data, receipt, cli, *, settings_browser=None, development
             )
         # SO_REUSEADDR=False may retain TIME_WAIT; never adopt a foreign listener.
         wait_port()
-        restarted = command("start", "--no-open", "--json")
+        if upgrade is not None:
+            old = json.loads(first_receipt)
+            completion = root / ("stop-" + old["stop_command"] + ".json")
+            completion_bytes = completion.read_bytes()
+            cli = upgrade["cli"]
+            assert (
+                command("start", "--no-open", "--json", expected=2)["reason"] == "UPGRADE_REQUIRED"
+            )
+            assert (root / "startup.json").read_bytes() == first_receipt
+            if upgrade_failure:
+                # Test-only installed interpreter seam: fail before OPEN, never alter product bytes.
+                script = (
+                    "import sys,json,subprocess; from pathlib import Path; import omnis_cli.start as s; "
+                    "from omnis_cli.lifecycle import StartError; from omnis_cli.main import main; "
+                    "args=json.loads(sys.argv[1]); "
+                    "exec('def fail(*a, **k):\\n"
+                    ' cli=str(Path(sys.executable).with_name("omnis"))\\n'
+                    ' other=args.copy(); other[4]+="-concurrent"\\n'
+                    ' for argv in ([cli,"start","--no-open","--json"],[cli,*other]):\\n'
+                    "  p=subprocess.run(argv,capture_output=True,text=True,timeout=15)\\n"
+                    '  assert p.returncode==4 and json.loads(p.stdout)["reason"]=="UPGRADE_RECOVERY_REQUIRED"\\n'
+                    ' raise StartError("SYNTHETIC_PREOPEN_FAILURE",3)\'); '
+                    "s.wait_dashboard=fail; raise SystemExit(main(args))"
+                )
+                args = [
+                    "upgrade",
+                    "--bundle",
+                    upgrade["bundle"],
+                    "--backup",
+                    str(state / "snapshot"),
+                    "--json",
+                ]
+                driver_pending = True
+                failed = subprocess.run(
+                    [str(Path(cli).with_name("python")), "-I", "-c", script, json.dumps(args)],
+                    cwd=cwd,
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    timeout=900,
+                )
+                driver_pending = False
+                assert failed.returncode == 3
+                assert json.loads(failed.stdout)["reason"] == "UPGRADE_ROLLED_BACK_STOPPED"
+                intent = json.loads((data / "omnis/upgrade.json").read_text())
+                assert intent["state"] == "ROLLED_BACK"
+                assert (root / "restore-source/startup.json").read_bytes() == first_receipt
+                assert (root / "restore-source/completion.json").read_bytes() == completion_bytes
+                quarantine = Path(intent["quarantine"])
+                assert quarantine.is_dir() and "open_command" not in json.loads(
+                    (quarantine / "startup.json").read_text()
+                )
+                assert json.loads((data / "omnis/installed.json").read_text())["release"] == "0.1.0"
+                runtime = ControlRuntime(data, time.monotonic() + 90)
+                assert runtime.receipt.image_id == receipt["image_id"]
+                assert not runtime.ids()
+                cli = upgrade["old_cli"]
+                wait_port()
+                restored = command("start", "--no-open", "--json")
+                assert (
+                    restored["instance_id"] == started["instance_id"]
+                    and restored["schema"] == "0016_provider_models"
+                )
+                record = json.loads((root / "startup.json").read_text())
+                runtime.attempt = record["attempt"]
+                assert (
+                    json.loads(runtime.psql(record["containers"]["db"], history_sql))
+                    == history_before
+                )
+                for table, expected in census.items():
+                    assert (
+                        runtime.psql(
+                            record["containers"]["db"],
+                            _upgrade_census_sql(table),
+                        )
+                        == expected
+                    )
+                assert (
+                    runtime.psql(record["containers"]["db"], "SELECT value FROM sl04_sentinel")
+                    == "7"
+                )
+                assert command("stop", "--json")["state"] == "STOPPED"
+                record = json.loads((root / "startup.json").read_text())
+                runtime.deadline = time.monotonic() + 90
+                assert_resources_absent(runtime, root, control, record)
+                proof = cleanup = True
+                return
+            # Candidate sources are mounted only after old0016 has stopped.
+            source = Path(__file__).resolve().parents[2]
+            shutil.copytree(
+                source / "api/src/omnis",
+                workspace / "api/src/omnis",
+                ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+            )
+            shutil.copytree(Path(upgrade["bundle"]) / "web", workspace / "web/dist")
+            validate_new(str(workspace))
+            config.write_text(
+                f"port = {port}\ndevelopment_workspace = {json.dumps(str(workspace))}\n"
+            )
+            upgrade_config = config.read_bytes()
+            restarted = command(
+                "upgrade",
+                "--bundle",
+                upgrade["bundle"],
+                "--backup",
+                str(state / "snapshot"),
+                "--json",
+                timeout=900,
+            )
+            runtime = ControlRuntime(data, time.monotonic() + 90)
+            upgraded_record = json.loads((root / "startup.json").read_text())
+            assert completion.read_bytes() == completion_bytes
+            assert (
+                root / ("stopped-" + old["stop_command"] + ".json")
+            ).read_bytes() == first_receipt
+            assert restarted["release"] == "0.1.1" and restarted["schema"] == "0017_model_removal"
+            assert restarted["mode"] == "DEVELOPMENT"
+            assert upgraded_record["development_workspace"] == str(workspace)
+            assert config.read_bytes() == upgrade_config
+            reused = command("start", "--no-open", "--json")
+            assert reused["reused"] is True and reused["mode"] == "DEVELOPMENT"
+            assert json.loads((root / "startup.json").read_text()) == upgraded_record
+            assert config.read_bytes() == upgrade_config
+            assert all(
+                upgraded_record[key] == old[key]
+                for key in (
+                    "project",
+                    "docker_id",
+                    "docker_host",
+                    "system_id",
+                    "pgdata_identity",
+                    "vault_identity",
+                    "vault_key_identity",
+                )
+            )
+            assert runtime.receipt.image_id != receipt["image_id"]
+            assert all((root / name).read_bytes() == value for name, value in vault_before.items())
+            assert (data / "omnis/releases/0.1.0/release.json").is_file()
+            assert (
+                json.loads(runtime.psql(upgraded_record["containers"]["db"], history_sql))
+                == history_before
+            )
+            assert (
+                runtime.psql(
+                    upgraded_record["containers"]["db"],
+                    "SELECT count(*) FROM provider_model_entry WHERE removed_registry_revision IS NOT NULL",
+                )
+                == "0"
+            )
+            for table, expected in census.items():
+                assert (
+                    runtime.psql(
+                        upgraded_record["containers"]["db"],
+                        _upgrade_census_sql(table),
+                    )
+                    == expected
+                )
+            assert (
+                command(
+                    "upgrade",
+                    "--bundle",
+                    upgrade["bundle"],
+                    "--backup",
+                    str(state / "second-snapshot"),
+                    "--json",
+                    expected=2,
+                )["state"]
+                == "REFUSED"
+            )
+        else:
+            restarted = command("start", "--no-open", "--json")
         assert restarted["state"] == "READY" and restarted["generation"] > initial["generation"]
         assert restarted["origin"] == started["origin"]
         assert restarted["supervisor_epoch"] > initial["supervisor_epoch"]

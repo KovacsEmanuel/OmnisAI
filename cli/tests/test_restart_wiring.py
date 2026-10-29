@@ -22,6 +22,15 @@ stop = importlib.import_module("omnis_cli.stop")
 
 
 class RestartWiringTest(unittest.TestCase):
+    def test_upgrade_new_image_reconciles_original_grant_before_open(self):
+        self.restart(provider_settings=True, upgrading=True)
+
+    def test_upgrade_preserves_development_config_and_next_start_reuses_same_workspace(self):
+        self.restart(provider_settings=True, upgrading=True, development_direction="preserve")
+
+    def test_upgrade_lost_reconciliation_ack_never_rolls_back_or_resends(self):
+        self.restart("lost", provider_settings=True, upgrading=True)
+
     def test_development_switches_only_new_attempt_after_stopped_in_both_directions(self):
         for direction in ("to-development", "to-release"):
             with self.subTest(direction=direction):
@@ -74,7 +83,13 @@ class RestartWiringTest(unittest.TestCase):
         self.restart("forwarder-fault")
 
     def restart(
-        self, fault=None, *, provider_settings=False, restored=False, development_direction=None
+        self,
+        fault=None,
+        *,
+        provider_settings=False,
+        restored=False,
+        development_direction=None,
+        upgrading=False,
     ):
         with private_stop_fixture() as (base, root, _foreign, control, old, runtime):
             retained = {}
@@ -100,13 +115,13 @@ class RestartWiringTest(unittest.TestCase):
 
                 workspace = base / "checkout"
                 build_fixture(workspace)
-                if development_direction == "to-release":
+                if development_direction in {"to-release", "preserve"}:
                     old["development_workspace"] = str(workspace)
                 config = base / "config/omnis/config.toml"
                 config.parent.mkdir(parents=True, mode=0o700)
                 config.write_text(
                     "development_workspace = " + json.dumps(str(workspace))
-                    if development_direction == "to-development"
+                    if development_direction != "to-release"
                     else ""
                 )
                 config.chmod(0o600)
@@ -132,6 +147,32 @@ class RestartWiringTest(unittest.TestCase):
             completion_raw = (json.dumps(completion, indent=3) + "\r\n").encode()
             receipt_path(root, old).write_bytes(completion_raw)
             receipt_path(root, old).chmod(0o600)
+            upgrade_intent = None
+            if upgrading:
+                data = base / "d/omnis"
+                saved = data / "upgrade-source"
+                saved.mkdir(mode=0o700)
+                for name, content in (
+                    ("startup.json", old_raw),
+                    ("completion.json", completion_raw),
+                ):
+                    (saved / name).write_bytes(content)
+                    (saved / name).chmod(0o600)
+                runtime.release = data / "releases/0.1.1"
+                runtime.digest = "9" * 64
+                runtime.receipt.image_id = "sha256:" + "8" * 64
+                runtime.receipt.release = "0.1.1"
+                instance = json.loads((root / "instance.json").read_text())
+                instance["release"] = "0.1.1"
+                write_record(root / "instance.json", instance, replace=True)
+                upgrade_intent = {
+                    "state": "STARTING",
+                    "upgrade_id": str(uuid4()),
+                    "saved": saved.name,
+                    "target_digest": runtime.digest,
+                    "old_attempt": old["attempt"],
+                }
+                write_record(data / "upgrade.json", upgrade_intent)
             if restored:
                 from omnis_cli import backup as cold
                 from stopped_fixture import completed_fixture
@@ -174,11 +215,11 @@ class RestartWiringTest(unittest.TestCase):
 
             def compose(_env, *args, **kwargs):
                 if development_direction is not None:
-                    selected = str(workspace) if development_direction == "to-development" else None
+                    selected = str(workspace) if development_direction != "to-release" else None
                     self.assertEqual(read_record(journal).get("development_workspace"), selected)
                     self.assertEqual(runtime.development_workspace, selected)
-                    self.assertEqual(read_record(journal)["image_id"], old["image_id"])
-                    self.assertEqual(read_record(journal)["release_digest"], old["release_digest"])
+                    self.assertEqual(read_record(journal)["image_id"], runtime.receipt.image_id)
+                    self.assertEqual(read_record(journal)["release_digest"], runtime.digest)
                 self.assertTrue(kwargs["effect"])
                 if args[-1] == "db":
                     events.append("create-db")
@@ -382,7 +423,12 @@ class RestartWiringTest(unittest.TestCase):
             def final_verify(_runtime, _root, _control, candidate, _port):
                 start._ready_record(candidate)
                 start._bound_instance(runtime, root, control, candidate)
-                return start.projection(load_instance(root), opened, reused=False)
+                return start.projection(
+                    load_instance(root),
+                    opened,
+                    reused=False,
+                    mode=start.development.mode(candidate),
+                )
 
             with contextlib.ExitStack() as scope:
                 for seam in (
@@ -463,7 +509,14 @@ class RestartWiringTest(unittest.TestCase):
                     scope.enter_context(
                         patch("omnis_cli.backup.cold_identity", return_value=old["system_id"])
                     )
-                code, result = start.start_result(None)
+                if upgrading:
+                    try:
+                        result = start.start_instance(None, _upgrade=upgrade_intent)
+                        code = 0
+                    except StartError as exc:
+                        code, result = exc.code, {"reason": exc.reason}
+                else:
+                    code, result = start.start_result(None)
                 if fault == "forwarder-fault":
                     self.assertEqual(children[0].returncode, 0, "Restart abandoned its held child")
                 self.assertEqual(code, 4 if fault else 0, result)
@@ -502,6 +555,20 @@ class RestartWiringTest(unittest.TestCase):
                     self.assertEqual(result["state"], "READY")
                     self.assertEqual(read_record(journal)["phase"], "READY")
                     self.assertEqual(read_record(journal)["generation"], 3)
+                    if development_direction == "preserve":
+                        before_config = config.read_bytes()
+                        self.assertEqual(result["mode"], "DEVELOPMENT")
+                        self.assertEqual(
+                            read_record(journal)["development_workspace"], str(workspace)
+                        )
+                        write_record(
+                            base / "d/omnis/upgrade.json", {"state": "COMPLETE"}, replace=True
+                        )
+                        before_events = list(events)
+                        again = start.start_instance()
+                        self.assertEqual(again["mode"], "DEVELOPMENT")
+                        self.assertEqual(config.read_bytes(), before_config)
+                        self.assertEqual(events, before_events)
                     if provider_settings:
                         self.assertEqual(read_record(journal)["format"], 5)
                         for path, expected in retained.items():

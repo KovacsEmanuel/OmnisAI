@@ -97,6 +97,31 @@ class ColdBackupTest(unittest.TestCase):
                 read_record(snapshot / "manifest.json")["instance_id"], record["instance_id"]
             )
 
+    def test_queued_cold_callers_recheck_upgrade_intent_under_data_lock(self):
+        from omnis_cli.lifecycle import StartError, write_record
+        from omnis_cli.start_runtime import refuse_upgrade
+
+        module = self.module()
+        for command in ("backup", "restore"):
+            with self.subTest(command=command), self.source() as (base, _root, _old, runtime):
+
+                def admitted_then_queued(*_args):
+                    refuse_upgrade(base / "d/omnis")
+                    write_record(base / "d/omnis/upgrade.json", {"state": "IMAGE_PENDING"})
+                    return runtime
+
+                with (
+                    patch.object(module, "ControlRuntime", side_effect=admitted_then_queued),
+                    patch.object(module, "cold_identity", side_effect=AssertionError("No helper")),
+                    patch.object(module, "archive", side_effect=AssertionError("No archive")),
+                    contextlib.redirect_stdout(io.StringIO()) as output,
+                ):
+                    self.assertEqual(module.cold_command(command, base / "snapshot"), 4)
+                self.assertIn("UPGRADE_RECOVERY_REQUIRED", output.getvalue())
+                self.assertFalse((base / "snapshot").exists())
+                with self.assertRaisesRegex(StartError, "UPGRADE_RECOVERY_REQUIRED"):
+                    refuse_upgrade(base / "d/omnis")
+
     def test_restore_status_is_read_only_and_refuses_invalid_admission(self):
         module = self.module()
         status = importlib.import_module("omnis_cli.status")

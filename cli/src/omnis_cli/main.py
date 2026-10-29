@@ -66,7 +66,17 @@ def main(argv: list[str] | None = None) -> int:
     image_parser.add_argument(
         "--runtime-context", type=Path, help="Prepared native input for p4a-settings-offline only"
     )
+    upgrade_parser = commands.add_parser(
+        "upgrade", help="Explicit stopped T1 0016 to 0017 transition"
+    )
+    upgrade_parser.add_argument("--bundle", type=Path, required=True)
+    upgrade_parser.add_argument("--backup", type=Path, required=True)
+    upgrade_parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
+    if args.command == "upgrade":
+        from .upgrade import upgrade_command
+
+        return upgrade_command(args.bundle, args.backup, as_json=args.json)
     try:
         config = load_config()
         if args.command in {
@@ -158,9 +168,7 @@ def main(argv: list[str] | None = None) -> int:
                 file=sys.stderr,
             )
             return 2
-        print(
-            "Release Omnis 0.1.0 instalat; pregătiți explicit imaginea, apoi omnis start --no-open."
-        )
+        print("Release Omnis instalat; pregătiți explicit imaginea, apoi omnis start --no-open.")
         return 0
     if args.command == "install-image":
         data_home = os.environ.get("XDG_DATA_HOME")

@@ -1655,6 +1655,7 @@
           "CONNECTION_UNAVAILABLE",
           "REGISTRY_FULL",
           "MODEL_NOT_REGISTERED",
+          "MODEL_IN_USE",
           "CAPABILITIES_REQUIRED",
           "OPERATION_ACTIVE",
           "OPERATION_FINISHED",
@@ -2823,6 +2824,37 @@
           "expected_selection_revision"
         ],
         "title": "RefreshRequest",
+        "type": "object"
+      },
+      "RemoveModel": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "remove_model",
+            "title": "Action",
+            "type": "string"
+          },
+          "command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "entry_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "expected_registry_revision": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "expected_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          }
+        },
+        "required": [
+          "action",
+          "command_id",
+          "expected_registry_revision",
+          "entry_id",
+          "expected_revision"
+        ],
+        "title": "RemoveModel",
         "type": "object"
       },
       "ResultState": {
@@ -5679,7 +5711,22 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SaveModels"
+                "discriminator": {
+                  "mapping": {
+                    "remove_model": "#/components/schemas/RemoveModel",
+                    "save_models": "#/components/schemas/SaveModels"
+                  },
+                  "propertyName": "action"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/SaveModels"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RemoveModel"
+                  }
+                ],
+                "title": "Body"
               }
             }
           },

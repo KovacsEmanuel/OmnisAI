@@ -44,7 +44,7 @@ from .start import (
     verify_running,
 )
 from .start import _publish_forwarder as _defer_guard_interrupts
-from .start_runtime import ControlRuntime
+from .start_runtime import ControlRuntime, refuse_upgrade
 from .stop_receipt import receipt_path, validate_grant
 
 STOP_STAGES = ("forwarder", "api", "supervisor", "db", "network", "ipc")
@@ -656,6 +656,7 @@ def stop_instance(
     deadline = runtime.deadline
     with ExitStack() as held:
         data_fd = held.enter_context(lifecycle_lock(data_home / "omnis", deadline))
+        refuse_upgrade(data_home / "omnis")
         data_guard_slot = [-1]
         held.callback(lambda: os.close(data_guard_slot[0]) if data_guard_slot[0] >= 0 else None)
         # Thread masks alone do not defer a Python handler scheduled by a peer thread.

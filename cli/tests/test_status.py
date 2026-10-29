@@ -24,25 +24,28 @@ from omnis_cli.stop import STOP_FIELDS
 
 class StatusTest(unittest.TestCase):
     def setUp(self):
-        self.original = os.environ.get("XDG_STATE_HOME")
-        self.original_runtime = os.environ.pop("XDG_RUNTIME_DIR", None)
         self.temp = tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"])
         self.addCleanup(self.temp.cleanup)
-        os.environ["XDG_STATE_HOME"] = self.temp.name
-        self.addCleanup(self.restore_env)
-        self.state = Path(self.temp.name) / "omnis"
+        root = Path(self.temp.name)
+        isolated = {
+            name: str(root / leaf)
+            for name, leaf in (
+                ("HOME", "home"),
+                ("XDG_CONFIG_HOME", "config"),
+                ("XDG_STATE_HOME", "state"),
+                ("XDG_RUNTIME_DIR", "runtime"),
+            )
+        }
+        for value in isolated.values():
+            Path(value).mkdir(mode=0o700)
+        environment = patch.dict(os.environ, isolated)
+        environment.start()
+        self.addCleanup(environment.stop)
+        self.state = Path(isolated["XDG_STATE_HOME"]) / "omnis"
         self.state.mkdir(mode=0o700)
-        self.control = self.state / "runtime-ipc"
+        self.control = Path(isolated["XDG_RUNTIME_DIR"]) / "omnis"
         self.control.mkdir(mode=0o700)
         self.identity = str(uuid4())
-
-    def restore_env(self):
-        if self.original is None:
-            os.environ.pop("XDG_STATE_HOME", None)
-        else:
-            os.environ["XDG_STATE_HOME"] = self.original
-        if self.original_runtime is not None:
-            os.environ["XDG_RUNTIME_DIR"] = self.original_runtime
 
     def run_status(self):
         out, err = io.StringIO(), io.StringIO()
@@ -55,7 +58,7 @@ class StatusTest(unittest.TestCase):
             "version": 1,
             "instance_id": self.identity,
             "release": "0.1.0",
-            "schema": "0016_provider_models",
+            "schema": "0017_model_removal",
             "project": "omnis-local-1",
             "origin": origin,
         }

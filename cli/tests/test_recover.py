@@ -42,6 +42,7 @@ class RecoveryFixture(Fixture):
                 "migrations/versions/0014_provider_settings.py",
                 "migrations/versions/0015_model_test_v2.py",
                 "migrations/versions/0016_provider_models.py",
+                "migrations/versions/0017_model_removal.py",
                 "modules/settings/provider_model_models.py",
                 "modules/settings/provider_model_routes.py",
                 "modules/settings/provider_model_service.py",
@@ -160,7 +161,7 @@ class RecoveryFixture(Fixture):
         if query == "SELECT instance_id FROM instance_control WHERE id = 1":
             return self.record["instance_id"]
         if query == "SELECT version_num FROM alembic_version":
-            return "0016_provider_models"
+            return "0017_model_removal"
         if "json_build_object" in query:
             return json.dumps(
                 dict(owner=self.old_owner if not self.starts else self.new_owner, eligible=True)

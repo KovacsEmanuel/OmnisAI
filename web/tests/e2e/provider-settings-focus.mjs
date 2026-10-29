@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { instance } from '../fixtures.ts';
 const check = expect.configure({ timeout: 5000 });
 const id = '11111111-1111-4111-8111-111111111111';
 const other = '22222222-2222-4222-8222-222222222222';
@@ -39,6 +40,8 @@ await test('Settings C SOURCE: painted focus, shared 900px axis, mobile and long
           if (url.origin !== origin) { unexpected.push(url.origin); return route.abort(); }
           const path = url.pathname;
           if (path === '/api/session') return route.fulfill({ json: { authenticated: true, csrf_token: 'a'.repeat(64) } });
+          if (path === '/api/instance') return route.fulfill({ json: { ...instance, generation: 1, admission_open: true } });
+          if (path.startsWith('/api/v1/model-test/entries/latest/')) return route.fulfill({ status: 404, json: { error: { code: 'NOT_FOUND', correlation_id: id } } });
           if (path === '/health/ready') return route.fulfill({ json: { api_ready: true, dashboard_ready: true, assessment_ready: false, reason: null, dashboard_reason: null } });
           if (path === '/api/v1/settings/providers') {
             if (request.method() === 'PUT') {
@@ -120,9 +123,9 @@ await test('Settings C SOURCE: painted focus, shared 900px axis, mobile and long
             await page.getByRole('button', { name: 'Continue', exact: true }).click();
             await check(page.getByRole('button', { name: 'Save models', exact: true })).toBeVisible();
             const modelToTest = page.getByRole('region', { name: 'Add models wizard' }).getByRole('combobox', { name: 'Model to test', exact: true });
-            await check(modelToTest).toHaveCount(1);
-            await modelToTest.selectOption('New/Model');
-            await check(modelToTest).toHaveValue('New/Model');
+            await check(modelToTest).toHaveCount(0);
+            await check(page.getByRole('region', { name: 'Add models wizard' }).getByText('New/Model', { exact: true, selector: 'small' })).toBeVisible();
+            await check(page.getByRole('checkbox', { name: 'I approve using this model.', exact: true })).not.toBeChecked();
             assert.equal(writes.length, 1);
             await capture('settings-review');
             await page.getByRole('button', { name: 'Save models', exact: true }).click();

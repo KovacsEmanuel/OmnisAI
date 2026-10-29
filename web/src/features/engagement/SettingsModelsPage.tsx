@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import type { KeyboardEvent } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../shared/api/client';
 import { ApiError, isUuid } from '../../shared/api/errors';
@@ -349,6 +350,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     setRemoval(null);
     if (inside && trigger?.isConnected) trigger.focus({ preventScroll: true });
   }
+  function removalKeys(event: KeyboardEvent<HTMLButtonElement>) { if (event.key === 'Escape') { event.stopPropagation(); cancelRemoval(); } }
   async function removeModel() {
     if (!removal || !removalCurrent || blocked || busy || activeTest || mutationBusy.current || lifetime.current.signal.aborted || !data || !expanded.includes(removal.entry.entry_id) || !Object.hasOwn(data.checks, removal.entry.entry_id) || data.checks[removal.entry.entry_id] === 'UNKNOWN' || removeDependencies(removal.entry).length) return;
     const command = { action: 'remove_model' as const, command_id: crypto.randomUUID(), expected_registry_revision: removal.registry, entry_id: removal.entry.entry_id, expected_revision: removal.entry.revision };
@@ -363,6 +365,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     const trigger = connectionChoice?.trigger, inside = document.activeElement?.closest('[aria-label="Connection confirmation"]');
     setConnectionChoice(null); if (inside && trigger?.isConnected) trigger.focus({ preventScroll: true });
   }
+  function connectionKeys(event: KeyboardEvent<HTMLButtonElement>) { if (event.key === 'Escape') { event.stopPropagation(); cancelConnectionChoice(); } }
   async function confirmConnectionChoice() {
     if (!connectionChoice || !connectionChoiceCurrent || blocked || busy || mutationBusy.current || lifetime.current.signal.aborted) return;
     const { connection, replace } = connectionChoice;
@@ -443,15 +446,15 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
             {check?.state === 'FINISHED' && !passed && (check.finish_reason === 'CANCELLED' || !terminalUnknown) && <p className={styles.hint}>{check.finish_reason === 'CANCELLED' ? 'Test cancelled. Read the saved result before testing again.' : check.result_state === 'INCOMPLETE' ? 'Test incomplete. Read the saved result before testing again.' : 'Test did not complete successfully. Read the saved result before testing again.'}</p>}
             {check?.output_state === 'TRUNCATED' && <p className={styles.hint}>Response truncated.</p>}
             {check?.usage_state === 'PARTIAL' && <p className={styles.hint}>Usage is incomplete.</p>}
-            <section id={detailsId} hidden={!open} className={styles.modelDetails} aria-label={`Model details for ${entry.model} via ${providerName(connection.provider)}`} onKeyDown={event => { if (event.key === 'Escape' && removal?.entry.entry_id === entry.entry_id) { event.stopPropagation(); cancelRemoval(); } }}>
+            <section id={detailsId} hidden={!open} className={styles.modelDetails} aria-label={`Model details for ${entry.model} via ${providerName(connection.provider)}`}>
               <div className={styles.modelSummary}><div className={styles.modelMetrics}>{check ? <>
                 <dl className={styles.usage} aria-label="Test usage"><div><dt>Input tokens</dt><dd>{check.input_tokens ?? 'Unknown'}</dd></div><div><dt>Output tokens</dt><dd>{check.output_tokens ?? 'Unknown'}</dd></div><div><dt>Cost</dt><dd>{check.cost_observed ?? 'Unknown'}</dd></div></dl>
                 {!needsRecovery && !terminalUnknown && (!passed || !matching || check.observed_model !== check.requested_model) && <button type="button" className={styles.quiet} disabled={checkSelectionBlocked(check)} onClick={() => readCheck(check)}>Read test status</button>}
               </> : <p>{uncertain ? 'No result confirmed. Read back before another test.' : 'No saved test for this model.'}</p>}</div>
-              <button type="button" className={`${styles.quiet} ${styles.removeModel}`} aria-label={`Remove ${entry.model} via ${providerName(connection.provider)}`} aria-describedby={dependencies.length ? dependencyId : undefined} aria-expanded={removal?.entry.entry_id === entry.entry_id} aria-controls={`model-remove-${entry.entry_id}`} disabled={blocked || activeTest || !Object.hasOwn(data.checks, entry.entry_id) || latest === 'UNKNOWN' || dependencies.length > 0} aria-disabled={busy} onClick={event => { if (!busy) setRemoval({ entry, connection, registry: data.library.revision, selection: data.settings.selection?.revision ?? 0, generation, trigger: event.currentTarget }); }}>Remove model</button></div>
+              <button type="button" className={`${styles.quiet} ${styles.removeModel}`} aria-label={`Remove ${entry.model} via ${providerName(connection.provider)}`} aria-describedby={dependencies.length ? dependencyId : undefined} aria-expanded={removal?.entry.entry_id === entry.entry_id} aria-controls={`model-remove-${entry.entry_id}`} disabled={blocked || activeTest || !Object.hasOwn(data.checks, entry.entry_id) || latest === 'UNKNOWN' || dependencies.length > 0} aria-disabled={busy} onKeyDown={removalKeys} onClick={event => { if (!busy) setRemoval({ entry, connection, registry: data.library.revision, selection: data.settings.selection?.revision ?? 0, generation, trigger: event.currentTarget }); }}>Remove model</button></div>
               {removalCurrent && removal?.entry.entry_id === entry.entry_id && <section id={`model-remove-${entry.entry_id}`} className={styles.removeConfirmation} aria-label="Remove model confirmation">
                 <div><strong>Remove model?</strong><p>{removal.entry.model} · {providerName(removal.connection.provider)}</p><small>Saved history remains.</small></div>
-                <div className={styles.actions}><button type="button" className={styles.secondary} onClick={cancelRemoval}>Cancel</button><button type="button" className={`${styles.secondary} ${styles.removeModel}`} disabled={blocked || activeTest || latest === 'UNKNOWN' || dependencies.length > 0} aria-disabled={busy} aria-busy={sending} onClick={() => { void removeModel(); }}>Remove</button></div>
+                <div className={styles.actions}><button type="button" className={styles.secondary} onKeyDown={removalKeys} onClick={cancelRemoval}>Cancel</button><button type="button" className={`${styles.secondary} ${styles.removeModel}`} disabled={blocked || activeTest || latest === 'UNKNOWN' || dependencies.length > 0} aria-disabled={busy} aria-busy={sending} onKeyDown={removalKeys} onClick={() => { void removeModel(); }}>Remove</button></div>
               </section>}
               {dependencies.length > 0 && <p id={dependencyId} className={styles.hint}>Used by {dependencies.map(role => role[0]!.toUpperCase() + role.slice(1)).join(', ')}. Reassign explicitly in Model assignments before removing this model.</p>}
             </section>
@@ -466,10 +469,10 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
           })}</details>
         </div>}
           {noticeTarget === connection.connection_id && settingsRecovery()}
-          <details onToggle={event => { if (!event.currentTarget.open && connectionChoice?.connection.connection_id === connection.connection_id) setConnectionChoice(null); }}><summary>Connection options</summary><div className={styles.actions}><button type="button" className={styles.secondary} disabled={blocked || data.settings.vault_status === 'LOCKED'} aria-disabled={busy} onClick={event => { if (!busy) setConnectionChoice({ connection, replace: true, selection: data.settings.selection?.revision ?? 0, trigger: event.currentTarget }); }}>{connection.enabled ? 'Replace key' : 'Reconnect'}</button><button type="button" className={styles.secondary} disabled={blocked || !connection.enabled} aria-disabled={busy} onClick={event => { if (!busy) setConnectionChoice({ connection, replace: false, selection: data.settings.selection?.revision ?? 0, trigger: event.currentTarget }); }}>Disable connection</button></div>
-            {connectionChoiceCurrent && connectionChoice?.connection.connection_id === connection.connection_id && <section className={styles.removeConfirmation} aria-label="Connection confirmation" onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); cancelConnectionChoice(); } }}>
+          <details onToggle={event => { if (!event.currentTarget.open && connectionChoice?.connection.connection_id === connection.connection_id) setConnectionChoice(null); }}><summary>Connection options</summary><div className={styles.actions}><button type="button" className={styles.secondary} disabled={blocked || data.settings.vault_status === 'LOCKED'} aria-disabled={busy} onKeyDown={connectionKeys} onClick={event => { if (!busy) setConnectionChoice({ connection, replace: true, selection: data.settings.selection?.revision ?? 0, trigger: event.currentTarget }); }}>{connection.enabled ? 'Replace key' : 'Reconnect'}</button><button type="button" className={styles.secondary} disabled={blocked || !connection.enabled} aria-disabled={busy} onKeyDown={connectionKeys} onClick={event => { if (!busy) setConnectionChoice({ connection, replace: false, selection: data.settings.selection?.revision ?? 0, trigger: event.currentTarget }); }}>Disable connection</button></div>
+            {connectionChoiceCurrent && connectionChoice?.connection.connection_id === connection.connection_id && <section className={styles.removeConfirmation} aria-label="Connection confirmation">
               <div><strong>{connectionChoice.replace ? connection.enabled ? 'Replace key?' : 'Reconnect?' : 'Disable connection?'}</strong><p>{providerName(connection.provider)}</p><small>{connectionChoice.replace ? 'Saved checks and assignments keep their original revision.' : 'Saved models and history remain. The upstream key is not revoked.'}</small></div>
-              <div className={styles.actions}><button type="button" className={styles.secondary} onClick={cancelConnectionChoice}>Cancel</button><button type="button" className={styles.secondary} disabled={blocked} aria-disabled={busy} onClick={() => { void confirmConnectionChoice(); }}>{connectionChoice.replace ? connection.enabled ? 'Replace key' : 'Reconnect' : 'Disable connection'}</button></div>
+              <div className={styles.actions}><button type="button" className={styles.secondary} onKeyDown={connectionKeys} onClick={cancelConnectionChoice}>Cancel</button><button type="button" className={styles.secondary} disabled={blocked} aria-disabled={busy} onKeyDown={connectionKeys} onClick={() => { void confirmConnectionChoice(); }}>{connectionChoice.replace ? connection.enabled ? 'Replace key' : 'Reconnect' : 'Disable connection'}</button></div>
             </section>}
           </details>
       </section>; })}

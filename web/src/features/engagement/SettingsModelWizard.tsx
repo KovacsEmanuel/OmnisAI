@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import { ApiError } from '../../shared/api/errors';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../shared/api/client';
@@ -80,6 +80,7 @@ export function SettingsModelWizard({ settings, library, provider, connection, c
     const inside = document.activeElement?.closest('[aria-label="Provider change confirmation"]');
     setProviderChange(null); if (inside) providerInput.current?.focus({ preventScroll: true });
   }
+  function providerKeys(event: KeyboardEvent) { if (event.key === 'Escape') { event.stopPropagation(); cancelProviderChange(); } }
   async function load(connection: Connection) {
     const value = await refresh(connection);
     if (!alive.current || !value) return;
@@ -127,12 +128,12 @@ export function SettingsModelWizard({ settings, library, provider, connection, c
     {stale && <p role="alert" className={styles.notice}>This connection changed or was disabled. Cancel and reopen to use its current revision.</p>}
     {notice && <p role="alert" className={styles.notice}>{notice}</p>}
     {step !== 1 && catalogFeedback}
-    {step === 0 && <><div className={styles.fields}><label className={styles.field}>Provider<select ref={providerInput} value={provider} disabled={blocked} aria-disabled={transient} onChange={event => chooseProvider(event.target.value)}><option value="openrouter">OpenRouter</option><option value="orcarouter">OrcaRouter</option></select></label>
+    {step === 0 && <><div className={styles.fields}><label className={styles.field}>Provider<select ref={providerInput} value={provider} disabled={blocked} aria-disabled={transient} onKeyDown={providerKeys} onChange={event => chooseProvider(event.target.value)}><option value="openrouter">OpenRouter</option><option value="orcarouter">OrcaRouter</option></select></label>
       {savedKey ? <div className={styles.field}><span>API key</span><span className={styles.saved}>Saved key</span></div> : <label className={styles.field}>API key<input ref={node => { keyInput.current = node; if (node) keyNode.current = node; }} type="password" name="secret" autoComplete="new-password" spellCheck={false} maxLength={512} disabled={locked} aria-disabled={transient} onChange={event => setValidKey(printable(event.target.value, 512))} /></label>}
     </div><p className={styles.hint}>{savedKey ? 'Continue loads the catalog using your saved key.' : 'Continue saves this key locally and loads the catalog.'} Cancel discards model choices, not the saved key.</p>
-      {providerChange && <section className={styles.removeConfirmation} aria-label="Provider change confirmation" onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); cancelProviderChange(); } }}>
+      {providerChange && <section className={styles.removeConfirmation} aria-label="Provider change confirmation">
         <div><strong>Discard selected models?</strong><p>{providerName(providerChange.source)} → {providerName(providerChange.next)}</p><ul>{providerChange.chosen.map(item => <li key={item.model}>{item.model}</li>)}</ul></div>
-        <div className={styles.actions}><button type="button" className={styles.secondary} onClick={cancelProviderChange}>Cancel</button><button type="button" className={styles.secondary} disabled={locked} aria-disabled={transient} onClick={() => { if (!transient && !busy.current && step === 0 && providerChange.source === provider && providerChange.chosen === chosen) changeProvider(providerChange.next); }}>Change provider</button></div>
+        <div className={styles.actions}><button type="button" className={styles.secondary} onKeyDown={providerKeys} onClick={cancelProviderChange}>Cancel</button><button type="button" className={styles.secondary} disabled={locked} aria-disabled={transient} onKeyDown={providerKeys} onClick={() => { if (!transient && !busy.current && step === 0 && providerChange.source === provider && providerChange.chosen === chosen) changeProvider(providerChange.next); }}>Change provider</button></div>
       </section>}
     </>}
     {step === 1 && <>

@@ -69,7 +69,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   }
   async function loadedMany() {
     await check(configured.getByRole('button', { name: /^Test fixture\// })).toHaveCount(32);
-    await check(page.getByLabel('Brain', { exact: true }).locator('option:checked')).toHaveText(/^fixture\/01 · OpenRouter(?: · Unavailable — details needed or connection stale)?$/);
+    await check(page.getByLabel('Brain', { exact: true }).locator('option:checked')).toHaveText(/^fixture\/01 · OpenRouter(?: · Connection unavailable)?$/);
     await assignments.getByText('Output controls', { exact: true }).click();
     await check(page.getByLabel('Brain output tokens', { exact: true })).toHaveValue('37');
     await assignments.getByText('Output controls', { exact: true }).click();

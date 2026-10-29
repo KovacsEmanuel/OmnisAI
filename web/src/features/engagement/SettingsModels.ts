@@ -13,6 +13,22 @@ export type Evidence = { catalog: string; connectionRevision: number; model: Cat
 export type Pending = { id: string; kind: 'keys' | 'models' };
 export type CatalogOperation = { id: string; connection: string; revision: number };
 export type EntryCheck = EntryTestView | null | 'UNKNOWN';
+export type CatalogRead = CatalogView | { code: ApiError['code'] };
+export function availabilityIssue(entry: ModelEntry, settings: KeySettings, evidence: Record<string, Evidence>, catalogs: Record<string, CatalogRead>, tokens = entry.output_tokens) {
+  if (!currentConnection(entry, settings)) return 'Connection unavailable';
+  const proof = evidence[entry.entry_id];
+  if (!proof || proof.connectionRevision !== entry.connection_revision) {
+    const catalog = catalogs[entry.entry_id];
+    if (!catalog || 'code' in catalog) return 'Catalog read unconfirmed';
+    if (catalog.state === 'FAILED') return 'Catalog unavailable';
+    if (catalog.state === 'PENDING') return 'Catalog loading';
+    if (catalog.state === 'STALE') return 'Catalog stale';
+    if (catalog.state === 'NOT_REQUESTED') return 'Catalog not loaded';
+    return 'Model details unavailable';
+  }
+  if (proof.model.supports_max_tokens == null || proof.model.max_output_tokens == null) return 'Output capability unconfirmed';
+  return supports(proof.model, entry.output_tokens) && supports(proof.model, tokens) ? null : 'Output cap unsupported';
+}
 export function exactCheck(entry: ModelEntry, provider: Connection['provider'], check: EntryTestView) {
   return check.current && check.entry_id === entry.entry_id && check.entry_revision === entry.revision && check.connection_id === entry.connection_id && check.connection_revision === entry.connection_revision && check.requested_provider === provider && check.requested_model === entry.model && check.requested_output_tokens === entry.output_tokens;
 }

@@ -50,6 +50,64 @@ it('marks prior Connected state unconfirmed after a settings read fails, includi
   await screen.findByText('Unconfirmed — reload settings'); fireEvent.click(screen.getByRole('button', { name: 'Dismiss notification' }));
   expect(screen.getByText('Unconfirmed — reload settings')).toBeVisible(); expect(screen.queryByText('Connected')).not.toBeInTheDocument();
 });
+it('keeps a saved successful test distinct from a failed current catalog and preserves assignments', async () => {
+  const keys = { ...configured, selection: { selection_id: entryId, revision: 7, default: selected, brain: { ...selected, output_tokens: 37 }, investigator: null, validator: null } };
+  const { state, hook } = settingsBackend(keys);
+  hook.intercept = (path, body) => {
+    if (path.includes('/entries/latest/')) return Response.json({ ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', finish_reason: 'COMPLETED', result_state: 'COMPLETED' });
+    if (path.endsWith('/search')) return Response.json({ schema_version: 1, connection_id: entry.connection_id, connection_revision: 1, provider: 'openrouter', catalog_command_id: catalogId, state: 'FAILED', reason: 'METADATA_UNAVAILABLE', query: body.query, offset: 0, next_offset: null, total: 0, entries: [] });
+  };
+  mount();
+  const list = await screen.findByRole('region', { name: 'Configured models' });
+  expect(within(list).getByText('Test passed · catalog unavailable')).toBeVisible();
+  expect(within(list).queryByText('Connected', { exact: true })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Test Exact/Model via OpenRouter' })).toBeDisabled();
+  expect(screen.getByLabelText('Default model')).toHaveDisplayValue('Exact/Model · OpenRouter · Catalog unavailable');
+  expect(screen.getByRole('button', { name: 'Save assignments' })).toBeDisabled();
+  expect(within(list).getByText('The model catalog is unavailable. Saved test results are unchanged. Open Add models to refresh it explicitly.')).toBeVisible();
+  const details = within(list).getByText('Catalog details').closest('details');
+  expect(details).not.toHaveAttribute('open');
+  expect(within(list).getByText(/FAILED · METADATA_UNAVAILABLE/)).not.toBeVisible();
+  fireEvent.click(within(list).getByText('Catalog details'));
+  expect(within(list).getByText(/FAILED · METADATA_UNAVAILABLE/)).toBeVisible();
+  expect(details).toHaveTextContent(catalogId);
+  expect(details).toHaveTextContent('connection revision 1');
+  expect(state.writes).toEqual([]);
+  expect(state.keys).toEqual(keys);
+});
+it.each([
+  ['NOT_REQUESTED', null, 'Catalog not loaded'],
+  ['PENDING', null, 'Catalog loading'],
+  ['STALE', 'CONNECTION_STALE', 'Catalog stale'],
+  ['PARTIAL', 'CATALOG_LIMIT', 'Model details unavailable'],
+  ['READY', null, 'Model details unavailable'],
+  ['read-error', null, 'Catalog read unconfirmed'],
+  ['invalid-response', null, 'Catalog read unconfirmed'],
+  ['missing-capability', null, 'Output capability unconfirmed'],
+  ['unsupported-cap', null, 'Output cap unsupported'],
+] as const)('explains assignment gating for %s without invalidating a saved test or sending effects', async (status, reason, issue) => {
+  const keys = { ...configured, selection: { selection_id: entryId, revision: 1, default: selected, brain: null, investigator: null, validator: null } };
+  const { state, hook } = settingsBackend(keys);
+  hook.intercept = (path, body) => {
+    if (path.includes('/entries/latest/')) return Response.json({ ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', finish_reason: 'COMPLETED', result_state: 'COMPLETED' });
+    if (!path.endsWith('/search')) return;
+    if (status === 'read-error') return Response.json({ error: { code: 'CONTROL_UNAVAILABLE', correlation_id: entryId } }, { status: 503 });
+    if (status === 'invalid-response') return Response.json({ incompatible: true });
+    const entries = status === 'missing-capability' || status === 'unsupported-cap' ? [{ model: entry.model, name: 'Exact model', max_output_tokens: status === 'unsupported-cap' ? 128 : null, supports_max_tokens: status === 'unsupported-cap' ? true : null, reason: null }] : [];
+    return Response.json({ schema_version: 1, connection_id: entry.connection_id, connection_revision: 1, provider: 'openrouter', catalog_command_id: status === 'NOT_REQUESTED' ? null : catalogId, state: entries.length ? 'READY' : status, reason, query: body.query, offset: 0, next_offset: null, total: entries.length, entries });
+  };
+  mount(); const list = await screen.findByRole('region', { name: 'Configured models' });
+  expect(within(list).getByText(`Test passed · ${issue.toLowerCase()}`)).toBeVisible();
+  expect(screen.getByLabelText('Default model')).toHaveDisplayValue(`Exact/Model · OpenRouter · ${issue}`);
+  expect(screen.getByRole('button', { name: 'Test Exact/Model via OpenRouter' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Save assignments' })).toBeDisabled();
+  if (status === 'read-error' || status === 'invalid-response') {
+    expect(within(list).getByText('Model details could not be read. Reload settings to try the local read again.')).toBeVisible();
+    fireEvent.click(within(list).getByText('Catalog details'));
+    expect(list).toHaveTextContent(status === 'read-error' ? 'CONTROL_UNAVAILABLE' : 'INVALID_RESPONSE');
+  }
+  expect(state.writes).toEqual([]); expect(state.keys).toEqual(keys);
+});
 it('hydrates at most 64 separate latest reads with concurrency four and stops on unmount', async () => {
   const entries = Array.from({ length: 64 }, (_, i) => ({ ...entry, entry_id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`, model: `Model/${i}` }));
   const { state, hook } = settingsBackend(configured, entries, []);

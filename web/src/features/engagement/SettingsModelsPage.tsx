@@ -10,8 +10,8 @@ import { useSession } from '../bootstrap/BrowserSession';
 import { SettingsAssignments } from './SettingsAssignments';
 import { SettingsModelWizard } from './SettingsModelWizard';
 import { ModelTest } from './ModelTest';
-import { catalogEvidence, catalogStorage, currentConnection, exactCheck, message, pendingStorage, providerName, readCatalogOperation, readLibrary, readPending, remember, remembered, testStorage, usable } from './SettingsModels';
-import type { CatalogOperation, Connection, EntryCheck, Evidence, ModelEntry, Pending } from './SettingsModels';
+import { availabilityIssue, catalogEvidence, catalogStorage, currentConnection, exactCheck, message, pendingStorage, providerName, readCatalogOperation, readLibrary, readPending, remember, remembered, testStorage, usable } from './SettingsModels';
+import type { CatalogOperation, CatalogRead, Connection, EntryCheck, Evidence, ModelEntry, Pending } from './SettingsModels';
 import styles from './SettingsModels.module.css';
 
 const definitive = (error: unknown) => error instanceof ApiError && ['REVISION_CONFLICT', 'CONNECTION_UNAVAILABLE', 'MODEL_NOT_REGISTERED', 'REGISTRY_FULL', 'CAPABILITIES_REQUIRED', 'OPERATION_ACTIVE', 'INVALID_INPUT', 'INVALID_CSRF', 'BODY_TOO_LARGE'].includes(error.code);
@@ -51,7 +51,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     const library = await readLibrary(signal);
     const evidence: Record<string, Evidence> = {};
     const checks: Record<string, EntryCheck> = {};
-    let missingDetails = false;
+    const catalogs: Record<string, CatalogRead> = {};
     // Cached, local reads only. Batches bound local concurrency; no refresh on boot.
     for (let index = 0; index < library.entries.length; index += 4) {
       signal.throwIfAborted();
@@ -62,12 +62,13 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
         if (!currentConnection(entry, settings)) return;
         try {
           const catalog = await api.providerCatalog({ action: 'search', connection_id: entry.connection_id, connection_revision: entry.connection_revision, query: entry.model, offset: 0, catalog_command_id: null }, session.data!.csrf_token, signal);
+          catalogs[entry.entry_id] = catalog;
           const proof = catalogEvidence(catalog, entry); if (proof) evidence[entry.entry_id] = proof;
-        } catch (error) { if (error instanceof ApiError && error.code === 'UNAUTHENTICATED') throw error; missingDetails = true; }
+        } catch (error) { if (signal.aborted || (error instanceof ApiError && error.code === 'UNAUTHENTICATED')) throw error; catalogs[entry.entry_id] = { code: error instanceof ApiError ? error.code : 'API_UNAVAILABLE' }; }
       }));
     }
     const generation = instance?.admission_open && instance.supervisor_ready && !instance.shutdown_finalized && instance.shutdown_command_id === null ? instance.generation : null;
-    return { generation, settings, library, evidence, checks, missingDetails };
+    return { generation, settings, library, evidence, checks, catalogs };
   }
   const current = useQuery({ queryKey, queryFn: ({ signal }) => readPrivate(() => load(signal), signal), retry: false, gcTime: 0,
     enabled: authReady, refetchOnWindowFocus: false, refetchOnReconnect: false, refetchOnMount: 'always' });
@@ -297,27 +298,37 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       <section className={styles.panel} aria-label="Configured models"><div className={styles.core}>
       {data.settings.vault_status === 'LOCKED' && <output>Vault locked. Restore the local master key. Connections may still be disabled locally.</output>}
       {!data.library.entries.length && <p className={styles.hint}>No models configured.</p>}
-      {data.settings.connections.map(connection => <section className={styles.connection} key={connection.connection_id} aria-label={providerName(connection.provider)}>
+      {data.settings.connections.map(connection => {
+        const entries = data.library.entries.filter(entry => entry.connection_id === connection.connection_id);
+        const unread = entries.filter(entry => data.catalogs[entry.entry_id] && 'code' in data.catalogs[entry.entry_id]!);
+        const failed = entries.filter(entry => { const catalog = data.catalogs[entry.entry_id]; return catalog && !('code' in catalog) && catalog.state === 'FAILED'; });
+        return <section className={styles.connection} key={connection.connection_id} aria-label={providerName(connection.provider)}>
         <div className={styles.connectionHeading}><h3>{providerName(connection.provider)}</h3><small>{!connection.enabled ? 'Connection disabled' : connection.credential_present ? 'Key saved' : 'Key unavailable — vault locked'}</small>
         </div>
-        <ul className={styles.list}>{data.library.entries.filter(entry => entry.connection_id === connection.connection_id).map(entry => <li className={styles.row} key={entry.entry_id}><div className={styles.identity}><strong>{data.evidence[entry.entry_id]?.model.name ?? entry.model}</strong><small className={styles.mono}>{entry.model}</small></div><span className={styles.state}>{stale || current.isError ? 'Unconfirmed — reload settings' : entryStatus(entry, data.settings, data.evidence, data.checks[entry.entry_id])}</span><button type="button" className={styles.secondary} aria-label={`Test ${entry.model} via ${providerName(connection.provider)}`} disabled={blocked || activeTest || generation === null || !usable(entry, data.settings, data.evidence)} aria-disabled={busy} onClick={() => { if (!busy) { setTestChoice(entry); setTestGeneration(generation); setConsent(false); requestAnimationFrame(() => testHeading.current?.focus({ preventScroll: true })); } }}>Test</button>{data.checks[entry.entry_id] && <button type="button" className={styles.quiet} aria-label={`Read check for ${entry.model}`} disabled={checkSelectionBlocked(data.checks[entry.entry_id])} onClick={() => readCheck(data.checks[entry.entry_id])}>Read check</button>}</li>)}</ul>
+        <ul className={styles.list}>{entries.map(entry => <li className={styles.row} key={entry.entry_id}><div className={styles.identity}><strong>{data.evidence[entry.entry_id]?.model.name ?? entry.model}</strong><small className={styles.mono}>{entry.model}</small></div><span className={styles.state}>{stale || current.isError ? 'Unconfirmed — reload settings' : entryStatus(entry, data.settings, data.evidence, data.checks[entry.entry_id], data.catalogs)}</span><button type="button" className={styles.secondary} aria-label={`Test ${entry.model} via ${providerName(connection.provider)}`} disabled={blocked || activeTest || generation === null || !usable(entry, data.settings, data.evidence)} aria-disabled={busy} onClick={() => { if (!busy) { setTestChoice(entry); setTestGeneration(generation); setConsent(false); requestAnimationFrame(() => testHeading.current?.focus({ preventScroll: true })); } }}>Test</button>{data.checks[entry.entry_id] && <button type="button" className={styles.quiet} aria-label={`Read check for ${entry.model}`} disabled={checkSelectionBlocked(data.checks[entry.entry_id])} onClick={() => readCheck(data.checks[entry.entry_id])}>Read check</button>}</li>)}</ul>
+        {(unread.length > 0 || failed.length > 0) && <div>
+          <p className={styles.hint}>{unread.length ? 'Model details could not be read. Reload settings to try the local read again.' : 'The model catalog is unavailable. Saved test results are unchanged. Open Add models to refresh it explicitly.'}</p>
+          <details><summary>Catalog details</summary>{[...unread, ...failed].map(entry => {
+            const catalog = data.catalogs[entry.entry_id]!;
+            return <p key={entry.entry_id} className={styles.mono}>{entry.model} · {'code' in catalog ? catalog.code : `${catalog.state} · ${catalog.reason} · Catalog ${catalog.catalog_command_id}`} · connection revision {entry.connection_revision}</p>;
+          })}</details>
+        </div>}
           <details><summary>Connection options</summary><div className={styles.actions}><button type="button" className={styles.secondary} disabled={blocked || data.settings.vault_status === 'LOCKED'} onClick={() => { if (window.confirm(`${connection.enabled ? 'Replace the key for' : 'Reconnect'} ${providerName(connection.provider)}? Saved checks and assignments keep their original revision.`)) open(connection.provider, true); }}>{connection.enabled ? 'Replace key' : 'Reconnect'}</button><button type="button" className={styles.secondary} disabled={blocked || !connection.enabled} aria-disabled={sending} onClick={() => {
             if (sending || !window.confirm(`Disable ${providerName(connection.provider)}? Saved models and history remain. This does not revoke the upstream key.`)) return;
             if (wizard?.provider === connection.provider) closeWizard(false);
             setTestChoice(null); setConsent(false);
             void saveKeys({ action: 'revoke_connection', command_id: crypto.randomUUID(), connection_id: connection.connection_id, expected_revision: connection.revision });
           }}>Disable connection</button></div></details>
-      </section>)}
-      {data.missingDetails && <p className={styles.hint}>Some cached details could not be read. Those models are unavailable for assignments or testing; no fallback was selected.</p>}
+      </section>; })}
 
     </div></section>
       {testChoice && <section className={styles.panel} aria-label="Test consent"><div className={styles.core}><h2 tabIndex={-1} ref={testHeading}>Test model</h2><p>{testConnection ? providerName(testConnection.provider) : 'Unavailable connection'} · <span className={styles.mono}>{testChoice.model}</span></p><p>One fixed synthetic call / 300 seconds. Provider charges may apply.</p><label className={styles.check}><input type="checkbox" checked={consent} disabled={blocked || activeTest || generation === null || testGeneration === null} onChange={event => setConsent(event.target.checked)} />I approve one synthetic acknowledgement call for {testChoice.model}. No tools or target data.</label><details><summary>Fixed input</summary><p>Respond only with OMNIS_MODEL_TEST_OK. Use no tools.</p><p>This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.</p></details><div className={styles.actions}><button type="button" className={styles.secondary} onClick={() => { setTestChoice(null); setConsent(false); }}>Cancel</button><button type="button" disabled={blocked || activeTest || generation === null || testGeneration === null || !consent || !usable(testChoice, data.settings, data.evidence)} aria-disabled={sending} onClick={() => { const proof = data.evidence[testChoice.entry_id]; if (!sending && consent && proof && testGeneration !== null) void startTest(testChoice, proof.catalog, testGeneration); }}>Send model test</button></div></div></section>}
-      <SettingsAssignments settings={data.settings} library={data.library} evidence={data.evidence} blocked={blocked} working={busy} save={async command => !!await saveKeys(command)} />
+      <SettingsAssignments settings={data.settings} library={data.library} evidence={data.evidence} catalogs={data.catalogs} blocked={blocked} working={busy} save={async command => !!await saveKeys(command)} />
     </>}
     {legacy && <ModelTest receiveOnly />}
   </>;
 }
-function entryStatus(entry: ModelEntry, settings: KeySettings, evidence: Record<string, Evidence>, test?: EntryCheck) {
+function entryStatus(entry: ModelEntry, settings: KeySettings, evidence: Record<string, Evidence>, test: EntryCheck | undefined, catalogs: Record<string, CatalogRead>) {
   const connection = currentConnection(entry, settings);
   if (!connection) return 'Unavailable — stale or disabled connection';
   if (test === 'UNKNOWN') return 'Unconfirmed';
@@ -325,7 +336,8 @@ function entryStatus(entry: ModelEntry, settings: KeySettings, evidence: Record<
     if (!exactCheck(entry, connection.provider, test)) return 'Unavailable — stale check';
     if (test.state === 'NEEDS_RECONCILIATION' || test.result_state === 'UNKNOWN') return 'Unconfirmed';
     if (test.state !== 'FINISHED') return test.state === 'STOPPING' ? 'Stopping' : 'Connecting';
-    return test.result_state === 'COMPLETED' && test.finish_reason === 'COMPLETED' ? 'Connected' : 'Failed';
+    const issue = availabilityIssue(entry, settings, evidence, catalogs);
+    return test.result_state === 'COMPLETED' && test.finish_reason === 'COMPLETED' ? issue ? `Test passed · ${issue.toLowerCase()}` : 'Connected' : 'Failed';
   }
   return usable(entry, settings, evidence) ? 'Not tested' : 'UNVERIFIED — details needed';
 }

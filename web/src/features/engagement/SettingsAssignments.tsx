@@ -2,13 +2,13 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import type { KeyCommand, KeySelection, KeySettings } from '../../shared/api/providerKeys';
 import { roles } from '../../shared/api/providerKeys';
-import { matches, providerName, supports, usable } from './SettingsModels';
-import type { Evidence, Library, ModelEntry } from './SettingsModels';
+import { availabilityIssue, matches, providerName, supports, usable } from './SettingsModels';
+import type { CatalogRead, Evidence, Library, ModelEntry } from './SettingsModels';
 import styles from './SettingsModels.module.css';
 
 type Role = typeof roles[number];
-export function SettingsAssignments({ settings, library, evidence, blocked, working, save }: {
-  settings: KeySettings; library: Library; evidence: Record<string, Evidence>; blocked: boolean; working: boolean;
+export function SettingsAssignments({ settings, library, evidence, catalogs, blocked, working, save }: {
+  settings: KeySettings; library: Library; evidence: Record<string, Evidence>; catalogs: Record<string, CatalogRead>; blocked: boolean; working: boolean;
   save: (command: KeyCommand) => Promise<boolean>;
 }) {
   const eligible = library.entries.filter(entry => usable(entry, settings, evidence));
@@ -33,7 +33,8 @@ export function SettingsAssignments({ settings, library, evidence, blocked, work
   })));
   function label(entry: ModelEntry) {
     const provider = settings.connections.find(item => item.connection_id === entry.connection_id)?.provider;
-    return `${entry.model} · ${provider ? providerName(provider) : 'Unavailable connection'}${usable(entry, settings, evidence) ? '' : ' · Unavailable — details needed or connection stale'}`;
+    const issue = availabilityIssue(entry, settings, evidence, catalogs);
+    return `${entry.model} · ${provider ? providerName(provider) : 'Unavailable connection'}${issue ? ' · ' + issue : ''}`;
   }
   function change(role: Role, value: string) {
     if (blocked || working) return;
@@ -69,7 +70,7 @@ export function SettingsAssignments({ settings, library, evidence, blocked, work
       <option value="" disabled={role === 'default'}>{role === 'default' ? 'Choose a saved model' : 'Use default'}</option>
       {stale && <option value="stale" disabled>{choice.model} · {choice.connection_id} revision {choice.connection_revision} · Unavailable</option>}
       {library.entries.map(item => <option key={item.entry_id} value={item.entry_id} disabled={!usable(item, settings, evidence)}>{label(item)}</option>)}
-    </select>{choice && !available(choice) && <small className={styles.mono}>{choice.model} · {choice.connection_id} revision {choice.connection_revision} · Unavailable</small>}</div>;
+    </select>{choice && !available(choice) && <small>{entry ? `Not available for assignment: ${availabilityIssue(entry, settings, evidence, catalogs, choice.output_tokens)?.toLowerCase()}.` : `${choice.model} · ${choice.connection_id} revision ${choice.connection_revision} · Unavailable`}</small>}</div>;
   }
 }
 function title(value: string) { return value[0]!.toUpperCase() + value.slice(1); }

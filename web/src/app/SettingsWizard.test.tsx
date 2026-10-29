@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { beforeEach, expect, it, vi } from 'vitest';
+import { beforeEach, expect, it, onTestFailed, vi } from 'vitest';
 import { App } from './App';
 import { catalogId, configured, empty, entry, entryId, selected, settingsBackend } from '../../tests/settings-fixtures';
 import type { ModelEntry } from '../features/engagement/SettingsModels';
@@ -32,7 +32,14 @@ it.each(['known', 'unknown', 'partial-zero'] as const)('expands a minimal %s usa
   const { state, hook } = settingsBackend();
   const saved = { ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', finish_reason: 'COMPLETED', result_state: 'COMPLETED', response_text: 'OMNIS_MODEL_TEST_OK', observed_model: entry.model, usage_state: usage === 'known' ? 'KNOWN' : usage === 'unknown' ? 'UNKNOWN' : 'PARTIAL', input_tokens: usage === 'known' ? 12 : usage === 'partial-zero' ? 0 : null, output_tokens: usage === 'known' ? 7 : null, reasoning_tokens: 0, cost_observed: usage === 'known' ? '0.001' : null };
   hook.intercept = path => path.includes('/entries/latest/') ? Response.json(saved) : undefined;
-  mount();
+  const { client } = mount();
+  if (usage === 'known') onTestFailed(() => {
+    console.error('SETTINGS_KNOWN_BOUNDARY ' + JSON.stringify({
+      queries: client.getQueryCache().getAll().slice(0, 8).map(({ state }) => ({ status: state.status, fetchStatus: state.fetchStatus, error: state.error !== null })),
+      lastPath: state.reads.at(-1)?.replace(/[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}/g, ':id').split('?')[0]?.slice(0, 180) ?? null,
+      phase: screen.queryByRole('region', { name: 'Configured models' }) ? 'library' : screen.queryByRole('button', { name: 'Add models' }) ? 'settings' : 'bootstrap',
+    }));
+  });
   const toggle = await screen.findByRole('button', { name: 'Details for Exact/Model via OpenRouter' });
   expect(toggle).toHaveAttribute('aria-expanded', 'false');
   const details = document.getElementById(toggle.getAttribute('aria-controls')!)!;

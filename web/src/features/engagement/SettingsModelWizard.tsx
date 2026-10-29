@@ -13,8 +13,9 @@ import type { Connection, Library, ModelEntry } from './SettingsModels';
 import styles from './SettingsModels.module.css';
 
 export type ModelDraft = { entry_id: string; expected_revision: number; model: string; name: string; output_tokens: number; known: boolean };
-export function SettingsModelWizard({ settings, library, provider: initialProvider, replace = false, blocked, working, canTest, generation, catalogFeedback, catalogRead, close, saveKey, refresh, saveModels }: {
+export function SettingsModelWizard({ settings, library, provider, connection, changeConnection, replace = false, blocked, working, canTest, generation, catalogFeedback, catalogRead, close, saveKey, refresh, saveModels }: {
   settings: KeySettings; library: Library; provider: Connection['provider']; replace?: boolean | undefined;
+  connection: Connection | undefined; changeConnection: (provider: Connection['provider'], connection: Connection | undefined) => void;
   blocked: boolean; working: boolean; canTest: boolean; generation: number | null; close: () => void;
   catalogFeedback: ReactNode; catalogRead: (value: CatalogView) => void;
   saveKey: (provider: Connection['provider'], connection: Connection | undefined, secret: string) => Promise<Connection | undefined>;
@@ -22,7 +23,6 @@ export function SettingsModelWizard({ settings, library, provider: initialProvid
   saveModels: (payload: SaveModels, test: { catalog: string; generation: number } | null) => Promise<ModelEntry[] | undefined>;
 }) {
   const { session, readPrivate } = useSession();
-  const [provider, setProvider] = useState(initialProvider);
   const [step, setStep] = useState(0);
   const [replacing, setReplacing] = useState(replace);
   const [chosen, setChosen] = useState<ModelDraft[]>([]);
@@ -36,15 +36,13 @@ export function SettingsModelWizard({ settings, library, provider: initialProvid
   const [validKey, setValidKey] = useState(false);
   const [notice, setNotice] = useState('');
   const [loading, setLoading] = useState(false);
-  const [pinned, setPinned] = useState(() => settings.connections.find(item => item.provider === initialProvider));
   const keyInput = useRef<HTMLInputElement>(null);
   const alive = useRef(true);
   const busy = useRef(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const keyNode = useRef<HTMLInputElement | null>(null);
   const current = settings.connections.find(item => item.provider === provider);
-  const stale = pinned ? !current || current.connection_id !== pinned.connection_id || current.revision !== pinned.revision || current.enabled !== pinned.enabled : !!current;
-  const connection = pinned;
+  const stale = connection ? !current || current.connection_id !== connection.connection_id || current.revision !== connection.revision || current.enabled !== connection.enabled : !!current;
   const savedKey = !!connection?.enabled && !!connection.credential_present && !replacing;
   const locked = blocked || stale || settings.vault_status === 'LOCKED';
   const transient = working || loading;
@@ -69,7 +67,7 @@ export function SettingsModelWizard({ settings, library, provider: initialProvid
   function chooseProvider(value: string) {
     if (transient || blocked || (value !== 'openrouter' && value !== 'orcarouter')) return;
     if (chosen.length && !window.confirm('Discard selected models and change provider?')) return;
-    wipe(); setProvider(value); setPinned(settings.connections.find(item => item.provider === value)); setChosen([]); setQuery(''); setOffset(0); setCatalogId(null); setReplacing(false); setConsent(false); selectedMetadata.current.clear();
+    wipe(); changeConnection(value, settings.connections.find(item => item.provider === value)); setChosen([]); setQuery(''); setOffset(0); setCatalogId(null); setReplacing(false); setConsent(false); selectedMetadata.current.clear();
   }
   async function load(connection: Connection) {
     const value = await refresh(connection);
@@ -91,7 +89,7 @@ export function SettingsModelWizard({ settings, library, provider: initialProvid
       }
       if (!alive.current || !nextConnection) return;
       if (document.activeElement === focused) heading.current?.focus({ preventScroll: true });
-      setPinned(nextConnection); setReplacing(false); setStep(1);
+      changeConnection(provider, nextConnection); setReplacing(false); setStep(1);
       await load(nextConnection);
     } finally { secret = ''; busy.current = false; if (alive.current) setLoading(false); }
   }

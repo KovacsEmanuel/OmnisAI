@@ -27,7 +27,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   const [stale, setStale] = useState(false);
   const [notice, setNotice] = useState('');
   const [notification, setNotification] = useState('');
-  const [wizard, setWizard] = useState<{ id: number; provider: Connection['provider']; replace?: boolean } | null>(null);
+  const [wizard, setWizard] = useState<{ id: number; provider: Connection['provider']; connection: Connection | undefined; replace?: boolean } | null>(null);
   const [testChoice, setTestChoice] = useState<ModelEntry | null>(null);
   const [consent, setConsent] = useState(false);
   const [testGeneration, setTestGeneration] = useState<number | null>(null);
@@ -35,7 +35,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   const [testNotice, setTestNotice] = useState('');
   const [operationEntry, setOperationEntry] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string[]>([]);
-  const [catalogNotice, setCatalogNotice] = useState<{ connection: string; text: string; detail: string } | null>(null);
+  const [catalogNotice, setCatalogNotice] = useState<{ connection: string; revision: number; text: string; detail: string } | null>(null);
   const [refusedTest, setRefusedTest] = useState<string | null>(() => { const value = remembered(testStorage + '-refused', scope); return isUuid(value) ? value : null; });
   const mutationBusy = useRef(false);
   const readController = useRef<AbortController | null>(null);
@@ -79,6 +79,8 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   const current = useQuery({ queryKey, queryFn: ({ signal }) => readPrivate(() => load(signal), signal), retry: false, gcTime: 0,
     enabled: authReady, refetchOnWindowFocus: false, refetchOnReconnect: false, refetchOnMount: 'always' });
   const data = current.data;
+  const catalogContext = catalogOperation ?? catalogNotice;
+  const wizardCatalog = !!wizard?.connection && wizard.connection.connection_id === catalogContext?.connection && wizard.connection.revision === catalogContext.revision;
   const generation = data?.generation ?? null;
   const testConnection = data?.settings.connections.find(item => item.connection_id === testChoice?.connection_id);
   const test = useQuery({ queryKey: ['private', 'settings-entry-test', scope, operation],
@@ -140,7 +142,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   function closeWizard(restore = true) { const inside = document.activeElement?.closest('[aria-label="Add models wizard"]'); wizardGeneration.current += 1; setWizard(null); if (restore && inside) addButton.current?.focus({ preventScroll: true }); }
   function open(provider: Connection['provider'] = 'openrouter', replace = false) {
     if (blocked || sending) return;
-    const id = ++wizardGeneration.current; setWizard({ id, provider, replace });
+    const id = ++wizardGeneration.current; setWizard({ id, provider, connection: data?.settings.connections.find(item => item.provider === provider), replace });
   }
   async function readCurrent(recover = false) {
     if (!authReady || reading || mutationBusy.current || continuation.current || (pending && !recover)) return;
@@ -194,7 +196,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       const value = await readPrivate(() => api.refreshProviderCatalog({ action: 'refresh', command_id: operation.id, connection_id: operation.connection, connection_revision: operation.revision }, session.data!.csrf_token, lifetime.current.signal), lifetime.current.signal);
       if (value.state !== 'PENDING') { remember(catalogStorage, scope, null); setCatalogOperation(null); void client.invalidateQueries({ queryKey }); }
       return value;
-    } catch (error) { if (!lifetime.current.signal.aborted) { if (definitive(error)) { remember(catalogStorage, scope, null); setCatalogOperation(null); setStale(true); } setCatalogNotice({ connection: connection.connection_id, text: definitive(error) ? 'Models could not be loaded. Reload settings before trying again.' : 'Model list update is unconfirmed. Read its status before refreshing again.', detail: error instanceof ApiError ? error.code : 'API_UNAVAILABLE' }); } }
+    } catch (error) { if (!lifetime.current.signal.aborted) { if (definitive(error)) { remember(catalogStorage, scope, null); setCatalogOperation(null); setStale(true); } setCatalogNotice({ connection: connection.connection_id, revision: connection.revision, text: definitive(error) ? 'Models could not be loaded. Reload settings before trying again.' : 'Model list update is unconfirmed. Read its status before refreshing again.', detail: error instanceof ApiError ? error.code : 'API_UNAVAILABLE' }); } }
     finally { mutationBusy.current = false; if (!lifetime.current.signal.aborted) setSending(false); }
   }
   async function readCatalog(cancel = false) {
@@ -202,11 +204,11 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     const snapshot = catalogOperation, signal = lifetime.current.signal;
     try {
       const value = await readPrivate(() => cancel ? api.cancelProviderCatalog({ action: 'cancel', connection_id: snapshot.connection, connection_revision: snapshot.revision, catalog_command_id: snapshot.id, command_id: crypto.randomUUID() }, session.data!.csrf_token, signal) : api.providerCatalog({ action: 'search', connection_id: snapshot.connection, connection_revision: snapshot.revision, catalog_command_id: snapshot.id, query: '', offset: 0 }, session.data!.csrf_token, signal), signal);
-      setCatalogNotice(value.state === 'READY' && value.reason === null ? null : { connection: snapshot.connection, text: value.state === 'PENDING' ? 'Loading models…' : value.state === 'PARTIAL' ? 'Some models could not be loaded. Open Add models to inspect the available list.' : 'Models could not be loaded. Open Add models to refresh the list or enter an exact model ID.', detail: `${value.state}${value.reason ? ' · ' + value.reason : ''}` });
+      setCatalogNotice(value.state === 'READY' && value.reason === null ? null : { connection: snapshot.connection, revision: snapshot.revision, text: value.state === 'PENDING' ? 'Loading models…' : value.state === 'PARTIAL' ? 'Some models could not be loaded. Open Add models to inspect the available list.' : 'Models could not be loaded. Open Add models to refresh the list or enter an exact model ID.', detail: `${value.state}${value.reason ? ' · ' + value.reason : ''}` });
       if (value.state !== 'PENDING') { remember(catalogStorage, scope, null); setCatalogOperation(null); }
       await client.invalidateQueries({ queryKey: ['private', 'settings-catalog'] });
       if (value.state !== 'PENDING') void client.invalidateQueries({ queryKey });
-    } catch (error) { if (!signal.aborted) setCatalogNotice({ connection: snapshot.connection, text: 'Model list update is unconfirmed. Read its status before refreshing again.', detail: error instanceof ApiError ? error.code : 'API_UNAVAILABLE' }); }
+    } catch (error) { if (!signal.aborted) setCatalogNotice({ connection: snapshot.connection, revision: snapshot.revision, text: 'Model list update is unconfirmed. Read its status before refreshing again.', detail: error instanceof ApiError ? error.code : 'API_UNAVAILABLE' }); }
   }
   function catalogRead(value: CatalogView) {
     if (!catalogOperation || value.catalog_command_id !== catalogOperation.id || value.connection_id !== catalogOperation.connection || value.connection_revision !== catalogOperation.revision || value.state === 'PENDING') return;
@@ -332,7 +334,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     </section>}
     {data && <>
       {generation === null && <p className={styles.hint}>Instance admission is unavailable. Reload current settings before opening new test consent.</p>}
-      {wizard && <SettingsModelWizard key={wizard.id} settings={data.settings} library={data.library} provider={wizard.provider} replace={wizard.replace} blocked={blocked} working={sending} canTest={!activeTest} generation={generation} catalogFeedback={data.settings.connections.some(connection => connection.provider === wizard.provider && connection.connection_id === (catalogOperation?.connection ?? catalogNotice?.connection)) ? catalogRecovery() : null} catalogRead={catalogRead} close={() => closeWizard()} refresh={refresh} saveKey={async (provider, connection, secret) => {
+      {wizard && <SettingsModelWizard key={wizard.id} settings={data.settings} library={data.library} provider={wizard.provider} connection={wizard.connection} changeConnection={(provider, connection) => setWizard({ ...wizard, provider, connection })} replace={wizard.replace} blocked={blocked} working={sending} canTest={!activeTest} generation={generation} catalogFeedback={wizardCatalog ? catalogRecovery() : null} catalogRead={catalogRead} close={() => closeWizard()} refresh={refresh} saveKey={async (provider, connection, secret) => {
         const result = await saveKeys({ action: 'save_connection', command_id: crypto.randomUUID(), connection_id: connection?.connection_id ?? crypto.randomUUID(), expected_revision: connection?.revision ?? 0, provider, secret });
         const saved = result?.connections.find(item => item.provider === provider);
         const latest = client.getQueryData<{ settings: KeySettings }>(queryKey)?.settings.connections.find(item => item.provider === provider);
@@ -343,6 +345,8 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       {data.settings.vault_status === 'LOCKED' && <output>Vault locked. Restore the local master key. Connections may still be disabled locally.</output>}
       {!data.library.entries.length && <p className={styles.hint}>No models configured.</p>}
       {data.settings.connections.map(connection => {
+        const inWizard = wizard?.connection?.connection_id === connection.connection_id && wizard.connection.revision === connection.revision;
+        const hasCatalogFeedback = connection.connection_id === catalogContext?.connection && connection.revision === catalogContext.revision;
         const entries = data.library.entries.filter(entry => entry.connection_id === connection.connection_id);
         const unread = entries.filter(entry => data.catalogs[entry.entry_id] && 'code' in data.catalogs[entry.entry_id]!);
         const failed = entries.filter(entry => { const catalog = data.catalogs[entry.entry_id]; return catalog && !('code' in catalog) && catalog.state === 'FAILED'; });
@@ -386,8 +390,8 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
             </section>
           </li>;
         })}</ul>
-        {wizard?.provider !== connection.provider && connection.connection_id === (catalogOperation?.connection ?? catalogNotice?.connection) && catalogRecovery()}
-        {wizard?.provider !== connection.provider && connection.connection_id !== (catalogOperation?.connection ?? catalogNotice?.connection) && (unread.length > 0 || failed.length > 0) && <div>
+        {!wizardCatalog && connection.connection_id === catalogContext?.connection && catalogRecovery()}
+        {!inWizard && !hasCatalogFeedback && (unread.length > 0 || failed.length > 0) && <div>
           <p className={styles.hint}>{unread.length ? 'Model details could not be read. Reload settings to try the local read again.' : 'The model catalog is unavailable. Saved test results are unchanged. Open Add models to refresh it explicitly.'}</p>
           <details><summary>Catalog details</summary>{[...unread, ...failed].map(entry => {
             const catalog = data.catalogs[entry.entry_id]!;
@@ -411,6 +415,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   function catalogRecovery() {
     if (!catalogOperation && !catalogNotice) return null;
     return <section className={styles.catalogStatus} aria-label="Catalog recovery"><output aria-live="polite">{catalogNotice?.text ?? 'Loading models…'}</output>
+      {catalogOperation && wizard && !wizardCatalog && <p>This update is separate from the current model list. Read or cancel it before refreshing another list.</p>}
       {catalogOperation && <div className={styles.actions}><button type="button" className={styles.secondary} onClick={() => { void readCatalog(); }}>Read catalog status</button><button type="button" className={styles.secondary} onClick={() => { void readCatalog(true); }}>Cancel catalog</button></div>}
       <details><summary>Catalog details</summary>{catalogOperation && <p className={styles.mono}>Catalog operation {catalogOperation.id} · connection revision {catalogOperation.revision}</p>}{catalogNotice && <p className={styles.mono}>{catalogNotice.detail}</p>}</details>
     </section>;

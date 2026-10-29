@@ -390,6 +390,57 @@ def run_installed_stop(
                 db,
                 f"INSERT INTO provider_connection_revision VALUES ('{identity}','{connection}','openrouter',1,false,'{secret}',1); INSERT INTO provider_model_registry_revision VALUES ('{identity}',1); INSERT INTO provider_model_entry VALUES ('{identity}','{entry}','{connection}','synthetic/upgrade'); INSERT INTO provider_model_entry_revision VALUES ('{identity}','{entry}',1,'{connection}',1,1,37); INSERT INTO provider_selection_revision VALUES ('{identity}','{selection_id}',1,'{payload}'::jsonb)",
             )
+            operation_id, dispatch_id = str(uuid4()), str(uuid4())
+            seed_history = Path(__file__).with_name("upgrade_history.py").read_text()
+            runtime.run(
+                "exec",
+                record["containers"]["supervisor"],
+                "python",
+                "-I",
+                "-c",
+                seed_history,
+                json.dumps(
+                    dict(
+                        instance=identity,
+                        connection=connection,
+                        entry_id=entry,
+                        secret=secret,
+                        operation_id=operation_id,
+                        dispatch_id=dispatch_id,
+                    )
+                ),
+                effect=True,
+            )
+            history_sql = (
+                "SELECT jsonb_build_object('operation',to_jsonb(o),'dispatch',to_jsonb(d),"
+                "'outcome',r.payload,'receipt',e.receipt_ref) FROM system_operation o "
+                "JOIN model_dispatch_v2 d USING(instance_id,operation_id) "
+                "JOIN model_record_v2 r ON r.instance_id=o.instance_id AND r.id::text=o.outcome_ref->>'id' "
+                "JOIN model_dispatch_event_v2 e ON e.instance_id=o.instance_id AND e.dispatch_attempt_id=d.dispatch_attempt_id "
+                f"WHERE o.operation_id='{operation_id}' AND e.state='SETTLED'"
+            )
+            history_before = json.loads(runtime.psql(db, history_sql))
+            assert history_before["operation"]["operation_id"] == operation_id
+            assert history_before["operation"]["command_id"] == operation_id
+            assert history_before["operation"]["state"] == "FINISHED"
+            assert history_before["dispatch"]["dispatch_attempt_id"] == dispatch_id
+            assert history_before["receipt"] == history_before["operation"]["outcome_ref"]
+            assert {
+                key: history_before["outcome"][key]
+                for key in (
+                    "result_state",
+                    "usage_state",
+                    "input_tokens",
+                    "output_tokens",
+                    "cost_observed",
+                )
+            } == dict(
+                result_state="UNKNOWN",
+                usage_state="KNOWN",
+                input_tokens=9,
+                output_tokens=7,
+                cost_observed="0.000016",
+            )
             for table in (
                 "provider_connection_revision",
                 "provider_selection_revision",
@@ -406,6 +457,15 @@ def run_installed_stop(
                 "system_operation_event",
             ):
                 assert re.fullmatch(r"[a-z_0-9]+", table)
+                if table in {
+                    "model_record_v2",
+                    "system_operation",
+                    "model_command_v2",
+                    "model_dispatch_v2",
+                    "model_dispatch_event_v2",
+                    "system_operation_event",
+                }:
+                    assert int(runtime.psql(db, f"SELECT count(*) FROM {table}")) > 0
                 census[table] = runtime.psql(
                     db,
                     _upgrade_census_sql(table),
@@ -619,6 +679,10 @@ def run_installed_stop(
                 )
                 record = json.loads((root / "startup.json").read_text())
                 runtime.attempt = record["attempt"]
+                assert (
+                    json.loads(runtime.psql(record["containers"]["db"], history_sql))
+                    == history_before
+                )
                 for table, expected in census.items():
                     assert (
                         runtime.psql(
@@ -688,6 +752,10 @@ def run_installed_stop(
             assert runtime.receipt.image_id != receipt["image_id"]
             assert all((root / name).read_bytes() == value for name, value in vault_before.items())
             assert (data / "omnis/releases/0.1.0/release.json").is_file()
+            assert (
+                json.loads(runtime.psql(upgraded_record["containers"]["db"], history_sql))
+                == history_before
+            )
             assert (
                 runtime.psql(
                     upgraded_record["containers"]["db"],

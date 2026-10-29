@@ -37,6 +37,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   const [operationEntry, setOperationEntry] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string[]>([]);
   const [removal, setRemoval] = useState<{ entry: ModelEntry; connection: Connection; registry: number; selection: number; generation: number | null; trigger: HTMLButtonElement } | null>(null);
+  const [connectionChoice, setConnectionChoice] = useState<{ connection: Connection; replace: boolean; selection: number; trigger: HTMLButtonElement } | null>(null);
   const [catalogNotice, setCatalogNotice] = useState<{ connection: string; revision: number; text: string; detail: string } | null>(null);
   const [refusedTest, setRefusedTest] = useState<string | null>(() => { const value = remembered(testStorage + '-refused', scope); return isUuid(value) ? value : null; });
   const mutationBusy = useRef(false);
@@ -101,6 +102,9 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     && JSON.stringify(data.library.entries.find(entry => entry.entry_id === removal.entry.entry_id)) === JSON.stringify(removal.entry)
     && JSON.stringify(data.settings.connections.find(connection => connection.connection_id === removal.connection.connection_id)) === JSON.stringify(removal.connection);
   useEffect(() => { if (removal && !removalCurrent) setRemoval(null); }, [removal, removalCurrent]);
+  const connectionChoiceCurrent = !!connectionChoice && !!data && (data.settings.selection?.revision ?? 0) === connectionChoice.selection
+    && JSON.stringify(data.settings.connections.find(connection => connection.connection_id === connectionChoice.connection.connection_id)) === JSON.stringify(connectionChoice.connection);
+  useEffect(() => { if (connectionChoice && !connectionChoiceCurrent) setConnectionChoice(null); }, [connectionChoice, connectionChoiceCurrent]);
   // Fresh tabs recover the admitted operation from the existing latest-entry projection, never from consent.
   useEffect(() => {
     if (operationPending || sending || connecting) return;
@@ -351,6 +355,21 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     } finally { settleFocus(); }
   }
   function stopRemaining() { continuation.current?.abort(); setTestNotice('Remaining checks stopped. Read the admitted check.'); }
+  function cancelConnectionChoice() {
+    const trigger = connectionChoice?.trigger, inside = document.activeElement?.closest('[aria-label="Connection confirmation"]');
+    setConnectionChoice(null); if (inside && trigger?.isConnected) trigger.focus({ preventScroll: true });
+  }
+  async function confirmConnectionChoice() {
+    if (!connectionChoice || !connectionChoiceCurrent || blocked || busy || mutationBusy.current || lifetime.current.signal.aborted) return;
+    const { connection, replace } = connectionChoice;
+    const settleFocus = removedControlFocus(); setConnectionChoice(null);
+    try {
+      if (replace) { if (data?.settings.vault_status !== 'LOCKED') open(connection.provider, true); return; }
+      if (wizard?.provider === connection.provider) closeWizard(false);
+      setTestChoice(null); setConsent(false);
+      await saveKeys({ action: 'revoke_connection', command_id: crypto.randomUUID(), connection_id: connection.connection_id, expected_revision: connection.revision });
+    } finally { settleFocus(); }
+  }
   return <>
     <div className={styles.heading}><h2>Models</h2><fieldset className={styles.headingActions} aria-label="Model library actions">
       <button type="button" className={(pending && !sending) || stale || current.isError ? undefined : styles.quiet} aria-label={pending && !sending ? undefined : 'Reload current settings'} disabled={!authReady} aria-disabled={reading || sending || connecting} onClick={() => { if (!reading) void readCurrent(!!pending); }}>{pending && !sending ? 'Recover exact receipt' : stale || current.isError ? 'Reload current settings' : 'Reload'}</button>
@@ -443,12 +462,12 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
           })}</details>
         </div>}
           {noticeTarget === connection.connection_id && settingsRecovery()}
-          <details><summary>Connection options</summary><div className={styles.actions}><button type="button" className={styles.secondary} disabled={blocked || data.settings.vault_status === 'LOCKED'} onClick={() => { if (window.confirm(`${connection.enabled ? 'Replace the key for' : 'Reconnect'} ${providerName(connection.provider)}? Saved checks and assignments keep their original revision.`)) open(connection.provider, true); }}>{connection.enabled ? 'Replace key' : 'Reconnect'}</button><button type="button" className={styles.secondary} disabled={blocked || !connection.enabled} aria-disabled={sending} onClick={() => {
-            if (sending || !window.confirm(`Disable ${providerName(connection.provider)}? Saved models and history remain. This does not revoke the upstream key.`)) return;
-            if (wizard?.provider === connection.provider) closeWizard(false);
-            setTestChoice(null); setConsent(false);
-            void saveKeys({ action: 'revoke_connection', command_id: crypto.randomUUID(), connection_id: connection.connection_id, expected_revision: connection.revision });
-          }}>Disable connection</button></div></details>
+          <details onToggle={event => { if (!event.currentTarget.open && connectionChoice?.connection.connection_id === connection.connection_id) setConnectionChoice(null); }}><summary>Connection options</summary><div className={styles.actions}><button type="button" className={styles.secondary} disabled={blocked || data.settings.vault_status === 'LOCKED'} aria-disabled={busy} onClick={event => { if (!busy) setConnectionChoice({ connection, replace: true, selection: data.settings.selection?.revision ?? 0, trigger: event.currentTarget }); }}>{connection.enabled ? 'Replace key' : 'Reconnect'}</button><button type="button" className={styles.secondary} disabled={blocked || !connection.enabled} aria-disabled={busy} onClick={event => { if (!busy) setConnectionChoice({ connection, replace: false, selection: data.settings.selection?.revision ?? 0, trigger: event.currentTarget }); }}>Disable connection</button></div>
+            {connectionChoiceCurrent && connectionChoice?.connection.connection_id === connection.connection_id && <section className={styles.removeConfirmation} aria-label="Connection confirmation" onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); cancelConnectionChoice(); } }}>
+              <div><strong>{connectionChoice.replace ? connection.enabled ? 'Replace key?' : 'Reconnect?' : 'Disable connection?'}</strong><p>{providerName(connection.provider)}</p><small>{connectionChoice.replace ? 'Saved checks and assignments keep their original revision.' : 'Saved models and history remain. The upstream key is not revoked.'}</small></div>
+              <div className={styles.actions}><button type="button" className={styles.secondary} onClick={cancelConnectionChoice}>Cancel</button><button type="button" className={styles.secondary} disabled={blocked} aria-disabled={busy} onClick={() => { void confirmConnectionChoice(); }}>{connectionChoice.replace ? connection.enabled ? 'Replace key' : 'Reconnect' : 'Disable connection'}</button></div>
+            </section>}
+          </details>
       </section>; })}
 
     </div></section>

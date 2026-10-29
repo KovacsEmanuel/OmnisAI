@@ -26,6 +26,7 @@ export function SettingsModelWizard({ settings, library, provider, connection, c
   const [step, setStep] = useState(0);
   const [replacing, setReplacing] = useState(replace);
   const [chosen, setChosen] = useState<ModelDraft[]>([]);
+  const [providerChange, setProviderChange] = useState<{ next: Connection['provider']; source: Connection['provider']; chosen: ModelDraft[] } | null>(null);
   const [query, setQuery] = useState('');
   const [offset, setOffset] = useState(0);
   const [catalogId, setCatalogId] = useState<string | null>(null);
@@ -37,6 +38,7 @@ export function SettingsModelWizard({ settings, library, provider, connection, c
   const [notice, setNotice] = useState('');
   const [loading, setLoading] = useState(false);
   const keyInput = useRef<HTMLInputElement>(null);
+  const providerInput = useRef<HTMLSelectElement>(null);
   const alive = useRef(true);
   const busy = useRef(false);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -46,6 +48,7 @@ export function SettingsModelWizard({ settings, library, provider, connection, c
   const savedKey = !!connection?.enabled && !!connection.credential_present && !replacing;
   const locked = blocked || stale || settings.vault_status === 'LOCKED';
   const transient = working || loading;
+  useEffect(() => { if (providerChange && (step !== 0 || locked || providerChange.source !== provider || providerChange.chosen !== chosen)) setProviderChange(null); }, [providerChange, step, locked, provider, chosen]);
   const catalog = useQuery({ queryKey: ['private', 'settings-catalog', connection?.connection_id, connection?.revision, catalogId, query, offset],
     queryFn: ({ signal }) => readPrivate(() => api.providerCatalog({ action: 'search', connection_id: connection!.connection_id, connection_revision: connection!.revision, catalog_command_id: catalogId, query, offset }, session.data!.csrf_token, signal), signal),
     enabled: step > 0 && savedKey && !stale && !blocked && !loading && !!session.data, retry: false, gcTime: 0,
@@ -66,8 +69,16 @@ export function SettingsModelWizard({ settings, library, provider, connection, c
   function wipe() { if (keyInput.current) keyInput.current.value = ''; if (keyNode.current) keyNode.current.value = ''; setValidKey(false); }
   function chooseProvider(value: string) {
     if (transient || blocked || (value !== 'openrouter' && value !== 'orcarouter')) return;
-    if (chosen.length && !window.confirm('Discard selected models and change provider?')) return;
+    if (chosen.length) { setProviderChange({ next: value, source: provider, chosen }); return; }
+    changeProvider(value);
+  }
+  function changeProvider(value: Connection['provider']) {
+    setProviderChange(null);
     wipe(); changeConnection(value, settings.connections.find(item => item.provider === value)); setChosen([]); setQuery(''); setOffset(0); setCatalogId(null); setReplacing(false); setConsent(false); selectedMetadata.current.clear();
+  }
+  function cancelProviderChange() {
+    const inside = document.activeElement?.closest('[aria-label="Provider change confirmation"]');
+    setProviderChange(null); if (inside) providerInput.current?.focus({ preventScroll: true });
   }
   async function load(connection: Connection) {
     const value = await refresh(connection);
@@ -116,9 +127,14 @@ export function SettingsModelWizard({ settings, library, provider, connection, c
     {stale && <p role="alert" className={styles.notice}>This connection changed or was disabled. Cancel and reopen to use its current revision.</p>}
     {notice && <p role="alert" className={styles.notice}>{notice}</p>}
     {step !== 1 && catalogFeedback}
-    {step === 0 && <><div className={styles.fields}><label className={styles.field}>Provider<select value={provider} disabled={blocked} aria-disabled={transient} onChange={event => chooseProvider(event.target.value)}><option value="openrouter">OpenRouter</option><option value="orcarouter">OrcaRouter</option></select></label>
+    {step === 0 && <><div className={styles.fields}><label className={styles.field}>Provider<select ref={providerInput} value={provider} disabled={blocked} aria-disabled={transient} onChange={event => chooseProvider(event.target.value)}><option value="openrouter">OpenRouter</option><option value="orcarouter">OrcaRouter</option></select></label>
       {savedKey ? <div className={styles.field}><span>API key</span><span className={styles.saved}>Saved key</span></div> : <label className={styles.field}>API key<input ref={node => { keyInput.current = node; if (node) keyNode.current = node; }} type="password" name="secret" autoComplete="new-password" spellCheck={false} maxLength={512} disabled={locked} aria-disabled={transient} onChange={event => setValidKey(printable(event.target.value, 512))} /></label>}
-    </div><p className={styles.hint}>{savedKey ? 'Continue loads the catalog using your saved key.' : 'Continue saves this key locally and loads the catalog.'} Cancel discards model choices, not the saved key.</p></>}
+    </div><p className={styles.hint}>{savedKey ? 'Continue loads the catalog using your saved key.' : 'Continue saves this key locally and loads the catalog.'} Cancel discards model choices, not the saved key.</p>
+      {providerChange && <section className={styles.removeConfirmation} aria-label="Provider change confirmation" onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); cancelProviderChange(); } }}>
+        <div><strong>Discard selected models?</strong><p>{providerName(providerChange.source)} → {providerName(providerChange.next)}</p><ul>{providerChange.chosen.map(item => <li key={item.model}>{item.model}</li>)}</ul></div>
+        <div className={styles.actions}><button type="button" className={styles.secondary} onClick={cancelProviderChange}>Cancel</button><button type="button" className={styles.secondary} disabled={locked} aria-disabled={transient} onClick={() => { if (!transient && !busy.current && step === 0 && providerChange.source === provider && providerChange.chosen === chosen) changeProvider(providerChange.next); }}>Change provider</button></div>
+      </section>}
+    </>}
     {step === 1 && <>
       <div className={styles.search}><label className={styles.field}>Search models<input type="search" value={query} placeholder="Search by name or exact model ID" onChange={event => { if (Array.from(event.target.value).length <= 256) { setQuery(event.target.value); setOffset(0); } }} /></label><button type="button" className={styles.secondary} disabled={locked || !savedKey} aria-disabled={transient || view?.state === 'PENDING'} onClick={() => { if (!transient && view?.state !== 'PENDING' && connection) { setLoading(true); void load(connection).finally(() => { if (alive.current) setLoading(false); }); } }}>Refresh</button></div>
       {catalogFeedback || <div className={styles.catalogStatus}><output aria-live="polite">{loading || catalog.isFetching || view?.state === 'PENDING' ? 'Loading models…' : catalog.isError || view?.state === 'FAILED' ? 'Models could not be loaded. Refresh the list or enter an exact model ID.' : view?.state === 'STALE' ? 'This model list is out of date. Refresh it before connecting.' : !view || view.state === 'NOT_REQUESTED' ? 'Load models with Refresh, or enter an exact model ID.' : `${view.total} matching models · showing ${view.entries.length ? offset + 1 : 0}–${offset + view.entries.length}${view.state === 'PARTIAL' ? '. Some models could not be loaded.' : ''}`}</output>

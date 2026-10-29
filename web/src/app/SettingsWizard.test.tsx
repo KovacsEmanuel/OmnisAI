@@ -11,7 +11,7 @@ import type { EntryTestView } from '../shared/api/modelTest';
 import { catalogStorage, pendingStorage, remember, sessionScope, testStorage } from '../features/engagement/SettingsModels';
 import { session } from '../../tests/fixtures';
 const models = Array.from({ length: 32 }, (_, i) => ({ model: `Catalog/${String(i).padStart(2, '0')}`, name: `Model ${i}`, max_output_tokens: 4096, supports_max_tokens: true, reason: null }));
-beforeEach(() => { sessionStorage.clear(); vi.stubGlobal('confirm', vi.fn(() => true)); });
+beforeEach(() => { sessionStorage.clear(); });
 function mount(strict = false) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, networkMode: 'always' } } });
   const app = <QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>;
@@ -269,8 +269,27 @@ it.each([0, 1.5, 65537])('invalid output cap %s cannot authorize Save & connect 
 });
 it('provider switch confirmation retains pending choices when refused', async () => {
   settingsBackend(configured, [], models); mount(); const panel = await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(within(panel).getByRole('button', { name: 'Back' }));
-  vi.stubGlobal('confirm', vi.fn(() => false)); fireEvent.change(screen.getByLabelText('Provider'), { target: { value: 'orcarouter' } }); expect(screen.getByLabelText('Provider')).toHaveValue('openrouter');
+  fireEvent.change(screen.getByLabelText('Provider'), { target: { value: 'orcarouter' } }); expect(screen.getByLabelText('Provider')).toHaveValue('openrouter');
+  const confirmation = within(panel).getByRole('region', { name: 'Provider change confirmation' });
+  expect(confirmation).toHaveTextContent('OpenRouter → OrcaRouter'); expect(confirmation).toHaveTextContent('Catalog/00');
+  const cancel = within(confirmation).getByRole('button', { name: 'Cancel' }); cancel.focus(); fireEvent.click(cancel);
+  expect(screen.getByLabelText('Provider')).toHaveFocus();
   fireEvent.click(screen.getByRole('button', { name: 'Continue' })); await screen.findByLabelText('Search models'); expect(screen.getByRole('list', { name: 'Selected models' })).toHaveTextContent('Model 0');
+});
+it('cancels provider discard with Escape and only explicit confirmation wipes choices and the unsent key', async () => {
+  const { state } = settingsBackend(configured, [], models); mount(); const panel = await wizard();
+  fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(within(panel).getByRole('button', { name: 'Back' }));
+  const provider = screen.getByLabelText('Provider');
+  fireEvent.change(provider, { target: { value: 'orcarouter' } });
+  const cancel = within(screen.getByRole('region', { name: 'Provider change confirmation' })).getByRole('button', { name: 'Cancel' });
+  cancel.focus(); fireEvent.keyDown(cancel, { key: 'Escape' }); expect(provider).toHaveFocus(); expect(provider).toHaveValue('openrouter');
+  fireEvent.change(provider, { target: { value: 'orcarouter' } });
+  fireEvent.click(within(screen.getByRole('region', { name: 'Provider change confirmation' })).getByRole('button', { name: 'Change provider' }));
+  expect(provider).toHaveValue('orcarouter');
+  const key = screen.getByLabelText('API key'); fireEvent.change(key, { target: { value: 'synthetic-unsent' } });
+  fireEvent.change(provider, { target: { value: 'openrouter' } });
+  expect(key).toHaveValue(''); expect(screen.queryByRole('region', { name: 'Provider change confirmation' })).not.toBeInTheDocument();
+  expect(state.writes.map(item => item.body.action)).toEqual(['refresh']);
 });
 it('keeps the current OrcaRouter catalog failure separate from an earlier OpenRouter update after switching provider', async () => {
   const orca = { ...configured.connections[0]!, provider: 'orcarouter' as const, connection_id: '44444444-4444-4444-8444-444444444444' };

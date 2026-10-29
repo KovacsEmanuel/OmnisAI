@@ -5,7 +5,7 @@ import { beforeEach, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { configured, connection, empty, entry, entryId, selected, settingsBackend } from '../../tests/settings-fixtures';
 
-beforeEach(() => { sessionStorage.clear(); vi.stubGlobal('confirm', vi.fn(() => true)); });
+beforeEach(() => { sessionStorage.clear(); });
 function mount(client = new QueryClient({ defaultOptions: { queries: { retry: false } } })) { return render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>); }
 function rotatedSession() {
   const delegate = globalThis.fetch;
@@ -19,6 +19,39 @@ function rotatedSession() {
 async function open() { await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled()); fireEvent.click(screen.getByRole('button', { name: 'Add models' })); }
 async function next() { const button = screen.getByRole('button', { name: 'Continue' }); await waitFor(() => expect(button).not.toHaveAttribute('aria-disabled', 'true')); fireEvent.click(button); }
 const refuse = (code = 'REVISION_CONFLICT') => Response.json({ error: { code, correlation_id: entryId } }, { status: 409 });
+async function disable() {
+  fireEvent.click(screen.getByRole('button', { name: 'Disable connection' }));
+  fireEvent.click(within(screen.getByRole('region', { name: 'Connection confirmation' })).getByRole('button', { name: 'Disable connection' }));
+}
+it.each(['Replace key', 'Disable connection', 'Reconnect'])('confirms %s inline with Cancel/Escape and exact connection context', async action => {
+  const { state } = settingsBackend({ ...configured, connections: [{ ...connection, enabled: action !== 'Reconnect' }] });
+  mount(); await screen.findByRole('region', { name: 'Configured models' }); fireEvent.click(screen.getByText('Connection options'));
+  const trigger = screen.getByRole('button', { name: action });
+  for (const escape of [false, true]) {
+    trigger.focus(); fireEvent.click(trigger);
+    const confirmation = screen.getByRole('region', { name: 'Connection confirmation' }); expect(confirmation).toHaveTextContent('OpenRouter');
+    const cancel = within(confirmation).getByRole('button', { name: 'Cancel' }); cancel.focus();
+    if (escape) fireEvent.keyDown(cancel, { key: 'Escape' }); else fireEvent.click(cancel);
+    expect(trigger).toHaveFocus(); expect(state.writes).toEqual([]);
+  }
+  fireEvent.click(trigger);
+  const confirm = within(screen.getByRole('region', { name: 'Connection confirmation' })).getByRole('button', { name: action });
+  fireEvent.click(confirm); fireEvent.click(confirm);
+  if (action === 'Disable connection') {
+    await screen.findByText('Connection disabled');
+    expect(state.writes).toHaveLength(1); expect(state.writes[0]!.body).toMatchObject({ action: 'revoke_connection', connection_id: connection.connection_id, expected_revision: 1 });
+  } else { await screen.findByLabelText('API key'); expect(state.writes).toEqual([]); }
+});
+it('invalidates an open connection confirmation on revision change without stealing moved focus', async () => {
+  const { state } = settingsBackend(); mount(); await screen.findByRole('region', { name: 'Configured models' });
+  fireEvent.click(screen.getByText('Connection options')); fireEvent.click(screen.getByRole('button', { name: 'Disable connection' }));
+  const confirm = within(screen.getByRole('region', { name: 'Connection confirmation' })).getByRole('button', { name: 'Disable connection' });
+  const elsewhere = screen.getByRole('link', { name: 'Models' }); elsewhere.focus();
+  state.keys = { ...state.keys, connections: [{ ...connection, revision: 2 }] };
+  fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' })); await screen.findByText('Settings reloaded.');
+  expect(screen.queryByRole('region', { name: 'Connection confirmation' })).not.toBeInTheDocument();
+  fireEvent.click(confirm); expect(state.writes).toEqual([]); expect(elsewhere).toHaveFocus();
+});
 it('saves a write-only key once, verifies exact receipt, explicitly refreshes, and re-enters the saved list', async () => {
   const { state } = settingsBackend(empty, []); const mounted = mount(); await open();
   const key = screen.getByLabelText('API key'); fireEvent.change(key, { target: { value: 'synthetic-key-not-a-credential' } }); await next();
@@ -96,7 +129,7 @@ it('locked and disabled states never claim an absent key is usable, and local Di
   const { state } = settingsBackend({ ...configured, vault_status: 'LOCKED', connections: [{ ...connection, credential_present: false }] }); mount();
   await screen.findByText(/Vault locked/); expect(screen.getByText('Key unavailable — vault locked')).toBeVisible();
   fireEvent.click(screen.getByText('Connection options')); expect(screen.getByRole('button', { name: 'Replace key' })).toBeDisabled();
-  fireEvent.click(screen.getByRole('button', { name: 'Disable connection' })); await screen.findByText('Connection disabled');
+  await disable(); await screen.findByText('Connection disabled');
   expect(state.writes).toHaveLength(1); expect(state.writes[0]!.body.action).toBe('revoke_connection'); expect(screen.getByRole('button', { name: 'Test Exact/Model via OpenRouter' })).toBeDisabled();
 });
 it.each([false, true])('assignment save preserves focused action or moved focus=%s and independent role caps', async moved => {
@@ -119,7 +152,7 @@ it.each([false, true])('assignment save preserves focused action or moved focus=
   expect(state.writes[0]!.body).toMatchObject({ action: 'save_selection', default: { ...selected, model: 'Other/Model' }, brain: { ...selected, output_tokens: 37 }, validator: { ...selected, output_tokens: 89 }, investigator: null });
 });
 it('disabling an open connection invalidates its wizard and keeps saved identities/history', async () => {
-  const { state } = settingsBackend(); mount(); await open(); fireEvent.click(screen.getByText('Connection options')); fireEvent.click(screen.getByRole('button', { name: 'Disable connection' }));
+  const { state } = settingsBackend(); mount(); await open(); fireEvent.click(screen.getByText('Connection options')); await disable();
   await screen.findByText('Connection disabled'); expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument(); expect(screen.getByRole('region', { name: 'Configured models' })).toHaveTextContent(entry.model); expect(state.entries).toHaveLength(1);
   const mounted = screen.getByRole('region', { name: 'Configured models' }); expect(within(mounted).queryByRole('button', { name: '+ Add model' })).not.toBeInTheDocument(); expect(within(mounted).getByRole('button', { name: 'Test Exact/Model via OpenRouter' })).toBeDisabled();
   expect(state.entries).toEqual([entry]); expect(state.writes).toHaveLength(1); expect(state.writes[0]!.body.action).toBe('revoke_connection');

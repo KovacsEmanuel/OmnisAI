@@ -60,6 +60,7 @@ class _View(ControlRuntime):
     def __init__(self, runtime: ControlRuntime, engine: StopEngine) -> None:
         self.deadline, self.engine = engine.deadline, engine
         self.release, self.digest, self.receipt = runtime.release, runtime.digest, runtime.receipt
+        self.schema = getattr(runtime, "schema", "0017_model_removal")
         self.host, self.pg_image = runtime.host, runtime.pg_image
         self.attempt = runtime.attempt
         self.model_test = runtime.model_test

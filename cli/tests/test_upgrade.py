@@ -14,6 +14,28 @@ from omnis_cli.lifecycle import StartError, write_record
 
 
 class UpgradeTest(unittest.TestCase):
+    def test_stop_view_preserves_old_schema_and_refuses_wrong_schema(self):
+        from pathlib import Path
+        from types import SimpleNamespace
+
+        from omnis_cli.start import _bound_instance
+        from omnis_cli.start_runtime import POSTGRES
+        from omnis_cli.stop_owner import _View
+
+        with cold_fixture.ColdBackupTest().source() as (_base, root, stopped, runtime):
+            runtime.schema = "0016_provider_models"
+            runtime.pg_image = POSTGRES
+            raw = json.loads((root / "instance.json").read_text())
+            raw["schema"] = runtime.schema
+            write_record(root / "instance.json", raw, replace=True)
+            control = Path(stopped["control_dir"])
+            _bound_instance(runtime, root, control, stopped)
+            view = _View(runtime, SimpleNamespace(deadline=runtime.deadline))
+            _bound_instance(view, root, control, stopped)
+            view.schema = "0017_model_removal"
+            with self.assertRaisesRegex(StartError, "RECOVERY_REQUIRED"):
+                _bound_instance(view, root, control, stopped)
+
     def test_restart_cross_binding_keeps_original_grant_and_completion_bytes(self):
         from uuid import uuid4
 

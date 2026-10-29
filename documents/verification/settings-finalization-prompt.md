@@ -18,6 +18,8 @@ Finalizează cinci rezultate, nu doar un set de teste:
 
 ## 2. Recuperează numai starea necesară
 
+La reluare, ia starea din unicul CURRENT și din `finalization_handoff.execution.usage_columns_delivery`, nu reexecuta pregătirea de mai jos. Settings `77f9b58` este deja servit și **acceptat vizual explicit**, după ajustarea spațiului comun; nu relua UI, pairingul sau Refreshul consumat. Frontieră rămasă: două default-web FAIL și Cancel409 real neclasificat; contor harness-only2 păstrat. Restrânge următoarea dovadă la bootstrapul exact/pre-Cancel revision + error code, fără al treilea retry larg; canonicalul unic5400s este încă neconsumat. Acesta este readback al progresului, nu alt plan sau autorizație de efecte.
+
 Bază de produs la pregătire: `9da7648953ff7f477ad9b3cc0c8d29b77ed38ed4`, branch `checkpoint/p2-batch2-pause-20261015`, tracked/index curate, 60 commituri locale înaintea remote-ului. Commitul de predare adaugă numai acest mandat și metadata; identifică HEAD real, nu presupune că baza este încă HEAD.
 
 Rulează read-only: `git status --short --branch`, `git rev-parse HEAD`, `git diff --stat`, `git diff --cached --stat`. Protejate untracked: **`tempkey.txt` și `documents/Omnis_Notite_Originale.html` — nu le citi, modifica, inventaria ca conținut, șterge sau comite.**
@@ -46,7 +48,7 @@ Patru modele și rezultatele operatorului au fost citite anterior; configurația
 
 ## 3. Cerințele UI/UX ale operatorului — obligatorii
 
-Acesta NU este „polish minor”: operatorul nu acceptă designul actual. Scopul concret este Settings și primitivele comune afectate de aceste fluxuri, nu redesenarea arbitrară a tuturor paginilor sau a funcțiilor viitoare.
+Cerințele de mai jos au pornit de la un design respins, nu de la „polish minor”; implementarea finală `77f9b58` este acum acceptată vizual explicit de operator. Păstrează această acceptare în scope și probele neschimbate; nu reautoriza o redesenare în lipsa unui finding sau feedback nou. Scopul rămâne Settings și primitivele comune afectate de aceste fluxuri, nu toate paginile sau funcțiile viitoare. Validarea funcțională restantă nu este închisă prin acceptarea estetică.
 
 ### A. Detalii în model, nu un panou tehnic global
 

@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "qa_mode": "Independent, product read-only, Ponytail FULL, Romanian",
+  "verdict": "BLOCKED_FRESH_BROWSER_FAILURE_NOT_ALL_CONTROLS_ACCEPTED",
+  "head": "a4f5dbc67221e3c0387a88db7bb8e78de4c6ccfa",
+  "tree": "3d1068bbf0c2be227153357e746f21fc526c3da6",
+  "freeze_sha256": "ccf982f039d1e145ba884e94d391e03b5f72ddbf3bb26e245a4d42d664125534",
+  "runtime": {
+    "session": "proc_52be8dbaa6d5",
+    "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-settings-remove-ui-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600",
+    "cwd": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029",
+    "attempts": 1,
+    "deadline_seconds": 600,
+    "outer_exit": 2,
+    "gate_code": 2,
+    "pytest": "1 failed in55.01s",
+    "pytest_seconds": 55.01,
+    "fixture_to_gate_result_seconds": 64.06727814674377,
+    "full_wall_seconds": null,
+    "full_wall_note": "Not directly recorded; do not substitute process poll uptime, which includes time after process exit.",
+    "browser_exit": 1,
+    "build_exit": 0,
+    "build_freeze_hashes_matched": 5,
+    "failure": {
+      "id": "QA-A4F5DBC-01",
+      "severity": "BLOCKING_PROOF",
+      "location": "web/tests/e2e/settings-models.mjs:173:58",
+      "message": "locator.selectOption: Timeout30000ms exceeded; waiting for Add models wizard / Provider exact",
+      "preceding_action": "web/tests/e2e/settings-models.mjs:171 clicks Back after manual chip removal; no explicit busy-settlement/readback before next action.",
+      "actual_failed_assertion": "api/tests/test_web_e2e.py:364 driver.returncode==0 and E2E PASS absent",
+      "classification": "PRODUCT_VS_OBSERVER_UNADJUDICATED",
+      "cause": "UNKNOWN; no DOM/trace/failure-state capture available. Static transient gating is a hypothesis, not confirmed cause.",
+      "required_parent_decision": "Adjudicate retained failure before any effectful rerun. No autofix/new harness/timeout/oracle weakening admitted."
+    },
+    "proven_prefix": "Assertions through settings-models.mjs:170, then Back click171 returned. Real Remove exact consent/cancel/Escape/focus/geometry→postcommit lost reply→exact receipt→17 unique membership/history unchanged/assignment unchanged→reload no resend; saved-key wizard/search/Add/manual chip add-remove.",
+    "not_reached": [
+      "provider discard confirmation",
+      "wizard re-add Save/newID18",
+      "Save & connect and exact Test2 calls",
+      "assignments/invalid output/save/readback/visible toast",
+      "Replace/Disable/Reconnect persistence",
+      "final traffic12mutation/8GET/2POST census",
+      "13table final deltas and API restart"
+    ],
+    "traffic": {
+      "allowed_boundary": "Fresh disposable private UDS PostgreSQL18.6; actual browser/API; local owned synthetic TLS peer. No external provider/model or operator.",
+      "initial_fixture_test": "Existing fixture initial synthetic test admitted202 and FINISHED/COMPLETED/usage9,7 before browser (Python935-957 completed).",
+      "browser_new_model_calls": "NOT_REACHED by sequential fail at173 (first browser Start would be212); do not claim final traffic census passed.",
+      "external_attempts": "NOT_RECORDED: final browser-result.json absent; external requests were blocked by existing context origin route.",
+      "page_errors": "NOT_RECORDED: no final browser-result.json",
+      "prefix_secret_checks": "Executed at captured states through1280/1440/390/320 screenshot helper; final secretChecks NOT_REACHED."
+    }
+  },
+  "source_browser": {
+    "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch OMNIS_E2E_OUTPUT=<new-owned-private-folder> node --test web/tests/e2e/provider-settings-focus.mjs",
+    "status": "NOT_RUN_BLOCKED_BY_FRESH_FAILURE",
+    "deadline_seconds": 90,
+    "boundary": "Would be SOURCE built App/synthetic HTTP, not API/PG. No new harness or state-capture seam created."
+  },
+  "component_reuse": {
+    "tests": 153,
+    "files": 3,
+    "exit": 0,
+    "wrapper_seconds": 32.1,
+    "vitest_seconds": 31.48,
+    "log": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-r2fix-verified-affected.log",
+    "sha256": "586ecba51a3499c96df0c96e5c0d2d6e0a6c259ecbdb17660f941e83360c390d",
+    "boundary": "Prior exact-byte React/JSDOM synthetic HTTP; read not rerun. No per-handler pass from count."
+  },
+  "unchanged_prior_cancel": {
+    "ledger": "/home/kali/OmnisAI/documents/verification/settings-c-evidence/ui-result.json",
+    "ledger_sha256": "a887f3c4361de0f7367eaebcbbe03294a4b1055eacc76791efc2f49902419d69",
+    "record": {
+      "disposition": "CLOSED_SCOPED_CURRENT_CAUSAL_BOUNDARY_AND_POSITIVE_CONTROL; ORIGINAL_BROAD_FAIL_PRESERVED",
+      "source": "36d2451/04965fc/635c8fa then e47c9017f6ab8a541dd4b5c155979bd620489215,5test-onlypaths,productionunchanged. IndependentexactSOURCEreview635c8fa andfocusedreviewe47c901admittedonefreshprobeeach. Sameexistingprove_private_fixture/run_gate/realUI/API/PG/SDK/productionrelay/ownedTLSpeer; targetselectionexplicitdiagnosticnotcanonical, no newrunner/Makefilter/timeout/workerchange.",
+      "negative": "proc_d76177efc6bb:1diagnosticassertionPASS17.11s/code0/family_drainedtrue. Actualprehandleop a31632a8-e365-473c-82eb-d640919a7104 requestedrevision1,observedRUNNING2→HTTP409REVISION_CONFLICT; sameopFINISHEDCOMPLETED3 afterpeerrelease. NotCancelACK; passednull/DIAGNOSTIC_ONLY/functionalPassfalse. OneStart/oneCancel,noCancelretry/refresh/assignments;0extern/0JS.",
+      "positive": "proc_2b9ab3338146:1PASS14.60s/code0/family_drainedtrue. ExistingUIReadstatus+actualHTTPoperation/latestRUNNING2 thenfirstCancel requested2/observedRUNNING2→202/FINISHED/CANCELLED4; exactsameop ac4f5360-f491-45a0-abc1-7c83451fccc6 readback. OneStart/oneCancel/localmetadataGET/localmodelPOST,0extern/0JS/secretchecks. Freshfixture, no secondCancel/resend/oldbroadcase.",
+      "adjudication": "Current409mechanismobserved: firstvisibleCancel canusePENDING1 whileworkercommitsRUNNING2; backendCASrefusalcorrect. CurrentrevisionpositiveprovesfunctionalCancel withoutrelaxingCAS. Oldlegacyfirst409lackedbody/requestrevision, so exacthistoricalcauseNOT_RETROACTIVELY_PROVEN. No productionbug/fixclaimed; realcaller/oraclepreconditionisnowboundedandproved. Original202oraclecorrectionandold32models+2Starts2CancelsFAILnotrewritten/relabeledPASS. Harness-onlycounter2remainsconsumed.",
+      "cleanup": "Parentverifiedsame94260307daemon, exactCIDs02b7f542c052d6d6e4ec1b133051f2851e46051f26d4ed0ce64285bb5c299a94 and4d51e564fa437746de2d7e6aff3808c6476be596529ac4b2c253a1f39b9c3715 absent; eachprojectcontainers/networks/socketabsent, data/logsretained. ExacttrackedprocesshandlesEXITED0.",
+      "originals": [
+        "t1-cancel-diagnostic-635c8fa-result.json",
+        "t1-cancel-current-e47c901-result.json",
+        "t1-narrow-r2-635c8fa-original.md",
+        "t1-cancel-current-e47c901-independent-original.md",
+        "t1-narrow-source-freeze-635c8fa.json",
+        "t1-cancel-current-e47c901-freeze.json"
+      ]
+    },
+    "limit": "Reuse unchanged accepted backend CAS/read/Cancel semantics only. Newly rendered Cancel row/helper paths are not fresh real-browser exercised by this failed journey."
+  },
+  "requirements": [
+    {
+      "id": "inline-remove",
+      "functional": "REAL_PREFIX_VERIFIED + COMPONENT_NEGATIVES",
+      "visual": "9 screenshots vision-inspected, normal expanded and inline at320/390/1280/1440 plus in-use; no overlap observed; local viewport only."
+    },
+    {
+      "id": "quiet-normal-save-visible-short-feedback",
+      "functional": "COMPONENT_REUSED_ONLY",
+      "visual": "NOT_RUN: failure before pending/confirmed capture; no actual toast visibility claim."
+    },
+    {
+      "id": "exact-singular-plural-approval-and-charge-hint",
+      "functional": "COMPONENT_REUSED_ONLY",
+      "visual": "NOT_RUN: Review/exact Test not reached in fresh browser."
+    },
+    {
+      "id": "save-connect-confirmed-close-row-progress-one-control",
+      "functional": "COMPONENT_REUSED_ONLY",
+      "visual": "NOT_RUN: current real progress screenshots not generated."
+    },
+    {
+      "id": "all-model-controls",
+      "functional": "PARTIAL_EXPLICIT_MATRIX58; not accepted",
+      "visual": "PARTIAL_REMOVE_ONLY"
+    },
+    {
+      "id": "keyboard44-nooverflow",
+      "functional": "Real prefix Tab/Enter/Escape, Remove min44, hit-test/visible focus/no metrics overlap at4widths",
+      "visual": "Scoped Remove geometry/screenshots only"
+    },
+    {
+      "id": "200percent-forcedcolors-reducedmotion",
+      "functional": "Reduced-motion context configured; CSS motion checks/200percent/forcedcolors actual SOURCE suite NOT_RUN",
+      "visual": "NOT_RUN for200percent/forcedcolors; no screen-reader/all-browser certification"
+    },
+    {
+      "id": "Stop-and-navigation",
+      "functional": "SOURCE finite sequence stop/unmount checks reused; current Stop remaining and all3NavLinks NOT_RUN. No real lifecycle Stop invoked.",
+      "visual": "NOT_RUN for global Stop or remaining-check progression"
+    }
+  ],
+  "matrix": {
+    "path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-a4f5dbc-20261030/matrix.json",
+    "rows": 58,
+    "counts": {
+      "COMPONENT_REUSED": 35,
+      "REAL_PREFIX": 13,
+      "HANDLER_NOT_RUN": 7,
+      "NOT_RUN_NAVIGATION": 3
+    },
+    "button_handler_gaps": [
+      "C03",
+      "C25",
+      "C27",
+      "C28",
+      "C39"
+    ]
+  },
+  "screenshots_inspected": 9,
+  "cleanup": {
+    "cid": "66e67ee41d4eb003bae2915b4d4da9bf795ce275f028d23c1b11f63803f93509",
+    "project": "omnis-p01-c8ad38d7cc08486d8dc939313590c4ac",
+    "family_drained": true,
+    "exact_container_inspect": {
+      "exit": 1,
+      "stderr": "Error response from daemon: No such container: 66e67ee41d4eb003bae2915b4d4da9bf795ce275f028d23c1b11f63803f93509"
+    },
+    "exact_project_containers": {
+      "exit": 0,
+      "stdout": ""
+    },
+    "exact_project_networks": {
+      "exit": 0,
+      "stdout": ""
+    },
+    "socket_entries": [],
+    "data_retained": true,
+    "root": "/home/kali/.hermes/cache/scratch/db-c4e0e42ebcd249e8"
+  },
+  "files_created": "Only this private scratch QA directory: aggregation script, inventory/matrix/result/identity/cleanup/artifact JSON and copies of3 sanitized logs+9 screenshots. Candidate web/dist rebuilt by admitted existing target, bytes match freeze; no tracked product/test/config edits. Data/logs retained in fresh DB fixture.",
+  "limits": [
+    "Reticle NOT_INTEGRATED; Chisel BLOCKED_NO_GO",
+    "No source/component reruns, no broad legacy/canonical/default-web retry, no install/pull/operator8780/model budget/T2/push/main build.",
+    "Historical R2 fixes remain SOURCE-approved; this fresh proof failure neither closes nor disproves their behavior.",
+    "No global journal/skill/profile mutation under explicit read-only scope."
+  ]
+}

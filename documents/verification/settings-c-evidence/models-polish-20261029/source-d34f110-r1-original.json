@@ -1,0 +1,100 @@
+{
+  "reviewer": "R1 independent read-only; Ponytail FULL",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "qa_consumer_admission": "SOURCE_APPROVED_FOR_BOUNDED_QA; subject to R2 clearance, parent admission and existing no-effect prerequisites; NOT_EXECUTED",
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029",
+    "base": "83cade3fa662d38ecfd95f40c154e32acec70c05",
+    "head": "d34f11066a93c15ce65ce4a8879986e63e025dbd",
+    "tree": "70b003495a25fb7dee9dd99d9f2eb22fbabde3f9",
+    "canonical_read_only_revision": "2ea1ad8a511ce181a01d869854e94dae9672e50e",
+    "freeze_manifest": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-freeze-20261029.json",
+    "identity_result": "Independent read/hash: exact 11 changed paths; all 11 blobs and SHA256 match; all four built assets and manifest SHA256 match; candidate tracked worktree/index clean. Four preexisting dependency symlinks untouched.",
+    "operator_checkout": "Read-only Git status/HEAD only: 2ea1ad8a511ce181a01d869854e94dae9672e50e. Protected untracked filenames observed in status; neither file opened or hashed."
+  },
+  "findings": [],
+  "scope": "Requirement/order, Models UI source compliance, persistent consumers/exact readback and strictness of changed existing QA consumers. R2 independently owns complementary auth/epoch/concurrency/failure/a11y conclusions. This is not runtime, aesthetic or whole-product approval.",
+  "requirements": [
+    {
+      "criterion": "1. Remove inline, exact target/revisions, cancel/Escape/focus, no OS dialog and Stop barriers",
+      "source": ["web/src/features/engagement/SettingsModelsPage.tsx:102-108", "web/src/features/engagement/SettingsModelsPage.tsx:341-361", "web/src/features/engagement/SettingsModelsPage.tsx:430-459"],
+      "assessment": "APPROVED_SOURCE_SCOPED. Confirmation retains entry, connection, registry, selection and generation snapshots; current projection is compared before dispatch. Send also rechecks expanded membership, known latest, dependencies, active operation and busy/lifetime barriers. Request uses pinned entry/registry CAS, not a rebased target. Cancel/Escape restores connected trigger only when focus was inside confirmation. No native confirm remains in changed Models components.",
+      "source_tests": ["web/src/app/SettingsModels.test.tsx:43-84", "web/src/app/SettingsModels.test.tsx:97-155"],
+      "runtime": "NOT_RUN in this review; planned real consumer retains exact Remove/lost reply/recovery/history/re-add checks."
+    },
+    {
+      "criterion": "2. Zero normal page-top pending/recovery noise; short proven bottom-right confirmation and persistent contextual uncertainty",
+      "source": ["web/src/features/engagement/SettingsModelsPage.tsx:123-147", "web/src/features/engagement/SettingsModelsPage.tsx:185-214", "web/src/features/engagement/SettingsModelsPage.tsx:437,471,482-494", "web/src/features/engagement/SettingsAssignments.tsx:63-66", "web/src/features/engagement/SettingsModels.module.css:77-79"],
+      "assessment": "APPROVED_SOURCE_SCOPED. Ordinary in-flight Save returns no Settings recovery region and keeps local aria-busy. Success notice is assigned after durable receipt equality and authoritative current reads; separate toast allowlist excludes actual recovery errors. Targeted recovery is placed beside model/connection/assignments, with orphan fallback below data. Notification styling is changed, collision placement is recalculated, and expiry counts safe visible time. CSS has safe-area offsets and preserves target sizes.",
+      "source_tests": ["web/src/app/ProviderKeySettings.test.tsx:135-158", "web/src/app/SettingsModels.test.tsx:171-250"],
+      "runtime": "NOT_RUN; actual toast visibility/geometry across viewports and visual acceptance remain unproven, not aesthetic PASS from source."
+    },
+    {
+      "criterion": "3. Singular/plural exact model/provider approval, separate charge hint, no Fixed input/300s/no-tools/refund presentation",
+      "source": ["web/src/features/engagement/SettingsModelWizard.tsx:63-68,89-123,153-162", "web/src/features/engagement/SettingsModelsPage.tsx:244-261,289-339,481"],
+      "assessment": "APPROVED_SOURCE_SCOPED. Exact models/provider stay visible; labels match required strings and charge hint is separate. Technical disclosure/copy is removed, not backend request/deadline/cap/generation contracts. Save models passes null test intent even if approval is checked; Save & connect retains explicit approval, complete capability coverage, pinned generation and finite serial continuation. No API production/schema/protocol file changes.",
+      "source_tests": ["web/src/app/SettingsModels.test.tsx:284-305", "web/src/app/SettingsWizard.test.tsx:224-268", "web/src/app/SettingsWizard.test.tsx:431-545"],
+      "runtime": "NOT_RUN. Multi-model/generation controls are SOURCE tests, not new live coverage."
+    },
+    {
+      "criterion": "4. Confirmed Save & connect closes wizard after list proof; row progress only, one contextual Cancel/Stop, no duplicate global consent",
+      "source": ["web/src/features/engagement/SettingsModelWizard.tsx:116-123", "web/src/features/engagement/SettingsModelsPage.tsx:289-339", "web/src/features/engagement/SettingsModelsPage.tsx:390-394,417-442,504-506"],
+      "assessment": "APPROVED_SOURCE_SCOPED. mutate verifies independent receipt equality and loads complete paged membership; saveModels checks exact requested saved revisions/output/context before returning entries and beginning continuation. Wizard closes on that nonempty proof. Existing direct consent is cleared for sequence; normal Connecting is per bound row and routine operation panel is absent. The primary control chooses Cancel or Stop rather than rendering both; receive-only read is separate. Genuine uncertainty/orphan recovery remains reachable. Next call waits for exact terminal and latest-entry readback.",
+      "source_tests": ["web/src/app/SettingsWizard.test.tsx:377-465", "web/src/app/SettingsWizard.test.tsx:590-646", "web/src/app/SettingsWizard.test.tsx:671-835"],
+      "runtime": "NOT_RUN; proposed single Save-connect call exercises held admission/local Stop and subsequent exact durable completion, not remote Cancel or a two-model sequence."
+    },
+    {
+      "criterion": "5. Existing Models controls, existing key/provider confirmations and persistence; no new key feature",
+      "source": ["web/src/features/engagement/SettingsModelsPage.tsx:364-378,471-482", "web/src/features/engagement/SettingsModelWizard.tsx:69-83,131-151", "web/src/features/engagement/SettingsAssignments.tsx:15-75"],
+      "assessment": "APPROVED_SOURCE_SCOPED for inspected implementation and affected callers. Replace/Reconnect/Disable use contextual confirmation over existing handlers; provider discard requires explicit confirmation and wipes pending choices/secret only on confirm. Assignments/output controls remain distinct from registration and retain existing write consumer. No new key/Replace capability or dependencies introduced.",
+      "source_tests": ["web/src/app/ProviderKeySettings.test.tsx:25-56", "web/src/app/SettingsWizard.test.tsx:270-293"],
+      "runtime": "FULL EXERCISED COVERAGE NOT_ESTABLISHED; see separate acceptance gaps."
+    }
+  ],
+  "control_inventory": {
+    "method": "Installed TypeScript parser; visit actual JSX opening/self-closing elements tagged button/input/select/summary in the three requested components, no fixture/runtime execution.",
+    "candidate_jsx_sites": 55,
+    "by_component": {"SettingsModelsPage.tsx": 29, "SettingsModelWizard.tsx": 22, "SettingsAssignments.tsx": 4},
+    "by_tag": {"button": 38, "summary": 8, "input": 7, "select": 2},
+    "baseline_jsx_sites": 50,
+    "separate_navigation_instances": 3,
+    "delta": "Inline Remove, connection and provider confirmation controls plus contextual row readback; two Fixed input summaries removed. Unique source sites are not rendered instance counts, state counts or runtime PASS. Repeated entries/roles and conditional branches remain distinct evidence obligations."
+  },
+  "qa_consumer_review": {
+    "changed_files": ["api/tests/test_model_test_v2.py", "web/tests/e2e/settings-models.mjs", "web/tests/e2e/run.mjs", "web/tests/e2e/provider-settings-focus.mjs"],
+    "existing_target": "Makefile:37-39 -> exact test_api_pg_sdk_protocol_and_replay[entry_remove_ui]; existing runner choice ops/run_test_db_gate.py:1038",
+    "assessment": "No circular relaxation found. Two allowed exact synthetic model IDs are scoped to entry_remove_ui; shared max_tokens64 and fallback/parameter restrictions remain. Other scenarios retain their own model restrictions. Removal no-effect prefix remains enforced through lost receipt/recovery/reload; extra effects begin only in explicitly expanded wizard/test/key journey. SOURCE browser fixture changes repair absent instance/latest projection and obsolete picker, retaining unexpected-request/error/geometry/focus assertions.",
+    "exact_oracles": [
+      "web/tests/e2e/settings-models.mjs:115-154 retains one Remove, exact entry/registry request and receipt, complete paged17 membership, unchanged assignments and archived result current:false, with no resend after recovery/reload.",
+      "web/tests/e2e/settings-models.mjs:155-241 uses product wizard for re-add with new ID and Not tested/404; adds fixture/01 with Save-connect, no global consent/operation panel, one Stop; exact operation/latest results require durable FINISHED/COMPLETED/current true for the exact entry and cap64.",
+      "web/tests/e2e/settings-models.mjs:242-308 checks invalid output denial, held receipt quiet busy/focus, one assignment confirmation and unchanged explicit selections, unsent Replace no write, explicit Disable/Reconnect and stale saved-row status; mutation sequence is exact.",
+      "api/tests/test_model_test_v2.py:1008-1054 asserts exact eight catalog GET/two completion POST sequence, model/cap identities, all three operation IDs/generation, no non-read model commands except three Starts, exact census deltas across existing13 tables and retained original rows. Record-kind counts are exact; catalog runtime writes one request/result per refresh, not per upstream page.",
+      "api/tests/test_web_e2e.py:278-395 is unchanged real API-process restart, existing owned family and exact thirteen-table census equality. Browser after-stage reads old Remove/history, new results current:false, final settings and asserts zero writes."
+    ],
+    "bounded_effects_if_later_admitted": {
+      "browser_mutations": 12,
+      "new_local_peer_gets": 8,
+      "new_local_peer_posts": 2,
+      "new_model_calls": [{"model":"fixture/01","max_tokens":64},{"model":"fixture/selected","max_tokens":64}],
+      "initial_fixture_model_calls": 1,
+      "boundary": "Owned disposable API/PostgreSQL/TLS peer, synthetic responses. No external provider/model/target or operator data. HTTP admission hold is test fault injection, not production protocol behavior."
+    },
+    "reviewed_command_not_run": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-settings-remove-ui-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600",
+    "optional_source_browser_not_run": "node --test web/tests/e2e/provider-settings-focus.mjs; SOURCE built App/synthetic HTTP only, separately admitted, not API/PG proof."
+  },
+  "acceptance_gaps_not_code_findings": [
+    "Current candidate browser/API/PG/restart QA is NOT_RUN. This is the purpose of the admitted bounded check, not a circular code-review blocker.",
+    "Every Models control/state exercised is not established by149 component tests or the baseline inventory. Planned real journey does not actuate all55 JSX sites: catalog paging/explicit Refresh button, catalog Cancel/uncertainty, positive provider discard, nondefault independent output-cap saves, active remote Cancel and rare failure/orphan states remain unexecuted in this candidate's real consumer. Some have inspected SOURCE tests; no blanket runtime claim is admissible.",
+    "No actual built-UI visual/notification approval from source or tests. Parent/operator must adjudicate real captures, geometry and house-design appearance. Optional focus journey remains NOT_RUN.",
+    "R2 clearance, private pinned PG/browser/UID/mount/ambient-config preflight and exact owned cleanup/readback remain the parent's gates before/after any admitted run. Existing historical default-web two FAILs/counter2 and T1 NOT_CLOSED remain; no reset, broad legacy rerun, T2, rollout or canonical approval."
+  ],
+  "execution_evidence": [
+    {"command":"git status --short --branch; git rev-parse HEAD; git diff --stat/name-only base..head; source/UI/test diffs and git log","result":"exit0; exact frozen candidate and11 changed files/11 commits"},
+    {"command":"git diff --check 83cade3fa662d38ecfd95f40c154e32acec70c05..d34f11066a93c15ce65ce4a8879986e63e025dbd; git diff --cached --stat","result":"exit0; no whitespace diagnostics or staged changes"},
+    {"command":"Python stdlib hashlib + git rev-parse against freeze manifest","result":"exit0;11 source hashes/blobs and four build assets plus manifest all match"},
+    {"command":"Installed TypeScript AST source inventory via node --input-type=module","result":"exit0;55 actual interactive JSX sites; no runtime/effects"},
+    {"command":"Python ast.parse api/tests/test_model_test_v2.py","result":"exit0; parsed candidate and confirmed scoped entry_remove_ui branches; no fixture execution"}
+  ],
+  "reused_evidence": "Developer's recorded149 component PASS/lint/typecheck/build and node syntax/collect-only are provided freeze claims, not independently reexecuted here and not API/PG runtime proof. No ceremonial rerun of unchanged tests.",
+  "writes_and_limits": "Created only this original scratch report. No product/test/doc/skill/dependency edits, commits, services, browser/DB effects, credentials, protected-file reads/hashes or external traffic. Reticle NOT_INTEGRATED/not invoked; Chisel BLOCKED_NO_GO. No aesthetic approval. Parent owns adjudication/integration."
+}

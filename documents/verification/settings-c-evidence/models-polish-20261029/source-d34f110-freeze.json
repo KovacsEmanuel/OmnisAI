@@ -1,0 +1,127 @@
+{
+  "status": "FROZEN_SOURCE_CANDIDATE; independent review and real QA NOT_RUN",
+  "worktree": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029",
+  "branch": "feat/settings-inline-feedback-20261029",
+  "base": "83cade3fa662d38ecfd95f40c154e32acec70c05",
+  "canon_read_without_merge": "2ea1ad8a511ce181a01d869854e94dae9672e50e",
+  "scope": "Four ordered Settings UI refinements, then independently adjudicated Models-only UX1/UX3 and minimal existing QA-consumer repairs. No API production/schema/dependency changes; no main edits/build/rollout, provider/operator effects or push.",
+  "freeze": {
+    "head": "d34f11066a93c15ce65ce4a8879986e63e025dbd",
+    "tree": "70b003495a25fb7dee9dd99d9f2eb22fbabde3f9",
+    "tracked_status": "clean",
+    "changed_file_count": 11,
+    "commit_count": 11,
+    "ordered_core_commits": [
+      {"sha":"9335deaab43dfed8821451ad7010a5392a309591","slice":"1 Remove inline, pinned entry/registry/context, revalidation and focus"},
+      {"sha":"01b099288726cfb043eca819e494313a152da223","slice":"2 quiet local pending, concise proven confirmations and contextual persistent errors; notification restyling"},
+      {"sha":"f15ef37a02e09fcc675ea31741012214c7e66688","slice":"3 concise singular/plural approval and separate charge hint; no Fixed input/technical form copy"},
+      {"sha":"05694ab8cadac176c9c70fe1088df56a55b8d92a","slice":"4 proven Save closes wizard; only row progress, one Cancel/Stop and real recovery"}
+    ],
+    "other_commits_in_history_order": [
+      {"sha":"e37767ab4bab08f21654e05b5ddbecb9f2eaec1f","reason":"test effect-subscription race; follows slice3, corrects its inaccurate GREEN message without rewriting history"},
+      {"sha":"d19f143edff935af882266e426852e65a9ac7f7b","reason":"adjudicated UX1: existing Replace/Reconnect/Disable/provider-discard confirmations inline"},
+      {"sha":"27b42abec950c560c148af5ec3ce805d92856eda","reason":"adjudicated UX3: notification placement avoids collisions and expires only after visible time"},
+      {"sha":"3748057e86ee633b0cfb59c4b259ac9dfc2a4af3","reason":"PROOF2: minimal existing SOURCE focus-consumer contract repair"},
+      {"sha":"a170537a0d3c0073fd7016c3273872635bef39be","reason":"required lint correction: Escape listeners on native controls, not noninteractive regions"},
+      {"sha":"a6795562f2b5f719c1c4f40de2bdea417b230adc","reason":"trivial narrow-row control wrapping; no target-size reduction"},
+      {"sha":"d34f11066a93c15ce65ce4a8879986e63e025dbd","reason":"PROOF1: scoped test-only entry_remove_ui and existing browser consumer; bounded effects/census"}
+    ],
+    "files": [
+      {"path":"api/tests/test_model_test_v2.py","blob":"ee4ae889dc0060aecf28c5f8f4b730cf35d4e86d","sha256":"8d4ab3550ae59cc341034e46e235b110480f0e9dbc61e6faf368a1869e871be5"},
+      {"path":"web/src/app/ProviderKeySettings.test.tsx","blob":"bc505e6f6082fcc508ff26aea46e7370fcf029ab","sha256":"ad29f463e3afee8dbecc161fdbb0243e5eda39341581dc0eb67296f57f0f5828"},
+      {"path":"web/src/app/SettingsModels.test.tsx","blob":"85303c05d7f5161de89bf5ce38670581a951ac61","sha256":"9988859ee3498f8be62b865bd4edb979ec3fdf68e52a0802ea610703f38fc28f"},
+      {"path":"web/src/app/SettingsWizard.test.tsx","blob":"58bac8ba65c1e43f5f29e3cbaa11dc1d4b9aeb77","sha256":"f89edcfd05101c538d3c215fe362349ebbbda6a62cd49419eaf95fe3aae7a728"},
+      {"path":"web/src/features/engagement/SettingsAssignments.tsx","blob":"baf3f066327d9d2335cc0eb9a10e29db2f806759","sha256":"a52600f0cd6f108ab69e28290381465421d606c6c28cb3c692bb249ac64734d2"},
+      {"path":"web/src/features/engagement/SettingsModelWizard.tsx","blob":"f289e2f5138736a8545998be35a26fcc689c828f","sha256":"801e06fb826a48ac878c61f0b1373507f7a4ac75195b721d6e1b8067a77a25fe"},
+      {"path":"web/src/features/engagement/SettingsModels.module.css","blob":"8a813cc48454f75dabeb065e0373d2b5e1ce6a16","sha256":"9a63338ca6182aa82db5d9d4da203cf4df612a9b635c34344a59123bfbfa310d"},
+      {"path":"web/src/features/engagement/SettingsModelsPage.tsx","blob":"83fa61133f661ad5f15252f6b5c88b9babb50233","sha256":"f995a3762cb7b36b9654d13141084c0235e018e1c44c72c2c8b5931f6fe0fabc"},
+      {"path":"web/tests/e2e/provider-settings-focus.mjs","blob":"ed51395a88dd32c972fb9ff9c23a3cc106608e05","sha256":"d40c4c912f3612125c2bc8e68b73163f3a8e02fb1f470ec9f5491425df22bb26"},
+      {"path":"web/tests/e2e/run.mjs","blob":"f7819bd85fb4a7a7c708f65920ae0ce09860b2e8","sha256":"f5094f22925e9e6b0d739708045480aecd69e24cf89d64c045cbfe626235f276"},
+      {"path":"web/tests/e2e/settings-models.mjs","blob":"3471267e0d9f7ff69a3d69e292f3120e4f14c7ea","sha256":"91681a0dad3a64f03fcc2993e85e86689d78c899719605febda240d7b7e3569f"}
+    ],
+    "build_manifest": {"path":"web/dist/omnis-web.json","sha256":"7f281017dfbd1403b81182b86c47f0beb3a189e869dba58cfd574643347d59f4","verified_assets":4},
+    "build_assets": [
+      {"path":"web/dist/assets/fonts-OFL-bSaZbgNk.txt","sha256":"fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4"},
+      {"path":"web/dist/assets/index-6ubBtIU9.css","sha256":"caa87c3f87499aae6a28c0d63928446042b16eb60510ce6a700552bbda651a5e"},
+      {"path":"web/dist/assets/index-DDTcoJ7V.js","sha256":"9ca2132f0d7b5eb84bf4ba6490283ba1f4ef0f787bcb4cd9607f96153e2c36cb"},
+      {"path":"web/dist/index.html","sha256":"c1047adab1dcecf0eef91b47227e1f584444ffdade000f71301b867714f82068"}
+    ],
+    "only_untracked": ["api/.venv","cli/.venv","web/node_modules","tools/development/anti-slop/node_modules"],
+    "untracked_note": "The four originally supplied dependency symlinks still point to their same /home/kali/OmnisAI targets; not staged/adopted/deleted."
+  },
+  "source_verification": {
+    "working_directory": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web",
+    "final": [
+      {"command":"npm test -- src/app/SettingsModels.test.tsx src/app/SettingsWizard.test.tsx src/app/ProviderKeySettings.test.tsx","exit":0,"seconds":28.77,"result":"3 files, 149 PASS; SOURCE synthetic HTTP/component behavior, not API/PG"},
+      {"command":"npm run lint","exit":0,"seconds":0.97},
+      {"command":"npm run typecheck","exit":0,"seconds":6.70},
+      {"command":"npm run build","exit":0,"seconds":7.68,"result":"contracts/design checks and production build; 4 trusted assets, OWN worktree only"}
+    ],
+    "last_test_only_changes": [
+      {"command":"node --check web/tests/e2e/settings-models.mjs","exit":0,"seconds":0.04},
+      {"command":"node --check web/tests/e2e/run.mjs","exit":0,"seconds":0.04},
+      {"command":"node --check web/tests/e2e/provider-settings-focus.mjs","exit":0,"seconds":0.04},
+      {"command":"OMNIS_SETTINGS_REMOVE_UI=1 api/.venv/bin/python -I -B -m pytest -c api/pyproject.toml 'api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[entry_remove_ui]' --collect-only -q","exit":0,"seconds":4.17,"result":"exactly 1 collected; no fixture/runtime execution"}
+    ],
+    "red_green": [
+      {"slice":1,"red":"npm test -- src/app/SettingsModels.test.tsx -t 'opens inline Remove'","red_exit":1,"red_seconds":3.95,"green":"npm test -- src/app/SettingsModels.test.tsx","green_exit":0,"green_seconds":4.83,"green_tests":26},
+      {"slice":2,"red":"npm test -- src/app/ProviderKeySettings.test.tsx -t 'assignment save preserves'","red_exit":1,"red_seconds":2.32,"green":"npm test -- src/app/SettingsModels.test.tsx src/app/SettingsWizard.test.tsx src/app/ProviderKeySettings.test.tsx","green_exit":0,"green_seconds":27.36,"green_tests":138},
+      {"slice":3,"red":"npm test -- src/app/SettingsModels.test.tsx src/app/SettingsWizard.test.tsx -t 'direct test consent|review keeps exact'","red_exit":1,"red_seconds":2.91,"green":"npm test -- src/app/SettingsModels.test.tsx src/app/SettingsWizard.test.tsx","green_exit":0,"green_seconds":27.51,"green_tests":119,"qualification":"after separate e37767a correction; original f15ef37 commit message inaccurately said GREEN"},
+      {"slice":4,"red":"npm test -- src/app/SettingsWizard.test.tsx -t 'closes after proven Save'","red_exit":1,"red_seconds":2.85,"green":"npm test -- src/app/SettingsModels.test.tsx src/app/SettingsWizard.test.tsx src/app/ProviderKeySettings.test.tsx","green_exit":0,"green_seconds":29.08,"green_tests":143},
+      {"finding":"UX1","red":"npm test -- src/app/ProviderKeySettings.test.tsx src/app/SettingsWizard.test.tsx -t 'confirms .* inline|provider switch confirmation'","red_exit":1,"red_seconds":2.99,"green_exit":0,"green_seconds":27.60,"green_tests":148},
+      {"finding":"UX3","red":"npm test -- src/app/SettingsModels.test.tsx -t 'moves passive feedback|does not expire a notification'","red_exit":1,"red_seconds":3.21,"green_exit":0,"green_seconds":4.68,"green_tests":28}
+    ],
+    "historical_failures_preserved": [
+      "Slice2 intermediate 137 PASS/1 FAIL: synchronous getBy assumed the old healthy-pending recovery banner; changed to await actual uncertainty. A missing explicit fixture return also failed typecheck; fixed without weakening its recovery oracle.",
+      "Slice3 affected run: exit1, 118 PASS/1 FAIL in27.42s because the old notification collision event raced its effect subscription. Logging wrapper failed to propagate exit to shell, so f15ef37 committed with an inaccurate GREEN claim. e37767a separately corrects the test and history claim; no amend/rebase.",
+      "Required web lint initially exit1/1.24s: 3 no-noninteractive-element-interactions warnings. a170537 binds Escape to actual controls; final lint0, no suppression.",
+      "api/.venv/bin/ruff check api/tests/test_model_test_v2.py returns1 for pre-existing I001 in the untouched top import block; reproduced with git-show HEAD baseline via stdin and from api cwd. No new diagnostic or ignore/reorder introduced."
+    ],
+    "logs": [
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-s1-red.log",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-s1-verified.log",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-s2-red.log",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-s2-green.log",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-s2-final.log",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-s3-red.log",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-s3-green.log",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-s3-correction-green.log",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-s4-red.log",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-s4-green.log",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-confirmations-red.log",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-confirmations-verified.log",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-toast-red.log",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-toast-green.log",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-final-source.json",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-final-verified.json",
+      "/home/kali/.hermes/cache/scratch/settings-inline-feedback-qa-source-preflight.json"
+    ]
+  },
+  "qa_effect_plan_before_test_seam_edit": {
+    "scenario":"existing test_api_pg_sdk_protocol_and_replay[entry_remove_ui] / runSettingsRemove, owned synthetic fixture only",
+    "prohibited":["operator instance/data/keys","external provider/target traffic","new runner or scenario","legacy broad settings-models journey","canonical/default full web rerun"],
+    "membership":"Initial18/page2 target -> exact Remove/lost-reply recovery17 -> product wizard re-add same model/new entry ID18 -> one additional fixture/01 through Save & connect19. Preserve original archived history and restart readback.",
+    "new_model_calls":[{"model":"fixture/01","max_tokens":64,"calls":1,"flow":"Save & connect, held HTTP admission reply, Connecting/one Stop remaining; local stop then exact readback"},{"model":"fixture/selected","max_tokens":64,"calls":1,"flow":"fresh direct Test consent, successful exact readback"}],
+    "initial_fixture_model_calls":1,
+    "total_model_calls":3,
+    "browser_mutations":{"remove_model":1,"save_models":2,"save_selection":1,"revoke_connection":1,"save_connection":1,"catalog_refresh":4,"entry_test_start":2,"entry_test_cancel":0},
+    "computed_browser_mutation_total":12,
+    "expected_new_peer_request_sequence":["GET models offset0","GET models offset16","GET models offset0","GET models offset16","GET models offset0","GET models offset16","POST fixture/01 max_tokens64","POST fixture/selected max_tokens64","GET models offset0","GET models offset16"],
+    "computed_new_peer_get":8,
+    "computed_new_peer_post":2,
+    "key_flow":"Replace Cancel/Escape/open-and-cancel without write; explicit Disable; explicit Reconnect with synthetic fixture key and receipt before catalog. Same connection ends revision3/enabled; saved entries remain revision1/unavailable, never false Connected.",
+    "proofs":"Exact actions/requests, two distinct UI operation IDs, model/cap/generation identity; existing13-table before/after census with exact deltas, original history retained; unchanged census across actual API restart. Strict max_tokens64 and all other scenarios' peer restrictions untouched."
+  },
+  "qa_admission": {
+    "status":"NOT_RUN; parent must clear exact-snapshot reviews and admit effects first",
+    "source_only_preflight_done":"exact case collect-only1; syntax; pins Node24.21.0/npm11.19.0/uv0.12.19/API venvPython3.13.15",
+    "pin_note":"Bare python resolves3.13.12 and was used only as stdlib subprocess/logging driver. Product Python collection/AST used api/.venv/bin/python3.13.15.",
+    "required_preflight":"Verify frozen source/build hashes, local pinned Playwright Chromium present, private digest-pinned PG18.6 image/Unix Docker endpoint and UID/mount prerequisites, no ambient operator DSN/control/proxy config. Do not install/pull/adopt another fixture. Runner owns new disposable fixture, bounded family drain and exact cleanup/readback; retain data/logs on uncertainty.",
+    "working_directory":"/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029",
+    "after_review_command":"PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-settings-remove-ui-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600",
+    "optional_separate_source_browser_command":"node --test web/tests/e2e/provider-settings-focus.mjs (SOURCE synthetic HTTP only; requires separate admission; not executed)",
+    "selectors":["region Configured models > listitem Model fixture/selected via OpenRouter","region Remove model confirmation > Cancel / Remove","region Add models wizard; Search models; Selected models; Output controls; Save models / Save & connect","checkbox I approve using this model. / I approve using these models.","region Test consent > Send model test / Cancel","region Model assignments > Default model / Brain / Investigator / Validator / Default output tokens / Save assignments","region Connection confirmation > Cancel / Replace key / Disable connection / Reconnect","region Provider change confirmation > Cancel / Change provider","complementary Settings notification > Dismiss notification","region Settings recovery > Read current state / command details"],
+    "coverage_qualification":"Parent read-only matrix baseline50 JSX sites+3 navigation=53 is inventory, NOT runtime coverage. Frozen delta requires independent coverage adjudication.149 component tests executed; no new browser/API/PG consumer executed. Planned representative real journey covers registration/removal/re-add, approval/Test/Save-connect, assignments/output and existing key/provider actions. Active remote Cancel, positive provider discard, catalog Cancel/unknown, generation/failure/orphan rare states remain SOURCE-only for this candidate unless separately admitted; never label every state live-PASS.",
+    "canonical":"NOT_RUN; historical default-web two FAILs/counter2, supervisor causeUNKNOWN, T1 NOT_CLOSED and canonical5400s prerequisite block remain unchanged; no reset/T2/rollout/push."
+  }
+}

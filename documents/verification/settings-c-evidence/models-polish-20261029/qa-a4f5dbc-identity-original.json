@@ -1,0 +1,109 @@
+{
+  "head": "a4f5dbc67221e3c0387a88db7bb8e78de4c6ccfa",
+  "tree": "3d1068bbf0c2be227153357e746f21fc526c3da6",
+  "freeze_path": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-r2fix-freeze-20261029.json",
+  "freeze_sha256": "ccf982f039d1e145ba884e94d391e03b5f72ddbf3bb26e245a4d42d664125534",
+  "verified_source_files": 11,
+  "rebuilt_candidate_build_files": 5,
+  "identities": [
+    {
+      "path": "api/tests/test_model_test_v2.py",
+      "sha256": "8d4ab3550ae59cc341034e46e235b110480f0e9dbc61e6faf368a1869e871be5",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/src/app/ProviderKeySettings.test.tsx",
+      "sha256": "ad29f463e3afee8dbecc161fdbb0243e5eda39341581dc0eb67296f57f0f5828",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/src/app/SettingsModels.test.tsx",
+      "sha256": "21c4bd338da5750406e6fc7889b559541f74ed887f15aa79369cbf21974bb541",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/src/app/SettingsWizard.test.tsx",
+      "sha256": "f89edcfd05101c538d3c215fe362349ebbbda6a62cd49419eaf95fe3aae7a728",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsAssignments.tsx",
+      "sha256": "a52600f0cd6f108ab69e28290381465421d606c6c28cb3c692bb249ac64734d2",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModelWizard.tsx",
+      "sha256": "801e06fb826a48ac878c61f0b1373507f7a4ac75195b721d6e1b8067a77a25fe",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModels.module.css",
+      "sha256": "9a63338ca6182aa82db5d9d4da203cf4df612a9b635c34344a59123bfbfa310d",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/src/features/engagement/SettingsModelsPage.tsx",
+      "sha256": "0944c7f774785155f37149845e1fe5e850e493863aebae6363c2c2ac2215b0ed",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/tests/e2e/provider-settings-focus.mjs",
+      "sha256": "d40c4c912f3612125c2bc8e68b73163f3a8e02fb1f470ec9f5491425df22bb26",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/tests/e2e/run.mjs",
+      "sha256": "f5094f22925e9e6b0d739708045480aecd69e24cf89d64c045cbfe626235f276",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/tests/e2e/settings-models.mjs",
+      "sha256": "91681a0dad3a64f03fcc2993e85e86689d78c899719605febda240d7b7e3569f",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/dist/omnis-web.json",
+      "sha256": "25464e15e682698229e85972f14c6a681b31328be167ae270a99e3baf04356a2",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/dist/assets/fonts-OFL-bSaZbgNk.txt",
+      "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/dist/assets/index-6ubBtIU9.css",
+      "sha256": "caa87c3f87499aae6a28c0d63928446042b16eb60510ce6a700552bbda651a5e",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/dist/assets/index-C4Rn_mrY.js",
+      "sha256": "256eaebfcc73f581accd3edb7c1d976cf356882098b6a322e6089247bfbfc5cf",
+      "matches_freeze": true
+    },
+    {
+      "path": "web/dist/index.html",
+      "sha256": "26f03f3ff54bdddeb59ed5f82968b8091d22187798136a6b2270fa7bf9db7dad",
+      "matches_freeze": true
+    }
+  ],
+  "tracked_status": "",
+  "preexisting_dependency_links": [
+    {
+      "path": "api/.venv",
+      "target": "/home/kali/OmnisAI/api/.venv"
+    },
+    {
+      "path": "cli/.venv",
+      "target": "/home/kali/OmnisAI/cli/.venv"
+    },
+    {
+      "path": "tools/development/anti-slop/node_modules",
+      "target": "/home/kali/OmnisAI/tools/development/anti-slop/node_modules"
+    },
+    {
+      "path": "web/node_modules",
+      "target": "/home/kali/OmnisAI/web/node_modules"
+    }
+  ]
+}

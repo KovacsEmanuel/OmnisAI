@@ -1,0 +1,20 @@
+{
+  "cid": "66e67ee41d4eb003bae2915b4d4da9bf795ce275f028d23c1b11f63803f93509",
+  "project": "omnis-p01-c8ad38d7cc08486d8dc939313590c4ac",
+  "family_drained": true,
+  "exact_container_inspect": {
+    "exit": 1,
+    "stderr": "Error response from daemon: No such container: 66e67ee41d4eb003bae2915b4d4da9bf795ce275f028d23c1b11f63803f93509"
+  },
+  "exact_project_containers": {
+    "exit": 0,
+    "stdout": ""
+  },
+  "exact_project_networks": {
+    "exit": 0,
+    "stdout": ""
+  },
+  "socket_entries": [],
+  "data_retained": true,
+  "root": "/home/kali/.hermes/cache/scratch/db-c4e0e42ebcd249e8"
+}

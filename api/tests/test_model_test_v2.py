@@ -386,10 +386,12 @@ async def test_api_pg_sdk_protocol_and_replay(
                         assert data["model"] in {"fixture/02", "fixture/03"}
                     elif scenario.startswith("entry_generation_"):
                         assert data["model"] in {"fixture/selected", "fixture/00"}
+                    elif scenario == "entry_remove_ui":
+                        assert data["model"] in {"fixture/selected", "fixture/01"}
                     else:
                         assert data["model"] == (
                             "fixture/selected"
-                            if scenario in {"entry_catalog", "entry_remove", "entry_remove_ui"}
+                            if scenario in {"entry_catalog", "entry_remove"}
                             else "fixture/model"
                         )
                     assert data["max_tokens"] == 64
@@ -995,13 +997,68 @@ async def test_api_pg_sdk_protocol_and_replay(
                             from test_web_e2e import settings_models_browser
 
                             traffic = len(received)
+                            assert traffic == 3  # Two catalog pages and the original saved test.
+                            before_browser = await census_remove()
                             await settings_models_browser(
                                 migrated_database_url,
                                 control_dir,
                                 tmp_path,
                                 scenario="settings-remove",
                             )
-                            assert len(received) == traffic, "Remove UI must never Test or Refresh"
+                            assert [first for first, _ in received[traffic:]] == [
+                                "GET /api/v1/models?offset=0&limit=1000 HTTP/1.1",
+                                "GET /api/v1/models?offset=16&limit=1000 HTTP/1.1",
+                                "GET /api/v1/models?offset=0&limit=1000 HTTP/1.1",
+                                "GET /api/v1/models?offset=16&limit=1000 HTTP/1.1",
+                                "GET /api/v1/models?offset=0&limit=1000 HTTP/1.1",
+                                "GET /api/v1/models?offset=16&limit=1000 HTTP/1.1",
+                                "POST /api/v1/chat/completions HTTP/1.1",
+                                "POST /api/v1/chat/completions HTTP/1.1",
+                                "GET /api/v1/models?offset=0&limit=1000 HTTP/1.1",
+                                "GET /api/v1/models?offset=16&limit=1000 HTTP/1.1",
+                            ]
+                            calls = [json.loads(body) for first, body in received[traffic:] if first.startswith("POST")]
+                            assert [(call["model"], call["max_tokens"]) for call in calls] == [
+                                ("fixture/01", 64), ("fixture/selected", 64)
+                            ]
+                            browser = json.loads((tmp_path / "browser-result.json").read_text())["catalog"]
+                            starts = [command for command in commands if command.action == "start"]
+                            assert [command.action for command in commands if command.action != "read"] == ["start", "start", "start"]
+                            assert [command.operation_id for command in starts[1:]] == [result["operation_id"] for result in browser["results"]]
+                            assert len({command.operation_id for command in starts}) == 3
+                            assert [command.expected_generation for command in starts] == [generation] * 3
+                            after_browser = await census_remove()
+                            deltas = {
+                                "provider_connection_revision": 2, "provider_settings_command": 3,
+                                "provider_selection_revision": 1, "provider_model_registry_revision": 3,
+                                "provider_model_entry": 2, "provider_model_entry_revision": 2,
+                                "provider_model_command": 3, "model_command_v2": 6,
+                                "system_operation": 2, "system_operation_event": 6,
+                                "model_dispatch_v2": 2, "model_dispatch_event_v2": 6,
+                            }
+                            for table in tables:
+                                if table in deltas:
+                                    assert len(after_browser[table]) == len(before_browser[table]) + deltas[table], table
+                                if table != "provider_model_entry":
+                                    assert all(row in after_browser[table] for row in before_browser[table]), f"Baseline changed: {table}"
+                            before_entries = [json.loads(row) for row in before_browser["provider_model_entry"]]
+                            after_entries = [json.loads(row) for row in after_browser["provider_model_entry"]]
+                            for previous in before_entries:
+                                expected = {**previous, "removed_registry_revision": extra.json()["registry_revision"] + 1} if previous["entry_id"] == ids[0] else previous
+                                assert expected in after_entries
+                            from collections import Counter
+
+                            before_kinds = Counter(json.loads(row)["kind"] for row in before_browser["model_record_v2"])
+                            after_kinds = Counter(json.loads(row)["kind"] for row in after_browser["model_record_v2"])
+                            assert after_kinds == Counter({kind: count + 4 if kind in {"catalog-request", "catalog-result"} else count * 3 for kind, count in before_kinds.items()})
+                            assert browser["receipt"]["total"] == 17 and browser["readdEntries"] == 18 and browser["entries"] == 19
+                            (tmp_path / "settings-controls-census.json").write_text(json.dumps({
+                                "boundary": "owned API/PG/TLS peer; no external provider",
+                                "before": {table: len(rows) for table, rows in before_browser.items()},
+                                "after": {table: len(rows) for table, rows in after_browser.items()},
+                                "operation_ids": [command.operation_id for command in starts],
+                                "new_calls": [(call["model"], call["max_tokens"]) for call in calls],
+                            }, indent=2))
                             return
                         history = await census_remove()
                         settings_before = (await http.get(providers)).json()

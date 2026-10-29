@@ -181,7 +181,7 @@ try {
   } else if (scenario === 'catalog') {
     catalogEvidence = await runCatalog({ page, check, paired, output, origin, screenshot, secretChecks });
   } else if (scenario === 'settings-remove') {
-    catalogEvidence = await runSettingsRemove({ page, check, paired, origin, output, screenshot, secretChecks });
+    catalogEvidence = await runSettingsRemove({ page, check, paired, origin, output, screenshot, secretChecks, remember });
   } else if (['settings-models', 'settings-cancel-probe', 'settings-cancel-current'].includes(scenario)) {
     catalogEvidence = await runSettingsModels({ page, check, paired, origin, output, screenshot, secretChecks, remember });
   } else if (scenario === 'flow') {

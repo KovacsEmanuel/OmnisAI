@@ -322,7 +322,8 @@ async def settings_models_browser(
         observations: list[str] = []
         try:
             before: dict[str, list[str]] | None = None
-            for stage in ("before", "after"):
+            diagnostic = scenario == "settings-cancel-probe"
+            for stage in ("before",) if diagnostic else ("before", "after"):
                 api = launch_api(listener, database_url, control_dir, own_source=True)
                 resources.append((api, False))
                 await asyncio.to_thread(wait_api, api, origin)
@@ -358,7 +359,8 @@ async def settings_models_browser(
                     markers = decode_markers(os.read(marker_read, 16385))
                     assert_secret_free(markers + ["synthetic-not-provider-key"], [stdout, stderr])
                     observations.extend((stdout, stderr))
-                    assert driver.returncode == 0 and f"E2E PASS {scenario}" in stdout, (
+                    label = "DIAGNOSTIC" if diagnostic else "PASS"
+                    assert driver.returncode == 0 and f"E2E {label} {scenario}" in stdout, (
                         "Settings browser journey failed; inspect owned sanitized output"
                     )
                 finally:
@@ -376,7 +378,12 @@ async def settings_models_browser(
                 api_stdout, api_stderr = await asyncio.to_thread(api.communicate, timeout=5)
                 assert api.returncode == -signal.SIGTERM
                 observations.extend((api_stdout, api_stderr))
-            print("SETTINGS_UI_REAL_API_PG_TLS_API_RESTART_PASS", flush=True)
+            print(
+                "SETTINGS_CANCEL_ONE_OPERATION_DIAGNOSTIC"
+                if diagnostic
+                else "SETTINGS_UI_REAL_API_PG_TLS_API_RESTART_PASS",
+                flush=True,
+            )
         finally:
             try:
                 cleanup_all(resources, ownership=family)

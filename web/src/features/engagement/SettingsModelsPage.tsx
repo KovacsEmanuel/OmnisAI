@@ -322,6 +322,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     const latest = client.getQueryData<Awaited<ReturnType<typeof load>>>(queryKey);
     const entries = latest?.library.entries.filter(item => payload.models.some(request => request.entry_id === item.entry_id && request.model === item.model && item.revision === request.expected_revision + 1 && item.output_tokens === request.output_tokens) && item.connection_id === payload.connection_id && item.connection_revision === payload.connection_revision) ?? [];
     if (latest?.library.revision !== receipt.registry_revision || receipt.registry_revision !== payload.expected_registry_revision + 1 || entries.length !== payload.models.length) { setStale(true); setNotice('Saved entries do not match the requested revisions. Read current settings; no test was sent.'); return; }
+    if (testIntent) { setTestChoice(null); setConsent(false); }
     if (testIntent && latest?.generation == null) { setNotice('Models saved. Instance admission is unavailable; no test was sent. Reload settings and give new consent.'); return entries; }
     if (!testIntent) setNotice('Models saved.');
     const connection = data?.settings.connections.find(item => item.connection_id === payload.connection_id);
@@ -349,6 +350,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       if (receipt) { setTestChoice(null); setConsent(false); setNotice('Model removed.'); }
     } finally { settleFocus(); }
   }
+  function stopRemaining() { continuation.current?.abort(); setTestNotice('Remaining checks stopped. Read the admitted check.'); }
   return <>
     <div className={styles.heading}><h2>Models</h2><fieldset className={styles.headingActions} aria-label="Model library actions">
       <button type="button" className={(pending && !sending) || stale || current.isError ? undefined : styles.quiet} aria-label={pending && !sending ? undefined : 'Reload current settings'} disabled={!authReady} aria-disabled={reading || sending || connecting} onClick={() => { if (!reading) void readCurrent(!!pending); }}>{pending && !sending ? 'Recover exact receipt' : stale || current.isError ? 'Reload current settings' : 'Reload'}</button>
@@ -387,9 +389,10 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
         </div>
         <ul className={styles.list}>{entries.map(entry => {
           const latest = data.checks[entry.entry_id], bound = operationEntryId === entry.entry_id && !!operation;
+          const starting = bound && sending && !testUnknown && !testNotice;
           const check = latest && latest !== 'UNKNOWN' ? latest : bound && observed ? observed : null;
           const terminalUnknown = check?.state === 'FINISHED' && check.result_state === 'UNKNOWN';
-          const open = expanded.includes(entry.entry_id), uncertain = latest === 'UNKNOWN' || check?.result_state === 'UNKNOWN' || check?.state === 'NEEDS_RECONCILIATION' || (bound && (testUnknown || test.isError));
+          const open = expanded.includes(entry.entry_id), uncertain = (latest === 'UNKNOWN' && !starting) || check?.result_state === 'UNKNOWN' || check?.state === 'NEEDS_RECONCILIATION' || (bound && (testUnknown || test.isError));
           const needsRecovery = bound && (operationPending || connecting || !!testNotice);
           const passed = check?.state === 'FINISHED' && check.result_state === 'COMPLETED' && check.finish_reason === 'COMPLETED';
           const matching = check && exactCheck(entry, connection.provider, check);
@@ -400,12 +403,13 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
             <div className={styles.modelRow}>
               <button type="button" className={styles.modelToggle} aria-label={`Details for ${entry.model} via ${providerName(connection.provider)}`} aria-describedby={statusId} aria-expanded={open} aria-controls={detailsId} onClick={() => { if (open && removal?.entry.entry_id === entry.entry_id) setRemoval(null); setExpanded(previous => open ? previous.filter(id => id !== entry.entry_id) : [...previous, entry.entry_id]); }}>
                 <span className={styles.identity}><strong>{name}</strong>{name !== entry.model && <small className={styles.mono}>{entry.model}</small>}</span>
-                <span id={statusId} className={styles.state}>{stale || current.isError ? 'Unconfirmed — reload settings' : entryStatus(entry, data.settings, data.evidence, latest, data.catalogs)}</span>
+                <span id={statusId} className={styles.state}>{stale || current.isError ? 'Unconfirmed — reload settings' : starting || (connecting && bound && passed && matching && !uncertain && !testNotice) ? 'Connecting' : entryStatus(entry, data.settings, data.evidence, latest, data.catalogs)}</span>
               </button>
-              {needsRecovery ? <button type="button" className={styles.secondary} onClick={() => { void readTest(canCancel); }}>{canCancel ? 'Cancel test' : 'Read test status'}</button> : <button type="button" className={styles.secondary} aria-label={`Test ${entry.model} via ${providerName(connection.provider)}`} disabled={blocked || activeTest || generation === null || !usable(entry, data.settings, data.evidence)} aria-disabled={busy} onClick={() => { if (!busy) { setTestChoice(entry); setTestGeneration(generation); setConsent(false); requestAnimationFrame(() => testHeading.current?.focus({ preventScroll: true })); } }}>Test</button>}
+              {needsRecovery ? <button type="button" className={styles.secondary} onClick={() => { if (canCancel) void readTest(true); else if (connecting) stopRemaining(); else void readTest(); }}>{canCancel ? 'Cancel test' : connecting ? 'Stop remaining checks' : 'Read test status'}</button> : <button type="button" className={styles.secondary} aria-label={`Test ${entry.model} via ${providerName(connection.provider)}`} disabled={blocked || activeTest || generation === null || !usable(entry, data.settings, data.evidence)} aria-disabled={busy} onClick={() => { if (!busy) { setTestChoice(entry); setTestGeneration(generation); setConsent(false); requestAnimationFrame(() => testHeading.current?.focus({ preventScroll: true })); } }}>Test</button>}
+              {needsRecovery && !uncertain && !testNotice && (canCancel || connecting) && <button type="button" className={styles.quiet} onClick={() => { void readTest(); }}>Read test status</button>}
             </div>
             {noticeTarget === entry.entry_id && settingsRecovery()}
-            {needsRecovery && <div className={styles.operation} aria-label="Active model check">
+            {needsRecovery && (uncertain || !!testNotice) && <div className={styles.operation} aria-label="Active model check">
               {testNotice && <output aria-live="polite">{testNotice}</output>}
               {uncertain && !testNotice && <p>Test outcome unconfirmed. Read the same operation; no test is resent.</p>}
               {operationControls(false)}
@@ -473,8 +477,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   }
   function operationControls(cancel = true) {
     return <>
-      <div className={styles.actions}>{cancel && canCancel && <button type="button" onClick={() => { void readTest(true); }}>Cancel test</button>}{connecting && <button type="button" className={styles.secondary} onClick={() => { continuation.current?.abort(); setTestNotice('Remaining checks stopped. The admitted call may still finish; read its status.'); }}>Stop remaining checks</button>}{(cancel || canCancel) && <button type="button" className={styles.secondary} onClick={() => { void readTest(); }}>Read test status</button>}</div>
-      {observed?.state !== 'FINISHED' && <p className={styles.hint}>Cancel does not guarantee remote cancellation or a refund.</p>}
+      <div className={styles.actions}>{cancel && (canCancel ? <button type="button" onClick={() => { void readTest(true); }}>Cancel test</button> : connecting && <button type="button" className={styles.secondary} onClick={stopRemaining}>Stop remaining checks</button>)}{(cancel || canCancel) && <button type="button" className={styles.secondary} onClick={() => { void readTest(); }}>Read test status</button>}</div>
     </>;
   }
 }

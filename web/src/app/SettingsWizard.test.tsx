@@ -355,6 +355,60 @@ it('never binds an earlier connection revision recovery or notice to the current
   expect(within(card).getAllByText('Catalog details')).toHaveLength(2);
   expect(state.writes).toEqual([]);
 });
+it('closes after proven Save while admission is held and keeps only row progress with one contextual control', async () => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  let view: EntryTestView | undefined, held = false, release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, body, method) => {
+    if (path === '/api/v1/model-test/entries' && method === 'PUT') {
+      view = operation(String(body.operation_id), state.entries.find(item => item.entry_id === body.entry_id)!);
+      held = true; await gate; return Response.json(view);
+    }
+    if (path.includes('/entries/latest/') && view?.entry_id === path.split('/').at(-1)) return Response.json(view);
+    if (view && path === '/api/v1/model-test/entries/' + view.operation_id) return Response.json(view);
+  };
+  mount(); await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
+  fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
+  try {
+    await waitFor(() => expect(held).toBe(true));
+    await waitFor(() => expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument());
+    const row = modelRow('Catalog/00');
+    expect(within(row).getByText('Connecting', { exact: true })).toBeVisible();
+    expect(within(row).getAllByRole('button', { name: /Cancel test|Stop remaining checks/ })).toHaveLength(1);
+    expect(screen.queryByRole('region', { name: 'Test consent' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Settings recovery' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Active model check')).not.toBeInTheDocument();
+    expect(screen.queryByText('Connected', { exact: true })).not.toBeInTheDocument();
+    release();
+    await within(row).findByRole('button', { name: 'Cancel test' });
+    expect(within(row).getAllByRole('button', { name: /Cancel test|Stop remaining checks/ })).toHaveLength(1);
+    expect(row).not.toHaveTextContent(/refund|300 seconds|revision|OMNIS_MODEL_TEST_OK/);
+    expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
+  } finally { release(); }
+});
+it.each(['COMPLETED', 'UNKNOWN'] as const)('does not claim Connected before exact latest readback returns %s', async result => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  let view: EntryTestView | undefined, held = false, release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, body, method) => {
+    if (path === '/api/v1/model-test/entries' && method === 'PUT') {
+      view = { ...operation(String(body.operation_id), state.entries.find(item => item.entry_id === body.entry_id)!), state: 'FINISHED', finish_reason: 'COMPLETED', result_state: 'COMPLETED' };
+      return Response.json(view);
+    }
+    if (view && path.includes('/entries/latest/') && path.endsWith(view.entry_id)) { held = true; await gate; return Response.json({ ...view, result_state: result }); }
+    if (view && path === '/api/v1/model-test/entries/' + view.operation_id) return Response.json(view);
+  };
+  mount(); await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review();
+  fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
+  try {
+    await waitFor(() => expect(held).toBe(true));
+    expect(within(modelRow('Catalog/00')).getByText('Connecting')).toBeVisible();
+    expect(screen.queryByText('Connected', { exact: true })).not.toBeInTheDocument();
+    release(); await within(modelRow('Catalog/00')).findByText(result === 'COMPLETED' ? 'Connected' : 'Unconfirmed', { exact: true });
+    if (result === 'UNKNOWN') expect(within(modelRow('Catalog/00')).getByText(/Connection checks stopped/)).toBeVisible();
+    expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
+  } finally { release(); }
+});
 it('Save & connect waits for exact terminal readback before each next model and hydrates both without browser storage', async () => {
   const { state, hook } = settingsBackend(configured, [], models);
   const views = new Map<string, EntryTestView>(); let complete = false;
@@ -517,11 +571,13 @@ it.each([false, true])('manual read uncertainty=%s stops only unsent checks unti
 it.each(['FAILED', 'INCOMPLETE', 'UNKNOWN', 'stale', 'refused', 'lost', 'read-lost', 'cancel', 'stop', 'unmount'] as const)('ends the unsent sequence on %s and never resumes it on reload', async failure => {
   const { state, hook } = settingsBackend(configured, [], models);
   let view: EntryTestView | undefined, finish = false;
-  hook.intercept = (path, body, method) => {
+  let release = () => {}; const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, body, method) => {
     if (path === '/api/v1/model-test/entries' && method === 'PUT') {
       if (failure === 'refused') return Response.json({ error: { code: 'REVISION_CONFLICT', correlation_id: entryId } }, { status: 409 });
       const target = state.entries.find(item => item.entry_id === body.entry_id)!; view = operation(String(body.operation_id), target);
       if (failure === 'lost') throw new TypeError('Lost admission');
+      if (failure === 'stop') await gate;
       return Response.json(view);
     }
     if (path.includes('/entries/latest/')) return view?.entry_id === path.split('/').at(-1) ? Response.json(view) : Response.json({ error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: 404 });
@@ -540,7 +596,7 @@ it.each(['FAILED', 'INCOMPLETE', 'UNKNOWN', 'stale', 'refused', 'lost', 'read-lo
   fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
   await waitFor(() => expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1));
   if (failure === 'cancel') { const cancel = await screen.findByRole('button', { name: 'Cancel test' }); await waitFor(() => expect(cancel).toBeEnabled()); fireEvent.click(cancel); }
-  else if (failure === 'stop') fireEvent.click(await screen.findByRole('button', { name: 'Stop remaining checks' }));
+  else if (failure === 'stop') { fireEvent.click(await screen.findByRole('button', { name: 'Stop remaining checks' })); release(); }
   else if (failure !== 'unmount') await screen.findByText(/Connection checks stopped|Test outcome unconfirmed/);
   if (failure === 'read-lost') expect(within(screen.getByRole('region', { name: 'Configured models' })).getByText('Unconfirmed')).toBeVisible();
   mounted.unmount(); finish = true; mount();
@@ -760,7 +816,7 @@ it.each(['RUNNING', 'FINISHED', 'NEEDS_RECONCILIATION'] as const)('keeps %s reco
     expect(within(panel).queryByText(/Cancel does not guarantee/)).not.toBeInTheDocument();
   } else {
     expect(within(panel).getByRole('button', { name: 'Cancel test' })).toBeEnabled();
-    expect(within(panel).getByText('Cancel does not guarantee remote cancellation or a refund.')).toBeVisible();
+    expect(within(panel).queryByText(/refund/)).not.toBeInTheDocument();
   }
   fireEvent.click(toggle);
   expect(within(panel).queryByLabelText('Model response')).not.toBeInTheDocument();

@@ -124,12 +124,13 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   }, [notice]);
   useEffect(() => {
     if (!notification) return;
-    let remaining = 5000, shownAt = 0, timer: number | undefined;
-    // Move above controls; count only visible time if the viewport has no safe space.
+    let remaining = 5000, shownAt = 0, timer: number | undefined, disposed = false;
+    // Count only visible, unfocused time; leave keyboard-focused feedback in place.
     const place = () => {
       const node = feedback.current;
-      if (!node) return;
+      if (!node || disposed) return;
       if (timer !== undefined) { window.clearTimeout(timer); timer = undefined; remaining -= performance.now() - shownAt; }
+      if (node.contains(document.activeElement)) return;
       node.style.bottom = '';
       let bottom = Math.max(16, parseFloat(getComputedStyle(node).bottom) || 16), rect = node.getBoundingClientRect();
       const targets = [...document.querySelectorAll('button, input, select, summary, a, :focus, [role="alert"]')].filter(target => !node.contains(target)).map(target => target.getBoundingClientRect()).filter(box => box.width > 0 && box.height > 0);
@@ -142,9 +143,10 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       node.style.visibility = visible ? '' : 'hidden';
       if (visible) { shownAt = performance.now(); timer = window.setTimeout(() => setNotification(''), Math.max(0, remaining)); }
     };
-    place(); window.addEventListener('scroll', place, true); window.addEventListener('resize', place); document.addEventListener('focusin', place);
+    const focusOut = () => queueMicrotask(place);
+    place(); window.addEventListener('scroll', place, true); window.addEventListener('resize', place); document.addEventListener('focusin', place); document.addEventListener('focusout', focusOut);
     const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(place); observer?.observe(document.body);
-    return () => { window.clearTimeout(timer); window.removeEventListener('scroll', place, true); window.removeEventListener('resize', place); document.removeEventListener('focusin', place); observer?.disconnect(); };
+    return () => { disposed = true; window.clearTimeout(timer); window.removeEventListener('scroll', place, true); window.removeEventListener('resize', place); document.removeEventListener('focusin', place); document.removeEventListener('focusout', focusOut); observer?.disconnect(); };
   }, [notification]);
   function updateCheck(id: string, value: EntryCheck) { client.setQueryData<Awaited<ReturnType<typeof load>>>(queryKey, previous => previous ? { ...previous, checks: { ...previous.checks, [id]: value } } : previous); }
   useEffect(() => {

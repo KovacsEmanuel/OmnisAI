@@ -189,6 +189,51 @@ it('expires confirmations but retains actionable uncertainty and its inline stat
     expect(screen.getByText('Save unconfirmed. Recover the exact receipt before another mutation.')).toBeVisible();
   } finally { vi.useRealTimers(); }
 });
+it.each(['blur', 'another control'] as const)('pauses notification expiry during focus and resumes only remaining time after %s', async exit => {
+  backend(); const mounted = mount(); await screen.findByRole('region', { name: 'Configured models' });
+  vi.useFakeTimers();
+  try {
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' })); await vi.advanceTimersByTimeAsync(50); });
+    const feedback = screen.getByRole('complementary', { name: 'Settings notification' });
+    const dismiss = within(feedback).getByRole('button', { name: 'Dismiss notification' });
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
+    dismiss.focus(); expect(dismiss).toHaveFocus();
+    await act(async () => { await vi.advanceTimersByTimeAsync(6000); });
+    expect(dismiss).toHaveFocus(); expect(feedback).toBeVisible();
+    const elsewhere = screen.getByRole('link', { name: 'Models' });
+    await act(async () => { if (exit === 'blur') dismiss.blur(); else elsewhere.focus(); });
+    expect(exit === 'blur' ? document.body : elsewhere).toHaveFocus();
+    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
+    expect(feedback).toBeVisible();
+    await act(async () => { await vi.advanceTimersByTimeAsync(600); });
+    expect(feedback).not.toBeInTheDocument();
+    expect(exit === 'blur' ? document.body : elsewhere).toHaveFocus();
+  } finally { vi.useRealTimers(); mounted.unmount(); }
+});
+it('does not hide a focused notification when repositioning has no safe space', async () => {
+  backend(); let blocked = false;
+  vi.stubGlobal('innerHeight', 1000);
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+    if (this.tagName === 'ASIDE') return new DOMRect(700, 900 - (parseFloat(this.style.bottom || '16') - 16), 280, 52);
+    if (blocked && this.getAttribute('aria-label') === 'Reload current settings') return new DOMRect(0, 0, 1000, 1000);
+    return new DOMRect(0, 0, 0, 0);
+  });
+  const mounted = mount(); await screen.findByRole('region', { name: 'Configured models' }); vi.useFakeTimers();
+  try {
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' })); await vi.advanceTimersByTimeAsync(50); });
+    const feedback = screen.getByRole('complementary', { name: 'Settings notification' });
+    const dismiss = within(feedback).getByRole('button', { name: 'Dismiss notification' }); dismiss.focus();
+    const bottom = feedback.style.bottom;
+    blocked = true; fireEvent(window, new Event('resize'));
+    expect(feedback.style.bottom).toBe(bottom);
+    expect(feedback).toBeVisible(); expect(dismiss).toHaveFocus();
+    await act(async () => { await vi.advanceTimersByTimeAsync(6000); });
+    expect(feedback).toBeVisible(); expect(dismiss).toHaveFocus();
+    await act(async () => { dismiss.blur(); }); expect(feedback).not.toBeVisible();
+    blocked = false; fireEvent(window, new Event('resize')); expect(feedback).toBeVisible();
+    await act(async () => { await vi.advanceTimersByTimeAsync(5001); }); expect(feedback).not.toBeInTheDocument();
+  } finally { vi.useRealTimers(); mounted.unmount(); }
+});
 it('moves passive feedback above a collision without hiding it or stealing focus', async () => {
   backend(); let collision = false;
   vi.stubGlobal('innerHeight', 1000);

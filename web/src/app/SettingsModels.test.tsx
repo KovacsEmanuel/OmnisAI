@@ -188,10 +188,11 @@ it('expires confirmations but retains actionable uncertainty and its inline stat
     expect(screen.getByText('Save unconfirmed. Recover the exact receipt before another mutation.')).toBeVisible();
   } finally { vi.useRealTimers(); }
 });
-it('shows passive feedback only where it does not cover controls or focus', async () => {
+it('moves passive feedback above a collision without hiding it or stealing focus', async () => {
   backend(); let collision = false;
+  vi.stubGlobal('innerHeight', 1000);
   vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
-    if (this.matches('aside')) return new DOMRect(700, 900, 280, 52);
+    if (this.tagName === 'ASIDE') return new DOMRect(700, 900 - (parseFloat(this.style.bottom || '16') - 16), 280, 52);
     if (this.matches('main')) return new DOMRect(0, 0, 1000, 1000);
     if (collision && this.getAttribute('aria-label') === 'Reload current settings') return new DOMRect(750, 910, 100, 44);
     return new DOMRect(0, 0, 0, 0);
@@ -200,9 +201,28 @@ it('shows passive feedback only where it does not cover controls or focus', asyn
   fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
   const feedback = await screen.findByRole('complementary', { name: 'Settings notification' });
   expect(feedback).toBeVisible();
-  collision = true; await waitFor(() => { fireEvent(window, new Event('resize')); expect(feedback).not.toBeVisible(); });
+  const elsewhere = screen.getByRole('link', { name: 'Models' }); elsewhere.focus();
+  collision = true; await waitFor(() => { fireEvent(window, new Event('resize')); expect(parseFloat(feedback.style.bottom)).toBeGreaterThan(16); });
+  expect(feedback).toBeVisible(); expect(elsewhere).toHaveFocus();
   collision = false; fireEvent(window, new Event('scroll')); expect(feedback).toBeVisible();
   expect(writes).toEqual([]);
+});
+it('does not expire a notification while no safe viewport position is available', async () => {
+  backend(); let blocked = true;
+  vi.stubGlobal('innerHeight', 1000);
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+    if (this.tagName === 'ASIDE') return new DOMRect(700, 900 - (parseFloat(this.style.bottom || '16') - 16), 280, 52);
+    if (blocked && this.getAttribute('aria-label') === 'Reload current settings') return new DOMRect(0, 0, 1000, 1000);
+    return new DOMRect(0, 0, 0, 0);
+  });
+  mount(); await screen.findByRole('region', { name: 'Configured models' }); vi.useFakeTimers();
+  try {
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' })); await vi.advanceTimersByTimeAsync(50); });
+    const feedback = screen.getByLabelText('Settings notification'); expect(feedback).not.toBeVisible();
+    await act(async () => { await vi.advanceTimersByTimeAsync(6000); }); expect(feedback).toBeInTheDocument();
+    blocked = false; fireEvent(window, new Event('resize')); expect(feedback).toBeVisible();
+    await act(async () => { await vi.advanceTimersByTimeAsync(5001); }); expect(feedback).not.toBeInTheDocument();
+  } finally { vi.useRealTimers(); }
 });
 it('keeps actionable save recovery local without a duplicate error notification', async () => {
   backend({ empty: true, lost: true }); mount(); await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled());

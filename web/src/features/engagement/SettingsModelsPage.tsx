@@ -119,27 +119,31 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     return () => { controller.abort(); continuation.current?.abort(); readController.current?.abort(); wizardGeneration.current += 1; };
   }, []);
   useEffect(() => {
-    if (!notice) { setNotification(''); return; }
     setNotification(confirmations.includes(notice) ? notice : '');
-    const timer = window.setTimeout(() => setNotification(''), 5000); return () => window.clearTimeout(timer);
   }, [notice]);
   useEffect(() => {
     if (!notification) return;
-    // A passive confirmation yields to controls and keyboard focus, including on narrow screens.
+    let remaining = 5000, shownAt = 0, timer: number | undefined;
+    // Move above controls; count only visible time if the viewport has no safe space.
     const place = () => {
       const node = feedback.current;
       if (!node) return;
-      const rect = node.getBoundingClientRect();
-      const overlaps = [...document.querySelectorAll('button, input, select, summary, a, :focus, [role="alert"]')].some(target => {
-        if (node.contains(target)) return false;
-        const box = target.getBoundingClientRect();
-        return box.width > 0 && box.height > 0 && rect.left < box.right + 4 && rect.right > box.left - 4 && rect.top < box.bottom + 4 && rect.bottom > box.top - 4;
-      });
-      node.style.visibility = overlaps ? 'hidden' : '';
+      if (timer !== undefined) { window.clearTimeout(timer); timer = undefined; remaining -= performance.now() - shownAt; }
+      node.style.bottom = '';
+      let bottom = Math.max(16, parseFloat(getComputedStyle(node).bottom) || 16), rect = node.getBoundingClientRect();
+      const targets = [...document.querySelectorAll('button, input, select, summary, a, :focus, [role="alert"]')].filter(target => !node.contains(target)).map(target => target.getBoundingClientRect()).filter(box => box.width > 0 && box.height > 0);
+      const collision = () => targets.find(box => rect.left < box.right + 4 && rect.right > box.left - 4 && rect.top < box.bottom + 4 && rect.bottom > box.top - 4);
+      for (let index = 0; index < targets.length; index++) {
+        const box = collision(); if (!box) break;
+        bottom += rect.bottom - box.top + 4; node.style.bottom = `${bottom}px`; rect = node.getBoundingClientRect();
+      }
+      const visible = rect.top >= 0 && rect.bottom <= innerHeight && !collision();
+      node.style.visibility = visible ? '' : 'hidden';
+      if (visible) { shownAt = performance.now(); timer = window.setTimeout(() => setNotification(''), Math.max(0, remaining)); }
     };
     place(); window.addEventListener('scroll', place, true); window.addEventListener('resize', place); document.addEventListener('focusin', place);
     const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(place); observer?.observe(document.body);
-    return () => { window.removeEventListener('scroll', place, true); window.removeEventListener('resize', place); document.removeEventListener('focusin', place); observer?.disconnect(); };
+    return () => { window.clearTimeout(timer); window.removeEventListener('scroll', place, true); window.removeEventListener('resize', place); document.removeEventListener('focusin', place); observer?.disconnect(); };
   }, [notification]);
   function updateCheck(id: string, value: EntryCheck) { client.setQueryData<Awaited<ReturnType<typeof load>>>(queryKey, previous => previous ? { ...previous, checks: { ...previous.checks, [id]: value } } : previous); }
   useEffect(() => {

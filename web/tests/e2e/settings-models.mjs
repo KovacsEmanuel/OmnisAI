@@ -219,7 +219,7 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
     await screenshot('settings-save-connect-row-pending', { fullPage: false });
     await row('fixture/01').getByRole('button', { name: 'Stop remaining checks', exact: true }).click();
     releaseAdmission.resolve();
-  } finally { releaseAdmission.resolve(); await page.unroute(`**${tests}`); }
+  } finally { releaseAdmission.resolve(); await page.unrouteAll({ behavior: 'wait' }); }
   await check(row('fixture/01')).toContainText('Connected');
   const consent = page.getByRole('region', { name: 'Test consent', exact: true });
   await row('fixture/selected').getByRole('button', { name: 'Test fixture/selected via OpenRouter', exact: true }).click();
@@ -272,7 +272,7 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
     assert.equal(current.selection.revision, baseline.selection.revision + 1);
     for (const role of ['default', 'brain', 'investigator', 'validator']) assert.deepEqual(current.selection[role], baseline.selection[role]);
     await screenshot('settings-save-local-confirmed', { fullPage: false });
-  } finally { gate.resolve(); await page.unroute(`**${providers}/commands/*`); }
+  } finally { gate.resolve(); await page.unrouteAll({ behavior: 'wait' }); }
   assert.equal(writes.filter(write => write.path === providers).length, 1);
   await configured.getByText('Connection options', { exact: true }).click();
   const connectionConfirmation = configured.getByRole('region', { name: 'Connection confirmation', exact: true });

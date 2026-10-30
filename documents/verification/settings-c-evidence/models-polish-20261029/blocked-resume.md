@@ -2,15 +2,15 @@
 
 ## Outcome
 
-**IMPLEMENTED_CANDIDATE / SOURCE_APPROVED_SCOPED / REAL_ACCEPTANCE_BLOCKED / NOT_INTEGRATED_NOT_INSTALLED.** The operator still serves the previously accepted0.1.1/schema0017 installation; the new inline/feedback refinement has not been built into its mounted web directory. No operator data/key/model/provider effect was performed during refinement QA.
+**IMPLEMENTED_CANDIDATE / SOURCE_APPROVED_SCOPED / REAL_ACCEPTANCE_BLOCKED / NOT_INTEGRATED_NOT_INSTALLED.** The operator retains the previous0.1.1/schema0017 installation, but fresh status is **UNAVAILABLE / RECOVERY_REQUIRED, exit4**, not READY. Its mounted web directory and data were not changed. The new inline/feedback refinement and busy correction remain isolated candidates.
 
 - Candidate branch: `feat/settings-inline-feedback-20261029`.
 - Worktree: `/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029`.
-- HEAD: `baf592220415b7e5d199d77b71c1538e9dcec748`; tree `aa53b50706e84ba494825a1581e4bdc6d9e75557`.
+- HEAD: `b1d276e66455dca0939cfcb42eeca5af7b1fe515`; tree `347be9def5348a680017d141155c938b95e6d65c`. Commits after the previous `baf5922`: observer `46a961b`, narrow test/scenario `dbf3a13`, reproduced busy correction `b1d276e`.
 - All intended changes are committed; tracked/index clean. The four preexisting dependency symlinks are retained and not adopted. Main still has only the two unrelated protected untracked files; neither was opened/hashed.
 - No writers or QA jobs remain assigned. Owned QA resources were drained/retired; retain data/logs and the source branch. Do not merge, rebuild main, remove the worktree or replace the operator profile to bypass acceptance.
 
-## Delivered candidate and scoped evidence
+## Retained base candidate and scoped evidence — baf5922
 
 Remove inline with exact snapshot/revalidation, Cancel/Escape/focus; quiet normal Saves without page-top panels; concise proven notification with safe placement, focus pause and remaining visible-time expiry; singular/plural approval without Fixed input/technical form copy; Save & connect closes after durable Save/list proof and shows per-row progress/one primary Cancel–Stop; existing key/provider confirmations inline. No new product capability, dependency, API production or schema change.
 
@@ -19,9 +19,21 @@ Final behavioral source is `0c8bff`; `baf5922` changes only two Playwright held-
 - Components: **172 PASS** in the three affected files; lint/typecheck/build exit0 on exact frozen product bytes.
 - Native SOURCE built-App/synthetic HTTP: retained/moved/stale/long64 PASS, cap90s unchanged. This is not API/PG or user aesthetic acceptance.
 - Finite control matrix: **58 unique sites**,21 real browser/API/PG prefix and37 SOURCE component, with all handlers/navigation represented at their declared levels. Not58 live controls, all combinations or cross-browser/screen-reader certification.
-- Final freeze and review: `source-baf5922-cleanup-freeze.json`, `source-baf5922-review-original.md`; earlier source/body approvals and freezes are siblings. Build remains exactly the reviewed0c8bff assets.
+- Base freeze and review: `source-baf5922-cleanup-freeze.json`, `source-baf5922-review-original.md`; earlier source/body approvals and freezes are siblings. Those build bytes were reviewed0c8bff; the current busy correction has its own build/review below and does not inherit native acceptance.
 
-## Latest concrete blocker: QA-BAF5922-01
+## Current boundary — execution mandate, 30 October
+
+[Original observations and adjudication](execution-20261030.json) retain both new real failures, reviewed identities and the fresh supervisor trace. No third real attempt or full replay is admitted by this recovery point.
+
+- `dbf3a13`, `proc_a2f08033a1c7`: **outer2 / 1FAIL52.77s**. The browser reached catalog and clicked Save & connect, then timed out at `settings-models.mjs:351` waiting for admission. Only Refresh was observed; no Save, Start, operation or Stop was reached.
+- A separate SOURCE defect was reproduced: the parent refuses Save while reading/refetching, but the wizard received only `sending` rather than existing `busy`. Corrected awaited-handler oracle gives **2FAIL/8PASS**; `working={busy}` gives **10PASS/92skipped**, final lint/typecheck/build0. First RED oracle masked the defect; first typecheck/build failed TS2322 in the new test, subsequently corrected with explicit `return undefined`. Neither failure is discarded. [Independent exact b1d276e review](busy-b1d276e-review-original.md): APPROVED_SCOPED for the local defect, not runtime acceptance or retrospective PG cause.
+- Affected real QA on `b1d276e`, `proc_72f1a26410e7`: **outer2 / 1FAIL46.23s**. It failed earlier at `settings-models.mjs:337`: Continue remained disabled/aria-busy for the existing30s click bound. Exactly two synthetic catalog GETs, zero model POSTs, zero owner model commands; Save/Start/Stop NOT_REACHED. The suspected Add-action/transient seam has no retained DOM/query/selection witness and is not a proven cause. Do not call this a Stop or worker failure.
+- [Narrow test review on dbf3a13](stop-read-dbf3a13-review-original.md) admitted one diagnostic, not a PASS. Healthy route now omits Stop but preserves exact terminal/current/latest; it remains NOT_RUN. Historical SOURCE4PASS/1FAIL and the subsequent marker-absent1PASS remain unexplained. Legacy default-web2/SOURCE observer2 counters are unchanged.
+- Both new runtime families drained; exact CIDs/project networks/socket absent, PGDATA/logs retained. `peer_handlers=1` was observed before drain, not a quiescence claim. All candidate changes are committed; no writer or QA process remains assigned.
+
+The original Stop→Connecting failure below remains **UNADJUDICATED**. Source separates abandoned continuation from readable admitted work, but neither new real run reached an operation. The next discriminant is the native pre-Save library/query/selection boundary, then the same admitted operation/terminal/latest readback; not a third blind effect run, larger timeout or product change inferred solely from the test.
+
+## Historical blocker: QA-BAF5922-01
 
 One admitted invocation, session `proc_b9e5ca260a65`, existing command:
 
@@ -43,6 +55,6 @@ Narrow investigation to **Stop remaining → receive-only read of the same admit
 
 Latest own CID `ebb9d1f98fc887fdf828f1c62fb28430c61c1afa3f9d55a635e375d6fb4ad7b6` absent; original daemon/project network/container/socket readbacks and family_drained true retained. PGDATA/logs remain at `/home/kali/.hermes/cache/scratch/db-de8fb0f36b7d4dc4`. Exact original API TCP port was not retained; do not reconstruct it or claim an unobserved port check. Earlier failed fixtures also retain data/logs.
 
-Read-only operator status at this boundary: exit0, same UUID/origin8780, READY27/epoch16, DEVELOPMENT, release0.1.1/schema0017, API/dashboard ready. This is not a stability or causal repair claim. Only public web rollback files were backed up at `/home/kali/.local/share/omnis-settings-polish-20261029/rollback-web`; the mounted `web/dist` inode is untouched. Original T1 backups and immutable release bundles remain separate and preserved.
+Historical operator status at the previous boundary was exit0/READY27/epoch16. The current readback is exit4/UNAVAILABLE/RECOVERY_REQUIRED, same UUID/origin8780, DEVELOPMENT0.1.1/schema0017. Fresh supervisor exit3/OOMfalse/restarts0 at01:24:37Z has OWNED_STATUS/LEASE_LOST:5852ms COMMIT→TX_DONE and858ms past fresh expiry, owner/epoch matching. This still does not discriminate server/driver/pool/scheduling; no recovery or causal repair was performed. Only public web rollback files were backed up at `/home/kali/.local/share/omnis-settings-polish-20261029/rollback-web`; mounted `web/dist`, original T1 backups and immutable release bundles remain untouched.
 
 T1 remains NOT_CLOSED: supervisor cause UNKNOWN, historical default-web failures unresolved, sole canonical5400s NOT_RUN/unconsumed. No T2, push, upstream model/provider/Refresh, target traffic, real model deletion, key reading/export or indiscriminate cleanup. Reticle NOT_INTEGRATED; Chisel BLOCKED_NO_GO. Native user aesthetic approval of the new refinement is NOT_RUN.

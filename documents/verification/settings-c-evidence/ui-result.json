@@ -4,26 +4,27 @@
   "implementation": "IMPLEMENTED",
   "evidence": "PASS_LOCAL_RECORDED_BROWSER_API_PRIVATE_PG_SYNTHETIC_TLS_SCOPED",
   "review": "APPROVED_SOURCE_SCOPED_COMPOSED",
-  "acceptance": "REMOVE_AND_COMPATIBLE_UPGRADE_INTEGRATED_INSTALLED; OPERATOR_READY27_RELEASE0.1.1_SCHEMA0017; DATA_QA_AND_NATIVE_UI_ACCEPTED_SCOPED; SUPERVISOR_DEFAULT_WEB_BLOCKED; CANONICAL_FINAL_NOT_RUN_UNCONSUMED; T1_NOT_CLOSED_T2_NOT_AUTHORIZED",
+  "acceptance": "REMOVE_AND_COMPATIBLE_UPGRADE_RETAINED_INSTALLED; OPERATOR_UNAVAILABLE_RECOVERY_REQUIRED_EXIT4_SAME0.1.1_SCHEMA0017; PRIOR_DATA_QA_AND_NATIVE_UI_HISTORICAL_SCOPED; MODELS_REAL_QA_FAIL_NOT_INSTALLED; SUPERVISOR_DEFAULT_WEB_BLOCKED; CANONICAL_FINAL_NOT_RUN_0_OF_1; T1_NOT_CLOSED_T2_NOT_READY",
   "models_refinement_20261030": {
     "status": "IMPLEMENTED_CANDIDATE_SOURCE_APPROVED_SCOPED_REAL_ACCEPTANCE_BLOCKED_NOT_INTEGRATED_NOT_INSTALLED",
-    "candidate": "baf592220415b7e5d199d77b71c1538e9dcec748",
-    "tree": "aa53b50706e84ba494825a1581e4bdc6d9e75557",
+    "candidate": "b1d276e66455dca0939cfcb42eeca5af7b1fe515",
+    "tree": "347be9def5348a680017d141155c938b95e6d65c",
     "branch": "feat/settings-inline-feedback-20261029",
     "worktree": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029",
     "recovery_record": "models-polish-20261029/blocked-resume.md",
     "continuation_prompt": "../settings-finalization-prompt.md",
-    "prompt_boundary": "Prepared only on operator request, no execution. Explicitly test oracle/scenario as possible cause before product changes; one admitted minimal synthetic diagnosis if needed, no blind full retry. Finish Models and remaining T1 gates; T2 admission only after verified T1 closure, implementation by separate mandate.",
-    "source": "172 component PASS; retained/moved/stale/long64 native SOURCE PASS; independent composed SOURCE reviews including cleanup-only baf5922. Not runtime/aesthetic acceptance or all combinations.",
+    "prompt_boundary": "Operator explicitly transmitted mandate for execution. Narrow Stop diagnostic plus one affected QA after reproduced/reviewed product busy correction executed, both FAIL pre-Save/Start/Stop. No further real attempt/full replay or scope expansion admitted at this recovery point; T2 requires verified T1 closure and separate mandate.",
+    "source": "Base baf5922:172 component/4native SOURCE PASS and composed reviews retained only for unchanged scope. New busy projection defect SOURCE RED2FAIL/8PASS -> GREEN10PASS/92skipped; b1d276e exact independent APPROVED_SCOPED, final lint/types/build0. Initial false RED oracle and TS2322 preserved. Not native/runtime/aesthetic acceptance; old SOURCE4PASS/1FAIL and marker-absent1PASS unexplained.",
     "control_sites": {"total": 58, "real_prefix": 21, "source_component": 37, "all_native_claim": false},
-    "latest_qa": "proc_b9e5ca260a65: one existing entry_remove_ui invocation, outer2,1FAIL55.34s,total70.393165719s. After explicit Stop and settled route cleanup, fixture01 stays Connecting/Cancel/Remaining checks stopped; expected Connected at mjs223. Cause operation/worker/UI/oracle UNADJUDICATED; terminal/latest witness not retained. No route-already-handled error in this run.",
+    "latest_qa": "proc_72f1a26410e7 on b1d276e: outer2/1FAIL46.23s at mjs337 Continue disabled/aria-busy for existing30s click. Prior proc_a2f08033a1c7 on dbf3a13 outer2/1FAIL52.77s at mjs351 missing admission. Each exactly2catalogGET/zero modelPOST/zero owner model commands; Save/Start/Stop NOT_REACHED. Neither establishes a Stop/worker outcome or historical cause.",
     "missing": "Final admitted operation COMPLETED/current/latest, second direct Test, real Assignments/quiet-toast/key effects, exact final traffic/census13 and actual API restart equality NOT_REACHED. Source/prefix not promoted to complete runtime PASS.",
-    "history": "Three refinement real FAILs55.01s/45.69s/55.34s preserved. Native narrowed default-vs-wait diagnostic proved route-cleanup mechanism before third run. Legacy two broad FAILs/counter2 and two SOURCE observer cycles unchanged; no reset/automatic further replay.",
-    "preservation": "All candidate changes committed; no source writers or QA jobs assigned. Latest own CID/project/network/socket absent/family drained, PGDATA/logs retained; parent read back exact CID absence. Operator read-only status0 READY27/epoch16/DEVELOPMENT/0.1.1/0017 same UUID/origin8780, mounted web untouched. Protected files unaccessed, no upstream/provider/model/Refresh/real model deletion/T2/push.",
-    "next": "Narrow Stop remaining -> receive-only same-operation/latest readback and worker/peer state before changing product or oracle. No new harness, timeout, weakened guard or blind full journey. Operator integration/build remains blocked; T1 supervisor/default-web/canonical blockers unchanged."
+    "history": "Original55.01s/45.69s/55.34s FAILs retained; old Stop->Connecting remains UNADJUDICATED without terminal/latest witness. Added52.77s/46.23s pre-Start FAILs do not replace them. Healthy route now omits Stop and preserves exact terminal/current/latest, but NOT_RUN. Legacy default-web2 and SOURCEobserver2 unchanged, no reset.",
+    "preservation": "Candidate fully committed/tracked+index clean; four preexisting dependency symlinks retained. Both new fixture families drained/exactCID+projectnetwork+socket absent, PGDATA/logs retained. Operator status4 UNAVAILABLE/RECOVERY_REQUIRED sameUUID/origin8780/DEVELOPMENT0.1.1/0017; no operator writes or fresh equality census claimed, mounted web untouched. Protected files unaccessed; no external provider/model/Refresh/real model deletion/T2/push.",
+    "execution_originals": "models-polish-20261029/execution-20261030.json",
+    "next": "BLOCKED pre-Save native library/query/selection seam: latest Continue disabled/busy, suspected Add-action/transient mismatch unproved. No third real attempt/full replay. Then require same-operation exact terminal/current/latest, healthy positive and all remaining accepted consumer obligations before integration/install. Supervisor fresh5852ms/858ms cause UNKNOWN and default-web2FAIL still block canonical/T1."
   },
   "finalization_handoff": {
-    "deliverable": "REMOVE_AND_SAME_INSTANCE_UPGRADE_DELIVERED_SCOPED; FINALIZATION_BLOCKED_SUPERVISOR_DEFAULT_WEB; CURRENT_RECOVERY_POINT_IN_EXECUTION.finalization_execution.operator_rollout",
+    "deliverable": "REMOVE_AND_SAME_INSTANCE_UPGRADE_RETAINED_HISTORICAL_SCOPED; OPERATOR_UNAVAILABLE; FINALIZATION_BLOCKED_MODELS_SUPERVISOR_DEFAULT_WEB; CURRENT_RECOVERY_POINT_IN_models_refinement_20261030.recovery_record",
     "prompt": "../settings-finalization-prompt.md",
     "product_base": "9da7648953ff7f477ad9b3cc0c8d29b77ed38ed4",
     "explicit_answers": ["Pregătește promptul pentru sesiunea nouă; nu implementa acum.", "Da, include maximum 90 de minute."],
@@ -40,7 +41,9 @@
     "execution": {
       "status": "REMOVE_AND_COMPATIBLE_UPGRADE_DELIVERED_OPERATOR_SCOPED; DATA_QA_AND_VISUAL_ACCEPTED; FINALIZATION_BLOCKED_SUPERVISOR_DEFAULT_WEB; CANONICAL_NOT_RUN_UNCONSUMED",
       "finalization_execution": {
+        "current_operator_observation_20261030": "Parent status4 UNAVAILABLE/RECOVERY_REQUIRED, same UUID/origin8780/DEVELOPMENT0.1.1/schema0017. New supervisor exit3/OOMfalse/restarts0 at01:24:37Z; OWNED_STATUS/LEASE_LOST5852ms context-exit/858ms late, cause UNKNOWN. No recovery/Start/operator effects. Original trace and both new Models failures in models-polish-20261029/execution-20261030.json; operator_rollout below is historical.",
         "operator_rollout": {
+          "snapshot_status": "HISTORICAL_ACCEPTED_ROLLOUT; READY27 is not current availability; see current_operator_observation_20261030",
           "disposition": "PARENT_ACCEPTED_COMPATIBLE_INSTALLED_DATA_AND_NATIVE_UI_SCOPED; R2-R01_CLOSED_SCOPED; T1_NOT_CLOSED_T2_NOT_AUTHORIZED",
           "documentary_review": {"snapshot": "cae2133e01807a7b2a01f226f89e45e515b3591e", "tree": "568bb8681b8b8019c3045112ce488c636c8e85a4", "original": "t1-final-documentary-cae2133-review.md", "sha256": "2758519c80094d3f91691baabe952fbfdd09cd7b010ea40aaaad824b3ed7b407", "verdict": "APPROVED_DOCUMENTARY_RECONCILIATION_SCOPED", "adjudication": "Parent read original, confirmed exact14path/7JSON frozen snapshot and accepts fidelity of CURRENT/SL12/SL33/T1 and R2-R01 compatibility closure only; no blocking contradiction. No product re-audit/runtime/gate/rollback authority inferred; supervisor/default-web/T1 remain blocked. Subsequent delta only stores this original/adjudication, not changed implementation or upgraded evidence. Final global status0 again READY27/epoch16/0017; no source/consumer or service changes."},
           "integration": "a8a1827 merges granular Removeed611aa and transitionbb760e5 history without squash/rebase, preserving newer metadata; sole generated architecture HTML conflict regenerated from clean merged Markdown/docs87PASS. b4284786391dae139abb38233691470e9d180fdc adds exact5path reviewed Cancel controls. Whole product/consumers equal e47c901, production123API/29CLI modules equal reviewed/installed-QA-passed bb760e5 wheels. Official main web build matches every frozen web payload. No product source changed after these reviews/QA; later changes documentary only.",

@@ -1,0 +1,500 @@
+{
+  "scope": "Explicit finalization mandate on main4a2761a; bounded Stop diagnosis, reproduced busy projection defect, remaining T1 blockers. No T2.",
+  "candidate": {
+    "head": "b1d276e66455dca0939cfcb42eeca5af7b1fe515",
+    "tree": "347be9def5348a680017d141155c938b95e6d65c",
+    "branch": "feat/settings-inline-feedback-20261029",
+    "main_base": "4a2761aabf3e01a517a705e1fd5219cd9734cc8f",
+    "integration": "NOT_INTEGRATED_NOT_INSTALLED",
+    "commits": [
+      "46a961bbfe360078d53956e89cfc3e2efed71ba2",
+      "dbf3a13738b728c93b537578679693e61e5bedd3",
+      "b1d276e66455dca0939cfcb42eeca5af7b1fe515"
+    ]
+  },
+  "stop_diagnosis": "Stop aborts only continuation; admitted Start uses lifetime signal and remains readable. Healthy continuation has terminal and latest readback. Manual Read uses exact operation then latest without resend. Source mechanism does not retrospectively prove why old row remained Connecting. Both new real probes failed before Save/Start/Stop, so terminal/current/latest and Stop/worker discrimination remain NOT_REACHED.",
+  "busy_defect": {
+    "cause": "SettingsModelsPage busy includes sending/reading/current.isFetching; wizard received sending only although mutate refuses reading/current.isFetching. Deterministic SOURCE query and manual holds expose misleadingly available Save.",
+    "fix": "working={sending} -> working={busy}; source and controls only, no receipt/CAS/Stop/dispatch guard relaxed.",
+    "red": {
+      "exit": 1,
+      "failed": 2,
+      "passed": 8,
+      "skipped": 92,
+      "seconds": 5.81,
+      "log_sha256": "e4c44bea48a4badad4b8049f6f3d8dc2fb5e90916fae6db00d02032fddc02b05"
+    },
+    "green": {
+      "cwd": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web",
+      "argv": [
+        "npm",
+        "test",
+        "--",
+        "src/app/SettingsWizard.test.tsx",
+        "-t",
+        "SOURCE wizard exposes|explicit Refresh creates|review keeps exact|Save & connect waits for exact terminal readback|does not dispatch after",
+        "--reporter=verbose"
+      ],
+      "env_overrides": {
+        "PATH": "/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch"
+      },
+      "baseline": "dbf3a13738b728c93b537578679693e61e5bedd3",
+      "attempt": "single admitted product-fix GREEN; previous two invocations and legacy counter2 retained",
+      "exit_code": 0,
+      "elapsed_seconds": 6.962269000010565,
+      "stdout_sha256": "039868e915328934d1c756943604d88ad6cc1ec2cd58aec24ed84f0618eb050e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "history": "Initial 10PASS RED oracle was invalid because child loading masked the defect; corrected awaited-handler oracle gives two actual FAILs. First typecheck/build failed TS2322 in test interceptor; explicit return undefined fixes typing without runtime change. Final typecheck/build/lint exit0. Historical SOURCE4PASS/1FAIL and later marker-absent1PASS remain unexplained.",
+    "review": "APPROVED_SCOPED on b1d276e; parent read original and adjudicates local SOURCE defect only. Real QA below remains FAIL, not runtime acceptance."
+  },
+  "real_runs": [
+    {
+      "session": "proc_a2f08033a1c7",
+      "tested_head": "dbf3a13738b728c93b537578679693e61e5bedd3",
+      "outer_exit": 2,
+      "pytest": {
+        "failed": 1,
+        "seconds": 52.77
+      },
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-settings-stop-read-ui-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600",
+      "fixture_root": "/home/kali/.hermes/cache/scratch/db-399d017727a74946",
+      "project": "omnis-p01-fee4b95a30ab4e47ab497a84608018f6",
+      "cid": "e04b5452c17514d0ec3e039032e6ff8a8ada7944c10b63c30467e78ae48a242e",
+      "gate_result": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      },
+      "browser_failure_original": "\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nExpectError: expect(received).toBe(expected) // Object.is equality\n\nExpected: true\nReceived: false\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate\n    at captureRawStack (/home/kali/OmnisAI/web/node_modules/playwright-core/lib/coreBundle.js:8588:17)\n    at callMatcherAsStep (/home/kali/OmnisAI/web/node_modules/playwright/lib/matchers/expect.js:13310:57)\n    at Object.toBe (/home/kali/OmnisAI/web/node_modules/playwright/lib/matchers/expect.js:13302:23)\n    at runSettingsModels (/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/tests/e2e/settings-models.mjs:351:42)\n    at async file:///home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/tests/e2e/run.mjs:186:23 {\n  matcherResult: {\n    pass: false,\n    message: 'expect(received).toBe(expected) // Object.is equality\\n' +\n      '\\n' +\n      'Expected: true\\n' +\n      'Received: false\\n' +\n      '\\n' +\n      'Call Log:\\n' +\n      '- Timeout 15000ms exceeded while waiting on the predicate',\n    name: 'toBe'\n  }\n}\n\nNode.js v24.21.0\n",
+      "browser_observation_original": {
+        "intents": [
+          {
+            "path": "/api/v1/settings/provider-catalog/refresh",
+            "action": "refresh"
+          }
+        ]
+      },
+      "owner_observation_original": {
+        "commands": [],
+        "reads": [],
+        "peer_requests": [
+          "GET /api/v1/models?offset=0&limit=1000 HTTP/1.1",
+          "GET /api/v1/models?offset=16&limit=1000 HTTP/1.1"
+        ],
+        "peer_completed_models": [],
+        "peer_handlers": 1,
+        "workers": [],
+        "settlement_failed": false
+      },
+      "classification": "PRE_SAVE_START_STOP_NOT_REACHED; no operation identity was admitted; not a Stop/worker outcome",
+      "cleanup": "Parent exact CID/project-network queries empty; runner OWNED_DB_READBACK absent/networks_absent/socket_absent true, uncertain false; family_drained true; PGDATA/logs retained. peer_handlers=1 is the pre-drain observation, not a quiescence claim."
+    },
+    {
+      "session": "proc_72f1a26410e7",
+      "tested_head": "b1d276e66455dca0939cfcb42eeca5af7b1fe515",
+      "outer_exit": 2,
+      "pytest": {
+        "failed": 1,
+        "seconds": 46.23
+      },
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-settings-stop-read-ui-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600",
+      "fixture_root": "/home/kali/.hermes/cache/scratch/db-92d4b47a8ace46af",
+      "project": "omnis-p01-6a8db3920e86430caf4f733c042790b2",
+      "cid": "4520200d23dfb2c6c2e000e695a2a20eb05363a7ec5b56b2c4baf9ff38980aad",
+      "gate_result": {
+        "schema_version": 1,
+        "code": 2,
+        "family_drained": true
+      },
+      "browser_failure_original": "\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nlocator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByRole('region', { name: 'Add models wizard', exact: true }).getByRole('button', { name: 'Continue', exact: true })\n    - locator resolved to <button disabled type=\"button\" aria-busy=\"true\" aria-disabled=\"true\">Continue</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    58 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n\n    at runSettingsModels (/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/tests/e2e/settings-models.mjs:337:73)\n    at async file:///home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029/web/tests/e2e/run.mjs:186:23 {\n  log: [\n    \"  - waiting for getByRole('region', { name: 'Add models wizard', exact: true }).getByRole('button', { name: 'Continue', exact: true })\",\n    '    - locator resolved to <button disabled type=\"button\" aria-busy=\"true\" aria-disabled=\"true\">Continue</button>',\n    '  - attempting click action',\n    '    2 × waiting for element to be visible, enabled and stable',\n    '      - element is not enabled',\n    '    - retrying click action',\n    '    - waiting 20ms',\n    '    2 × waiting for element to be visible, enabled and stable',\n    '      - element is not enabled',\n    '    - retrying click action',\n    '      - waiting 100ms',\n    '    58 × waiting for element to be visible, enabled and stable',\n    '       - element is not enabled',\n    '     - retrying click action',\n    '       - waiting 500ms'\n  ],\n  name: 'TimeoutError'\n}\n\nNode.js v24.21.0\n",
+      "browser_observation_original": null,
+      "owner_observation_original": {
+        "commands": [],
+        "reads": [],
+        "peer_requests": [
+          "GET /api/v1/models?offset=0&limit=1000 HTTP/1.1",
+          "GET /api/v1/models?offset=16&limit=1000 HTTP/1.1"
+        ],
+        "peer_completed_models": [],
+        "peer_handlers": 1,
+        "workers": [],
+        "settlement_failed": false
+      },
+      "classification": "PRE_SAVE_START_STOP_NOT_REACHED; no operation identity was admitted; not a Stop/worker outcome",
+      "cleanup": "Parent exact CID/project-network queries empty; runner OWNED_DB_READBACK absent/networks_absent/socket_absent true, uncertain false; family_drained true; PGDATA/logs retained. peer_handlers=1 is the pre-drain observation, not a quiescence claim."
+    }
+  ],
+  "reviews": [
+    {
+      "original": "stop-read-dbf3a13-review-original.md",
+      "sha256": "9d2e64b23c3c4c9b24eb40d18816537d3d2641db06c8a434f5c0fcb6b11d625b"
+    },
+    {
+      "original": "busy-b1d276e-review-original.md",
+      "sha256": "d4ba01e552aa5125f00ed0cc6651821bc81a35482a894c5f7a88695a35571ae8"
+    }
+  ],
+  "supervisor": {
+    "container": "df6b1ab2fe2e07e1e26486e9928a6513268eb1cc0e974c5771ba4ac2935ce9d0",
+    "exit": 3,
+    "oom": false,
+    "restart_count": 0,
+    "finished_at": "2026-10-30T01:24:37.163712911Z",
+    "trace_timestamp": "2026-10-30T01:24:35.823051278Z",
+    "trace_original": {
+      "v": 1,
+      "phase": "OWNED_STATUS",
+      "code": "LEASE_LOST",
+      "clipped": false,
+      "incomplete": false,
+      "heartbeat": [
+        [
+          "HEARTBEAT",
+          "UPDATE",
+          19739243,
+          19739243,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "UPDATED",
+          19739243,
+          19739243,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "LIVE_RESULT",
+          19739244,
+          19739244,
+          1793323469947,
+          1793323472652,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "COMMIT",
+          19739244,
+          19739244,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "TX_DONE",
+          19745096,
+          19745096,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      "events": [
+        [
+          "HEARTBEAT",
+          "CONNECT",
+          19739240,
+          19739240,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "CONNECTED",
+          19739241,
+          19739241,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "INSTANCE_LOCKED",
+          19739242,
+          19739242,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "LEASE_LOCKED",
+          19739242,
+          19739242,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "OWNER",
+          19739242,
+          19739242,
+          null,
+          1793323472652,
+          true,
+          true
+        ],
+        [
+          "HEARTBEAT",
+          "LIVE",
+          19739242,
+          19739242,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "LIVE_RESULT",
+          19739243,
+          19739243,
+          1793323469946,
+          1793323472652,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "OWNER_OK",
+          19739243,
+          19739243,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "UPDATE",
+          19739243,
+          19739243,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "UPDATED",
+          19739243,
+          19739243,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "OWNER",
+          19739243,
+          19739243,
+          null,
+          1793323472652,
+          true,
+          true
+        ],
+        [
+          "HEARTBEAT",
+          "LIVE",
+          19739243,
+          19739243,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "LIVE_RESULT",
+          19739244,
+          19739244,
+          1793323469947,
+          1793323472652,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "OWNER_OK",
+          19739244,
+          19739244,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "COMMIT",
+          19739244,
+          19739244,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "HEARTBEAT",
+          "TX_DONE",
+          19745096,
+          19745096,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "OWNED_STATUS",
+          "CONNECT",
+          19745096,
+          19745096,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "OWNED_STATUS",
+          "CONNECTED",
+          19745098,
+          19745098,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "OWNED_STATUS",
+          "INSTANCE_LOCKED",
+          19745100,
+          19745100,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "OWNED_STATUS",
+          "LEASE_LOCKED",
+          19745101,
+          19745101,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "OWNED_STATUS",
+          "OWNER",
+          19745101,
+          19745101,
+          null,
+          1793323474946,
+          true,
+          true
+        ],
+        [
+          "OWNED_STATUS",
+          "LIVE",
+          19745101,
+          19745101,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "OWNED_STATUS",
+          "LIVE_RESULT",
+          19745101,
+          19745101,
+          1793323475804,
+          1793323474946,
+          null,
+          null
+        ],
+        [
+          "OWNED_STATUS",
+          "OWNER_REFUSED",
+          19745101,
+          19745101,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "OWNED_STATUS",
+          "ROLLBACK",
+          19745113,
+          19745113,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "OWNED_STATUS",
+          "TX_ERROR",
+          19745114,
+          19745114,
+          null,
+          null,
+          null,
+          null
+        ]
+      ]
+    },
+    "commit_context_exit_ms": 5852,
+    "late_ms": 858,
+    "classification": "OWNED_STATUS/LEASE_LOST before drain; fresh expiry and matching owner/epoch. Context exit combines driver commit/pool return/scheduling; cause UNKNOWN. DB window had no lines; parent selected journal read shows only scope-exit accounting, no discriminating cause.",
+    "missing_witness": "Same-cycle driver.commit start/end, pool-return/context-exit and backend PID correlated with server completion/ACK/wait/scheduling; retrospective read-only data cannot recreate absent witness.",
+    "operator_status_exit": 4,
+    "operator_status": {
+      "assessment_ready": false,
+      "browser_opened": false,
+      "control_ready": false,
+      "dashboard_ready": false,
+      "instance_id": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+      "mode": "DEVELOPMENT",
+      "origin": "http://127.0.0.1:8780",
+      "reason": "RECOVERY_REQUIRED",
+      "release": "0.1.1",
+      "schema": "0017_model_removal",
+      "state": "UNAVAILABLE"
+    }
+  },
+  "default_web": "Unchanged BLOCKED: historical default failures lack session/library/decoder phase at failure; narrowed PASS is not historical attribution. Counter2 unchanged; no third broad run.",
+  "budgets": {
+    "canonical_attempts_consumed": 0,
+    "canonical_attempts_limit": 1,
+    "canonical_max_seconds": 5400,
+    "legacy_default_web_counter": 2,
+    "legacy_SOURCE_observer_counter": 2,
+    "new_real_diagnosis_runs": 1,
+    "affected_real_QA_after_reproduced_product_fix": 1,
+    "further_effect_run": "NOT_ADMITTED; no third attempt or full replay"
+  },
+  "cleanup": "Both fresh fixture runtime families/CIDs/networks/socket absent; data/logs retained. No new image/worktree/DB-data deletion. sudo -n true requires password; br-hlw_xp25 prior visibility/settlement blocker not cleared. Prior4QAimages/fqa checkout retirement not repeated. Operator root/keys/backups/releases/web-dist/ref/dependency targets unchanged by this session; no fresh operator data-equality census claimed.",
+  "verdict": "T1_NOT_CLOSED_T2_NOT_READY; Models real acceptance BLOCKED; healthy full route/Assignments/key/census/restart final NOT_RUN; no integration/install/canonical/T2",
+  "next": "No broad replay. First resolve pre-Save native UI/query/selection seam: latest Continue is disabled/aria-busy at mjs337 before Save or Start; whether catalog Add actions were silently ignored during transient remains an unproved hypothesis. Preserve reviewed busy candidate and failure identities; do not assert a Stop outcome without same-operation/terminal/latest witness. Supervisor needs separate causal witness before safe closure."
+}

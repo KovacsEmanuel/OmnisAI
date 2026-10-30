@@ -72,6 +72,85 @@ it.each(['query', 'manual'] as const)('SOURCE wizard exposes the %s library read
     expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument();
   } finally { release(); mounted.unmount(); mounted.client.clear(); }
 });
+it.each(['query', 'manual', 'refresh'] as const)('SOURCE Add controls retain selection and manual input during %s work', async mode => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  const mounted = mount(true), panel = await wizard(), user = userEvent.setup();
+  const queryKey = ['private', 'settings-model-library'];
+  const next = within(panel).getByRole('button', { name: 'Continue' });
+  await waitFor(() => expect(next).toHaveAttribute('aria-busy', 'false'));
+  fireEvent.click(within(panel).getByText('Enter a model ID'));
+  const manual = within(panel).getByRole('textbox', { name: 'Exact model ID' });
+  fireEvent.change(manual, { target: { value: 'manual/preview' } });
+  const catalogAdd = within(panel).getByRole('button', { name: 'Add Catalog/00' });
+  const manualAdd = within(panel).getByRole('button', { name: 'Add model ID' });
+  const chips = within(panel).getByRole('list', { name: 'Selected models' });
+  let held = false, release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, _body, method) => {
+    if (mode === 'refresh' ? path.endsWith('/provider-catalog/refresh') : path === '/api/v1/settings/models' && method === 'GET') { held = true; await gate; }
+    return undefined;
+  };
+  try {
+    if (mode === 'query') void mounted.client.invalidateQueries({ queryKey });
+    else fireEvent.click(mode === 'manual' ? screen.getByRole('button', { name: 'Reload current settings' }) : within(panel).getByRole('button', { name: 'Refresh' }));
+    await waitFor(() => expect(held).toBe(true));
+    await waitFor(() => expect(next).toHaveAttribute('aria-busy', 'true'));
+    if (mode !== 'refresh') expect(within(panel).getByRole('list', { name: 'Provider models' })).toHaveAttribute('aria-busy', 'false');
+    for (const button of [catalogAdd, manualAdd]) {
+      expect(button).toBeEnabled(); // Transient blocking must not remove keyboard focus.
+      expect.soft(button).toHaveAttribute('aria-disabled', 'true');
+      expect.soft(button).toHaveAttribute('aria-busy', 'true');
+    }
+    catalogAdd.focus(); await user.keyboard('{Enter}');
+    expect(catalogAdd).toHaveFocus(); expect(within(chips).queryAllByRole('listitem')).toHaveLength(0);
+    manual.focus(); await user.tab(); expect(manualAdd).toHaveFocus(); await user.keyboard(' ');
+    expect(manualAdd).toHaveFocus();
+    expect.soft(manual).toHaveValue('manual/preview');
+    expect(within(chips).queryAllByRole('listitem')).toHaveLength(0); expect(next).toBeDisabled();
+    const actions = mode === 'refresh' ? ['refresh', 'refresh'] : ['refresh'];
+    expect(state.writes.map(write => write.body.action)).toEqual(actions);
+    release();
+    await waitFor(() => expect(next).toHaveAttribute('aria-busy', 'false'));
+    expect(manualAdd).toHaveFocus(); expect.soft(manual).toHaveValue('manual/preview');
+    expect(within(chips).queryAllByRole('listitem')).toHaveLength(0); expect(next).toBeDisabled();
+    await waitFor(() => expect(within(panel).getByRole('list', { name: 'Provider models' })).toHaveAttribute('aria-busy', 'false'));
+    const settledAdd = within(panel).getByRole('button', { name: 'Add Catalog/00' });
+    for (const button of [settledAdd, manualAdd]) {
+      expect.soft(button).toHaveAttribute('aria-disabled', 'false');
+      expect.soft(button).toHaveAttribute('aria-busy', 'false');
+    }
+    fireEvent.click(settledAdd);
+    expect(within(chips).getByRole('button', { name: 'Remove selected Catalog/00' })).toBeVisible();
+    await user.keyboard('{Enter}');
+    expect.soft(within(chips).queryByRole('button', { name: 'Remove selected manual/preview' })).toBeInTheDocument();
+    expect.soft(within(chips).queryAllByRole('listitem')).toHaveLength(2); expect(manual).toHaveValue('');
+    expect(state.entries).toEqual([]); expect(state.keys).toEqual(configured);
+    expect(state.writes.map(write => write.body.action)).toEqual(actions);
+    await review();
+    expect(within(panel).getByRole('button', { name: 'Save models' })).toBeEnabled();
+    expect.soft(within(panel).queryByText('UNVERIFIED — manual model ID')).toBeVisible();
+    expect(within(panel).getByRole('button', { name: 'Save & connect' })).toBeDisabled();
+  } finally { release(); mounted.unmount(); mounted.client.clear(); }
+});
+it.each(['selected', 'configured', 'full'] as const)('SOURCE manual Add retains the exact input when %s admission is refused', async refusal => {
+  const entries = refusal === 'configured' ? [entry] : refusal === 'full' ? Array.from({ length: 64 }, (_, index) => ({ ...entry, entry_id: `22222222-2222-4222-8222-${String(index).padStart(12, '0')}`, model: `saved/${index}` })) : [];
+  const { state } = settingsBackend(configured, entries, models);
+  const mounted = mount(), panel = await wizard();
+  try {
+    await waitFor(() => expect(within(panel).getByRole('button', { name: 'Continue' })).toHaveAttribute('aria-busy', 'false'));
+    if (refusal === 'selected') fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/00' }));
+    fireEvent.click(within(panel).getByText('Enter a model ID'));
+    const manual = within(panel).getByRole('textbox', { name: 'Exact model ID' });
+    const value = refusal === 'configured' ? entry.model : 'Catalog/00';
+    fireEvent.change(manual, { target: { value } });
+    fireEvent.click(within(panel).getByRole('button', { name: 'Add model ID' }));
+    expect(manual).toHaveValue(value);
+    expect(within(within(panel).getByRole('list', { name: 'Selected models' })).queryAllByRole('listitem')).toHaveLength(refusal === 'selected' ? 1 : 0);
+    if (refusal === 'full') expect(within(panel).getByRole('alert')).toHaveTextContent('The instance is limited to 64 configured models.');
+    expect(state.entries).toEqual(entries); expect(state.keys).toEqual(configured);
+    expect(state.writes.map(write => write.body.action)).toEqual(['refresh']);
+  } finally { mounted.unmount(); mounted.client.clear(); }
+});
 it('Cancel catalog targets its retained connection revision and persists a stopped readback without resending Refresh', async () => {
   const { state, hook } = settingsBackend(); let cancelled = false;
   const scope = await sessionScope(session.csrf_token);

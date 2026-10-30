@@ -55,11 +55,11 @@ it.each(['POST', 'PUT'] as const)('keeps local edits actionable after a definite
   const user = userEvent.setup();
   const name = await screen.findByLabelText('Engagement name');
   if (method === 'POST') {
-    await user.type(screen.getByLabelText('Authorization owner'), payload.authorization.owner);
-    await user.type(screen.getByLabelText('Authorization statement'), payload.authorization.statement);
-    await user.type(screen.getByLabelText('Valid from (UTC)'), payload.authorization.valid_from);
-    await user.type(screen.getByLabelText('Valid until (UTC)'), payload.authorization.valid_until);
-    await user.type(screen.getByLabelText('Scope origin'), payload.scope[0]!.origin);
+    fireEvent.change(screen.getByLabelText('Authorization owner'), { target: { value: payload.authorization.owner } });
+    fireEvent.change(screen.getByLabelText('Authorization statement'), { target: { value: payload.authorization.statement } });
+    fireEvent.change(screen.getByLabelText('Valid from (UTC)'), { target: { value: payload.authorization.valid_from } });
+    fireEvent.change(screen.getByLabelText('Valid until (UTC)'), { target: { value: payload.authorization.valid_until } });
+    fireEvent.change(screen.getByLabelText('Scope origin'), { target: { value: payload.scope[0]!.origin } });
   }
   await user.clear(name);
   await user.type(name, 'Retain my local edits');

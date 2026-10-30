@@ -159,14 +159,19 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
     await check(wizard.getByLabel('API key', { exact: true })).toHaveCount(0);
     await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
     await check(wizard.getByRole('button', { name: 'Added fixture/00', exact: true })).toBeDisabled();
+    await check(wizard.getByRole('list', { name: 'Provider models', exact: true })).toHaveAttribute('aria-busy', 'false');
+    await check(wizard.getByRole('button', { name: 'Continue', exact: true })).toHaveAttribute('aria-busy', 'false');
   }
   await openWizard();
   const search = wizard.getByLabel('Search models', { exact: true });
   await search.fill('fixture/selected');
   await wizard.getByRole('button', { name: 'Add fixture/selected', exact: true }).click();
+  await check(wizard.getByRole('button', { name: 'Remove selected fixture/selected', exact: true })).toBeVisible();
   await wizard.getByText('Enter a model ID', { exact: true }).click();
   await wizard.getByLabel('Exact model ID', { exact: true }).fill('manual/preview');
   await wizard.getByRole('button', { name: 'Add model ID', exact: true }).click();
+  await check(wizard.getByRole('button', { name: 'Remove selected manual/preview', exact: true })).toBeVisible();
+  await check(wizard.getByLabel('Exact model ID', { exact: true })).toHaveValue('');
   await wizard.getByRole('button', { name: 'Remove selected manual/preview', exact: true }).click();
   await wizard.getByRole('button', { name: 'Back', exact: true }).click();
   for (const escape of [false, true]) {
@@ -196,6 +201,8 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
   assert.equal((await read(`${tests}/latest/${newEntry}`)).status, 404);
   await openWizard();
   await wizard.getByRole('button', { name: 'Add fixture/01', exact: true }).click();
+  await check(wizard.getByRole('button', { name: 'Remove selected fixture/01', exact: true })).toBeVisible();
+  await check(wizard.getByRole('list', { name: 'Selected models', exact: true }).getByRole('listitem')).toHaveCount(1);
   await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
   await wizard.getByText('Output controls', { exact: true }).click();
   await wizard.getByLabel('fixture/01 output tokens', { exact: true }).fill('64');
@@ -333,8 +340,18 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
     const wizard = page.getByRole('region', { name: 'Add models wizard', exact: true });
     await page.getByRole('button', { name: 'Add models', exact: true }).click();
     await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
-    for (const model of ['fixture/01', 'fixture/02']) await wizard.getByRole('button', { name: `Add ${model}`, exact: true }).click();
-    await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
+    // Catalog readiness alone does not settle the library read started by Refresh.
+    await check(wizard.getByRole('list', { name: 'Provider models', exact: true })).toHaveAttribute('aria-busy', 'false');
+    const next = wizard.getByRole('button', { name: 'Continue', exact: true });
+    await check(next).toHaveAttribute('aria-busy', 'false');
+    const chips = wizard.getByRole('list', { name: 'Selected models', exact: true });
+    for (const model of ['fixture/01', 'fixture/02']) {
+      const add = wizard.getByRole('button', { name: `Add ${model}`, exact: true });
+      await check(add).toBeEnabled(); await add.click();
+      await check(chips.getByRole('button', { name: `Remove selected ${model}`, exact: true })).toBeVisible();
+    }
+    await check(chips.getByRole('listitem')).toHaveCount(2);
+    await check(next).toBeEnabled(); await next.click();
     await wizard.getByText('Output controls', { exact: true }).click();
     for (const model of ['fixture/01', 'fixture/02']) await wizard.getByLabel(`${model} output tokens`, { exact: true }).fill('64');
     await wizard.getByRole('checkbox', { name: 'I approve using these models.', exact: true }).check();

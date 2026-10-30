@@ -1036,6 +1036,70 @@ it.each(['sequence', 'single', 'pending', 'hydrated'] as const)('expands history
   expect(within(modelRow('Exact/Model')).getByText('Test passed · model details unavailable')).toBeVisible();
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(mode === 'hydrated' ? 0 : 1);
 });
+it.each([false, true])('SOURCE R2 delayed library stale-selected=%s recovers B without resurrecting terminal A', async staleSelected => {
+  const target = { ...entry, entry_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', model: 'Catalog/00' };
+  const a = operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry);
+  let b = operation('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', target);
+  const terminalA: EntryTestView = { ...a, state: 'FINISHED', state_revision: 3, result_state: 'COMPLETED', finish_reason: 'COMPLETED' };
+  const { state, hook } = settingsBackend(configured, [entry, target], [...models, { ...models[0]!, model: entry.model }]);
+  let reloading = false, held = false, finished = false, remoteB = false, release = () => {}, releaseHistory = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const historyGate = new Promise<void>(resolve => { releaseHistory = resolve; });
+  hook.intercept = async (path, body, method) => {
+    if (path === '/api/v1/model-test/entries/latest/' + entryId) {
+      if (reloading) { held = true; await gate; return Response.json(staleSelected ? a : terminalA); }
+      return Response.json(a);
+    }
+    if (path === '/api/v1/model-test/entries/latest/' + target.entry_id) {
+      if (reloading) await gate;
+      return remoteB ? Response.json(b) : undefined;
+    }
+    if (path === '/api/v1/model-test/entries/' + a.operation_id) {
+      // A fresh GET must not hide reactivation of A from its stale library snapshot.
+      if (finished && remoteB) await historyGate;
+      return Response.json(finished ? terminalA : a);
+    }
+    if (path === '/api/v1/model-test/entries/' + b.operation_id) return Response.json(b);
+    if (path === '/api/v1/model-test/entries/' + b.operation_id + '/cancel' && method === 'POST') {
+      expect(body.expected_state_revision).toBe(b.state_revision);
+      b = { ...b, state: 'FINISHED', state_revision: 4, result_state: 'NOT_SENT', finish_reason: 'CANCELLED' };
+      return Response.json(b);
+    }
+    return undefined;
+  };
+  const scope = await sessionScope(session.csrf_token); remember(testStorage, scope, a.operation_id!);
+  const mounted = mount(true);
+  try {
+    const rowA = await screen.findByRole('listitem', { name: 'Model Exact/Model via OpenRouter' });
+    await within(rowA).findByRole('button', { name: 'Cancel test' });
+    reloading = true; fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
+    await waitFor(() => expect(held).toBe(true)); finished = true;
+    await waitFor(() => expect(mounted.client.getQueryData(['private', 'settings-entry-test', scope, a.operation_id])).toMatchObject({ state: 'FINISHED', state_revision: 3 }), { timeout: 2000 });
+    await within(rowA).findByText('Connected', { exact: true });
+    const aReads = state.reads.filter(path => path === '/api/v1/model-test/entries/' + a.operation_id).length;
+    remoteB = true; release(); await screen.findByText('Settings reloaded.');
+    const rowB = modelRow(target.model), cancel = await within(rowB).findByRole('button', { name: 'Cancel test' });
+    expect(within(rowB).getByRole('button', { name: 'Details for Catalog/00 via OpenRouter' })).toHaveAttribute('aria-expanded', 'false');
+    expect(cancel).toBeVisible(); expect(within(rowB).getByRole('button', { name: 'Read test status' })).toBeVisible();
+    await waitFor(() => expect(state.reads).toContain('/api/v1/model-test/entries/' + b.operation_id));
+    expect(state.writes).toEqual([]);
+    fireEvent.click(cancel);
+    await waitFor(() => {
+      expect(mounted.client.getQueryData(['private', 'settings-entry-test', scope, b.operation_id])).toMatchObject({ state: 'FINISHED', state_revision: 4 });
+      expect(mounted.client.getQueryData(['private', 'settings-model-library', scope])).toMatchObject({ checks: { [entryId]: terminalA, [target.entry_id]: b } });
+      expect(within(rowA).getByText('Connected', { exact: true })).toBeVisible();
+      expect(within(rowB).getByText('Test cancelled. Read the saved result before testing again.')).toBeVisible();
+    });
+    expect(screen.queryByRole('button', { name: 'Cancel test' })).not.toBeInTheDocument();
+    expect(state.reads.filter(path => path === '/api/v1/model-test/entries/' + a.operation_id)).toHaveLength(aReads);
+    expect(state.writes).toEqual([{ path: `/api/v1/model-test/entries/${b.operation_id}/cancel`, body: { command_id: expect.any(String), expected_state_revision: 2 } }]);
+    expect(state.keys).toEqual(configured); expect(state.entries).toEqual([entry, target]);
+  } catch (error) {
+    const library = mounted.client.getQueryData<{ checks: Record<string, EntryTestView> }>(['private', 'settings-model-library', scope]);
+    console.error('R2_FIX_DELAYED_LIBRARY ' + JSON.stringify({ staleSelected, exactA: mounted.client.getQueryData<EntryTestView>(['private', 'settings-entry-test', scope, a.operation_id])?.state, libraryA: library?.checks[entryId]?.state, libraryB: library?.checks[target.entry_id]?.state, exactBReads: state.reads.filter(path => path === '/api/v1/model-test/entries/' + b.operation_id).length, cancelButtons: screen.queryAllByRole('button', { name: 'Cancel test' }).length, writes: state.writes }));
+    throw error;
+  } finally { release(); releaseHistory(); mounted.unmount(); mounted.client.clear(); }
+});
 it.each(['remembered-completed', 'fresh-unknown-first', 'remembered-unknown'] as const)('recovers the actual active check with %s history', async mode => {
   const target = { ...entry, entry_id: mode === 'remembered-unknown' ? '00000000-0000-4000-8000-000000000001' : 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', model: 'Catalog/00' };
   const old: EntryTestView = { ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', state_revision: 3, result_state: mode === 'remembered-completed' ? 'COMPLETED' : 'UNKNOWN', finish_reason: mode === 'remembered-completed' ? 'COMPLETED' : 'OWNER_LOST' };

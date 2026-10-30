@@ -109,13 +109,18 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   // Fresh tabs recover the admitted operation from the existing latest-entry projection, never from consent.
   useEffect(() => {
     if (operationPending || sending || connecting) return;
-    const active = Object.values(data?.checks ?? {}).find(check => check && check !== 'UNKNOWN' && check.state !== 'FINISHED');
-    // The selected operation's read can be newer than this library projection.
-    if (active && active !== 'UNKNOWN' && active.operation_id !== operation) {
+    // Retain the newer terminal read before switching away from a delayed library snapshot.
+    const previous = observed && data?.checks[observed.entry_id];
+    if (observed?.state === 'FINISHED' && previous && previous !== 'UNKNOWN' && previous.operation_id === observed.operation_id && previous.state_revision != null && observed.state_revision != null && previous.state_revision < observed.state_revision) {
+      client.setQueryData<Awaited<ReturnType<typeof load>>>(['private', 'settings-model-library', scope], value => value ? { ...value, checks: { ...value.checks, [observed.entry_id]: observed } } : value);
+      return;
+    }
+    const active = Object.values(data?.checks ?? {}).find(check => check && check !== 'UNKNOWN' && check.state !== 'FINISHED' && check.operation_id !== operation);
+    if (active && active !== 'UNKNOWN') {
       client.setQueryData(['private', 'settings-entry-test', scope, active.operation_id], active);
       setOperation(active.operation_id ?? null);
     }
-  }, [data, operation, operationPending, sending, connecting, client, scope]);
+  }, [data, observed, operation, operationPending, sending, connecting, client, scope]);
   useEffect(() => {
     const controller = new AbortController(); lifetime.current = controller;
     return () => { controller.abort(); continuation.current?.abort(); readController.current?.abort(); wizardGeneration.current += 1; };

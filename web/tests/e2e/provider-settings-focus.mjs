@@ -14,6 +14,106 @@ const connection = { connection_id: id, provider: 'openrouter', revision: 1, ena
 const selected = { connection_id: id, connection_revision: 1, model: 'Exact/Current', output_tokens: 512 };
 const initial = { schema_version: 2, command_id: null, vault_status: 'UNLOCKED', connections: [connection], selection: { selection_id: id, revision: 1, default: selected, brain: { ...selected, output_tokens: 37 }, investigator: null, validator: null }, reachable: 'NOT_VERIFIED' };
 const paint = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+await test('Assignments SOURCE: held receipt in the long mobile form confirms without occlusion', { timeout: 90000 }, async t => {
+  const server = await preview({ configFile: false, envDir: false, publicDir: false, root: fileURLToPath(new URL('../..', import.meta.url)), preview: { host: '127.0.0.1', port: 0, strictPort: true, cors: false } });
+  const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
+  const names = ['fixture/extra-05', 'fixture/extra-14', 'fixture/selected', 'fixture/extra-13', 'fixture/extra-00', 'fixture/extra-07', 'fixture/00', 'fixture/extra-04', 'fixture/extra-11', 'fixture/extra-12', 'fixture/extra-03', 'manual/model', 'fixture/extra-06', 'fixture/extra-10', 'fixture/extra-09', 'fixture/extra-02', 'fixture/01', 'fixture/extra-01', 'fixture/extra-08'];
+  const entries = names.map((model, index) => ({ entry_id: `00000000-0000-4000-8000-${String(index).padStart(12, '0')}`, revision: 1, connection_id: id, connection_revision: 1, model, output_tokens: 64 }));
+  const choice = { connection_id: id, connection_revision: 1, model: 'fixture/00', output_tokens: 64 };
+  const keys = { ...initial, selection: { selection_id: id, revision: 1, default: choice, brain: null, investigator: null, validator: null } };
+  const completed = entry => ({ schema_version: 2, operation_id: entry.entry_id, state: 'FINISHED', state_revision: 3, finish_reason: 'COMPLETED', selection_revision: null, metadata_command_id: null, metadata_state: 'NOT_REQUESTED', reason: null, requested_provider: 'openrouter', requested_model: entry.model, requested_output_tokens: 64, observed_model: entry.model, provider_status: '200', result_state: 'COMPLETED', output_state: 'COMPLETE', response_text: 'OMNIS_MODEL_TEST_OK', usage_state: 'KNOWN', input_tokens: 9, output_tokens: 7, reasoning_tokens: null, cost_observed: null, system_message: 'Respond only with OMNIS_MODEL_TEST_OK. Use no tools.', user_message: 'This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.', calls_limit: 1, wall_seconds: 300, entry_id: entry.entry_id, entry_revision: 1, connection_id: id, connection_revision: 1, current: true });
+  let browser;
+  try {
+    browser = await chromium.launch();
+    for (const width of [320, 390, 1280, 1440]) await t.test(String(width), async () => {
+      const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: 'reduce', serviceWorkers: 'block' });
+      const gate = Promise.withResolvers(), writes = [], reads = [], errors = [], unexpected = [];
+      let current = structuredClone(keys), receipt, held = false;
+      try {
+        await context.route('**/*', async route => {
+          const request = route.request(), url = new URL(request.url()), path = url.pathname, method = request.method();
+          if (url.origin !== origin) { unexpected.push(`${method} ${url.origin}`); return route.abort(); }
+          if (!path.startsWith('/api/') && !path.startsWith('/health/')) return route.continue();
+          reads.push(`${method} ${path}`);
+          if (path === '/api/session' && method === 'GET') return route.fulfill({ json: { authenticated: true, csrf_token: 'a'.repeat(64) } });
+          if (path === '/api/instance' && method === 'GET') return route.fulfill({ json: { ...instance, generation: 1, admission_open: true } });
+          if (path === '/health/ready' && method === 'GET') return route.fulfill({ json: { api_ready: true, dashboard_ready: true, assessment_ready: false, reason: null, dashboard_reason: null } });
+          if (path === '/api/v1/settings/providers') {
+            if (method === 'PUT') {
+              const body = request.postDataJSON(); assert.equal(body.action, 'save_selection'); assert.equal(body.expected_revision, 1); writes.push(body);
+              current = { ...current, selection: { selection_id: body.command_id, revision: 2, default: body.default, brain: body.brain, investigator: body.investigator, validator: body.validator } };
+              receipt = { ...current, command_id: body.command_id }; return route.fulfill({ json: receipt });
+            }
+            if (method === 'GET') return route.fulfill({ json: current });
+          }
+          if (path.startsWith('/api/v1/settings/providers/commands/') && method === 'GET') {
+            assert.equal(path.split('/').at(-1), receipt.command_id); held = true; await gate.promise; return route.fulfill({ json: receipt });
+          }
+          if ((path === '/api/v1/settings/models' || path.startsWith('/api/v1/settings/models/pages/')) && method === 'GET') {
+            const after = path === '/api/v1/settings/models' ? null : path.split('/').at(-1), offset = after ? entries.findIndex(entry => entry.entry_id === after) + 1 : 0, page = entries.slice(offset, offset + 16);
+            return route.fulfill({ json: { schema_version: 1, command_id: null, registry_revision: 1, total: entries.length, after, next_after: offset + page.length < entries.length ? page.at(-1).entry_id : null, entries: page } });
+          }
+          if (path.startsWith('/api/v1/model-test/entries/latest/') && method === 'GET') {
+            const entry = entries.find(item => path.endsWith(item.entry_id));
+            return ['fixture/01', 'fixture/selected'].includes(entry?.model) ? route.fulfill({ json: completed(entry) }) : route.fulfill({ status: 404, json: { error: { code: 'NOT_FOUND', correlation_id: id } } });
+          }
+          if (path === '/api/v1/settings/provider-catalog/search' && method === 'POST') {
+            const body = request.postDataJSON();
+            const found = entries.filter(entry => ['fixture/00', 'fixture/01', 'fixture/selected'].includes(entry.model) && entry.model === body.query).map(entry => ({ model: entry.model, name: entry.model === 'fixture/selected' ? 'Selected exact model' : `Synthetic model ${entry.model.endsWith('00') ? 0 : 1}`, max_output_tokens: 128, supports_max_tokens: true, reason: null }));
+            return route.fulfill({ json: { schema_version: 1, connection_id: id, connection_revision: 1, provider: 'openrouter', catalog_command_id: catalogId, state: 'READY', reason: null, query: body.query, offset: 0, next_offset: null, total: found.length, entries: found } });
+          }
+          unexpected.push(`${method} ${path}`); return route.abort();
+        });
+        const page = await context.newPage(); page.setDefaultTimeout(5000); page.on('pageerror', error => errors.push(error.message));
+        await page.goto(`${origin}/settings/providers`);
+        const configured = page.getByRole('region', { name: 'Configured models', exact: true });
+        await check(configured.getByRole('listitem')).toHaveCount(19); await check(configured.getByText('Connected', { exact: true })).toHaveCount(2);
+        const assignments = page.getByRole('region', { name: 'Model assignments', exact: true });
+        for (const role of ['Brain', 'Investigator', 'Validator']) {
+          await assignments.getByLabel(role, { exact: true }).selectOption(entries[2].entry_id); await assignments.getByLabel(role, { exact: true }).selectOption('');
+        }
+        await assignments.getByText('Output controls', { exact: true }).click();
+        const cap = assignments.getByLabel('Default output tokens', { exact: true }), save = assignments.getByRole('button', { name: 'Save assignments', exact: true });
+        await cap.fill('0'); await check(save).toBeDisabled(); await cap.fill('64');
+        await save.focus(); await page.keyboard.press('Enter'); await check.poll(() => held).toBe(true);
+        await check(save).toHaveAttribute('aria-busy', 'true'); await check(save).toBeFocused();
+        await check(page.getByRole('region', { name: 'Settings recovery', exact: true })).toHaveCount(0);
+        await check(page.locator('[aria-label="Settings notification"]')).toHaveCount(0);
+        if (process.env.OMNIS_E2E_OUTPUT) await page.screenshot({ path: join(process.env.OMNIS_E2E_OUTPUT, `assignments-${width}-pending.png`), fullPage: false });
+        gate.resolve(); await check(save).toHaveAttribute('aria-busy', 'false');
+        const notification = page.locator('[aria-label="Settings notification"]'); await check(notification).toHaveCount(1); await paint(page);
+        const observe = () => notification.evaluate(node => {
+          const rect = node.getBoundingClientRect(), style = getComputedStyle(node);
+          const hintClass = document.querySelector('[aria-labelledby="assignments-heading"] h2 + p').className;
+          const targets = [...document.querySelectorAll(`button, input, select, summary, a, :focus, [role="alert"], label, .${hintClass}, h1, h2, h3, [class*="_identity_"], [class*="_state_"], [class*="_saved_"], [class*="_connectionHeading_"] small`)].filter(target => !node.contains(target)).map(target => ({ tag: target.tagName, text: target.textContent.slice(0, 100), visible: target.checkVisibility({ checkVisibilityCSS: true }), rect: target.getBoundingClientRect().toJSON() })).filter(target => target.rect.width && target.rect.height);
+          return { text: node.textContent, visibility: style.visibility, rect: rect.toJSON(), scrollY, focus: document.activeElement?.textContent, targets };
+        });
+        const observation = await observe();
+        console.log('ASSIGNMENTS_SOURCE ' + JSON.stringify({ width, writes: writes.length, receiptReads: reads.filter(path => path.startsWith('GET /api/v1/settings/providers/commands/')).length, currentRevision: current.selection.revision, readbackGets: reads.filter(path => path === 'GET /api/v1/settings/providers').length, accessibleNotifications: await page.getByRole('complementary', { name: 'Settings notification', exact: true }).count(), observation }));
+        if (process.env.OMNIS_E2E_OUTPUT) await page.screenshot({ path: join(process.env.OMNIS_E2E_OUTPUT, `assignments-${width}-confirmed.png`), fullPage: false });
+        assert.equal(writes.length, 1); assert.equal(current.selection.revision, 2);
+        assert.equal(reads.filter(path => path.startsWith('GET /api/v1/settings/providers/commands/')).length, 1);
+        assert.equal(reads.filter(path => path === 'GET /api/v1/settings/providers').length, 2);
+        for (const role of ['default', 'brain', 'investigator', 'validator']) assert.deepEqual(current.selection[role], keys.selection[role]);
+        await check(save).toBeFocused(); await check(cap).toHaveValue('64');
+        await check(configured.getByText('Connected', { exact: true })).toHaveCount(2);
+        await check(page.getByRole('complementary', { name: 'Settings notification', exact: true })).toContainText('Assignments saved.');
+        await check(notification).toBeInViewport();
+        assert.ok(observation.targets.filter(target => target.visible).every(({ rect: box }) => observation.rect.left >= box.right || observation.rect.right <= box.left || observation.rect.top >= box.bottom || observation.rect.bottom <= box.top), 'Confirmation must not cover visible controls or essential text');
+        await configured.getByText('Connection options', { exact: true }).click(); await paint(page);
+        await check(configured.getByRole('button', { name: 'Replace key', exact: true })).toBeVisible();
+        const expanded = await observe();
+        if (expanded.visibility !== 'hidden') {
+          await check(notification).toBeInViewport();
+          assert.ok(expanded.targets.filter(target => target.visible).every(({ rect: box }) => expanded.rect.left >= box.right || expanded.rect.right <= box.left || expanded.rect.top >= box.bottom || expanded.rect.bottom <= box.top), 'Opening the disclosure must restore its visible controls as obstacles');
+        } else await check(page.getByRole('complementary', { name: 'Settings notification', exact: true })).toHaveCount(0);
+        console.log('ASSIGNMENTS_VISIBLE_OBSTACLES ' + JSON.stringify({ width, visibility: expanded.visibility, rect: expanded.rect, replaceKeyVisible: true, writes: writes.length }));
+        if (process.env.OMNIS_E2E_OUTPUT) await page.screenshot({ path: join(process.env.OMNIS_E2E_OUTPUT, `assignments-${width}-expanded.png`), fullPage: false });
+        assert.deepEqual(unexpected, []); assert.deepEqual(errors, []);
+      } finally { gate.resolve(); await context.unrouteAll({ behavior: 'wait' }); await context.close(); }
+    });
+  } finally { await browser?.close(); await new Promise((resolve, reject) => server.httpServer.close(error => error ? reject(error) : resolve())); }
+});
 await test('Settings C SOURCE: painted focus, shared 900px axis, mobile and long 64-entry library', { timeout: 90000 }, async t => {
   const server = await preview({ configFile: false, root: fileURLToPath(new URL('../..', import.meta.url)), preview: { host: '127.0.0.1', port: 0, strictPort: true, cors: false } });
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;

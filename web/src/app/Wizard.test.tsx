@@ -71,8 +71,8 @@ it.each(['POST', 'PUT'] as const)('keeps local edits actionable after a definite
   expect(save).toBeEnabled();
   expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
   expect(screen.queryByText('Save outcome uncertain')).not.toBeInTheDocument();
-  await user.clear(name);
-  await user.type(name, 'Corrected and retained');
+  // A timed-out type can keep sending keys to the next test's focused field.
+  fireEvent.change(name, { target: { value: 'Corrected and retained' } });
   expect(writes).toBe(1);
   await user.click(save);
   await screen.findByText(`Saved · revision ${method === 'POST' ? 1 : 2}`);

@@ -26,6 +26,52 @@ it('explicit Refresh creates one fresh catalog identity and retains chosen model
   expect(within(panel).getByRole('list', { name: 'Selected models' })).toHaveTextContent('Model 0');
   expect(state.keys).toEqual(configured); expect(state.entries).toEqual([]);
 });
+it.each(['query', 'manual'] as const)('SOURCE wizard exposes the %s library read barrier instead of silently dropping Save', async mode => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  const mounted = mount(true), panel = await wizard();
+  const queryKey = ['private', 'settings-model-library'];
+  await waitFor(() => expect(mounted.client.isFetching({ queryKey })).toBe(0));
+  fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/00' })); await review();
+  const save = within(panel).getByRole('button', { name: 'Save models' });
+  const connect = within(panel).getByRole('button', { name: 'Save & connect' });
+  expect(connect).toBeDisabled(); fireEvent.click(connect);
+  expect(state.writes.map(write => write.body.action)).toEqual(['refresh']);
+  fireEvent.click(within(panel).getByRole('checkbox'));
+  expect(connect).toBeEnabled();
+  let held = false, release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, _body, method) => {
+    if (path === '/api/v1/settings/models' && method === 'GET') { held = true; await gate; }
+    return undefined;
+  };
+  try {
+    // Hold the existing local read after Refresh, without delaying or changing the catalog.
+    if (mode === 'query') void mounted.client.invalidateQueries({ queryKey });
+    else fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
+    await waitFor(() => expect(held).toBe(true));
+    expect(mounted.client.isFetching({ queryKey })).toBe(mode === 'query' ? 1 : 0);
+    connect.focus();
+    await act(async () => { fireEvent.click(connect); fireEvent.click(save); });
+    expect(state.writes.map(write => write.body.action)).toEqual(['refresh']);
+    expect(state.entries).toEqual([]); expect(state.keys).toEqual(configured);
+    expect(within(panel).getByRole('checkbox')).toBeChecked(); expect(connect).toHaveFocus();
+    expect(connect).toHaveAttribute('aria-disabled', 'true');
+    expect(connect).toHaveAttribute('aria-busy', 'true');
+    expect(save).toHaveAttribute('aria-disabled', 'true');
+    expect(save).toHaveAttribute('aria-busy', 'true');
+    expect(connect).toBeEnabled(); expect(save).toBeEnabled();
+    release();
+    await waitFor(() => expect(connect).toHaveAttribute('aria-busy', 'false'));
+    expect(connect).toHaveFocus(); expect(within(panel).getByRole('checkbox')).toBeChecked();
+    expect(state.writes.map(write => write.body.action)).toEqual(['refresh']);
+    expect(state.entries).toEqual([]);
+    fireEvent.click(save); await screen.findByText('Models saved.');
+    expect(state.writes.map(write => write.body.action)).toEqual(['refresh', 'save_models']);
+    expect(state.entries).toEqual([expect.objectContaining({ model: 'Catalog/00', revision: 1, output_tokens: 128 })]);
+    expect(state.keys).toEqual(configured);
+    expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument();
+  } finally { release(); mounted.unmount(); mounted.client.clear(); }
+});
 it('Cancel catalog targets its retained connection revision and persists a stopped readback without resending Refresh', async () => {
   const { state, hook } = settingsBackend(); let cancelled = false;
   const scope = await sessionScope(session.csrf_token);

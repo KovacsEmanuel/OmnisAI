@@ -51,11 +51,16 @@ Un singur root activ: `/home/kali/.local/share/omnis-settings-c-9e51d10`, origin
 este consemnată în [registru](../documents/verification/settings-c-evidence/ui-result.json);
 verificați starea curentă, nu deduceți autostart:
 
-Tranziția explicită revizuită a fost executată pe aceleași date: ultimul readback
-**READY27/epoch16, CLI/release0.1.1 și schema0017_model_removal**, DEVELOPMENT;
-următorul Start normal a fost `reused=true`. Remove este instalat și acceptat
-vizual; supervisorul/default-web rămân blocante pentru închiderea T1. READY nu
-este remediu al cauzei sau promisiune de disponibilitate persistentă.
+Tranziția explicită revizuită pe aceleași date a avut istoric
+**READY27/epoch16, CLI/release0.1.1 și schema0017_model_removal**, DEVELOPMENT,
+cu următorul Start normal `reused=true`. **Citirea curentă este exit4,
+UNAVAILABLE/RECOVERY_REQUIRED**, aceeași identitate/release/schemă; nu s-a repetat
+recovery/Start. Models `ae92a65` este integrat, iar buildul public verificat API/PG
+este instalat/servit/executat la8780, cu inode/rollback păstrate. Nu este acceptare
+Models autentificată instalată: controlul privat este indisponibil, iar tabul
+separat de verificare neasociat. Nu se exportă cookie sau automatizează pairing.
+Remove și acceptarea vizuală anterioară rămân scoped; supervisorul/default-web
+blochează T1. READY istoric nu este remediu sau promisiune de disponibilitate.
 
 ```sh
 omnis status --json

@@ -681,6 +681,58 @@ it.each(['COMPLETED', 'UNKNOWN'] as const)('does not claim Connected before exac
     expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
   } finally { release(); }
 });
+it('SOURCE healthy direct Test retains its terminal read instead of rehydrating the same running operation', async () => {
+  const { state, hook } = settingsBackend(configured, [entry], [...models, { ...models[0]!, model: entry.model }]);
+  const views = new Map<string, EntryTestView>();
+  let held = false, release = () => {}, secondId: string | undefined;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, body, method) => {
+    if (path === '/api/v1/model-test/entries' && method === 'PUT') {
+      const target = state.entries.find(item => item.entry_id === body.entry_id)!;
+      const view = operation(String(body.operation_id), target); views.set(target.entry_id, view);
+      if (target.entry_id === entryId) secondId = view.operation_id!;
+      return Response.json(view);
+    }
+    if (path.includes('/entries/latest/')) {
+      const view = views.get(path.split('/').at(-1)!); return view ? Response.json(view) : undefined;
+    }
+    const view = [...views.values()].find(item => path === '/api/v1/model-test/entries/' + item.operation_id);
+    if (view) {
+      if (view.entry_id === entryId) { held = true; await gate; }
+      const finished: EntryTestView = { ...view, state: 'FINISHED', state_revision: 3, result_state: 'COMPLETED', finish_reason: 'COMPLETED' };
+      views.set(view.entry_id, finished); return Response.json(finished);
+    }
+    return undefined;
+  };
+  const scope = await sessionScope(session.csrf_token), mounted = mount(true);
+  try {
+    await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review();
+    fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
+    const firstRow = await screen.findByRole('listitem', { name: 'Model Catalog/00 via OpenRouter' });
+    await within(firstRow).findByText('Connected', { exact: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Test Exact/Model via OpenRouter' }));
+    fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Send model test' }));
+    await waitFor(() => expect(held).toBe(true));
+    expect(within(modelRow(entry.model)).getByText('Connecting', { exact: true })).toBeVisible();
+    expect(within(modelRow(entry.model)).getByRole('button', { name: 'Cancel test' })).toBeEnabled();
+    expect(within(modelRow('Catalog/00')).getByText('Connected', { exact: true })).toBeVisible();
+    const first = views.get(state.entries.find(item => item.model === 'Catalog/00')!.entry_id)!;
+    release();
+    await waitFor(() => {
+      expect(mounted.client.getQueryData(['private', 'settings-entry-test', scope, secondId])).toMatchObject({ operation_id: secondId, state: 'FINISHED', state_revision: 3 });
+      expect(mounted.client.getQueryData(['private', 'settings-model-library', scope])).toMatchObject({ checks: { [entryId]: { operation_id: secondId, state: 'FINISHED', state_revision: 3 } } });
+      expect(within(modelRow(entry.model)).getByText('Connected', { exact: true })).toBeVisible();
+    });
+    expect(within(modelRow(entry.model)).queryByRole('button', { name: 'Cancel test' })).not.toBeInTheDocument();
+    expect(mounted.client.getQueryData(['private', 'settings-entry-test', scope, first.operation_id])).toEqual(first);
+    expect(state.writes.map(write => write.body.action ?? write.path)).toEqual(['refresh', 'save_models', '/api/v1/model-test/entries', '/api/v1/model-test/entries']);
+    expect(state.keys).toEqual(configured); expect(secondId).not.toBe(first.operation_id);
+  } catch (error) {
+    const polled = mounted.client.getQueryData<EntryTestView>(['private', 'settings-entry-test', scope, secondId]);
+    console.error('SOURCE_DIRECT_TERMINAL ' + JSON.stringify({ secondId, held, fixtureState: views.get(entryId)?.state, fixtureRevision: views.get(entryId)?.state_revision, queryState: polled?.state, queryRevision: polled?.state_revision, exactReads: state.reads.filter(path => path === '/api/v1/model-test/entries/' + secondId).length, starts: state.writes.filter(write => write.path === '/api/v1/model-test/entries').length, visibility: document.visibilityState }));
+    throw error;
+  } finally { release(); mounted.unmount(); mounted.client.clear(); }
+});
 it('Save & connect waits for exact terminal readback before each next model and hydrates both without browser storage', async () => {
   const { state, hook } = settingsBackend(configured, [], models);
   const views = new Map<string, EntryTestView>(); let complete = false;

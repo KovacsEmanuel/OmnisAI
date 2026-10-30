@@ -110,11 +110,12 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   useEffect(() => {
     if (operationPending || sending || connecting) return;
     const active = Object.values(data?.checks ?? {}).find(check => check && check !== 'UNKNOWN' && check.state !== 'FINISHED');
-    if (active && active !== 'UNKNOWN') {
+    // The selected operation's read can be newer than this library projection.
+    if (active && active !== 'UNKNOWN' && active.operation_id !== operation) {
       client.setQueryData(['private', 'settings-entry-test', scope, active.operation_id], active);
       setOperation(active.operation_id ?? null);
     }
-  }, [data, operationPending, sending, connecting, client, scope]);
+  }, [data, operation, operationPending, sending, connecting, client, scope]);
   useEffect(() => {
     const controller = new AbortController(); lifetime.current = controller;
     return () => { controller.abort(); continuation.current?.abort(); readController.current?.abort(); wizardGeneration.current += 1; };

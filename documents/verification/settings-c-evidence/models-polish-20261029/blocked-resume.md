@@ -6,6 +6,7 @@
 
 - Final candidate: `a1857ddd6ac3b3bcfd0a07d4402d0df6abde46a0`, tree `69032e28c99379eba9023c6af600e679aeeeae2a`, branch `feat/settings-inline-feedback-20261029`, worktree `/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029`.
 - Integrated product: `ae92a658ae02879c9062c02ceb5548aac344d9d3`, tree `1cbb9bccfb930a9ed74ed6632af1ec69f5cbbc30`. No-ff merge preserves26 granular commits; all14 candidate paths verified byte-identical. Main had no overlapping changes; its only non-documentary divergence was design guidance. API production/schema/keys/authority are unchanged.
+- Documentary reconciliation `8bcf3fe088ff2e951c05776311a65d67cf09c6ab` is independently **APPROVED_DOCUMENTARY_SCOPED**; parent read/adjudicated the [byte-exact original](final-documentary-8bcf3fe-review-original.md). It accepts faithful scoped status/blocked handoff only, not product/operator/T1/T2 acceptance; no product or QA change follows from retaining the report.
 - Operator before/after: `omnis status --json`, **exit4 / UNAVAILABLE / RECOVERY_REQUIRED**, same UUID `d694129b-a3e5-446d-9e5b-fe9bc19abed8`, origin `http://127.0.0.1:8780`, DEVELOPMENT0.1.1/schema0017. No Start/Stop/recover/upgrade or operator DB/config/Python/image/release change.
 - All assigned writers/QA are finished. Tracked/index clean before documentary reconciliation; only the two protected preexisting untracked files remain outside intended work. Four preexisting candidate dependency links, source refs, PGDATA/logs/backups/rollback are retained.
 

@@ -12,6 +12,8 @@
     "branch": "feat/settings-inline-feedback-20261029",
     "worktree": "/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029",
     "recovery_record": "models-polish-20261029/blocked-resume.md",
+    "continuation_prompt": "../settings-finalization-prompt.md",
+    "prompt_boundary": "Prepared only on operator request, no execution. Explicitly test oracle/scenario as possible cause before product changes; one admitted minimal synthetic diagnosis if needed, no blind full retry. Finish Models and remaining T1 gates; T2 admission only after verified T1 closure, implementation by separate mandate.",
     "source": "172 component PASS; retained/moved/stale/long64 native SOURCE PASS; independent composed SOURCE reviews including cleanup-only baf5922. Not runtime/aesthetic acceptance or all combinations.",
     "control_sites": {"total": 58, "real_prefix": 21, "source_component": 37, "all_native_claim": false},
     "latest_qa": "proc_b9e5ca260a65: one existing entry_remove_ui invocation, outer2,1FAIL55.34s,total70.393165719s. After explicit Stop and settled route cleanup, fixture01 stays Connecting/Cancel/Remaining checks stopped; expected Connected at mjs223. Cause operation/worker/UI/oracle UNADJUDICATED; terminal/latest witness not retained. No route-already-handled error in this run.",

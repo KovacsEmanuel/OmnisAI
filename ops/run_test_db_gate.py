@@ -1036,6 +1036,7 @@ def main() -> int:
             "test-settings-remove-pg",
             "test-t1-upgrade-pg",
             "test-settings-remove-ui-pg",
+            "test-settings-stop-read-ui-pg",
             "test-model-test-v2-pg",
             "test-settings-models-ui-pg",
             "test-migrations",

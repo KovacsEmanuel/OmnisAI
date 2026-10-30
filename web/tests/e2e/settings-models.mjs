@@ -1,7 +1,7 @@
 // Real built App -> paired HTTP API -> existing control/PG owner -> owned TLS peer.
 // Only test_model_test_v2.py's owned settings_ui/entry_remove_ui cases; never production.
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 export async function runSettingsRemove({ page, check, paired, origin, output, screenshot, secretChecks, remember }) {
   const models = '/api/v1/settings/models';
@@ -217,7 +217,7 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
     await check(row('fixture/01').getByRole('button', { name: /Cancel test|Stop remaining checks/ })).toHaveCount(1);
     await row('fixture/01').scrollIntoViewIfNeeded(); await check(row('fixture/01')).toBeInViewport({ ratio: 1 });
     await screenshot('settings-save-connect-row-pending', { fullPage: false });
-    await row('fixture/01').getByRole('button', { name: 'Stop remaining checks', exact: true }).click();
+    // Healthy continuation: Stop is covered separately by settings-stop-read.
     releaseAdmission.resolve();
   } finally { releaseAdmission.resolve(); await page.unrouteAll({ behavior: 'wait' }); }
   await check(row('fixture/01')).toContainText('Connected');
@@ -311,6 +311,93 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
 }
 
 export async function runSettingsModels({ page, check, paired, origin, output, screenshot, secretChecks, remember }) {
+  if (process.argv[2] === 'settings-stop-read') {
+    assert.equal(process.env.OMNIS_E2E_STAGE, 'before', 'One browser; no restart or second Start');
+    const tests = '/api/v1/model-test/entries', models = '/api/v1/settings/models';
+    const fields = ['operation_id', 'entry_id', 'entry_revision', 'connection_id', 'connection_revision', 'current', 'state', 'state_revision', 'result_state', 'finish_reason', 'requested_model', 'requested_output_tokens'];
+    const project = view => Object.fromEntries(fields.map(field => [field, view[field]]));
+    const evidence = { intents: [] };
+    const release = Promise.withResolvers();
+    let admitted, start, saved;
+    page.on('request', request => {
+      const path = new URL(request.url()).pathname;
+      if (request.method() === 'PUT' || /\/(cancel|refresh)$/.test(path)) {
+        const body = request.postDataJSON();
+        evidence.intents.push({ path, action: body.action ?? 'start' });
+        if (path === models) saved = body;
+      }
+    });
+    remember('synthetic-not-provider-key');
+    await paired(); await page.goto(`${origin}/settings/providers`);
+    const row = model => page.getByRole('listitem', { name: `Model ${model} via OpenRouter`, exact: true });
+    const wizard = page.getByRole('region', { name: 'Add models wizard', exact: true });
+    await page.getByRole('button', { name: 'Add models', exact: true }).click();
+    await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
+    for (const model of ['fixture/01', 'fixture/02']) await wizard.getByRole('button', { name: `Add ${model}`, exact: true }).click();
+    await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
+    await wizard.getByText('Output controls', { exact: true }).click();
+    for (const model of ['fixture/01', 'fixture/02']) await wizard.getByLabel(`${model} output tokens`, { exact: true }).fill('64');
+    await wizard.getByRole('checkbox', { name: 'I approve using these models.', exact: true }).check();
+    await page.route(`**${tests}`, async route => {
+      if (route.request().method() !== 'PUT') return route.continue();
+      start = route.request().postDataJSON();
+      const response = await route.fetch();
+      admitted = await response.json();
+      evidence.start = { operation_id: start.operation_id, entry_id: start.entry_id, expected_entry_revision: start.expected_entry_revision, expected_connection_revision: start.expected_connection_revision, expected_generation: start.expected_generation, status: response.status(), admission: project(admitted) };
+      await release.promise; await route.fulfill({ response });
+    });
+    try {
+      await wizard.getByRole('button', { name: 'Save & connect', exact: true }).click();
+      await check.poll(() => !!admitted).toBe(true);
+      assert.equal(evidence.start.status, 202);
+      assert.equal(admitted.operation_id, start.operation_id);
+      assert.equal(start.entry_id, saved.models[0].entry_id);
+      assert.equal(start.expected_entry_revision, 1); assert.equal(start.expected_connection_revision, 1);
+      await check(wizard).toHaveCount(0); await check(row('fixture/01')).toContainText('Connecting');
+      await check(row('fixture/02')).toContainText('Not tested');
+      await row('fixture/01').getByRole('button', { name: 'Stop remaining checks', exact: true }).click();
+      await check(row('fixture/01')).toContainText('Remaining checks stopped. Read the admitted check.');
+      release.resolve(); await page.unrouteAll({ behavior: 'wait' });
+      await check.poll(async () => {
+        evidence.settlement = await page.evaluate(async path => {
+          const response = await fetch(path); const view = await response.json();
+          return { status: response.status, operation_id: view.operation_id, state: view.state, state_revision: view.state_revision, result_state: view.result_state, finish_reason: view.finish_reason, current: view.current };
+        }, `${tests}/${start.operation_id}`);
+        return evidence.settlement.state;
+      }).toBe('FINISHED');
+      const exactReply = page.waitForResponse(response => response.request().method() === 'GET' && response.url() === `${origin}${tests}/${start.operation_id}`, { timeout: 15000 });
+      const latestReply = page.waitForResponse(response => response.request().method() === 'GET' && response.url() === `${origin}${tests}/latest/${start.entry_id}`, { timeout: 15000 });
+      await row('fixture/01').getByRole('button', { name: 'Read test status', exact: true }).click();
+      const exact = await exactReply, latest = await latestReply;
+      evidence.exact = { status: exact.status(), ...project(await exact.json()) };
+      evidence.latest = { status: latest.status(), ...project(await latest.json()) };
+      // Preserve the observation before terminal/current/identity assertions or teardown.
+      console.log('SETTINGS_STOP_READ ' + JSON.stringify(evidence));
+      for (const result of [evidence.exact, evidence.latest]) {
+        assert.equal(result.status, 200); assert.equal(result.operation_id, start.operation_id);
+        assert.equal(result.entry_id, start.entry_id); assert.equal(result.entry_revision, start.expected_entry_revision);
+        assert.equal(result.connection_id, saved.connection_id); assert.equal(result.connection_revision, start.expected_connection_revision);
+        assert.equal(result.current, true); assert.equal(result.state, 'FINISHED'); assert.equal(result.state_revision, 3);
+        assert.equal(result.result_state, 'COMPLETED'); assert.equal(result.finish_reason, 'COMPLETED');
+        assert.equal(result.requested_model, 'fixture/01'); assert.equal(result.requested_output_tokens, 64);
+      }
+      assert.deepEqual(evidence.latest, evidence.exact);
+      await check(row('fixture/01')).toContainText('Connected');
+      await check(row('fixture/02')).toContainText('Not tested');
+      const unsent = await page.evaluate(async path => { const response = await fetch(path); return { status: response.status, code: (await response.json()).error?.code ?? null }; }, `${tests}/latest/${saved.models[1].entry_id}`);
+      evidence.unsent = { entry_id: saved.models[1].entry_id, ...unsent };
+      assert.deepEqual(unsent, { status: 404, code: 'NOT_FOUND' });
+      assert.deepEqual(evidence.intents, [
+        { path: '/api/v1/settings/provider-catalog/refresh', action: 'refresh' },
+        { path: models, action: 'save_models' }, { path: tests, action: 'start' },
+      ]);
+      await secretChecks();
+      return evidence;
+    } finally {
+      release.resolve(); await page.unrouteAll({ behavior: 'wait' });
+      await writeFile(join(output, 'settings-stop-read.json'), JSON.stringify(evidence, null, 2));
+    }
+  }
   if (process.argv[2] === 'settings-cancel-current') {
     assert.equal(process.env.OMNIS_E2E_STAGE, 'before', 'No restart or second Start is admitted');
     const tests = '/api/v1/model-test/entries';

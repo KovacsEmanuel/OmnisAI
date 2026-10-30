@@ -123,6 +123,13 @@ def tls_contexts(root: Path) -> tuple[ssl.SSLContext, ssl.SSLContext]:
                 reason="Explicit narrow Remove built-browser fixture only",
             ),
         ),
+        pytest.param(
+            "entry_stop_read_ui",
+            marks=pytest.mark.skipif(
+                os.environ.get("OMNIS_SETTINGS_STOP_READ_UI") != "1",
+                reason="Explicit one-operation Stop then readback fixture only",
+            ),
+        ),
         "entry_generation_before_first",
         "entry_generation_between",
         "entry_generation_unchanged",
@@ -176,6 +183,9 @@ async def test_api_pg_sdk_protocol_and_replay(
     scenario: str,
 ) -> None:
     entry_scenario = scenario.startswith("entry_")
+    stop_read = scenario == "entry_stop_read_ui"
+    stop_reads: list[dict[str, object]] = []
+    peer_completed: list[str] = []
     cancel_probe = scenario in {"settings_cancel_ui", "settings_cancel_current_ui"}
     # RED is the absent production consumer, not a fabricated repository response.
     assert hasattr(model_test_operation, "ApiKeyModelTest"), "T1 production consumer missing"
@@ -301,7 +311,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                 except asyncio.IncompleteReadError:
                     return
                 received.append((first, body))
-                if (scenario == "settings_ui" or cancel_probe) and (
+                if (scenario == "settings_ui" or cancel_probe or stop_read) and (
                     b"Authorization: Bearer " + secret.encode() + b"\r\n" not in headers
                 ):
                     raise AssertionError("Owned peer authentication mismatch")
@@ -386,6 +396,8 @@ async def test_api_pg_sdk_protocol_and_replay(
                         assert data["model"] in {"fixture/02", "fixture/03"}
                     elif scenario.startswith("entry_generation_"):
                         assert data["model"] in {"fixture/selected", "fixture/00"}
+                    elif stop_read:
+                        assert data["model"] == "fixture/01"
                     elif scenario == "entry_remove_ui":
                         assert data["model"] in {"fixture/selected", "fixture/01"}
                     else:
@@ -404,7 +416,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                         "object": "chat.completion",
                         "created": 0,
                         "model": data["model"]
-                        if scenario in {"settings_ui", "entry_remove_ui"}
+                        if scenario in {"settings_ui", "entry_remove_ui", "entry_stop_read_ui"}
                         else "fixture/observed",
                         "choices": [
                             {
@@ -447,6 +459,8 @@ async def test_api_pg_sdk_protocol_and_replay(
                     + raw
                 )
                 await writer.drain()
+                if stop_read and first.startswith("POST"):
+                    peer_completed.append("fixture/01")
         except ConnectionError:
             return  # Catalog Cancel deliberately closes the authenticated synthetic peer.
         finally:
@@ -478,7 +492,7 @@ async def test_api_pg_sdk_protocol_and_replay(
     ) -> list[tuple[object, ...]]:
         assert family in (0, network_socket.AF_INET) and type in (0, network_socket.SOCK_STREAM)
         assert proto in (0, network_socket.IPPROTO_TCP) and flags == 0
-        if (scenario in {"settings_ui", "entry_remove_ui"} or cancel_probe) and host == "127.0.0.1":
+        if (scenario in {"settings_ui", "entry_remove_ui", "entry_stop_read_ui"} or cancel_probe) and host == "127.0.0.1":
             assert 0 < port <= 65535
             return [
                 (
@@ -596,6 +610,9 @@ async def test_api_pg_sdk_protocol_and_replay(
 
             async def model_command(command: ModelTestControl) -> dict[str, object]:
                 commands.append(command)
+                if stop_read:
+                    assert command.action in {"start", "read"}, "Stop continuation must not Cancel"
+                    assert sum(c.action == "start" for c in commands) <= 1, "One Start; no retry"
                 if cancel_probe and command.action == "start":
                     assert sum(c.action == "start" for c in commands) == 1, "One Start only"
                 if cancel_probe and command.action == "cancel":
@@ -618,6 +635,22 @@ async def test_api_pg_sdk_protocol_and_replay(
                         )
                 try:
                     value = await owner.handle(command)
+                    if stop_read:
+                        stop_reads.append({
+                            "action": command.action,
+                            "requested_operation_id": command.operation_id,
+                            "requested_entry_id": command.entry_id,
+                            "requested_entry_revision": command.expected_entry_revision,
+                            "requested_connection_revision": command.expected_connection_revision,
+                            "workers_pending": len(owner.tasks),
+                            "settlement_failed": owner.settlement_failed,
+                            "peer_completed_models": list(peer_completed),
+                            "response": {key: value.get(key) for key in (
+                                "operation_id", "entry_id", "entry_revision", "connection_id",
+                                "connection_revision", "current", "state", "state_revision",
+                                "result_state", "finish_reason", "requested_model", "requested_output_tokens",
+                            )},
+                        })
                     if (scenario == "settings_ui" or cancel_probe) and command.action == "start":
                         assert command.operation_id is not None
                         ui_admitted.append(command.operation_id)
@@ -662,6 +695,65 @@ async def test_api_pg_sdk_protocol_and_replay(
                 return result.model_dump(mode="json")
 
             control.provider_settings = provider_command
+
+            if stop_read:
+                from test_web_e2e import settings_models_browser
+
+                assert not received and not owner.tasks, "Fresh fixture must be inert"
+                try:
+                    await settings_models_browser(
+                        migrated_database_url, control_dir, tmp_path, scenario="settings-stop-read"
+                    )
+                    async with asyncio.timeout(15):
+                        while owner.tasks:
+                            await asyncio.sleep(0.01)
+                finally:
+                    witness = {
+                        "commands": [{"action": c.action, "operation_id": c.operation_id,
+                                      "entry_id": c.entry_id} for c in commands],
+                        "reads": stop_reads,
+                        "peer_requests": [first for first, _ in received],
+                        "peer_completed_models": peer_completed,
+                        "peer_handlers": len(tasks),
+                        "workers": [{"done": t.done(), "cancelled": t.cancelled()}
+                                    for t in owner.tasks],
+                        "settlement_failed": owner.settlement_failed,
+                    }
+                    # This runs before the fixture's drain, including a browser assertion failure.
+                    (tmp_path / "settings-stop-read-owner.json").write_text(json.dumps(witness, indent=2))
+                    print("SETTINGS_STOP_READ_OWNER " + json.dumps(witness), flush=True)
+                assert [c.action for c in commands if c.action != "read"] == ["start"]
+                assert [first for first, _ in received] == [
+                    "GET /api/v1/models?offset=0&limit=1000 HTTP/1.1",
+                    "GET /api/v1/models?offset=16&limit=1000 HTTP/1.1",
+                    "POST /api/v1/chat/completions HTTP/1.1",
+                ]
+                assert peer_completed == ["fixture/01"]
+                assert not owner.tasks and not owner.settlement_failed
+                browser = json.loads((tmp_path / "settings-stop-read.json").read_text())
+                start = next(c for c in commands if c.action == "start")
+                assert start.operation_id == browser["exact"]["operation_id"]
+                assert start.entry_id == browser["exact"]["entry_id"]
+                assert start.expected_generation == generation
+                exact = await owner.view(start.operation_id, entry=True)
+                latest = await owner.handle(ModelTestControl(
+                    op="entry_model_test", action="read", entry_id=start.entry_id,
+                ))
+                assert latest == exact
+                for key, value in browser["exact"].items():
+                    if key != "status":
+                        assert exact[key] == value, key
+                assert exact["state"] == "FINISHED" and exact["state_revision"] == 3
+                assert exact["result_state"] == exact["finish_reason"] == "COMPLETED"
+                assert exact["current"] is True
+                assert exact["entry_revision"] == exact["connection_revision"] == 1
+                assert exact["requested_model"] == "fixture/01" and exact["requested_output_tokens"] == 64
+                async with engine.connect() as db:
+                    assert (await settings.selection(db)) is None
+                    assert (await db.execute(text("SELECT count(*) FROM provider_model_entry"))).scalar_one() == 2
+                    assert (await db.execute(text("SELECT count(*) FROM system_operation"))).scalar_one() == 1
+                    assert (await db.execute(text("SELECT count(*) FROM model_dispatch_event_v2 WHERE state='SENT'"))).scalar_one() == 1
+                return
 
             if cancel_probe:
                 from test_web_e2e import settings_models_browser

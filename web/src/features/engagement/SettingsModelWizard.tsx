@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import { ApiError } from '../../shared/api/errors';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../shared/api/client';
@@ -26,6 +26,7 @@ export function SettingsModelWizard({ settings, library, provider, connection, c
   const [step, setStep] = useState(0);
   const [replacing, setReplacing] = useState(replace);
   const [chosen, setChosen] = useState<ModelDraft[]>([]);
+  const [providerChange, setProviderChange] = useState<{ next: Connection['provider']; source: Connection['provider']; chosen: ModelDraft[] } | null>(null);
   const [query, setQuery] = useState('');
   const [offset, setOffset] = useState(0);
   const [catalogId, setCatalogId] = useState<string | null>(null);
@@ -37,6 +38,7 @@ export function SettingsModelWizard({ settings, library, provider, connection, c
   const [notice, setNotice] = useState('');
   const [loading, setLoading] = useState(false);
   const keyInput = useRef<HTMLInputElement>(null);
+  const providerInput = useRef<HTMLSelectElement>(null);
   const alive = useRef(true);
   const busy = useRef(false);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -46,6 +48,7 @@ export function SettingsModelWizard({ settings, library, provider, connection, c
   const savedKey = !!connection?.enabled && !!connection.credential_present && !replacing;
   const locked = blocked || stale || settings.vault_status === 'LOCKED';
   const transient = working || loading;
+  useEffect(() => { if (providerChange && (step !== 0 || locked || providerChange.source !== provider || providerChange.chosen !== chosen)) setProviderChange(null); }, [providerChange, step, locked, provider, chosen]);
   const catalog = useQuery({ queryKey: ['private', 'settings-catalog', connection?.connection_id, connection?.revision, catalogId, query, offset],
     queryFn: ({ signal }) => readPrivate(() => api.providerCatalog({ action: 'search', connection_id: connection!.connection_id, connection_revision: connection!.revision, catalog_command_id: catalogId, query, offset }, session.data!.csrf_token, signal), signal),
     enabled: step > 0 && savedKey && !stale && !blocked && !loading && !!session.data, retry: false, gcTime: 0,
@@ -66,9 +69,18 @@ export function SettingsModelWizard({ settings, library, provider, connection, c
   function wipe() { if (keyInput.current) keyInput.current.value = ''; if (keyNode.current) keyNode.current.value = ''; setValidKey(false); }
   function chooseProvider(value: string) {
     if (transient || blocked || (value !== 'openrouter' && value !== 'orcarouter')) return;
-    if (chosen.length && !window.confirm('Discard selected models and change provider?')) return;
+    if (chosen.length) { setProviderChange({ next: value, source: provider, chosen }); return; }
+    changeProvider(value);
+  }
+  function changeProvider(value: Connection['provider']) {
+    setProviderChange(null);
     wipe(); changeConnection(value, settings.connections.find(item => item.provider === value)); setChosen([]); setQuery(''); setOffset(0); setCatalogId(null); setReplacing(false); setConsent(false); selectedMetadata.current.clear();
   }
+  function cancelProviderChange() {
+    const inside = document.activeElement?.closest('[aria-label="Provider change confirmation"]');
+    setProviderChange(null); if (inside) providerInput.current?.focus({ preventScroll: true });
+  }
+  function providerKeys(event: KeyboardEvent) { if (event.key === 'Escape') { event.stopPropagation(); cancelProviderChange(); } }
   async function load(connection: Connection) {
     const value = await refresh(connection);
     if (!alive.current || !value) return;
@@ -95,11 +107,12 @@ export function SettingsModelWizard({ settings, library, provider, connection, c
   }
   function add(model: string, name: string, verified: boolean) {
     const previous = library.entries.find(item => item.connection_id === connection?.connection_id && item.model === model);
-    if (locked || transient || chosen.some(item => item.model === model) || previous?.connection_revision === connection?.revision) return;
-    if (!previous && library.entries.length + chosen.filter(item => item.expected_revision === 0).length >= 64) { setNotice('The instance is limited to 64 configured models.'); return; }
+    if (locked || transient || chosen.some(item => item.model === model) || previous?.connection_revision === connection?.revision) return false;
+    if (!previous && library.entries.length + chosen.filter(item => item.expected_revision === 0).length >= 64) { setNotice('The instance is limited to 64 configured models.'); return false; }
     const detail = verified ? view?.entries.find(item => item.model === model) : undefined;
     if (detail && view?.catalog_command_id) selectedMetadata.current.set(model, { max_output_tokens: detail.max_output_tokens ?? null, supports_max_tokens: detail.supports_max_tokens ?? null, catalog: view.catalog_command_id });
     setChosen([...chosen, { entry_id: previous?.entry_id ?? crypto.randomUUID(), expected_revision: previous?.revision ?? 0, model, name, output_tokens: previous?.output_tokens ?? Math.min(detail?.max_output_tokens ?? 128, 128), known: verified }]); setConsent(false);
+    return true;
   }
   async function save(test: boolean) {
     if (locked || transient || busy.current || !connection || !chosen.length || chosen.some(item => !Number.isSafeInteger(item.output_tokens) || item.output_tokens < 1 || item.output_tokens > 65536) || (test && (generation === null || testGeneration === null || !canTest || !consent || testable.length !== chosen.length || !view?.catalog_command_id))) return;
@@ -116,9 +129,14 @@ export function SettingsModelWizard({ settings, library, provider, connection, c
     {stale && <p role="alert" className={styles.notice}>This connection changed or was disabled. Cancel and reopen to use its current revision.</p>}
     {notice && <p role="alert" className={styles.notice}>{notice}</p>}
     {step !== 1 && catalogFeedback}
-    {step === 0 && <><div className={styles.fields}><label className={styles.field}>Provider<select value={provider} disabled={blocked} aria-disabled={transient} onChange={event => chooseProvider(event.target.value)}><option value="openrouter">OpenRouter</option><option value="orcarouter">OrcaRouter</option></select></label>
+    {step === 0 && <><div className={styles.fields}><label className={styles.field}>Provider<select ref={providerInput} value={provider} disabled={blocked} aria-disabled={transient} onKeyDown={providerKeys} onChange={event => chooseProvider(event.target.value)}><option value="openrouter">OpenRouter</option><option value="orcarouter">OrcaRouter</option></select></label>
       {savedKey ? <div className={styles.field}><span>API key</span><span className={styles.saved}>Saved key</span></div> : <label className={styles.field}>API key<input ref={node => { keyInput.current = node; if (node) keyNode.current = node; }} type="password" name="secret" autoComplete="new-password" spellCheck={false} maxLength={512} disabled={locked} aria-disabled={transient} onChange={event => setValidKey(printable(event.target.value, 512))} /></label>}
-    </div><p className={styles.hint}>{savedKey ? 'Continue loads the catalog using your saved key.' : 'Continue saves this key locally and loads the catalog.'} Cancel discards model choices, not the saved key.</p></>}
+    </div><p className={styles.hint}>{savedKey ? 'Continue loads the catalog using your saved key.' : 'Continue saves this key locally and loads the catalog.'} Cancel discards model choices, not the saved key.</p>
+      {providerChange && <section className={styles.removeConfirmation} aria-label="Provider change confirmation">
+        <div><strong>Discard selected models?</strong><p>{providerName(providerChange.source)} → {providerName(providerChange.next)}</p><ul>{providerChange.chosen.map(item => <li key={item.model}>{item.model}</li>)}</ul></div>
+        <div className={styles.actions}><button type="button" className={styles.secondary} onKeyDown={providerKeys} onClick={cancelProviderChange}>Cancel</button><button type="button" className={styles.secondary} disabled={locked} aria-disabled={transient} onKeyDown={providerKeys} onClick={() => { if (!transient && !busy.current && step === 0 && providerChange.source === provider && providerChange.chosen === chosen) changeProvider(providerChange.next); }}>Change provider</button></div>
+      </section>}
+    </>}
     {step === 1 && <>
       <div className={styles.search}><label className={styles.field}>Search models<input type="search" value={query} placeholder="Search by name or exact model ID" onChange={event => { if (Array.from(event.target.value).length <= 256) { setQuery(event.target.value); setOffset(0); } }} /></label><button type="button" className={styles.secondary} disabled={locked || !savedKey} aria-disabled={transient || view?.state === 'PENDING'} onClick={() => { if (!transient && view?.state !== 'PENDING' && connection) { setLoading(true); void load(connection).finally(() => { if (alive.current) setLoading(false); }); } }}>Refresh</button></div>
       {catalogFeedback || <div className={styles.catalogStatus}><output aria-live="polite">{loading || catalog.isFetching || view?.state === 'PENDING' ? 'Loading models…' : catalog.isError || view?.state === 'FAILED' ? 'Models could not be loaded. Refresh the list or enter an exact model ID.' : view?.state === 'STALE' ? 'This model list is out of date. Refresh it before connecting.' : !view || view.state === 'NOT_REQUESTED' ? 'Load models with Refresh, or enter an exact model ID.' : `${view.total} matching models · showing ${view.entries.length ? offset + 1 : 0}–${offset + view.entries.length}${view.state === 'PARTIAL' ? '. Some models could not be loaded.' : ''}`}</output>
@@ -127,23 +145,22 @@ export function SettingsModelWizard({ settings, library, provider, connection, c
       {view && ['READY', 'PARTIAL'].includes(view.state) && !view.entries.length && <p>No matching models.</p>}
       <ul className={`${styles.list} ${styles.catalog}`} aria-label="Provider models" aria-busy={loading || catalog.isFetching || view?.state === 'PENDING'}>{!catalog.isError && view && ['READY', 'PARTIAL'].includes(view.state) && view.entries.map(item => {
         const previous = library.entries.find(entry => entry.connection_id === connection?.connection_id && entry.model === item.model), added = !!previous && previous.connection_revision === connection?.revision, selected = chosen.some(entry => entry.model === item.model);
-        return <li key={item.model} className={styles.row}><div className={styles.identity}><strong>{item.name ?? item.model}</strong><small className={styles.mono}>{item.model}</small>{!supports(item, 1) && <small>Details unavailable for testing</small>}</div><button type="button" className={styles.secondary} disabled={locked || added || selected} aria-label={`${added ? 'Added' : selected ? 'Selected' : previous ? 'Update' : 'Add'} ${item.model}`} onClick={() => add(item.model, item.name ?? item.model, true)}>{added ? 'Added' : selected ? 'Selected' : previous ? 'Update' : '+ Add'}</button></li>;
+        return <li key={item.model} className={styles.row}><div className={styles.identity}><strong>{item.name ?? item.model}</strong><small className={styles.mono}>{item.model}</small>{!supports(item, 1) && <small>Details unavailable for testing</small>}</div><button type="button" className={styles.secondary} disabled={locked || added || selected} aria-disabled={transient} aria-busy={transient} aria-label={`${added ? 'Added' : selected ? 'Selected' : previous ? 'Update' : 'Add'} ${item.model}`} onClick={() => add(item.model, item.name ?? item.model, true)}>{added ? 'Added' : selected ? 'Selected' : previous ? 'Update' : '+ Add'}</button></li>;
       })}</ul>
       <div className={styles.actions}><button type="button" className={styles.secondary} disabled={offset === 0 || catalog.isFetching} onClick={() => setOffset(Math.max(0, offset - 16))}>Previous results</button><button type="button" className={styles.secondary} disabled={view?.next_offset == null || catalog.isFetching} onClick={() => { if (view?.next_offset != null) setOffset(view.next_offset); }}>Next results</button></div>
       <ul className={styles.chips} aria-label="Selected models">{chosen.map(item => <li key={item.model}><span>{item.name}</span><button type="button" aria-label={`Remove selected ${item.model}`} onClick={() => { setChosen(chosen.filter(value => value.model !== item.model)); setConsent(false); }}>×</button></li>)}</ul>
-      <details><summary>Enter a model ID</summary><div className={styles.search}><label className={styles.field}>Exact model ID<input value={manual} maxLength={256} autoComplete="off" onChange={event => setManual(event.target.value)} /></label><button type="button" className={styles.secondary} disabled={locked} onClick={() => { if (!printable(manual, 256)) { setNotice('Use the exact printable ASCII model ID, without spaces (maximum 256 characters).'); return; } add(manual, manual, false); setManual(''); }}>Add model ID</button></div><p className={styles.hint}>Saved as UNVERIFIED. No access, capability or inference claim is made.</p></details>
+      <details><summary>Enter a model ID</summary><div className={styles.search}><label className={styles.field}>Exact model ID<input value={manual} maxLength={256} autoComplete="off" onChange={event => setManual(event.target.value)} /></label><button type="button" className={styles.secondary} disabled={locked} aria-disabled={transient} aria-busy={transient} onClick={() => { if (locked || transient) return; if (!printable(manual, 256)) { setNotice('Use the exact printable ASCII model ID, without spaces (maximum 256 characters).'); return; } if (add(manual, manual, false)) setManual(''); }}>Add model ID</button></div><p className={styles.hint}>Saved as UNVERIFIED. No access, capability or inference claim is made.</p></details>
     </>}
     {step === 2 && <><p>{providerName(provider)} · Saved key</p><ul className={`${styles.list} ${styles.review}`}>{chosen.map(item => <li key={item.model} className={styles.row}><div className={styles.identity}><strong>{item.name}</strong><small className={styles.mono}>{item.model}</small><small>{item.known ? 'Not tested' : 'UNVERIFIED — manual model ID'}</small></div></li>)}</ul>
       <p className={styles.hint}>{settings.selection ? 'Default and role overrides stay unchanged.' : 'No Default assigned. Save assignments after adding models.'}</p>
       {testable.length !== chosen.length && <p className={styles.hint}>Some model details are unavailable. Save models now; connect after refreshing their details.</p>}
-      <label className={styles.check}><input type="checkbox" checked={consent} disabled={locked || generation === null || testGeneration === null || !canTest || testable.length !== chosen.length} onChange={event => setConsent(event.target.checked)} />I approve the fixed synthetic input and up to {chosen.length} {chosen.length === 1 ? 'call' : 'calls'}, one per listed model via {providerName(provider)}. Provider charges may apply.</label>
+      <label className={styles.check}><input type="checkbox" checked={consent} disabled={locked || generation === null || testGeneration === null || !canTest || testable.length !== chosen.length} onChange={event => setConsent(event.target.checked)} />{chosen.length === 1 ? 'I approve using this model.' : 'I approve using these models.'}</label>
       {!canTest && <p className={styles.hint}>A test is active or unconfirmed. Cancel and readback remain available outside this wizard.</p>}
-      <p className={styles.hint}>One call / 300 seconds, no tools or target traffic. Cancel is not a refund.</p>
-      <details><summary>Fixed input</summary><p>Respond only with OMNIS_MODEL_TEST_OK. Use no tools.</p><p>This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.</p></details>
+      <p className={styles.hint}>Provider charges may apply.</p>
       <details><summary>Output controls</summary><p className={styles.hint}>Output caps are not a total run budget.</p><div className={styles.fields}>{chosen.map(item => <label className={styles.field} key={item.model}>{item.model} output tokens<input type="number" min={1} max={65536} step={1} value={item.output_tokens} onChange={event => { setChosen(chosen.map(value => value.model === item.model ? { ...value, output_tokens: Number(event.target.value) } : value)); setConsent(false); }} /></label>)}</div></details>
     </>}
     <div className={styles.actions}>{step > 0 && <button type="button" className={styles.secondary} aria-disabled={transient} onClick={() => { if (!transient) setStep(step - 1); }}>Back</button>}<div className={styles.forward}>
-      {step < 2 ? <button type="button" disabled={locked || (step === 0 && !savedKey && !validKey && !transient) || (step === 1 && !chosen.length)} aria-disabled={transient} aria-busy={transient} onClick={() => { void next(); }}>Continue</button> : <><button type="button" className={styles.secondary} disabled={locked || !chosen.length || chosen.some(item => !Number.isSafeInteger(item.output_tokens) || item.output_tokens < 1 || item.output_tokens > 65536)} aria-disabled={transient} onClick={() => { void save(false); }}>Save models</button><button type="button" disabled={locked || generation === null || testGeneration === null || !canTest || !consent || testable.length !== chosen.length} aria-disabled={transient} onClick={() => { void save(true); }}>Save &amp; connect</button></>}
+      {step < 2 ? <button type="button" disabled={locked || (step === 0 && !savedKey && !validKey && !transient) || (step === 1 && !chosen.length)} aria-disabled={transient} aria-busy={transient} onClick={() => { void next(); }}>Continue</button> : <><button type="button" className={styles.secondary} disabled={locked || !chosen.length || chosen.some(item => !Number.isSafeInteger(item.output_tokens) || item.output_tokens < 1 || item.output_tokens > 65536)} aria-disabled={transient} aria-busy={transient} onClick={() => { void save(false); }}>Save models</button><button type="button" disabled={locked || generation === null || testGeneration === null || !canTest || !consent || testable.length !== chosen.length} aria-disabled={transient} aria-busy={transient} onClick={() => { void save(true); }}>Save &amp; connect</button></>}
     </div></div>
   </div></section>;
 }

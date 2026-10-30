@@ -1,10 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { health, instance, session } from '../../tests/fixtures';
 import { configured, connection as savedConnection, settingsBackend } from '../../tests/settings-fixtures';
+import { remember, sessionScope, testStorage } from '../features/engagement/SettingsModels';
 
 const connectionId = '11111111-1111-4111-8111-111111111111';
 const entryId = '22222222-2222-4222-8222-222222222222';
@@ -40,14 +42,69 @@ function backend(options: { empty?: boolean; lost?: boolean } = {}) {
 }
 function mount() { return render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>); }
 beforeEach(() => { sessionStorage.clear(); writes = []; });
-it('offers Remove only in expanded details and names exact confirmation without sending on cancel', async () => {
-  backend(); vi.spyOn(window, 'confirm').mockReturnValue(false); mount();
+it.each(['Skills', 'Runtime & data'])('activates %s and Models navigation, wiping unsent secrets without resuming work', async destination => {
+  const user = userEvent.setup(), { state, hook } = settingsBackend();
+  hook.intercept = path => path === '/api/v1/settings/catalog' ? Response.json({ items: [], has_more: false, next_after: null }) : undefined;
+  mount(); await screen.findByRole('region', { name: 'Configured models' });
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled());
+  fireEvent.click(screen.getByRole('button', { name: 'Add models' }));
+  fireEvent.change(screen.getByRole('combobox', { name: 'Provider' }), { target: { value: 'orcarouter' } });
+  const key = screen.getByLabelText('API key'); fireEvent.change(key, { target: { value: 'synthetic-unsent-navigation' } });
+  const nav = within(screen.getByRole('navigation', { name: 'Settings navigation' }));
+  nav.getByRole('link', { name: destination }).focus(); await user.keyboard('{Enter}');
+  await screen.findByRole('heading', { name: destination === 'Skills' ? 'Published catalog' : 'Runtime & data' });
+  expect(nav.getByRole('link', { name: destination })).toHaveAttribute('aria-current', 'page');
+  expect(key).toHaveValue(''); expect(key).not.toBeInTheDocument();
+  nav.getByRole('link', { name: 'Models' }).focus(); await user.keyboard('{Enter}');
+  await screen.findByRole('region', { name: 'Configured models' });
+  expect(nav.getByRole('link', { name: 'Models' })).toHaveAttribute('aria-current', 'page');
+  expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('region', { name: 'Test consent' })).not.toBeInTheDocument();
+  expect(JSON.stringify(sessionStorage)).not.toContain('synthetic-unsent-navigation');
+  expect(state.keys).toEqual(configured); expect(state.entries).toEqual([entry]); expect(state.writes).toEqual([]);
+});
+it('opens inline Remove without effects and cancels by button or Escape with focus restored', async () => {
+  const { state } = settingsBackend(); const confirm = vi.spyOn(window, 'confirm'); mount();
   await screen.findByRole('region', { name: 'Configured models' });
   expect(screen.queryByRole('button', { name: 'Remove Exact/Model via OpenRouter' })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Details for Exact/Model via OpenRouter' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' }));
-  expect(window.confirm).toHaveBeenCalledWith('Remove Exact/Model via OpenRouter? Saved history remains.');
-  expect(writes).toEqual([]);
+  const remove = screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' });
+  await waitFor(() => expect(remove).toHaveAttribute('aria-disabled', 'false'));
+  for (const escape of [false, true]) {
+    remove.focus(); fireEvent.click(remove);
+    const confirmation = screen.getByRole('region', { name: 'Remove model confirmation' });
+    expect(confirmation).toHaveTextContent('Exact/Model · OpenRouter');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    const cancel = within(confirmation).getByRole('button', { name: 'Cancel' }); cancel.focus();
+    if (escape) fireEvent.keyDown(cancel, { key: 'Escape' }); else fireEvent.click(cancel);
+    expect(screen.queryByRole('region', { name: 'Remove model confirmation' })).not.toBeInTheDocument();
+    expect(remove).toHaveFocus();
+  }
+  expect(confirm).not.toHaveBeenCalled(); expect(state.writes).toEqual([]);
+});
+it.each(['registry', 'entry', 'assignment', 'unknown', 'active', 'collapse', 'unmount'] as const)('refuses old inline Remove consent after %s changes', async change => {
+  const { state } = settingsBackend(); const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const mounted = render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>);
+  const toggle = await screen.findByRole('button', { name: 'Details for Exact/Model via OpenRouter' }); fireEvent.click(toggle);
+  const remove = screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' });
+  await waitFor(() => expect(remove).toHaveAttribute('aria-disabled', 'false')); fireEvent.click(remove);
+  const confirmation = screen.getByRole('region', { name: 'Remove model confirmation' });
+  const confirm = within(confirmation).getByRole('button', { name: 'Remove' });
+  const elsewhere = screen.getByRole('link', { name: 'Models' }); elsewhere.focus();
+  if (change === 'collapse') { fireEvent.click(toggle); fireEvent.click(toggle); expect(screen.queryByRole('region', { name: 'Remove model confirmation' })).not.toBeInTheDocument(); }
+  else if (change === 'unmount') mounted.unmount();
+  else {
+    const query = client.getQueryCache().findAll({ queryKey: ['private', 'settings-model-library'] })[0]!;
+    // Change the real cached projection, not the confirmation snapshot.
+    await act(async () => { client.setQueryData(query.queryKey, (value: { library: { revision: number; entries: typeof entry[] }; settings: typeof configured; checks: Record<string, unknown> }) => ({ ...value,
+      library: { ...value.library, revision: value.library.revision + (change === 'registry' ? 1 : 0), entries: change === 'entry' ? [{ ...entry, revision: 2 }] : value.library.entries },
+      settings: change === 'assignment' ? { ...value.settings, selection: { selection_id: entryId, revision: 1, default: { connection_id: connectionId, connection_revision: 1, model: entry.model, output_tokens: 512 }, brain: null, investigator: null, validator: null } } : value.settings,
+      checks: change === 'unknown' ? { [entryId]: 'UNKNOWN' } : change === 'active' ? { [entryId]: { operation_id: catalogId, entry_id: entryId, state: 'RUNNING', state_revision: 2 } } : value.checks,
+    })); });
+  }
+  fireEvent.click(confirm);
+  if (change !== 'unmount') expect(elsewhere).toHaveFocus();
+  expect(state.writes).toEqual([]);
 });
 it('opens on persisted models, not a wizard, and does not invent a persisted default', async () => {
   backend(); mount();
@@ -62,7 +119,6 @@ it('opens on persisted models, not a wizard, and does not invent a persisted def
 });
 it.each([false, true])('persists Remove with exact receipt and no resend on lost reply=%s', async lost => {
   const { state, hook } = settingsBackend();
-  vi.spyOn(window, 'confirm').mockReturnValue(true);
   hook.intercept = (_path, body, method): Response | undefined => {
     if (!lost || method !== 'PUT' || body.action !== 'remove_model') return undefined;
     state.entries = []; state.revision += 1;
@@ -73,6 +129,8 @@ it.each([false, true])('persists Remove with exact receipt and no resend on lost
   fireEvent.click(screen.getByRole('button', { name: 'Details for Exact/Model via OpenRouter' }));
   await waitFor(() => expect(screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' })).toHaveAttribute('aria-disabled', 'false'));
   fireEvent.click(screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' }));
+  const confirm = within(screen.getByRole('region', { name: 'Remove model confirmation' })).getByRole('button', { name: 'Remove' });
+  fireEvent.click(confirm); fireEvent.click(confirm);
   if (lost) { fireEvent.click(await screen.findByRole('button', { name: 'Recover exact receipt' })); }
   await screen.findByText('No models configured.');
   expect(state.writes).toHaveLength(1);
@@ -83,7 +141,6 @@ it.each([false, true])('persists Remove with exact receipt and no resend on lost
 });
 it.each([[false, false], [false, true], [true, false], [true, true]])('keeps or restores focus after Remove lost=%s moved=%s', async (lost, moved) => {
   const { state, hook } = settingsBackend();
-  vi.spyOn(window, 'confirm').mockReturnValue(true);
   let release = () => {}, held = false;
   const gate = new Promise<void>(resolve => { release = resolve; });
   hook.intercept = async (path, body, method) => {
@@ -100,6 +157,8 @@ it.each([[false, false], [false, true], [true, false], [true, true]])('keeps or 
   const remove = screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' });
   await waitFor(() => expect(remove).toHaveAttribute('aria-disabled', 'false'));
   remove.focus(); fireEvent.click(remove);
+  const confirm = within(screen.getByRole('region', { name: 'Remove model confirmation' })).getByRole('button', { name: 'Remove' });
+  confirm.focus(); fireEvent.click(confirm);
   if (lost) { const recover = await screen.findByRole('button', { name: 'Read current state' }); recover.focus(); fireEvent.click(recover); }
   await waitFor(() => expect(held).toBe(true));
   const reload = screen.getByRole('link', { name: 'Models' });
@@ -130,6 +189,8 @@ it('groups quiet reload with Add models and confirms a read without writes', asy
   expect(within(actions).getAllByRole('button').map(button => button.textContent)).toEqual(['Reload', 'Add models']);
   fireEvent.click(within(actions).getByRole('button', { name: 'Reload current settings' }));
   await screen.findByText('Settings reloaded.');
+  fireEvent.click(screen.getByRole('button', { name: 'Dismiss notification' }));
+  expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
   expect(writes).toEqual([]);
 });
 it('expires confirmations but retains actionable uncertainty and its inline state', async () => {
@@ -152,10 +213,56 @@ it('expires confirmations but retains actionable uncertainty and its inline stat
     expect(screen.getByText('Save unconfirmed. Recover the exact receipt before another mutation.')).toBeVisible();
   } finally { vi.useRealTimers(); }
 });
-it('shows passive feedback only where it does not cover controls or focus', async () => {
-  backend(); let collision = false;
+it.each(['blur', 'another control'] as const)('pauses notification expiry during focus and resumes only remaining time after %s', async exit => {
+  backend(); const mounted = mount(); await screen.findByRole('region', { name: 'Configured models' });
+  vi.useFakeTimers();
+  try {
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' })); await vi.advanceTimersByTimeAsync(50); });
+    const feedback = screen.getByRole('complementary', { name: 'Settings notification' });
+    const dismiss = within(feedback).getByRole('button', { name: 'Dismiss notification' });
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
+    dismiss.focus(); expect(dismiss).toHaveFocus();
+    await act(async () => { await vi.advanceTimersByTimeAsync(6000); });
+    expect(dismiss).toHaveFocus(); expect(feedback).toBeVisible();
+    const elsewhere = screen.getByRole('link', { name: 'Models' });
+    await act(async () => { if (exit === 'blur') dismiss.blur(); else elsewhere.focus(); });
+    expect(exit === 'blur' ? document.body : elsewhere).toHaveFocus();
+    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
+    expect(feedback).toBeVisible();
+    await act(async () => { await vi.advanceTimersByTimeAsync(600); });
+    expect(feedback).not.toBeInTheDocument();
+    expect(exit === 'blur' ? document.body : elsewhere).toHaveFocus();
+  } finally { vi.useRealTimers(); mounted.unmount(); }
+});
+it('does not hide a focused notification when repositioning has no safe space', async () => {
+  backend(); let blocked = false;
+  vi.stubGlobal('innerHeight', 1000);
   vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
-    if (this.matches('aside')) return new DOMRect(700, 900, 280, 52);
+    if (this.tagName === 'ASIDE') return new DOMRect(700, 900 - (parseFloat(this.style.bottom || '16') - 16), 280, 52);
+    if (blocked && this.getAttribute('aria-label') === 'Reload current settings') return new DOMRect(0, 0, 1000, 1000);
+    return new DOMRect(0, 0, 0, 0);
+  });
+  const mounted = mount(); await screen.findByRole('region', { name: 'Configured models' }); vi.useFakeTimers();
+  try {
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' })); await vi.advanceTimersByTimeAsync(50); });
+    const feedback = screen.getByRole('complementary', { name: 'Settings notification' });
+    const dismiss = within(feedback).getByRole('button', { name: 'Dismiss notification' }); dismiss.focus();
+    const bottom = feedback.style.bottom;
+    blocked = true; fireEvent(window, new Event('resize'));
+    expect(feedback.style.bottom).toBe(bottom);
+    expect(feedback).toBeVisible(); expect(dismiss).toHaveFocus();
+    await act(async () => { await vi.advanceTimersByTimeAsync(6000); });
+    expect(feedback).toBeVisible(); expect(dismiss).toHaveFocus();
+    await act(async () => { dismiss.blur(); }); expect(feedback).not.toBeVisible();
+    blocked = false; fireEvent(window, new Event('resize')); expect(feedback).toBeVisible();
+    await act(async () => { await vi.advanceTimersByTimeAsync(5001); }); expect(feedback).not.toBeInTheDocument();
+  } finally { vi.useRealTimers(); mounted.unmount(); }
+});
+it('moves passive feedback above a collision without hiding it or stealing focus', async () => {
+  backend(); let collision = false;
+  vi.stubGlobal('innerHeight', 1000);
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+    if (this.tagName === 'ASIDE') return new DOMRect(700, 900 - (parseFloat(this.style.bottom || '16') - 16), 280, 52);
     if (this.matches('main')) return new DOMRect(0, 0, 1000, 1000);
     if (collision && this.getAttribute('aria-label') === 'Reload current settings') return new DOMRect(750, 910, 100, 44);
     return new DOMRect(0, 0, 0, 0);
@@ -164,22 +271,114 @@ it('shows passive feedback only where it does not cover controls or focus', asyn
   fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
   const feedback = await screen.findByRole('complementary', { name: 'Settings notification' });
   expect(feedback).toBeVisible();
-  collision = true; fireEvent(window, new Event('resize')); expect(feedback).not.toBeVisible();
+  const elsewhere = screen.getByRole('link', { name: 'Models' }); elsewhere.focus();
+  collision = true; await waitFor(() => { fireEvent(window, new Event('resize')); expect(parseFloat(feedback.style.bottom)).toBeGreaterThan(16); });
+  expect(feedback).toBeVisible(); expect(elsewhere).toHaveFocus();
   collision = false; fireEvent(window, new Event('scroll')); expect(feedback).toBeVisible();
   expect(writes).toEqual([]);
 });
-it('keeps actionable save recovery inline after dismissing the compact feedback', async () => {
+it.each(['label', 'hint', 'page heading', 'section heading', 'provider heading', 'model identity', 'model status', 'provider status', 'saved key'] as const)('keeps assignment %s text clear of passive feedback after blur', async target => {
+  settingsBackend(configured, [entry, { ...entry, entry_id: catalogId, model: 'Other/Model' }], [metadata, { ...metadata, model: 'Other/Model' }]);
+  let obstacle: HTMLElement | null = null;
+  vi.stubGlobal('innerHeight', 1000);
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+    if (this.tagName === 'ASIDE') return new DOMRect(116, 919 - (parseFloat(this.style.bottom || '16') - 16), 188, 51);
+    return this === obstacle ? new DOMRect(80, 930, 220, 22) : new DOMRect(0, 0, 0, 0);
+  });
+  mount(); await screen.findByRole('region', { name: 'Configured models' });
+  fireEvent.click(screen.getByRole('button', { name: 'Save assignments' }));
+  const feedback = await screen.findByRole('complementary', { name: 'Settings notification' });
+  const dismiss = within(feedback).getByRole('button', { name: 'Dismiss notification' }); dismiss.focus();
+  if (target === 'saved key') fireEvent.click(screen.getByRole('button', { name: 'Add models' }));
+  obstacle = target === 'label' ? screen.getByText('Default model', { selector: 'label' })
+    : target === 'hint' ? screen.getByText('For future runs. Existing runs keep their pinned settings.')
+    : target === 'page heading' ? screen.getByRole('heading', { name: 'Settings', level: 1 })
+    : target === 'section heading' ? screen.getByRole('heading', { name: 'Models', level: 2 })
+    : target === 'provider heading' ? screen.getByRole('heading', { name: 'OpenRouter', level: 3 })
+    : target === 'model identity' ? within(screen.getByRole('listitem', { name: 'Model Exact/Model via OpenRouter' })).getByText('Exact model').parentElement!
+    : target === 'model status' ? screen.getAllByText('Not tested')[0]!
+    : screen.getByText(target === 'provider status' ? 'Key saved' : 'Saved key');
+  expect(obstacle).not.toBeNull(); dismiss.focus();
+  fireEvent(window, new Event('resize')); expect(feedback.style.bottom).toBe(''); expect(dismiss).toHaveFocus();
+  await act(async () => { dismiss.blur(); });
+  expect(feedback).toBeVisible();
+  expect(feedback.getBoundingClientRect().bottom).toBeLessThanOrEqual(obstacle.getBoundingClientRect().top - 4);
+  expect(document.body).toHaveFocus();
+});
+it('does not expire a notification while no safe viewport position is available', async () => {
+  backend(); let blocked = true;
+  vi.stubGlobal('innerHeight', 1000);
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+    if (this.tagName === 'ASIDE') return new DOMRect(700, 900 - (parseFloat(this.style.bottom || '16') - 16), 280, 52);
+    if (blocked && this.getAttribute('aria-label') === 'Reload current settings') return new DOMRect(0, 0, 1000, 1000);
+    return new DOMRect(0, 0, 0, 0);
+  });
+  mount(); await screen.findByRole('region', { name: 'Configured models' }); vi.useFakeTimers();
+  try {
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' })); await vi.advanceTimersByTimeAsync(50); });
+    const feedback = screen.getByLabelText('Settings notification'); expect(feedback).not.toBeVisible();
+    await act(async () => { await vi.advanceTimersByTimeAsync(6000); }); expect(feedback).toBeInTheDocument();
+    blocked = false; fireEvent(window, new Event('resize')); expect(feedback).toBeVisible();
+    await act(async () => { await vi.advanceTimersByTimeAsync(5001); }); expect(feedback).not.toBeInTheDocument();
+  } finally { vi.useRealTimers(); }
+});
+it('keeps actionable save recovery local without a duplicate error notification', async () => {
   backend({ empty: true, lost: true }); mount(); await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled());
   fireEvent.click(screen.getByRole('button', { name: 'Add models' })); fireEvent.change(screen.getByLabelText('API key'), { target: { value: 'synthetic-only' } });
   fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
-  const feedback = await screen.findByRole('complementary', { name: 'Settings notification' });
-  expect(feedback).toHaveTextContent('Settings need attention.'); expect(feedback).not.toHaveTextContent(/Command|Recover the exact|No success/);
-  expect(within(feedback).getAllByRole('button')).toHaveLength(1);
-  fireEvent.click(within(feedback).getByRole('button', { name: 'Dismiss notification' }));
-  const recovery = screen.getByRole('region', { name: 'Settings recovery' });
+  const recovery = await screen.findByRole('region', { name: 'Settings recovery' });
+  expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
   expect(recovery).toHaveTextContent('Save unconfirmed. Recover the exact receipt before another mutation.');
   expect(within(recovery).getByRole('button', { name: 'Read current state' })).toBeEnabled();
   expect(screen.getByRole('button', { name: 'Recover exact receipt' })).toBeEnabled(); expect(writes).toHaveLength(1);
+});
+it('keeps the completed check Connected during an assignment-only save receipt', async () => {
+  const { state, hook } = settingsBackend();
+  const id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  const completed = {
+    schema_version: 2, operation_id: id, state: 'FINISHED', state_revision: 3, finish_reason: 'COMPLETED', selection_revision: null,
+    metadata_command_id: null, metadata_state: 'NOT_REQUESTED', reason: null, requested_provider: 'openrouter', requested_model: entry.model, requested_output_tokens: entry.output_tokens,
+    observed_model: entry.model, provider_status: null, result_state: 'COMPLETED', output_state: 'COMPLETE', response_text: 'OMNIS_MODEL_TEST_OK', usage_state: 'UNKNOWN', input_tokens: null, output_tokens: null, reasoning_tokens: null, cost_observed: null,
+    system_message: 'Respond only with OMNIS_MODEL_TEST_OK. Use no tools.', user_message: 'This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.', calls_limit: 1, wall_seconds: 300,
+    entry_id: entry.entry_id, entry_revision: entry.revision, connection_id: entry.connection_id, connection_revision: entry.connection_revision, current: true,
+  };
+  let held = false, release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async path => {
+    if (path.includes('/entries/latest/') || path === '/api/v1/model-test/entries/' + id) return Response.json(completed);
+    if (path.includes('/providers/commands/')) { held = true; await gate; }
+    return undefined;
+  };
+  remember(testStorage, await sessionScope(session.csrf_token), id);
+  const mounted = mount();
+  try {
+    await screen.findByText('Connected');
+    fireEvent.click(within(screen.getByRole('region', { name: 'Model assignments' })).getByRole('button', { name: 'Save assignments' }));
+    await waitFor(() => expect(held).toBe(true));
+    expect(state.writes.map(write => write.body.action)).toEqual(['save_selection']);
+    const row = within(screen.getByRole('listitem', { name: 'Model Exact/Model via OpenRouter' }));
+    expect(row.queryByText('Connecting', { exact: true })).not.toBeInTheDocument();
+    expect(row.getByText('Connected', { exact: true })).toBeVisible();
+    await act(async () => { release(); await gate; });
+    await screen.findByText('Assignments saved.');
+    expect(row.getByText('Connected', { exact: true })).toBeVisible();
+    expect(state.writes.map(write => write.body.action)).toEqual(['save_selection']);
+  } finally { release(); mounted.unmount(); }
+});
+it('keeps assignment drafts quiet and lost-save recovery beside assignments without a success claim', async () => {
+  const { state, hook } = settingsBackend();
+  hook.intercept = (_path, body, method) => { if (method === 'PUT' && body.action === 'save_selection') throw new TypeError('SOURCE lost save'); return undefined; };
+  mount(); const panel = await screen.findByRole('region', { name: 'Model assignments' });
+  fireEvent.click(within(panel).getByText('Output controls'));
+  fireEvent.change(screen.getByLabelText('Default output tokens'), { target: { value: '128' } });
+  expect(within(panel).getByText('Unsaved assignments.')).toBeVisible();
+  expect(screen.queryByRole('region', { name: 'Settings recovery' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
+  fireEvent.click(within(panel).getByRole('button', { name: 'Save assignments' }));
+  expect(await within(panel).findByRole('region', { name: 'Settings recovery' })).toHaveTextContent('Save unconfirmed');
+  expect(screen.getAllByRole('region', { name: 'Settings recovery' })).toHaveLength(1);
+  expect(screen.queryByText('Assignments saved.')).not.toBeInTheDocument();
+  expect(state.writes).toHaveLength(1);
 });
 it('uses the saved key without a password field or key resubmission; Back preserves selection', async () => {
   backend(); mount();
@@ -199,11 +398,11 @@ it('lost connection save wipes the DOM secret and recovery never starts a fresh 
   const key = screen.getByLabelText('API key');
   fireEvent.change(key, { target: { value: 'synthetic-only-secret' } });
   fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
-  await within(screen.getByRole('region', { name: 'Settings recovery' })).findByText(/Save unconfirmed/); expect(key).toHaveValue('');
+  await within(await screen.findByRole('region', { name: 'Settings recovery' })).findByText(/Save unconfirmed/); expect(key).toHaveValue('');
   fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   mounted.unmount(); mount();
   fireEvent.click(await screen.findByRole('button', { name: 'Recover exact receipt' }));
-  await screen.findByText(/Exact receipt recovered/);
+  await screen.findByText('Settings recovered.');
   expect(writes).toHaveLength(1); expect(writes[0]!.path).toMatch(/providers$/);
   expect(JSON.stringify(sessionStorage)).not.toContain('synthetic-only-secret');
 });
@@ -226,15 +425,14 @@ it.each(['openrouter', 'orcarouter'] as const)('direct test consent names the ex
   expect(consent).toHaveTextContent(`${providerLabel} · ${model}`);
   expect(within(consent).getByText(model, { exact: true })).toBeVisible();
   expect(consent).toHaveTextContent('Provider charges may apply.');
-  expect(within(consent).getByRole('checkbox')).not.toBeChecked();
+  expect(within(consent).getByRole('checkbox', { name: 'I approve using this model.' })).not.toBeChecked();
   expect(within(consent).getByRole('button', { name: 'Send model test' })).toBeDisabled();
-  expect(screen.getByText('Fixed input').closest('details')).not.toHaveAttribute('open');
-  fireEvent.click(screen.getByText('Fixed input'));
-  expect(screen.getByText('Respond only with OMNIS_MODEL_TEST_OK. Use no tools.')).toBeVisible();
-  expect(screen.getByText('This is a synthetic local settings test. Reply with OMNIS_MODEL_TEST_OK.')).toBeVisible();
+  expect(consent).not.toHaveTextContent(/Fixed input|300 seconds|No tools|refund|OMNIS_MODEL_TEST_OK/);
   fireEvent.click(within(consent).getByRole('checkbox'));
   expect(within(consent).getByRole('button', { name: 'Send model test' })).toBeEnabled();
   fireEvent.click(within(consent).getByRole('button', { name: 'Cancel' }));
+  fireEvent.click(test);
+  expect(screen.getByRole('checkbox', { name: 'I approve using this model.' })).not.toBeChecked();
   expect(state.writes).toHaveLength(0);
 });
 it('keeps single-model output controls secondary before assignment confirmation', async () => {

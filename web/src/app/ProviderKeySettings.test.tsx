@@ -5,7 +5,41 @@ import { beforeEach, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { configured, connection, empty, entry, entryId, selected, settingsBackend } from '../../tests/settings-fixtures';
 
-beforeEach(() => { sessionStorage.clear(); vi.stubGlobal('confirm', vi.fn(() => true)); });
+beforeEach(() => { sessionStorage.clear(); });
+it.each([
+  ['default', 'Default model', 'Default', 131],
+  ['brain', 'Brain', 'Brain', 137],
+  ['investigator', 'Investigator', 'Investigator', 139],
+  ['validator', 'Validator', 'Validator', 149],
+] as const)('saves only the explicitly edited %s picker and cap, with exact readback and independent peers', async (role, picker, label, cap) => {
+  const choices = { default: selected, brain: { ...selected, output_tokens: 37 }, investigator: { ...selected, output_tokens: 53 }, validator: { ...selected, output_tokens: 89 } };
+  const other = { ...entry, entry_id: '44444444-4444-4444-8444-444444444444', model: 'Other/Model' };
+  const { state } = settingsBackend({ ...configured, selection: { selection_id: entryId, revision: 1, ...choices } }, [entry, other], [entry, other].map(item => ({ model: item.model, max_output_tokens: 4096, supports_max_tokens: true })));
+  const mounted = mount(); await screen.findByLabelText(picker, { exact: true });
+  fireEvent.click(screen.getByText('Output controls'));
+  fireEvent.change(screen.getByLabelText(`${label} output tokens`), { target: { value: String(cap) } });
+  fireEvent.change(screen.getByLabelText(picker, { exact: true }), { target: { value: other.entry_id } });
+  const expected = { ...choices, [role]: { ...selected, model: other.model, output_tokens: cap } };
+  fireEvent.click(screen.getByRole('button', { name: 'Save assignments' }));
+  await waitFor(() => expect(state.keys.selection).toEqual({ selection_id: state.writes[0]!.body.command_id, revision: 2, ...expected }));
+  await screen.findByText('Assignments saved.');
+  expect(state.writes).toEqual([{ path: '/api/v1/settings/providers', body: { action: 'save_selection', command_id: expect.any(String), expected_revision: 1, ...expected } }]);
+  expect(state.reads).toContain('/api/v1/settings/providers/commands/' + String(state.writes[0]!.body.command_id));
+  mounted.unmount(); mount();
+  await waitFor(() => expect(screen.getByLabelText(picker, { exact: true })).toHaveValue(other.entry_id));
+  expect(screen.getByLabelText(`${label} output tokens`)).toHaveValue(cap);
+  for (const [peer, title] of [['default', 'Default'], ['brain', 'Brain'], ['investigator', 'Investigator'], ['validator', 'Validator']] as const) {
+    if (peer !== role) expect(screen.getByLabelText(`${title} output tokens`)).toHaveValue(choices[peer].output_tokens);
+  }
+  if (role !== 'default') {
+    fireEvent.change(screen.getByLabelText(picker, { exact: true }), { target: { value: '' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save assignments' }));
+    await waitFor(() => expect(state.keys.selection).toMatchObject({ revision: 3, ...choices, [role]: null }));
+    expect(state.writes[1]!.body).toMatchObject({ expected_revision: 2, ...choices, [role]: null });
+    await waitFor(() => expect(screen.getByLabelText(picker, { exact: true })).toHaveValue(''));
+  }
+  expect(state.writes.every(write => write.body.action === 'save_selection')).toBe(true);
+});
 function mount(client = new QueryClient({ defaultOptions: { queries: { retry: false } } })) { return render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>); }
 function rotatedSession() {
   const delegate = globalThis.fetch;
@@ -19,6 +53,39 @@ function rotatedSession() {
 async function open() { await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled()); fireEvent.click(screen.getByRole('button', { name: 'Add models' })); }
 async function next() { const button = screen.getByRole('button', { name: 'Continue' }); await waitFor(() => expect(button).not.toHaveAttribute('aria-disabled', 'true')); fireEvent.click(button); }
 const refuse = (code = 'REVISION_CONFLICT') => Response.json({ error: { code, correlation_id: entryId } }, { status: 409 });
+async function disable() {
+  fireEvent.click(screen.getByRole('button', { name: 'Disable connection' }));
+  fireEvent.click(within(screen.getByRole('region', { name: 'Connection confirmation' })).getByRole('button', { name: 'Disable connection' }));
+}
+it.each(['Replace key', 'Disable connection', 'Reconnect'])('confirms %s inline with Cancel/Escape and exact connection context', async action => {
+  const { state } = settingsBackend({ ...configured, connections: [{ ...connection, enabled: action !== 'Reconnect' }] });
+  mount(); await screen.findByRole('region', { name: 'Configured models' }); fireEvent.click(screen.getByText('Connection options'));
+  const trigger = screen.getByRole('button', { name: action });
+  for (const escape of [false, true]) {
+    trigger.focus(); fireEvent.click(trigger);
+    const confirmation = screen.getByRole('region', { name: 'Connection confirmation' }); expect(confirmation).toHaveTextContent('OpenRouter');
+    const cancel = within(confirmation).getByRole('button', { name: 'Cancel' }); cancel.focus();
+    if (escape) fireEvent.keyDown(cancel, { key: 'Escape' }); else fireEvent.click(cancel);
+    expect(trigger).toHaveFocus(); expect(state.writes).toEqual([]);
+  }
+  fireEvent.click(trigger);
+  const confirm = within(screen.getByRole('region', { name: 'Connection confirmation' })).getByRole('button', { name: action });
+  fireEvent.click(confirm); fireEvent.click(confirm);
+  if (action === 'Disable connection') {
+    await screen.findByText('Connection disabled');
+    expect(state.writes).toHaveLength(1); expect(state.writes[0]!.body).toMatchObject({ action: 'revoke_connection', connection_id: connection.connection_id, expected_revision: 1 });
+  } else { await screen.findByLabelText('API key'); expect(state.writes).toEqual([]); }
+});
+it('invalidates an open connection confirmation on revision change without stealing moved focus', async () => {
+  const { state } = settingsBackend(); mount(); await screen.findByRole('region', { name: 'Configured models' });
+  fireEvent.click(screen.getByText('Connection options')); fireEvent.click(screen.getByRole('button', { name: 'Disable connection' }));
+  const confirm = within(screen.getByRole('region', { name: 'Connection confirmation' })).getByRole('button', { name: 'Disable connection' });
+  const elsewhere = screen.getByRole('link', { name: 'Models' }); elsewhere.focus();
+  state.keys = { ...state.keys, connections: [{ ...connection, revision: 2 }] };
+  fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' })); await screen.findByText('Settings reloaded.');
+  expect(screen.queryByRole('region', { name: 'Connection confirmation' })).not.toBeInTheDocument();
+  fireEvent.click(confirm); expect(state.writes).toEqual([]); expect(elsewhere).toHaveFocus();
+});
 it('saves a write-only key once, verifies exact receipt, explicitly refreshes, and re-enters the saved list', async () => {
   const { state } = settingsBackend(empty, []); const mounted = mount(); await open();
   const key = screen.getByLabelText('API key'); fireEvent.change(key, { target: { value: 'synthetic-key-not-a-credential' } }); await next();
@@ -47,7 +114,7 @@ it.each(['lost', 'wrong receipt', 'invalid current'])('uncertain key %s remains 
   fireEvent.click(await screen.findByRole('button', { name: 'Recover exact receipt' }));
   await screen.findByText('Receipt not confirmed. Do not repeat this command.');
   valid = true; fireEvent.click(screen.getByRole('button', { name: 'Recover exact receipt' }));
-  await screen.findByText(/Exact receipt recovered/); expect(state.writes).toHaveLength(1);
+  await screen.findByText('Settings recovered.'); expect(state.writes).toHaveLength(1);
 });
 it('CAS rejection is a hard stale barrier until explicit authoritative reload', async () => {
   const { state, hook } = settingsBackend(empty, []); hook.intercept = (path, _body, method) => path.endsWith('/providers') && method === 'PUT' ? refuse() : undefined;
@@ -96,7 +163,7 @@ it('locked and disabled states never claim an absent key is usable, and local Di
   const { state } = settingsBackend({ ...configured, vault_status: 'LOCKED', connections: [{ ...connection, credential_present: false }] }); mount();
   await screen.findByText(/Vault locked/); expect(screen.getByText('Key unavailable — vault locked')).toBeVisible();
   fireEvent.click(screen.getByText('Connection options')); expect(screen.getByRole('button', { name: 'Replace key' })).toBeDisabled();
-  fireEvent.click(screen.getByRole('button', { name: 'Disable connection' })); await screen.findByText('Connection disabled');
+  await disable(); await screen.findByText('Connection disabled');
   expect(state.writes).toHaveLength(1); expect(state.writes[0]!.body.action).toBe('revoke_connection'); expect(screen.getByRole('button', { name: 'Test Exact/Model via OpenRouter' })).toBeDisabled();
 });
 it.each([false, true])('assignment save preserves focused action or moved focus=%s and independent role caps', async moved => {
@@ -107,13 +174,19 @@ it.each([false, true])('assignment save preserves focused action or moved focus=
   mount(); const save = await screen.findByRole('button', { name: 'Save assignments' }); await waitFor(() => expect(save).toBeEnabled());
   fireEvent.change(screen.getByLabelText('Default model'), { target: { value: '44444444-4444-4444-8444-444444444444' } });
   save.focus(); fireEvent.click(save); await waitFor(() => expect(state.writes).toHaveLength(1)); expect(save).not.toBeDisabled(); expect(save).toHaveAttribute('aria-disabled', 'true');
+  expect(save).toHaveAttribute('aria-busy', 'true');
+  expect(screen.queryByRole('region', { name: 'Settings recovery' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Recover exact receipt' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
   fireEvent.click(save); fireEvent.submit(save.closest('form')!); expect(state.writes).toHaveLength(1);
   const elsewhere = screen.getByRole('link', { name: 'Models' }); if (moved) elsewhere.focus(); resolve();
   await screen.findByText(/Assignments saved/); expect(moved ? elsewhere : save).toHaveFocus(); expect(screen.getByRole('button', { name: 'Save assignments' })).toBe(save);
+  expect(screen.getByRole('complementary', { name: 'Settings notification' })).toHaveTextContent('Assignments saved.');
+  expect(screen.getAllByText('Assignments saved.', { exact: true })).toHaveLength(1);
   expect(state.writes[0]!.body).toMatchObject({ action: 'save_selection', default: { ...selected, model: 'Other/Model' }, brain: { ...selected, output_tokens: 37 }, validator: { ...selected, output_tokens: 89 }, investigator: null });
 });
 it('disabling an open connection invalidates its wizard and keeps saved identities/history', async () => {
-  const { state } = settingsBackend(); mount(); await open(); fireEvent.click(screen.getByText('Connection options')); fireEvent.click(screen.getByRole('button', { name: 'Disable connection' }));
+  const { state } = settingsBackend(); mount(); await open(); fireEvent.click(screen.getByText('Connection options')); await disable();
   await screen.findByText('Connection disabled'); expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument(); expect(screen.getByRole('region', { name: 'Configured models' })).toHaveTextContent(entry.model); expect(state.entries).toHaveLength(1);
   const mounted = screen.getByRole('region', { name: 'Configured models' }); expect(within(mounted).queryByRole('button', { name: '+ Add model' })).not.toBeInTheDocument(); expect(within(mounted).getByRole('button', { name: 'Test Exact/Model via OpenRouter' })).toBeDisabled();
   expect(state.entries).toEqual([entry]); expect(state.writes).toHaveLength(1); expect(state.writes[0]!.body.action).toBe('revoke_connection');
@@ -165,15 +238,19 @@ it('first single-model assignment needs one explicit save and authoritative read
     expect(state.writes[0]).toEqual({ path: '/api/v1/settings/providers', body: { action: 'save_selection', command_id: expect.any(String), expected_revision: 0, default: selected, brain: null, investigator: null, validator: null } });
     await waitFor(() => expect(state.reads).toContain('/api/v1/settings/providers/commands/' + String(state.writes[0]!.body.command_id)));
     expect(within(panel).queryByText(/All roles use/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Settings recovery' })).not.toBeInTheDocument();
     releaseReceipt();
     await waitFor(() => expect(state.reads.filter(path => path.endsWith('/providers')).length).toBeGreaterThan(readsBefore));
     expect(within(panel).queryByText(/All roles use/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
   } finally { releaseReceipt(); releaseReadback(); }
   await within(panel).findByText('All roles use Exact/Model · OpenRouter.');
   expect(within(panel).queryByText(/All roles will use/)).not.toBeInTheDocument();
   expect(within(panel).queryAllByRole('combobox')).toHaveLength(0);
   expect(state.keys.selection).toMatchObject({ revision: 1, default: selected, brain: null, investigator: null, validator: null });
   expect(state.writes).toHaveLength(1); expect(save).toHaveFocus();
+  expect(screen.getAllByText('Assignments saved.', { exact: true })).toHaveLength(1);
 });
 it('one usable model collapses valid same-entry overrides without erasing independent caps', async () => {
   const keys = { ...configured, selection: { selection_id: entryId, revision: 1, default: selected, brain: { ...selected, output_tokens: 37 }, investigator: null, validator: { ...selected, output_tokens: 89 } } };

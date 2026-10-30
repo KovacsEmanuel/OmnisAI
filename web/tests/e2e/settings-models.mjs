@@ -1,9 +1,9 @@
 // Real built App -> paired HTTP API -> existing control/PG owner -> owned TLS peer.
-// Invoke only from test_model_test_v2.py's settings_ui case, never standalone production.
+// Only test_model_test_v2.py's owned settings_ui/entry_remove_ui cases; never production.
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-export async function runSettingsRemove({ page, check, paired, origin, output, screenshot, secretChecks }) {
+export async function runSettingsRemove({ page, check, paired, origin, output, screenshot, secretChecks, remember }) {
   const models = '/api/v1/settings/models';
   const tests = '/api/v1/model-test/entries';
   const providers = '/api/v1/settings/providers';
@@ -11,7 +11,8 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
   page.on('request', request => {
     const path = new URL(request.url()).pathname;
     if (request.method() === 'PUT' || (request.method() === 'POST' && path.endsWith('/refresh'))) {
-      writes.push({ path, body: path === models ? request.postDataJSON() : null });
+      const body = request.postDataJSON();
+      writes.push({ path, body: path === providers ? { action: body.action, command_id: body.command_id, expected_revision: body.expected_revision } : body });
     }
   });
   async function read(path) {
@@ -20,13 +21,7 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
       return { status: response.status, body: await response.json() };
     }, path);
   }
-  async function put(body) {
-    return page.evaluate(async ({ models, body }) => {
-      const session = await (await fetch('/api/session')).json();
-      const response = await fetch(models, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': session.csrf_token }, body: JSON.stringify(body) });
-      return { status: response.status, body: await response.json() };
-    }, { models, body });
-  }
+  remember('synthetic-not-provider-key'); remember('synthetic-unused-key');
   await paired();
   await page.goto(`${origin}/settings/providers`);
   const configured = page.getByRole('region', { name: 'Configured models' });
@@ -38,8 +33,12 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
     const saved = previous.catalog;
     assert.deepEqual((await read(`${models}/commands/${saved.command.command_id}`)).body, saved.receipt);
     assert.deepEqual((await read(`${tests}/${saved.history.operation_id}`)).body, saved.history);
-    assert.equal((await read(`${tests}/latest/${saved.newEntry}`)).status, 404);
-    await check(row('fixture/selected')).toContainText('Not tested');
+    assert.deepEqual((await read(`${providers}/commands/${saved.assignment.command_id}`)).body, saved.assignment);
+    for (const result of saved.results) assert.deepEqual((await read(`${tests}/${result.operation_id}`)).body, { ...result, current: false });
+    assert.deepEqual((await read(`${tests}/latest/${saved.newEntry}`)).body, { ...saved.results[1], current: false });
+    await check(row('fixture/selected')).toContainText('Unavailable — stale or disabled connection');
+    assert.equal((await read(models)).body.total, 19);
+    assert.deepEqual((await read(providers)).body, saved.finalSettings);
     assert.deepEqual(writes, [], 'Restart readback must not resend any command');
     await secretChecks();
     return { ...saved, apiRestartReadback: true };
@@ -95,12 +94,20 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
     assert.notEqual(geometry.outline, 'none');
     assert.equal(geometry.overlaps, false); assert.equal(geometry.overflow, false);
     await secretChecks(); await screenshot(`settings-remove-focus-${width}x1000`, { fullPage: false });
+    await page.keyboard.press('Enter');
+    const confirmation = row('fixture/selected').getByRole('region', { name: 'Remove model confirmation', exact: true });
+    await check(confirmation).toContainText('fixture/selected · OpenRouter');
+    await page.keyboard.press('Tab');
+    await check(confirmation.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
+    await confirmation.scrollIntoViewIfNeeded();
+    await screenshot(`settings-remove-inline-${width}x1000`, { fullPage: false });
+    await page.keyboard.press('Enter'); await check(confirmation).toHaveCount(0);
+    await check(remove).toBeFocused();
   }
-  page.once('dialog', async dialog => {
-    assert.equal(dialog.message(), 'Remove fixture/selected via OpenRouter? Saved history remains.');
-    await dialog.dismiss();
-  });
   await page.keyboard.press('Enter');
+  const confirmation = row('fixture/selected').getByRole('region', { name: 'Remove model confirmation', exact: true });
+  await page.keyboard.press('Tab'); await page.keyboard.press('Escape');
+  await check(confirmation).toHaveCount(0);
   await check(remove).toBeFocused();
   assert.deepEqual((await read(models)).body, library);
   assert.deepEqual((await read(providers)).body, baseline);
@@ -114,7 +121,11 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
     assert.equal(response.status(), 200); receipt = await response.json();
     await route.abort('failed');
   });
-  page.once('dialog', dialog => dialog.accept());
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Tab');
+  await check(confirmation.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await check(confirmation.getByRole('button', { name: 'Remove', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
   await check(page.getByRole('region', { name: 'Settings recovery' })).toContainText('Save unconfirmed');
   await page.unroute(`**${models}`);
@@ -141,18 +152,269 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
   assert.deepEqual((await read(providers)).body, baseline);
   await page.reload(); await check(row('fixture/selected')).toHaveCount(0);
   assert.equal(writes.length, 1, 'Lost reply/recovery/reload must not resend Remove/Test/Refresh');
-  const newEntry = crypto.randomUUID();
-  assert.equal((await put({ action: 'save_models', command_id: crypto.randomUUID(), expected_registry_revision: receipt.registry_revision,
-    connection_id: entry.connection_id, connection_revision: entry.connection_revision,
-    models: [{ entry_id: newEntry, expected_revision: 0, model: entry.model, output_tokens: entry.output_tokens }] })).status, 200);
-  await page.getByRole('button', { name: 'Reload current settings', exact: true }).click();
+  const wizard = page.getByRole('region', { name: 'Add models wizard', exact: true });
+  async function openWizard() {
+    await page.getByRole('button', { name: 'Add models', exact: true }).click();
+    await check(wizard.getByText('Saved key', { exact: true })).toBeVisible();
+    await check(wizard.getByLabel('API key', { exact: true })).toHaveCount(0);
+    await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
+    await check(wizard.getByRole('button', { name: 'Added fixture/00', exact: true })).toBeDisabled();
+    await check(wizard.getByRole('list', { name: 'Provider models', exact: true })).toHaveAttribute('aria-busy', 'false');
+    await check(wizard.getByRole('button', { name: 'Continue', exact: true })).toHaveAttribute('aria-busy', 'false');
+  }
+  await openWizard();
+  const search = wizard.getByLabel('Search models', { exact: true });
+  await search.fill('fixture/selected');
+  await wizard.getByRole('button', { name: 'Add fixture/selected', exact: true }).click();
+  await check(wizard.getByRole('button', { name: 'Remove selected fixture/selected', exact: true })).toBeVisible();
+  await wizard.getByText('Enter a model ID', { exact: true }).click();
+  await wizard.getByLabel('Exact model ID', { exact: true }).fill('manual/preview');
+  await wizard.getByRole('button', { name: 'Add model ID', exact: true }).click();
+  await check(wizard.getByRole('button', { name: 'Remove selected manual/preview', exact: true })).toBeVisible();
+  await check(wizard.getByLabel('Exact model ID', { exact: true })).toHaveValue('');
+  await wizard.getByRole('button', { name: 'Remove selected manual/preview', exact: true }).click();
+  await wizard.getByRole('button', { name: 'Back', exact: true }).click();
+  for (const escape of [false, true]) {
+    await wizard.getByRole('combobox', { name: 'Provider', exact: true }).selectOption('orcarouter');
+    const change = wizard.getByRole('region', { name: 'Provider change confirmation', exact: true });
+    await check(change).toContainText('OpenRouter → OrcaRouter'); await check(change).toContainText('fixture/selected');
+    await change.getByRole('button', { name: 'Cancel', exact: true }).focus();
+    if (escape) await page.keyboard.press('Escape'); else await page.keyboard.press('Enter');
+    await check(wizard.getByRole('combobox', { name: 'Provider', exact: true })).toBeFocused();
+  }
+  await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
+  await check(wizard.getByRole('list', { name: 'Provider models', exact: true })).toHaveAttribute('aria-busy', 'false');
+  await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
+  await wizard.getByText('Output controls', { exact: true }).click();
+  await wizard.getByLabel('fixture/selected output tokens', { exact: true }).fill('64');
+  await check(wizard.getByRole('checkbox', { name: 'I approve using this model.', exact: true })).not.toBeChecked();
+  await check(wizard.getByText('Fixed input', { exact: true })).toHaveCount(0);
+  await check(page.getByRole('button', { name: 'Add models', exact: true })).toHaveAttribute('aria-disabled', 'false');
+  await wizard.getByRole('button', { name: 'Save models', exact: true }).click();
+  await check(wizard).toHaveCount(0);
+  const readd = writes.filter(write => write.body.action === 'save_models').at(-1).body;
+  assert.equal(readd.models.length, 1); assert.equal(readd.models[0].model, entry.model); assert.equal(readd.models[0].output_tokens, 64);
+  const newEntry = readd.models[0].entry_id;
+  assert.notEqual(newEntry, entry.entry_id);
+  assert.equal((await read(`${models}/commands/${readd.command_id}`)).body.total, 18);
   await check(row('fixture/selected')).toContainText('Not tested');
   assert.equal((await read(`${tests}/latest/${newEntry}`)).status, 404);
+  await openWizard();
+  await wizard.getByRole('button', { name: 'Add fixture/01', exact: true }).click();
+  await check(wizard.getByRole('button', { name: 'Remove selected fixture/01', exact: true })).toBeVisible();
+  await check(wizard.getByRole('list', { name: 'Selected models', exact: true }).getByRole('listitem')).toHaveCount(1);
+  await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
+  await wizard.getByText('Output controls', { exact: true }).click();
+  await wizard.getByLabel('fixture/01 output tokens', { exact: true }).fill('64');
+  await wizard.getByRole('checkbox', { name: 'I approve using this model.', exact: true }).check();
+  const releaseAdmission = Promise.withResolvers();
+  let connected;
+  await page.route(`**${tests}`, async route => {
+    if (route.request().method() !== 'PUT') return route.continue();
+    const response = await route.fetch(); assert.equal(response.status(), 202);
+    connected = route.request().postDataJSON(); await releaseAdmission.promise; await route.fulfill({ response });
+  });
+  try {
+    await check(page.getByRole('button', { name: 'Add models', exact: true })).toHaveAttribute('aria-disabled', 'false');
+    await wizard.getByRole('button', { name: 'Save & connect', exact: true }).click();
+    await check.poll(() => !!connected).toBe(true);
+    await check(wizard).toHaveCount(0); await check(row('fixture/01')).toContainText('Connecting');
+    await check(page.getByRole('region', { name: 'Test consent', exact: true })).toHaveCount(0);
+    await check(page.getByLabel('Active model check', { exact: true })).toHaveCount(0);
+    await check(row('fixture/01').getByRole('button', { name: /Cancel test|Stop remaining checks/ })).toHaveCount(1);
+    await row('fixture/01').scrollIntoViewIfNeeded(); await check(row('fixture/01')).toBeInViewport({ ratio: 1 });
+    await screenshot('settings-save-connect-row-pending', { fullPage: false });
+    // Healthy continuation: Stop is covered separately by settings-stop-read.
+    releaseAdmission.resolve();
+  } finally { releaseAdmission.resolve(); await page.unrouteAll({ behavior: 'wait' }); }
+  await check(row('fixture/01')).toContainText('Connected');
+  const consent = page.getByRole('region', { name: 'Test consent', exact: true });
+  await row('fixture/selected').getByRole('button', { name: 'Test fixture/selected via OpenRouter', exact: true }).click();
+  await check(consent.getByRole('checkbox', { name: 'I approve using this model.', exact: true })).not.toBeChecked();
+  await consent.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await row('fixture/selected').getByRole('button', { name: 'Test fixture/selected via OpenRouter', exact: true }).click();
+  await consent.getByRole('checkbox', { name: 'I approve using this model.', exact: true }).check();
+  await consent.getByRole('button', { name: 'Send model test', exact: true }).click();
+  await check(row('fixture/selected')).toContainText('Connected');
+  const starts = writes.filter(write => write.path === tests);
+  assert.equal(starts.length, 2); assert.equal(starts[0].body.operation_id, connected.operation_id);
+  assert.equal(new Set(starts.map(write => write.body.operation_id)).size, 2);
+  const results = [];
+  for (const start of starts) {
+    const result = (await read(`${tests}/${start.body.operation_id}`)).body;
+    assert.equal(result.state, 'FINISHED'); assert.equal(result.result_state, 'COMPLETED'); assert.equal(result.finish_reason, 'COMPLETED');
+    assert.equal(result.entry_id, start.body.entry_id); assert.equal(result.requested_output_tokens, 64); assert.equal(result.current, true);
+    assert.deepEqual((await read(`${tests}/latest/${result.entry_id}`)).body, result); results.push(result);
+  }
+  assert.deepEqual(results.map(result => result.requested_model), ['fixture/01', 'fixture/selected']);
+  const assignments = page.getByRole('region', { name: 'Model assignments', exact: true });
+  for (const role of ['Brain', 'Investigator', 'Validator']) {
+    const picker = assignments.getByLabel(role, { exact: true }); await picker.selectOption(newEntry); await picker.selectOption('');
+  }
+  await assignments.getByText('Output controls', { exact: true }).click();
+  await assignments.getByLabel('Default output tokens', { exact: true }).fill('0');
+  await check(assignments.getByRole('button', { name: 'Save assignments', exact: true })).toBeDisabled();
+  await assignments.getByLabel('Default output tokens', { exact: true }).fill('64');
+  const notification = page.getByRole('complementary', { name: 'Settings notification', exact: true });
+  if (await notification.count()) await notification.getByRole('button', { name: 'Dismiss notification', exact: true }).click();
+  const save = page.getByRole('button', { name: 'Save assignments', exact: true });
+  const gate = Promise.withResolvers();
+  const receiptRead = page.waitForRequest(request => new URL(request.url()).pathname.startsWith(`${providers}/commands/`) && request.method() === 'GET');
+  await page.route(`**${providers}/commands/*`, async route => { await gate.promise; await route.continue(); });
+  let assignment;
+  try {
+    await save.focus(); await page.keyboard.press('Enter');
+    const request = await receiptRead;
+    await check(save).toHaveAttribute('aria-busy', 'true'); await check(save).toBeFocused();
+    await check(page.getByRole('region', { name: 'Settings recovery', exact: true })).toHaveCount(0);
+    await check(notification).toHaveCount(0);
+    await screenshot('settings-save-local-pending', { fullPage: false });
+    gate.resolve();
+    await check(notification).toContainText('Assignments saved.');
+    await check(page.getByText('Assignments saved.', { exact: true })).toHaveCount(1);
+    await check(save).toBeFocused();
+    assignment = (await read(new URL(request.url()).pathname)).body;
+    const current = (await read(providers)).body;
+    assert.deepEqual(current.selection, assignment.selection);
+    assert.equal(current.selection.revision, baseline.selection.revision + 1);
+    for (const role of ['default', 'brain', 'investigator', 'validator']) assert.deepEqual(current.selection[role], baseline.selection[role]);
+    await screenshot('settings-save-local-confirmed', { fullPage: false });
+  } finally { gate.resolve(); await page.unrouteAll({ behavior: 'wait' }); }
+  assert.equal(writes.filter(write => write.path === providers).length, 1);
+  await configured.getByText('Connection options', { exact: true }).click();
+  const connectionConfirmation = configured.getByRole('region', { name: 'Connection confirmation', exact: true });
+  for (const escape of [false, true]) {
+    await configured.getByRole('button', { name: 'Replace key', exact: true }).click();
+    await check(connectionConfirmation).toContainText('OpenRouter');
+    await connectionConfirmation.getByRole('button', { name: 'Cancel', exact: true }).focus();
+    if (escape) await page.keyboard.press('Escape'); else await page.keyboard.press('Enter');
+    await check(configured.getByRole('button', { name: 'Replace key', exact: true })).toBeFocused();
+  }
+  await configured.getByRole('button', { name: 'Replace key', exact: true }).click();
+  await connectionConfirmation.getByRole('button', { name: 'Replace key', exact: true }).click();
+  const unsentKey = wizard.getByLabel('API key', { exact: true }); await unsentKey.fill('synthetic-unused-key');
+  await wizard.getByRole('button', { name: 'Cancel', exact: true }).click();
+  assert.equal(writes.filter(write => write.path === providers).length, 1, 'Unsent replacement must not write');
+  await configured.getByRole('button', { name: 'Disable connection', exact: true }).click();
+  await connectionConfirmation.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await configured.getByRole('button', { name: 'Disable connection', exact: true }).click();
+  await connectionConfirmation.getByRole('button', { name: 'Disable connection', exact: true }).click();
+  await check(configured.getByText('Connection disabled', { exact: true })).toBeVisible();
+  await configured.getByRole('button', { name: 'Reconnect', exact: true }).click();
+  await connectionConfirmation.getByRole('button', { name: 'Reconnect', exact: true }).click();
+  await wizard.getByLabel('API key', { exact: true }).fill('synthetic-not-provider-key');
+  await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
+  await check(wizard.getByRole('button', { name: 'Update fixture/00', exact: true })).toBeEnabled();
+  await wizard.getByRole('button', { name: 'Cancel', exact: true }).click();
+  const finalSettings = (await read(providers)).body;
+  assert.equal(finalSettings.connections.length, 1); assert.equal(finalSettings.connections[0].revision, 3); assert.equal(finalSettings.connections[0].enabled, true);
+  assert.deepEqual(finalSettings.selection, assignment.selection);
+  await check(row('fixture/selected')).toContainText('Unavailable — stale or disabled connection');
+  await check(configured.getByText('Connected', { exact: true })).toHaveCount(0);
+  assert.deepEqual(writes.map(write => write.body.action ?? (write.path === tests ? 'entry_test_start' : null)), ['remove_model', 'refresh', 'refresh', 'save_models', 'refresh', 'save_models', 'entry_test_start', 'entry_test_start', 'save_selection', 'revoke_connection', 'save_connection', 'refresh']);
+  assert.equal((await read(models)).body.total, 19);
   await secretChecks();
-  return { command, receipt, history, newEntry, lostReplyRecovered: true, entries: 18 };
+  return { command, receipt, history, newEntry, assignment, results, finalSettings, lostReplyRecovered: true, entries: 19, readdEntries: 18 };
 }
 
 export async function runSettingsModels({ page, check, paired, origin, output, screenshot, secretChecks, remember }) {
+  if (process.argv[2] === 'settings-stop-read') {
+    assert.equal(process.env.OMNIS_E2E_STAGE, 'before', 'One browser; no restart or second Start');
+    const tests = '/api/v1/model-test/entries', models = '/api/v1/settings/models';
+    const fields = ['operation_id', 'entry_id', 'entry_revision', 'connection_id', 'connection_revision', 'current', 'state', 'state_revision', 'result_state', 'finish_reason', 'requested_model', 'requested_output_tokens'];
+    const project = view => Object.fromEntries(fields.map(field => [field, view[field]]));
+    const evidence = { intents: [] };
+    const release = Promise.withResolvers();
+    let admitted, start, saved;
+    page.on('request', request => {
+      const path = new URL(request.url()).pathname;
+      if (request.method() === 'PUT' || /\/(cancel|refresh)$/.test(path)) {
+        const body = request.postDataJSON();
+        evidence.intents.push({ path, action: body.action ?? 'start' });
+        if (path === models) saved = body;
+      }
+    });
+    remember('synthetic-not-provider-key');
+    await paired(); await page.goto(`${origin}/settings/providers`);
+    const row = model => page.getByRole('listitem', { name: `Model ${model} via OpenRouter`, exact: true });
+    const wizard = page.getByRole('region', { name: 'Add models wizard', exact: true });
+    await page.getByRole('button', { name: 'Add models', exact: true }).click();
+    await wizard.getByRole('button', { name: 'Continue', exact: true }).click();
+    // Catalog readiness alone does not settle the library read started by Refresh.
+    await check(wizard.getByRole('list', { name: 'Provider models', exact: true })).toHaveAttribute('aria-busy', 'false');
+    const next = wizard.getByRole('button', { name: 'Continue', exact: true });
+    await check(next).toHaveAttribute('aria-busy', 'false');
+    const chips = wizard.getByRole('list', { name: 'Selected models', exact: true });
+    for (const model of ['fixture/01', 'fixture/02']) {
+      const add = wizard.getByRole('button', { name: `Add ${model}`, exact: true });
+      await check(add).toBeEnabled(); await add.click();
+      await check(chips.getByRole('button', { name: `Remove selected ${model}`, exact: true })).toBeVisible();
+    }
+    await check(chips.getByRole('listitem')).toHaveCount(2);
+    await check(next).toBeEnabled(); await next.click();
+    await wizard.getByText('Output controls', { exact: true }).click();
+    for (const model of ['fixture/01', 'fixture/02']) await wizard.getByLabel(`${model} output tokens`, { exact: true }).fill('64');
+    await wizard.getByRole('checkbox', { name: 'I approve using these models.', exact: true }).check();
+    await page.route(`**${tests}`, async route => {
+      if (route.request().method() !== 'PUT') return route.continue();
+      start = route.request().postDataJSON();
+      const response = await route.fetch();
+      admitted = await response.json();
+      evidence.start = { operation_id: start.operation_id, entry_id: start.entry_id, expected_entry_revision: start.expected_entry_revision, expected_connection_revision: start.expected_connection_revision, expected_generation: start.expected_generation, status: response.status(), admission: project(admitted) };
+      await release.promise; await route.fulfill({ response });
+    });
+    try {
+      await wizard.getByRole('button', { name: 'Save & connect', exact: true }).click();
+      await check.poll(() => !!admitted).toBe(true);
+      assert.equal(evidence.start.status, 202);
+      assert.equal(admitted.operation_id, start.operation_id);
+      assert.equal(start.entry_id, saved.models[0].entry_id);
+      assert.equal(start.expected_entry_revision, 1); assert.equal(start.expected_connection_revision, 1);
+      await check(wizard).toHaveCount(0); await check(row('fixture/01')).toContainText('Connecting');
+      await check(row('fixture/02')).toContainText('Not tested');
+      await row('fixture/01').getByRole('button', { name: 'Stop remaining checks', exact: true }).click();
+      await check(row('fixture/01')).toContainText('Remaining checks stopped. Read the admitted check.');
+      release.resolve(); await page.unrouteAll({ behavior: 'wait' });
+      await check.poll(async () => {
+        evidence.settlement = await page.evaluate(async path => {
+          const response = await fetch(path); const view = await response.json();
+          return { status: response.status, operation_id: view.operation_id, state: view.state, state_revision: view.state_revision, result_state: view.result_state, finish_reason: view.finish_reason, current: view.current };
+        }, `${tests}/${start.operation_id}`);
+        return evidence.settlement.state;
+      }).toBe('FINISHED');
+      const exactReply = page.waitForResponse(response => response.request().method() === 'GET' && response.url() === `${origin}${tests}/${start.operation_id}`, { timeout: 15000 });
+      const latestReply = page.waitForResponse(response => response.request().method() === 'GET' && response.url() === `${origin}${tests}/latest/${start.entry_id}`, { timeout: 15000 });
+      await row('fixture/01').getByRole('button', { name: 'Read test status', exact: true }).click();
+      const exact = await exactReply, latest = await latestReply;
+      evidence.exact = { status: exact.status(), ...project(await exact.json()) };
+      evidence.latest = { status: latest.status(), ...project(await latest.json()) };
+      // Preserve the observation before terminal/current/identity assertions or teardown.
+      console.log('SETTINGS_STOP_READ ' + JSON.stringify(evidence));
+      for (const result of [evidence.exact, evidence.latest]) {
+        assert.equal(result.status, 200); assert.equal(result.operation_id, start.operation_id);
+        assert.equal(result.entry_id, start.entry_id); assert.equal(result.entry_revision, start.expected_entry_revision);
+        assert.equal(result.connection_id, saved.connection_id); assert.equal(result.connection_revision, start.expected_connection_revision);
+        assert.equal(result.current, true); assert.equal(result.state, 'FINISHED'); assert.equal(result.state_revision, 3);
+        assert.equal(result.result_state, 'COMPLETED'); assert.equal(result.finish_reason, 'COMPLETED');
+        assert.equal(result.requested_model, 'fixture/01'); assert.equal(result.requested_output_tokens, 64);
+      }
+      assert.deepEqual(evidence.latest, evidence.exact);
+      await check(row('fixture/01')).toContainText('Connected');
+      await check(row('fixture/02')).toContainText('Not tested');
+      const unsent = await page.evaluate(async path => { const response = await fetch(path); return { status: response.status, code: (await response.json()).error?.code ?? null }; }, `${tests}/latest/${saved.models[1].entry_id}`);
+      evidence.unsent = { entry_id: saved.models[1].entry_id, ...unsent };
+      assert.deepEqual(unsent, { status: 404, code: 'NOT_FOUND' });
+      assert.deepEqual(evidence.intents, [
+        { path: '/api/v1/settings/provider-catalog/refresh', action: 'refresh' },
+        { path: models, action: 'save_models' }, { path: tests, action: 'start' },
+      ]);
+      await secretChecks();
+      return evidence;
+    } finally {
+      release.resolve(); await page.unrouteAll({ behavior: 'wait' });
+      await writeFile(join(output, 'settings-stop-read.json'), JSON.stringify(evidence, null, 2));
+    }
+  }
   if (process.argv[2] === 'settings-cancel-current') {
     assert.equal(process.env.OMNIS_E2E_STAGE, 'before', 'No restart or second Start is admitted');
     const tests = '/api/v1/model-test/entries';
@@ -435,7 +697,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await check(consent).toContainText('Provider charges may apply.');
   await check(consent.getByRole('checkbox')).not.toBeChecked();
   await check(consent.getByRole('button', { name: 'Send model test', exact: true })).toBeDisabled();
-  await capture('direct-test-consent', consent, consent.getByText('Fixed input', { exact: true }));
+  await capture('direct-test-consent', consent, consent.getByRole('checkbox', { name: 'I approve using this model.', exact: true }));
   await consent.getByRole('checkbox').check();
   await check(consent.getByRole('button', { name: 'Send model test', exact: true })).toBeEnabled();
   await consent.getByRole('button', { name: 'Cancel', exact: true }).click();
@@ -462,7 +724,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   assert.equal((await denied.json()).error.code, 'REVISION_CONFLICT');
   await check(recovery).toContainText('Settings changed. Reload the current revision before saving.');
   await check(recovery).toBeVisible();
-  await check(notification).toHaveText('Settings need attention.');
+  await check(notification).toHaveCount(0);
   assert.deepEqual((await readSettings()).selection, preserved);
   await page.getByRole('button', { name: 'Reload current settings', exact: true }).click();
   await check(notification).toContainText('Settings reloaded.');
@@ -524,7 +786,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await capture('review-two', wizard.getByRole('button', { name: 'Save & connect', exact: true }));
   const consentGeneration = await page.evaluate(async () => { const response = await fetch('/api/instance'); if (!response.ok) throw new Error('Instance status unavailable'); const status = await response.json(); if (!status.admission_open || !status.supervisor_ready) throw new Error('Instance admission closed'); return status.generation; });
   assert.ok(Number.isSafeInteger(consentGeneration));
-  await wizard.getByRole('checkbox', { name: /up to 2 calls, one per listed model via OpenRouter/ }).check();
+  await wizard.getByRole('checkbox', { name: 'I approve using these models.', exact: true }).check();
   const testIntents = [];
   const collectTest = request => { if (request.method() === 'PUT' && request.url() === `${origin}/api/v1/model-test/entries`) testIntents.push(request.postDataJSON()); };
   page.on('request', collectTest);
@@ -611,7 +873,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await assignments.getByText('Output controls', { exact: true }).click();
   await check(page.getByLabel('Brain output tokens', { exact: true })).toHaveValue('37');
   await assignments.getByRole('button', { name: 'Save assignments', exact: true }).click();
-  await check(notification).toContainText('Assignments saved. Applies to future runs only.');
+  await check(notification).toContainText('Assignments saved.');
   await page.reload();
   const savedSelection = (await loadedMany()).selection;
   await capture('saved-many-assignments', brain, assignments.getByText('Output controls', { exact: true }));

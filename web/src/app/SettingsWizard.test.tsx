@@ -8,10 +8,226 @@ import { App } from './App';
 import { catalogId, configured, empty, entry, entryId, selected, settingsBackend } from '../../tests/settings-fixtures';
 import type { ModelEntry } from '../features/engagement/SettingsModels';
 import type { EntryTestView } from '../shared/api/modelTest';
+import { ApiError } from '../shared/api/errors';
 import { catalogStorage, pendingStorage, remember, sessionScope, testStorage } from '../features/engagement/SettingsModels';
 import { session } from '../../tests/fixtures';
 const models = Array.from({ length: 32 }, (_, i) => ({ model: `Catalog/${String(i).padStart(2, '0')}`, name: `Model ${i}`, max_output_tokens: 4096, supports_max_tokens: true, reason: null }));
-beforeEach(() => { sessionStorage.clear(); vi.stubGlobal('confirm', vi.fn(() => true)); });
+beforeEach(() => { sessionStorage.clear(); });
+it('explicit Refresh creates one fresh catalog identity and retains chosen models without any test or assignment', async () => {
+  const { state } = settingsBackend(configured, [], models); mount(); const panel = await wizard();
+  fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/00' }));
+  const initial = state.writes[0]!.body.command_id;
+  fireEvent.click(within(panel).getByRole('button', { name: 'Refresh' }));
+  await waitFor(() => expect(state.writes).toHaveLength(2));
+  await waitFor(() => expect(within(panel).getByRole('list', { name: 'Provider models' })).toHaveAttribute('aria-busy', 'false'));
+  expect(state.writes.map(write => write.body.action)).toEqual(['refresh', 'refresh']);
+  expect(state.writes[1]!.body).toEqual({ action: 'refresh', command_id: expect.any(String), connection_id: entry.connection_id, connection_revision: 1 });
+  expect(state.writes[1]!.body.command_id).not.toBe(initial);
+  expect(within(panel).getByRole('list', { name: 'Selected models' })).toHaveTextContent('Model 0');
+  expect(state.keys).toEqual(configured); expect(state.entries).toEqual([]);
+});
+it.each(['query', 'manual'] as const)('SOURCE wizard exposes the %s library read barrier instead of silently dropping Save', async mode => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  const mounted = mount(true), panel = await wizard();
+  const queryKey = ['private', 'settings-model-library'];
+  await waitFor(() => expect(mounted.client.isFetching({ queryKey })).toBe(0));
+  fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/00' })); await review();
+  const save = within(panel).getByRole('button', { name: 'Save models' });
+  const connect = within(panel).getByRole('button', { name: 'Save & connect' });
+  expect(connect).toBeDisabled(); fireEvent.click(connect);
+  expect(state.writes.map(write => write.body.action)).toEqual(['refresh']);
+  fireEvent.click(within(panel).getByRole('checkbox'));
+  expect(connect).toBeEnabled();
+  let held = false, release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, _body, method) => {
+    if (path === '/api/v1/settings/models' && method === 'GET') { held = true; await gate; }
+    return undefined;
+  };
+  try {
+    // Hold the existing local read after Refresh, without delaying or changing the catalog.
+    if (mode === 'query') void mounted.client.invalidateQueries({ queryKey });
+    else fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
+    await waitFor(() => expect(held).toBe(true));
+    expect(mounted.client.isFetching({ queryKey })).toBe(mode === 'query' ? 1 : 0);
+    connect.focus();
+    await act(async () => { fireEvent.click(connect); fireEvent.click(save); });
+    expect(state.writes.map(write => write.body.action)).toEqual(['refresh']);
+    expect(state.entries).toEqual([]); expect(state.keys).toEqual(configured);
+    expect(within(panel).getByRole('checkbox')).toBeChecked(); expect(connect).toHaveFocus();
+    expect(connect).toHaveAttribute('aria-disabled', 'true');
+    expect(connect).toHaveAttribute('aria-busy', 'true');
+    expect(save).toHaveAttribute('aria-disabled', 'true');
+    expect(save).toHaveAttribute('aria-busy', 'true');
+    expect(connect).toBeEnabled(); expect(save).toBeEnabled();
+    release();
+    await waitFor(() => expect(connect).toHaveAttribute('aria-busy', 'false'));
+    expect(connect).toHaveFocus(); expect(within(panel).getByRole('checkbox')).toBeChecked();
+    expect(state.writes.map(write => write.body.action)).toEqual(['refresh']);
+    expect(state.entries).toEqual([]);
+    fireEvent.click(save); await screen.findByText('Models saved.');
+    expect(state.writes.map(write => write.body.action)).toEqual(['refresh', 'save_models']);
+    expect(state.entries).toEqual([expect.objectContaining({ model: 'Catalog/00', revision: 1, output_tokens: 128 })]);
+    expect(state.keys).toEqual(configured);
+    expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument();
+  } finally { release(); mounted.unmount(); mounted.client.clear(); }
+});
+it.each(['query', 'manual', 'refresh'] as const)('SOURCE Add controls retain selection and manual input during %s work', async mode => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  const mounted = mount(true), panel = await wizard(), user = userEvent.setup();
+  const queryKey = ['private', 'settings-model-library'];
+  const next = within(panel).getByRole('button', { name: 'Continue' });
+  await waitFor(() => expect(next).toHaveAttribute('aria-busy', 'false'));
+  fireEvent.click(within(panel).getByText('Enter a model ID'));
+  const manual = within(panel).getByRole('textbox', { name: 'Exact model ID' });
+  fireEvent.change(manual, { target: { value: 'manual/preview' } });
+  const catalogAdd = within(panel).getByRole('button', { name: 'Add Catalog/00' });
+  const manualAdd = within(panel).getByRole('button', { name: 'Add model ID' });
+  const chips = within(panel).getByRole('list', { name: 'Selected models' });
+  let held = false, release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, _body, method) => {
+    if (mode === 'refresh' ? path.endsWith('/provider-catalog/refresh') : path === '/api/v1/settings/models' && method === 'GET') { held = true; await gate; }
+    return undefined;
+  };
+  try {
+    if (mode === 'query') void mounted.client.invalidateQueries({ queryKey });
+    else fireEvent.click(mode === 'manual' ? screen.getByRole('button', { name: 'Reload current settings' }) : within(panel).getByRole('button', { name: 'Refresh' }));
+    await waitFor(() => expect(held).toBe(true));
+    await waitFor(() => expect(next).toHaveAttribute('aria-busy', 'true'));
+    if (mode !== 'refresh') expect(within(panel).getByRole('list', { name: 'Provider models' })).toHaveAttribute('aria-busy', 'false');
+    for (const button of [catalogAdd, manualAdd]) {
+      expect(button).toBeEnabled(); // Transient blocking must not remove keyboard focus.
+      expect.soft(button).toHaveAttribute('aria-disabled', 'true');
+      expect.soft(button).toHaveAttribute('aria-busy', 'true');
+    }
+    catalogAdd.focus(); await user.keyboard('{Enter}');
+    expect(catalogAdd).toHaveFocus(); expect(within(chips).queryAllByRole('listitem')).toHaveLength(0);
+    manual.focus(); await user.tab(); expect(manualAdd).toHaveFocus(); await user.keyboard(' ');
+    expect(manualAdd).toHaveFocus();
+    expect.soft(manual).toHaveValue('manual/preview');
+    expect(within(chips).queryAllByRole('listitem')).toHaveLength(0); expect(next).toBeDisabled();
+    const actions = mode === 'refresh' ? ['refresh', 'refresh'] : ['refresh'];
+    expect(state.writes.map(write => write.body.action)).toEqual(actions);
+    release();
+    await waitFor(() => expect(next).toHaveAttribute('aria-busy', 'false'));
+    expect(manualAdd).toHaveFocus(); expect.soft(manual).toHaveValue('manual/preview');
+    expect(within(chips).queryAllByRole('listitem')).toHaveLength(0); expect(next).toBeDisabled();
+    await waitFor(() => expect(within(panel).getByRole('list', { name: 'Provider models' })).toHaveAttribute('aria-busy', 'false'));
+    const settledAdd = within(panel).getByRole('button', { name: 'Add Catalog/00' });
+    for (const button of [settledAdd, manualAdd]) {
+      expect.soft(button).toHaveAttribute('aria-disabled', 'false');
+      expect.soft(button).toHaveAttribute('aria-busy', 'false');
+    }
+    fireEvent.click(settledAdd);
+    expect(within(chips).getByRole('button', { name: 'Remove selected Catalog/00' })).toBeVisible();
+    await user.keyboard('{Enter}');
+    expect.soft(within(chips).queryByRole('button', { name: 'Remove selected manual/preview' })).toBeInTheDocument();
+    expect.soft(within(chips).queryAllByRole('listitem')).toHaveLength(2); expect(manual).toHaveValue('');
+    expect(state.entries).toEqual([]); expect(state.keys).toEqual(configured);
+    expect(state.writes.map(write => write.body.action)).toEqual(actions);
+    await review();
+    expect(within(panel).getByRole('button', { name: 'Save models' })).toBeEnabled();
+    expect.soft(within(panel).queryByText('UNVERIFIED — manual model ID')).toBeVisible();
+    expect(within(panel).getByRole('button', { name: 'Save & connect' })).toBeDisabled();
+  } finally { release(); mounted.unmount(); mounted.client.clear(); }
+});
+it.each(['selected', 'configured', 'full'] as const)('SOURCE manual Add retains the exact input when %s admission is refused', async refusal => {
+  const entries = refusal === 'configured' ? [entry] : refusal === 'full' ? Array.from({ length: 64 }, (_, index) => ({ ...entry, entry_id: `22222222-2222-4222-8222-${String(index).padStart(12, '0')}`, model: `saved/${index}` })) : [];
+  const { state } = settingsBackend(configured, entries, models);
+  const mounted = mount(), panel = await wizard();
+  try {
+    await waitFor(() => expect(within(panel).getByRole('button', { name: 'Continue' })).toHaveAttribute('aria-busy', 'false'));
+    if (refusal === 'selected') fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/00' }));
+    fireEvent.click(within(panel).getByText('Enter a model ID'));
+    const manual = within(panel).getByRole('textbox', { name: 'Exact model ID' });
+    const value = refusal === 'configured' ? entry.model : 'Catalog/00';
+    fireEvent.change(manual, { target: { value } });
+    fireEvent.click(within(panel).getByRole('button', { name: 'Add model ID' }));
+    expect(manual).toHaveValue(value);
+    expect(within(within(panel).getByRole('list', { name: 'Selected models' })).queryAllByRole('listitem')).toHaveLength(refusal === 'selected' ? 1 : 0);
+    if (refusal === 'full') expect(within(panel).getByRole('alert')).toHaveTextContent('The instance is limited to 64 configured models.');
+    expect(state.entries).toEqual(entries); expect(state.keys).toEqual(configured);
+    expect(state.writes.map(write => write.body.action)).toEqual(['refresh']);
+  } finally { mounted.unmount(); mounted.client.clear(); }
+});
+it('Cancel catalog targets its retained connection revision and persists a stopped readback without resending Refresh', async () => {
+  const { state, hook } = settingsBackend(); let cancelled = false;
+  const scope = await sessionScope(session.csrf_token);
+  remember(catalogStorage, scope, { id: catalogId, connection: entry.connection_id, revision: 1 });
+  hook.intercept = (path, body) => {
+    if (path.endsWith('/cancel')) cancelled = true;
+    if (!path.endsWith('/cancel') && !path.endsWith('/search')) return;
+    return Response.json({ schema_version: 1, connection_id: body.connection_id, connection_revision: body.connection_revision, provider: 'openrouter', catalog_command_id: body.catalog_command_id ?? catalogId, state: cancelled ? 'FAILED' : 'PENDING', reason: cancelled ? 'CANCELLED_OR_STOPPED' : null, query: body.query ?? '', offset: 0, next_offset: null, total: 0, entries: [] });
+  };
+  const mounted = mount();
+  await screen.findByRole('region', { name: 'Configured models' });
+  const recovery = await screen.findByRole('region', { name: 'Catalog recovery' });
+  fireEvent.click(within(recovery).getByRole('button', { name: 'Cancel catalog' }));
+  await waitFor(() => expect(sessionStorage.getItem(catalogStorage)).toBeNull());
+  expect(state.writes).toEqual([{ path: '/api/v1/settings/provider-catalog/cancel', body: { action: 'cancel', command_id: expect.any(String), catalog_command_id: catalogId, connection_id: entry.connection_id, connection_revision: 1 } }]);
+  fireEvent.click(within(recovery).getByText('Catalog details'));
+  expect(await within(recovery).findByText('FAILED · CANCELLED_OR_STOPPED')).toBeVisible();
+  mounted.unmount(); mount(); await screen.findByText('The model catalog is unavailable. Saved test results are unchanged. Open Add models to refresh it explicitly.');
+  fireEvent.click(within(screen.getByRole('region', { name: 'Configured models' })).getByText('Catalog details'));
+  expect(screen.getByText(/FAILED · CANCELLED_OR_STOPPED/)).toBeVisible();
+  expect(state.writes).toHaveLength(1); expect(state.entries).toEqual([entry]); expect(state.keys).toEqual(configured);
+});
+it('orphan RUNNING Cancel uses the latest read revision, never the historical operation', async () => {
+  const orphan = { ...entry, entry_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', model: 'Orphan/Model' };
+  let active = operation('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', orphan);
+  const old = { ...operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry), state: 'FINISHED', state_revision: 3, result_state: 'COMPLETED', finish_reason: 'COMPLETED' };
+  const { state, hook } = settingsBackend();
+  hook.intercept = (path, body, method) => {
+    if (path.includes('/entries/latest/') && path.endsWith(entryId)) return Response.json(old);
+    if (path.includes(active.operation_id!)) {
+      if (method === 'POST') { expect(body.expected_state_revision).toBe(7); active = { ...active, state: 'FINISHED', state_revision: 8, result_state: 'NOT_SENT', finish_reason: 'CANCELLED' }; }
+      return Response.json(active);
+    }
+    if (path.endsWith(orphan.entry_id)) return Response.json(active);
+  };
+  const scope = await sessionScope(session.csrf_token); remember(testStorage, scope, active.operation_id!);
+  const mounted = mount();
+  const recovery = await screen.findByRole('region', { name: 'Unconfirmed model check' });
+  active = { ...active, state_revision: 7 };
+  fireEvent.click(within(recovery).getByRole('button', { name: 'Read test status' }));
+  await waitFor(() => expect(mounted.client.getQueryData(['private', 'settings-entry-test', scope, active.operation_id])).toMatchObject({ state_revision: 7 }));
+  fireEvent.click(within(recovery).getByRole('button', { name: 'Cancel test' }));
+  await waitFor(() => expect(mounted.client.getQueryData(['private', 'settings-entry-test', scope, active.operation_id])).toMatchObject({ state: 'FINISHED', state_revision: 8 }));
+  expect(state.writes).toEqual([{ path: `/api/v1/model-test/entries/${active.operation_id}/cancel`, body: { command_id: expect.any(String), expected_state_revision: 7 } }]);
+  mounted.unmount(); mount(); await screen.findByRole('region', { name: 'Configured models' });
+  expect(state.writes).toHaveLength(1);
+});
+it('SOURCE missing local projection still exposes orphan Stop and abandons the unsent sequence', async () => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  let active: EntryTestView | undefined, release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, body, method) => {
+    if (path === '/api/v1/model-test/entries' && method === 'PUT') {
+      active = operation(String(body.operation_id), state.entries.find(item => item.entry_id === body.entry_id)!); await gate; return Response.json(active);
+    }
+    if (path.includes('/model-test/entries/') && active) return Response.json(active);
+  };
+  const mounted = mount();
+  try {
+    await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
+    fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
+    await waitFor(() => expect(active).toBeDefined());
+    const query = mounted.client.getQueryCache().findAll({ queryKey: ['private', 'settings-model-library'] })[0]!;
+    // Controlled SOURCE projection fault, not a claim that the API removed a running entry.
+    await act(async () => { mounted.client.setQueryData(query.queryKey, (value: { library: { revision: number; entries: ModelEntry[] } }) => ({ ...value, library: { ...value.library, entries: [] } })); });
+    const recovery = await screen.findByRole('region', { name: 'Unconfirmed model check' });
+    fireEvent.click(within(recovery).getByRole('button', { name: 'Stop remaining checks' }));
+    expect(within(recovery).getByText('Remaining checks stopped. Read the admitted check.')).toBeVisible();
+    active = { ...active!, state: 'FINISHED', state_revision: 3, result_state: 'COMPLETED', finish_reason: 'COMPLETED' };
+    await act(async () => { release(); await gate; });
+    const scope = await sessionScope(session.csrf_token);
+    await waitFor(() => expect(mounted.client.getQueryData(['private', 'settings-entry-test', scope, active!.operation_id])).toMatchObject({ state: 'FINISHED' }));
+    expect(state.writes.map(write => write.body.action ?? write.path)).toEqual(['refresh', 'save_models', '/api/v1/model-test/entries']);
+    mounted.unmount(); mount(); await screen.findByRole('region', { name: 'Configured models' });
+    expect(state.writes.map(write => write.body.action ?? write.path)).toEqual(['refresh', 'save_models', '/api/v1/model-test/entries']);
+  } finally { release(); }
+});
 function mount(strict = false) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, networkMode: 'always' } } });
   const app = <QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>;
@@ -101,14 +317,16 @@ it.each(['FAILED', 'UNKNOWN', 'RUNNING', 'stale', 'missing', 'unavailable'] as c
   expect(within(list).getByText(status === 'FAILED' ? 'Failed' : status === 'RUNNING' ? 'Connecting' : status === 'stale' ? 'Unavailable — stale check' : status === 'missing' ? 'Not tested' : 'Unconfirmed')).toBeVisible();
   expect(state.writes).toHaveLength(0);
 });
-it('marks prior Connected state unconfirmed after a settings read fails, including after notice dismissal', async () => {
+it('marks prior Connected state unconfirmed after a settings read fails without a duplicate notification', async () => {
   const { hook } = settingsBackend(); let failed = false;
   hook.intercept = path => {
     if (path === '/api/v1/settings/providers' && failed) return Response.json({ error: { code: 'CONTROL_UNAVAILABLE', correlation_id: entryId } }, { status: 503 });
     if (path.includes('/entries/latest/')) return Response.json({ ...operation(crypto.randomUUID(), entry), state: 'FINISHED', finish_reason: 'COMPLETED', result_state: 'COMPLETED' });
   };
   mount(); await screen.findByText('Connected'); failed = true; fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
-  await screen.findByText('Unconfirmed — reload settings'); fireEvent.click(await screen.findByRole('button', { name: 'Dismiss notification' }));
+  await screen.findByText('Unconfirmed — reload settings');
+  expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();
+  expect(screen.getByRole('region', { name: 'Settings recovery' })).toBeVisible();
   expect(screen.getByText('Unconfirmed — reload settings')).toBeVisible(); expect(screen.queryByText('Connected')).not.toBeInTheDocument();
 });
 it('keeps a saved successful test distinct from a failed current catalog and preserves assignments', async () => {
@@ -133,6 +351,9 @@ it('keeps a saved successful test distinct from a failed current catalog and pre
   expect(within(list).getByText(/FAILED · METADATA_UNAVAILABLE/)).toBeVisible();
   expect(details).toHaveTextContent(catalogId);
   expect(details).toHaveTextContent('connection revision 1');
+  fireEvent.click(within(list).getByText('Catalog details'));
+  expect(details).not.toHaveAttribute('open');
+  expect(within(list).getByText(/FAILED · METADATA_UNAVAILABLE/)).not.toBeVisible();
   expect(state.writes).toEqual([]);
   expect(state.keys).toEqual(keys);
 });
@@ -195,19 +416,30 @@ it('StrictMode effect replay retains a live mutation lifetime and wizard through
   fireEvent.click(await screen.findByRole('button', { name: 'Add Catalog/00' }));
   expect(input).toHaveValue('');
   await review(); fireEvent.click(screen.getByRole('button', { name: 'Save models' }));
-  await screen.findByText('Models saved. Assignments stay unchanged.');
+  await screen.findByText('Models saved.');
   expect(state.writes.map(item => item.body.action)).toEqual(['save_connection', 'refresh', 'save_models']);
   expect(state.entries[0]!.model).toBe('Catalog/00'); expect(state.keys.selection).toBeNull();
 });
 it('searches cached pages only, preserves chips across Back and saves several exact models without touching Default', async () => {
   const keys = { ...configured, selection: { selection_id: entryId, revision: 1, default: selected, brain: { ...selected, output_tokens: 37 }, investigator: null, validator: null } };
-  const { state } = settingsBackend(keys, [entry], [...models, { ...models[0]!, model: entry.model }]); mount(); const panel = await wizard();
+  const { state, hook } = settingsBackend(keys, [entry], [...models, { ...models[0]!, model: entry.model }]);
+  const searches: Record<string, unknown>[] = [];
+  hook.intercept = (path, body) => { if (path.endsWith('/search')) searches.push(body); return undefined; };
+  mount(); const panel = await wizard();
+  expect(screen.getByRole('button', { name: 'Previous results' })).toBeDisabled();
   fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' }));
   fireEvent.click(screen.getByRole('button', { name: 'Next results' })); await screen.findByRole('button', { name: 'Add Catalog/16' }); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/16' }));
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Previous results' })).toBeEnabled());
+  const beforePrevious = searches.length;
+  fireEvent.click(screen.getByRole('button', { name: 'Previous results' }));
+  await screen.findByRole('button', { name: 'Selected Catalog/00' });
+  await waitFor(() => expect(searches.slice(beforePrevious)).toContainEqual({ action: 'search', connection_id: entry.connection_id, connection_revision: 1, catalog_command_id: state.writes[0]!.body.command_id, query: '', offset: 0 }));
+  expect(searches).toContainEqual(expect.objectContaining({ query: '', offset: 16 }));
+  expect(screen.getByRole('button', { name: 'Previous results' })).toBeDisabled();
   fireEvent.change(screen.getByLabelText('Search models'), { target: { value: 'Catalog/31' } }); await screen.findByRole('button', { name: 'Add Catalog/31' });
   expect(state.writes).toHaveLength(1); await review(); expect(screen.getByText('Default and role overrides stay unchanged.')).toBeVisible();
   fireEvent.click(within(panel).getByRole('button', { name: 'Back' })); expect(within(panel).getByRole('list', { name: 'Selected models' })).toHaveTextContent('Model 0'); expect(within(panel).getByRole('list', { name: 'Selected models' })).toHaveTextContent('Model 16');
-  await review(); fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved. Assignments stay unchanged.');
+  await review(); fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved.');
   expect(state.entries.map(item => item.model)).toEqual(expect.arrayContaining(['Exact/Model', 'Catalog/00', 'Catalog/16'])); expect(state.keys.selection).toEqual(keys.selection);
   expect(state.writes.map(item => item.body.action)).toEqual(['refresh', 'save_models']);
 });
@@ -219,39 +451,75 @@ it('keeps focus on the wizard after Continue and on search across query refreshe
   await waitFor(() => expect(within(screen.getByRole('region', { name: 'Add models wizard' })).getByRole('heading', { name: 'Add models' })).toHaveFocus());
   search.focus(); fireEvent.change(search, { target: { value: 'Catalog/01' } }); await screen.findByRole('button', { name: 'Add Catalog/01' }); expect(search).toHaveFocus();
 });
-it('review keeps short not-tested status, exact consent and closed output controls', async () => {
+it.each([1, 2])('review keeps exact %s-model context, concise approval and closed output controls', async count => {
   const { state } = settingsBackend(configured, [], models); mount(); const panel = await wizard();
-  fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/00' })); await review();
-  expect(within(panel).getByText('Not tested', { exact: true })).toBeVisible();
+  fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/00' }));
+  if (count === 2) fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/01' }));
+  await review();
+  expect(within(panel).getAllByText('Not tested', { exact: true })).toHaveLength(count);
   expect(within(panel).getByText('Catalog/00', { selector: 'small', exact: true })).toBeVisible();
+  expect(within(panel).getByText('OpenRouter · Saved key', { exact: true })).toBeVisible();
   expect(within(panel).getByText('Output controls').closest('details')).not.toHaveAttribute('open');
   expect(within(panel).getByLabelText('Catalog/00 output tokens')).not.toBeVisible();
-  expect(within(panel).getByRole('checkbox', { name: /up to 1 call, one per listed model via OpenRouter/ })).not.toBeChecked();
-  expect(panel).toHaveTextContent('Provider charges may apply.');
-  expect(panel).toHaveTextContent('One call / 300 seconds, no tools or target traffic. Cancel is not a refund.');
+  expect(within(panel).getByRole('checkbox', { name: count === 1 ? 'I approve using this model.' : 'I approve using these models.' })).not.toBeChecked();
+  expect(within(panel).getByText('Provider charges may apply.', { exact: true })).toBeVisible();
+  expect(panel).not.toHaveTextContent(/Fixed input|300 seconds|no tools|refund|OMNIS_MODEL_TEST_OK/);
   expect(within(panel).getByRole('button', { name: 'Save & connect' })).toBeDisabled();
   expect(state.writes.map(item => item.body.action)).toEqual(['refresh']);
+});
+it('resets approval on output and model changes and Save models stays local even when approved', async () => {
+  const { state } = settingsBackend(configured, [], models); mount(); const panel = await wizard();
+  fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/00' })); await review();
+  fireEvent.click(within(panel).getByRole('checkbox')); fireEvent.click(within(panel).getByText('Output controls'));
+  fireEvent.change(within(panel).getByLabelText('Catalog/00 output tokens'), { target: { value: '64' } });
+  expect(within(panel).getByRole('checkbox')).not.toBeChecked();
+  fireEvent.click(within(panel).getByRole('checkbox')); fireEvent.click(within(panel).getByRole('button', { name: 'Back' }));
+  fireEvent.click(within(panel).getByRole('button', { name: 'Add Catalog/01' })); await review();
+  const consent = within(panel).getByRole('checkbox', { name: 'I approve using these models.' });
+  expect(consent).not.toBeChecked(); fireEvent.click(consent);
+  fireEvent.click(within(panel).getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved.');
+  expect(state.writes.map(item => item.body.action)).toEqual(['refresh', 'save_models']);
+  expect(state.entries.map(item => item.output_tokens)).toEqual([64, 128]);
 });
 it('manual 256-character exact ID saves UNVERIFIED and cannot acquire test consent', async () => {
   const { state } = settingsBackend(configured, [], models); mount(); await wizard(); const id = 'M'.repeat(256);
   fireEvent.click(screen.getByText('Enter a model ID')); fireEvent.change(screen.getByLabelText('Exact model ID'), { target: { value: id } }); fireEvent.click(screen.getByRole('button', { name: 'Add model ID' })); await review();
   expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled(); expect(screen.getByText('UNVERIFIED — manual model ID')).toBeVisible(); fireEvent.click(screen.getByRole('button', { name: 'Save models' }));
-  await screen.findByText('Models saved. Assignments stay unchanged.'); expect(state.entries[0]!.model).toBe(id); expect(state.keys.selection).toBeNull(); expect(screen.queryByText(/All roles use/)).not.toBeInTheDocument();
+  await screen.findByText('Models saved.'); expect(state.entries[0]!.model).toBe(id); expect(state.keys.selection).toBeNull(); expect(screen.queryByText(/All roles use/)).not.toBeInTheDocument();
 });
 it.each([0, 1.5, 65537])('invalid output cap %s cannot authorize Save & connect or send a registry write', async tokens => {
   const { state } = settingsBackend(configured, [], models); mount(); await wizard();
   fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review();
   fireEvent.click(screen.getByText('Output controls', { exact: true }));
   fireEvent.change(screen.getByLabelText('Catalog/00 output tokens'), { target: { value: tokens } });
-  expect(screen.getByRole('checkbox', { name: /I approve the fixed synthetic input/ })).toBeDisabled();
+  expect(screen.getByRole('checkbox', { name: /I approve using (this model|these models)\./ })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'Save models' })).toBeDisabled();
   expect(state.writes.map(item => item.body.action)).toEqual(['refresh']);
 });
 it('provider switch confirmation retains pending choices when refused', async () => {
   settingsBackend(configured, [], models); mount(); const panel = await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(within(panel).getByRole('button', { name: 'Back' }));
-  vi.stubGlobal('confirm', vi.fn(() => false)); fireEvent.change(screen.getByLabelText('Provider'), { target: { value: 'orcarouter' } }); expect(screen.getByLabelText('Provider')).toHaveValue('openrouter');
+  fireEvent.change(screen.getByLabelText('Provider'), { target: { value: 'orcarouter' } }); expect(screen.getByLabelText('Provider')).toHaveValue('openrouter');
+  const confirmation = within(panel).getByRole('region', { name: 'Provider change confirmation' });
+  expect(confirmation).toHaveTextContent('OpenRouter → OrcaRouter'); expect(confirmation).toHaveTextContent('Catalog/00');
+  const cancel = within(confirmation).getByRole('button', { name: 'Cancel' }); cancel.focus(); fireEvent.click(cancel);
+  expect(screen.getByLabelText('Provider')).toHaveFocus();
   fireEvent.click(screen.getByRole('button', { name: 'Continue' })); await screen.findByLabelText('Search models'); expect(screen.getByRole('list', { name: 'Selected models' })).toHaveTextContent('Model 0');
+});
+it('cancels provider discard with Escape and only explicit confirmation wipes choices and the unsent key', async () => {
+  const { state } = settingsBackend(configured, [], models); mount(); const panel = await wizard();
+  fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(within(panel).getByRole('button', { name: 'Back' }));
+  const provider = screen.getByLabelText('Provider');
+  fireEvent.change(provider, { target: { value: 'orcarouter' } });
+  const cancel = within(screen.getByRole('region', { name: 'Provider change confirmation' })).getByRole('button', { name: 'Cancel' });
+  cancel.focus(); fireEvent.keyDown(cancel, { key: 'Escape' }); expect(provider).toHaveFocus(); expect(provider).toHaveValue('openrouter');
+  fireEvent.change(provider, { target: { value: 'orcarouter' } });
+  fireEvent.click(within(screen.getByRole('region', { name: 'Provider change confirmation' })).getByRole('button', { name: 'Change provider' }));
+  expect(provider).toHaveValue('orcarouter');
+  const key = screen.getByLabelText('API key'); fireEvent.change(key, { target: { value: 'synthetic-unsent' } });
+  fireEvent.change(provider, { target: { value: 'openrouter' } });
+  expect(key).toHaveValue(''); expect(screen.queryByRole('region', { name: 'Provider change confirmation' })).not.toBeInTheDocument();
+  expect(state.writes.map(item => item.body.action)).toEqual(['refresh']);
 });
 it('keeps the current OrcaRouter catalog failure separate from an earlier OpenRouter update after switching provider', async () => {
   const orca = { ...configured.connections[0]!, provider: 'orcarouter' as const, connection_id: '44444444-4444-4444-8444-444444444444' };
@@ -336,6 +604,135 @@ it('never binds an earlier connection revision recovery or notice to the current
   expect(within(card).getAllByText('Catalog details')).toHaveLength(2);
   expect(state.writes).toEqual([]);
 });
+it('closes after proven Save while admission is held and keeps only row progress with one contextual control', async () => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  let view: EntryTestView | undefined, held = false, release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, body, method) => {
+    if (path === '/api/v1/model-test/entries' && method === 'PUT') {
+      view = operation(String(body.operation_id), state.entries.find(item => item.entry_id === body.entry_id)!);
+      held = true; await gate; return Response.json(view);
+    }
+    if (path.includes('/entries/latest/') && view?.entry_id === path.split('/').at(-1)) return Response.json(view);
+    if (view && path === '/api/v1/model-test/entries/' + view.operation_id) return Response.json(view);
+  };
+  mount(); await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
+  fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
+  try {
+    await waitFor(() => expect(held).toBe(true));
+    await waitFor(() => expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument());
+    const row = modelRow('Catalog/00');
+    expect(within(row).getByText('Connecting', { exact: true })).toBeVisible();
+    expect(within(row).getAllByRole('button', { name: /Cancel test|Stop remaining checks/ })).toHaveLength(1);
+    expect(screen.queryByRole('region', { name: 'Test consent' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Settings recovery' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Active model check')).not.toBeInTheDocument();
+    expect(screen.queryByText('Connected', { exact: true })).not.toBeInTheDocument();
+    release();
+    await within(row).findByRole('button', { name: 'Cancel test' });
+    expect(within(row).getAllByRole('button', { name: /Cancel test|Stop remaining checks/ })).toHaveLength(1);
+    expect(row).not.toHaveTextContent(/refund|300 seconds|revision|OMNIS_MODEL_TEST_OK/);
+    expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
+  } finally { release(); }
+});
+it.each(['COMPLETED', 'UNKNOWN'] as const)('does not claim Connected before exact latest readback returns %s', async result => {
+  const { state, hook } = settingsBackend(configured, [], models);
+  let view: EntryTestView | undefined, held = false, release = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, body, method) => {
+    if (path === '/api/v1/model-test/entries' && method === 'PUT') {
+      view = { ...operation(String(body.operation_id), state.entries.find(item => item.entry_id === body.entry_id)!), state: 'FINISHED', finish_reason: 'COMPLETED', result_state: 'COMPLETED' };
+      return Response.json(view);
+    }
+    if (view && path.includes('/entries/latest/') && path.endsWith(view.entry_id)) { held = true; await gate; return Response.json({ ...view, result_state: result }); }
+    if (view && path === '/api/v1/model-test/entries/' + view.operation_id) return Response.json(view);
+  };
+  let lastCompleted: string | null = null;
+  if (result === 'COMPLETED') {
+    const backend = vi.mocked(fetch).getMockImplementation()!;
+    vi.mocked(fetch).mockImplementation(async (input, init) => {
+      const response = await backend(input, init);
+      const path = String(input).split('?')[0]!;
+      lastCompleted = path.replace(/[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}/g, ':id');
+      return response;
+    });
+  }
+  const mounted = mount();
+  try { await wizard(); }
+  finally {
+    if (result === 'COMPLETED') console.error('SOURCE_LATEST_PRE_WIZARD ' + JSON.stringify({
+      queries: mounted.client.getQueryCache().getAll().filter(query => query.queryKey[0] === 'session' || query.queryKey[1] === 'settings-model-library').map(query => ({
+        label: query.queryKey[0] === 'session' ? 'session' : 'library', status: query.state.status, fetchStatus: query.state.fetchStatus,
+        errorCode: query.state.error instanceof ApiError ? query.state.error.code : query.state.error ? 'NON_API_ERROR' : null,
+      })),
+      lastCompletedPath: lastCompleted,
+      phase: screen.queryByLabelText('Search models') ? 'catalog' : screen.queryByRole('region', { name: 'Add models wizard' }) ? 'wizard-key' : screen.queryByRole('region', { name: 'Configured models' }) ? 'library' : 'bootstrap',
+      add: { disabled: screen.queryByRole('button', { name: 'Add models' })?.hasAttribute('disabled') ?? null, ariaDisabled: screen.queryByRole('button', { name: 'Add models' })?.getAttribute('aria-disabled') ?? null },
+    }));
+  }
+  fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review();
+  fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
+  try {
+    await waitFor(() => expect(held).toBe(true));
+    expect(within(modelRow('Catalog/00')).getByText('Connecting')).toBeVisible();
+    expect(screen.queryByText('Connected', { exact: true })).not.toBeInTheDocument();
+    release(); await within(modelRow('Catalog/00')).findByText(result === 'COMPLETED' ? 'Connected' : 'Unconfirmed', { exact: true });
+    if (result === 'UNKNOWN') expect(within(modelRow('Catalog/00')).getByText(/Connection checks stopped/)).toBeVisible();
+    expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
+  } finally { release(); }
+});
+it('SOURCE healthy direct Test retains its terminal read instead of rehydrating the same running operation', async () => {
+  const { state, hook } = settingsBackend(configured, [entry], [...models, { ...models[0]!, model: entry.model }]);
+  const views = new Map<string, EntryTestView>();
+  let held = false, release = () => {}, secondId: string | undefined;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, body, method) => {
+    if (path === '/api/v1/model-test/entries' && method === 'PUT') {
+      const target = state.entries.find(item => item.entry_id === body.entry_id)!;
+      const view = operation(String(body.operation_id), target); views.set(target.entry_id, view);
+      if (target.entry_id === entryId) secondId = view.operation_id!;
+      return Response.json(view);
+    }
+    if (path.includes('/entries/latest/')) {
+      const view = views.get(path.split('/').at(-1)!); return view ? Response.json(view) : undefined;
+    }
+    const view = [...views.values()].find(item => path === '/api/v1/model-test/entries/' + item.operation_id);
+    if (view) {
+      if (view.entry_id === entryId) { held = true; await gate; }
+      const finished: EntryTestView = { ...view, state: 'FINISHED', state_revision: 3, result_state: 'COMPLETED', finish_reason: 'COMPLETED' };
+      views.set(view.entry_id, finished); return Response.json(finished);
+    }
+    return undefined;
+  };
+  const scope = await sessionScope(session.csrf_token), mounted = mount(true);
+  try {
+    await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review();
+    fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
+    const firstRow = await screen.findByRole('listitem', { name: 'Model Catalog/00 via OpenRouter' });
+    await within(firstRow).findByText('Connected', { exact: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Test Exact/Model via OpenRouter' }));
+    fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Send model test' }));
+    await waitFor(() => expect(held).toBe(true));
+    expect(within(modelRow(entry.model)).getByText('Connecting', { exact: true })).toBeVisible();
+    expect(within(modelRow(entry.model)).getByRole('button', { name: 'Cancel test' })).toBeEnabled();
+    expect(within(modelRow('Catalog/00')).getByText('Connected', { exact: true })).toBeVisible();
+    const first = views.get(state.entries.find(item => item.model === 'Catalog/00')!.entry_id)!;
+    release();
+    await waitFor(() => {
+      expect(mounted.client.getQueryData(['private', 'settings-entry-test', scope, secondId])).toMatchObject({ operation_id: secondId, state: 'FINISHED', state_revision: 3 });
+      expect(mounted.client.getQueryData(['private', 'settings-model-library', scope])).toMatchObject({ checks: { [entryId]: { operation_id: secondId, state: 'FINISHED', state_revision: 3 } } });
+      expect(within(modelRow(entry.model)).getByText('Connected', { exact: true })).toBeVisible();
+    });
+    expect(within(modelRow(entry.model)).queryByRole('button', { name: 'Cancel test' })).not.toBeInTheDocument();
+    expect(mounted.client.getQueryData(['private', 'settings-entry-test', scope, first.operation_id])).toEqual(first);
+    expect(state.writes.map(write => write.body.action ?? write.path)).toEqual(['refresh', 'save_models', '/api/v1/model-test/entries', '/api/v1/model-test/entries']);
+    expect(state.keys).toEqual(configured); expect(secondId).not.toBe(first.operation_id);
+  } catch (error) {
+    const polled = mounted.client.getQueryData<EntryTestView>(['private', 'settings-entry-test', scope, secondId]);
+    console.error('SOURCE_DIRECT_TERMINAL ' + JSON.stringify({ secondId, held, fixtureState: views.get(entryId)?.state, fixtureRevision: views.get(entryId)?.state_revision, queryState: polled?.state, queryRevision: polled?.state_revision, exactReads: state.reads.filter(path => path === '/api/v1/model-test/entries/' + secondId).length, starts: state.writes.filter(write => write.path === '/api/v1/model-test/entries').length, visibility: document.visibilityState }));
+    throw error;
+  } finally { release(); mounted.unmount(); mounted.client.clear(); }
+});
 it('Save & connect waits for exact terminal readback before each next model and hydrates both without browser storage', async () => {
   const { state, hook } = settingsBackend(configured, [], models);
   const views = new Map<string, EntryTestView>(); let complete = false;
@@ -356,7 +753,7 @@ it('Save & connect waits for exact terminal readback before each next model and 
   const mounted = mount(); const panel = await wizard();
   fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
   expect(within(panel).queryByRole('combobox')).not.toBeInTheDocument();
-  expect(within(panel).getByRole('checkbox')).toHaveAccessibleName(/2 calls/);
+  expect(within(panel).getByRole('checkbox')).toHaveAccessibleName('I approve using these models.');
   fireEvent.click(within(panel).getByRole('checkbox')); const connect = screen.getByRole('button', { name: 'Save & connect' }); fireEvent.click(connect); fireEvent.click(connect);
   await waitFor(() => expect(views.size).toBe(1));
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
@@ -440,7 +837,7 @@ it.each(['unavailable', 'missing', 'closed', 'owner-unavailable'] as const)('can
   expect(screen.getByRole('button', { name: `Test ${entry.model} via OpenRouter` })).toBeDisabled();
   fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review();
   expect(within(panel).getByRole('checkbox')).toBeDisabled(); expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled();
-  fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved. Assignments stay unchanged.');
+  fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved.');
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(0);
 });
 it('an unavailable instance read after Save cannot launch the first paid check', async () => {
@@ -498,11 +895,13 @@ it.each([false, true])('manual read uncertainty=%s stops only unsent checks unti
 it.each(['FAILED', 'INCOMPLETE', 'UNKNOWN', 'stale', 'refused', 'lost', 'read-lost', 'cancel', 'stop', 'unmount'] as const)('ends the unsent sequence on %s and never resumes it on reload', async failure => {
   const { state, hook } = settingsBackend(configured, [], models);
   let view: EntryTestView | undefined, finish = false;
-  hook.intercept = (path, body, method) => {
+  let release = () => {}; const gate = new Promise<void>(resolve => { release = resolve; });
+  hook.intercept = async (path, body, method) => {
     if (path === '/api/v1/model-test/entries' && method === 'PUT') {
       if (failure === 'refused') return Response.json({ error: { code: 'REVISION_CONFLICT', correlation_id: entryId } }, { status: 409 });
       const target = state.entries.find(item => item.entry_id === body.entry_id)!; view = operation(String(body.operation_id), target);
       if (failure === 'lost') throw new TypeError('Lost admission');
+      if (failure === 'stop') await gate;
       return Response.json(view);
     }
     if (path.includes('/entries/latest/')) return view?.entry_id === path.split('/').at(-1) ? Response.json(view) : Response.json({ error: { code: 'NOT_FOUND', correlation_id: entryId } }, { status: 404 });
@@ -521,7 +920,7 @@ it.each(['FAILED', 'INCOMPLETE', 'UNKNOWN', 'stale', 'refused', 'lost', 'read-lo
   fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
   await waitFor(() => expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1));
   if (failure === 'cancel') { const cancel = await screen.findByRole('button', { name: 'Cancel test' }); await waitFor(() => expect(cancel).toBeEnabled()); fireEvent.click(cancel); }
-  else if (failure === 'stop') fireEvent.click(await screen.findByRole('button', { name: 'Stop remaining checks' }));
+  else if (failure === 'stop') { fireEvent.click(await screen.findByRole('button', { name: 'Stop remaining checks' })); release(); }
   else if (failure !== 'unmount') await screen.findByText(/Connection checks stopped|Test outcome unconfirmed/);
   if (failure === 'read-lost') expect(within(screen.getByRole('region', { name: 'Configured models' })).getByText('Unconfirmed')).toBeVisible();
   mounted.unmount(); finish = true; mount();
@@ -554,7 +953,7 @@ it('missing capabilities on any selected model allow local Save but never a sile
   fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByText('Enter a model ID'));
   fireEvent.change(screen.getByLabelText('Exact model ID'), { target: { value: 'Manual/unknown' } }); fireEvent.click(screen.getByRole('button', { name: 'Add model ID' })); await review();
   expect(screen.getByRole('checkbox')).toBeDisabled(); expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled();
-  fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved. Assignments stay unchanged.');
+  fireEvent.click(screen.getByRole('button', { name: 'Save models' })); await screen.findByText('Models saved.');
   expect(state.entries).toHaveLength(2); expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(0);
 });
 it('Save & connect keeps Cancel/readback outside wizard, and unmount abandons remaining work', async () => {
@@ -566,7 +965,7 @@ it('Save & connect keeps Cancel/readback outside wizard, and unmount abandons re
     if (path.startsWith('/api/v1/model-test/entries/')) return Response.json(view);
   };
   const mounted = mount(); await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/01' })); await review();
-  expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled(); fireEvent.click(screen.getByRole('checkbox', { name: /I approve the fixed synthetic input/ })); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
+  expect(screen.getByRole('button', { name: 'Save & connect' })).toBeDisabled(); fireEvent.click(screen.getByRole('checkbox', { name: /I approve using (this model|these models)\./ })); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
   const panel = await screen.findByRole('listitem', { name: 'Model Catalog/00 via OpenRouter' }); await waitFor(() => expect(within(panel).getByRole('button', { name: 'Cancel test' })).toBeEnabled());
   expect(screen.queryByRole('region', { name: 'Add models wizard' })).not.toBeInTheDocument(); expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(1);
   expect(view?.requested_model).toBe('Catalog/00'); expect(state.keys.selection).toBeNull(); expect(view?.entry_id).toBe(state.entries[0]!.entry_id);
@@ -636,6 +1035,70 @@ it.each(['sequence', 'single', 'pending', 'hydrated'] as const)('expands history
   await waitFor(() => expect(client.getQueryData(['private', 'settings-entry-test', scope, old.operation_id])).toMatchObject({ operation_id: old.operation_id, state: 'FINISHED', result_state: 'COMPLETED' }));
   expect(within(modelRow('Exact/Model')).getByText('Test passed · model details unavailable')).toBeVisible();
   expect(state.writes.filter(item => item.path === '/api/v1/model-test/entries')).toHaveLength(mode === 'hydrated' ? 0 : 1);
+});
+it.each([false, true])('SOURCE R2 delayed library stale-selected=%s recovers B without resurrecting terminal A', async staleSelected => {
+  const target = { ...entry, entry_id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', model: 'Catalog/00' };
+  const a = operation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', entry);
+  let b = operation('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', target);
+  const terminalA: EntryTestView = { ...a, state: 'FINISHED', state_revision: 3, result_state: 'COMPLETED', finish_reason: 'COMPLETED' };
+  const { state, hook } = settingsBackend(configured, [entry, target], [...models, { ...models[0]!, model: entry.model }]);
+  let reloading = false, held = false, finished = false, remoteB = false, release = () => {}, releaseHistory = () => {};
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const historyGate = new Promise<void>(resolve => { releaseHistory = resolve; });
+  hook.intercept = async (path, body, method) => {
+    if (path === '/api/v1/model-test/entries/latest/' + entryId) {
+      if (reloading) { held = true; await gate; return Response.json(staleSelected ? a : terminalA); }
+      return Response.json(a);
+    }
+    if (path === '/api/v1/model-test/entries/latest/' + target.entry_id) {
+      if (reloading) await gate;
+      return remoteB ? Response.json(b) : undefined;
+    }
+    if (path === '/api/v1/model-test/entries/' + a.operation_id) {
+      // A fresh GET must not hide reactivation of A from its stale library snapshot.
+      if (finished && remoteB) await historyGate;
+      return Response.json(finished ? terminalA : a);
+    }
+    if (path === '/api/v1/model-test/entries/' + b.operation_id) return Response.json(b);
+    if (path === '/api/v1/model-test/entries/' + b.operation_id + '/cancel' && method === 'POST') {
+      expect(body.expected_state_revision).toBe(b.state_revision);
+      b = { ...b, state: 'FINISHED', state_revision: 4, result_state: 'NOT_SENT', finish_reason: 'CANCELLED' };
+      return Response.json(b);
+    }
+    return undefined;
+  };
+  const scope = await sessionScope(session.csrf_token); remember(testStorage, scope, a.operation_id!);
+  const mounted = mount(true);
+  try {
+    const rowA = await screen.findByRole('listitem', { name: 'Model Exact/Model via OpenRouter' });
+    await within(rowA).findByRole('button', { name: 'Cancel test' });
+    reloading = true; fireEvent.click(screen.getByRole('button', { name: 'Reload current settings' }));
+    await waitFor(() => expect(held).toBe(true)); finished = true;
+    await waitFor(() => expect(mounted.client.getQueryData(['private', 'settings-entry-test', scope, a.operation_id])).toMatchObject({ state: 'FINISHED', state_revision: 3 }), { timeout: 2000 });
+    await within(rowA).findByText('Connected', { exact: true });
+    const aReads = state.reads.filter(path => path === '/api/v1/model-test/entries/' + a.operation_id).length;
+    remoteB = true; release(); await screen.findByText('Settings reloaded.');
+    const rowB = modelRow(target.model), cancel = await within(rowB).findByRole('button', { name: 'Cancel test' });
+    expect(within(rowB).getByRole('button', { name: 'Details for Catalog/00 via OpenRouter' })).toHaveAttribute('aria-expanded', 'false');
+    expect(cancel).toBeVisible(); expect(within(rowB).getByRole('button', { name: 'Read test status' })).toBeVisible();
+    await waitFor(() => expect(state.reads).toContain('/api/v1/model-test/entries/' + b.operation_id));
+    expect(state.writes).toEqual([]);
+    fireEvent.click(cancel);
+    await waitFor(() => {
+      expect(mounted.client.getQueryData(['private', 'settings-entry-test', scope, b.operation_id])).toMatchObject({ state: 'FINISHED', state_revision: 4 });
+      expect(mounted.client.getQueryData(['private', 'settings-model-library', scope])).toMatchObject({ checks: { [entryId]: terminalA, [target.entry_id]: b } });
+      expect(within(rowA).getByText('Connected', { exact: true })).toBeVisible();
+      expect(within(rowB).getByText('Test cancelled. Read the saved result before testing again.')).toBeVisible();
+    });
+    expect(screen.queryByRole('button', { name: 'Cancel test' })).not.toBeInTheDocument();
+    expect(state.reads.filter(path => path === '/api/v1/model-test/entries/' + a.operation_id)).toHaveLength(aReads);
+    expect(state.writes).toEqual([{ path: `/api/v1/model-test/entries/${b.operation_id}/cancel`, body: { command_id: expect.any(String), expected_state_revision: 2 } }]);
+    expect(state.keys).toEqual(configured); expect(state.entries).toEqual([entry, target]);
+  } catch (error) {
+    const library = mounted.client.getQueryData<{ checks: Record<string, EntryTestView> }>(['private', 'settings-model-library', scope]);
+    console.error('R2_FIX_DELAYED_LIBRARY ' + JSON.stringify({ staleSelected, exactA: mounted.client.getQueryData<EntryTestView>(['private', 'settings-entry-test', scope, a.operation_id])?.state, libraryA: library?.checks[entryId]?.state, libraryB: library?.checks[target.entry_id]?.state, exactBReads: state.reads.filter(path => path === '/api/v1/model-test/entries/' + b.operation_id).length, cancelButtons: screen.queryAllByRole('button', { name: 'Cancel test' }).length, writes: state.writes }));
+    throw error;
+  } finally { release(); releaseHistory(); mounted.unmount(); mounted.client.clear(); }
 });
 it.each(['remembered-completed', 'fresh-unknown-first', 'remembered-unknown'] as const)('recovers the actual active check with %s history', async mode => {
   const target = { ...entry, entry_id: mode === 'remembered-unknown' ? '00000000-0000-4000-8000-000000000001' : 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', model: 'Catalog/00' };
@@ -741,7 +1204,7 @@ it.each(['RUNNING', 'FINISHED', 'NEEDS_RECONCILIATION'] as const)('keeps %s reco
     expect(within(panel).queryByText(/Cancel does not guarantee/)).not.toBeInTheDocument();
   } else {
     expect(within(panel).getByRole('button', { name: 'Cancel test' })).toBeEnabled();
-    expect(within(panel).getByText('Cancel does not guarantee remote cancellation or a refund.')).toBeVisible();
+    expect(within(panel).queryByText(/refund/)).not.toBeInTheDocument();
   }
   fireEvent.click(toggle);
   expect(within(panel).queryByLabelText('Model response')).not.toBeInTheDocument();
@@ -819,6 +1282,10 @@ it.each(['READY', 'PARTIAL', 'FAILED', 'PENDING', 'UNKNOWN'] as const)('keeps ca
     const recovery = screen.getByRole('region', { name: 'Settings recovery' });
     expect(recovery).toHaveTextContent('Save unconfirmed. Recover the exact receipt before another mutation.');
     expect(within(recovery).getByText(`Command ${entryId}`)).not.toBeVisible();
+    const commandDetails = within(recovery).getByText('Command details');
+    expect(commandDetails.closest('details')).not.toHaveAttribute('open');
+    fireEvent.click(commandDetails); expect(within(recovery).getByText(`Command ${entryId}`)).toBeVisible();
+    fireEvent.click(commandDetails); expect(within(recovery).getByText(`Command ${entryId}`)).not.toBeVisible();
     expect(screen.getByRole('button', { name: 'Recover exact receipt' })).toBeEnabled();
     expect(within(recovery).getByRole('button', { name: 'Read current state' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Add models' })).toBeDisabled();
@@ -837,5 +1304,5 @@ it('explicitly updates a stale saved identity after key rotation instead of dupl
   const { state } = settingsBackend({ ...configured, connections: configured.connections.map(item => ({ ...item, revision: 2 })) }, [entry]);
   mount(); await waitFor(() => expect(screen.getByRole('button', { name: 'Add models' })).toBeEnabled()); fireEvent.click(screen.getByRole('button', { name: 'Add models' })); fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
   const update = await screen.findByRole('button', { name: 'Update Exact/Model' }); fireEvent.click(update); await review(); fireEvent.click(screen.getByRole('button', { name: 'Save models' }));
-  await screen.findByText('Models saved. Assignments stay unchanged.'); expect(state.entries).toHaveLength(1); expect(state.entries[0]).toMatchObject({ entry_id: entry.entry_id, revision: 2, connection_revision: 2, output_tokens: 512 });
+  await screen.findByText('Models saved.'); expect(state.entries).toHaveLength(1); expect(state.entries[0]).toMatchObject({ entry_id: entry.entry_id, revision: 2, connection_revision: 2, output_tokens: 512 });
 });

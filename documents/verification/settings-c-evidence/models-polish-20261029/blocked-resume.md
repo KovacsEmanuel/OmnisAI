@@ -2,7 +2,7 @@
 
 ## Outcome
 
-**IMPLEMENTED_CANDIDATE / SOURCE_APPROVED_SCOPED / REAL_ACCEPTANCE_BLOCKED / NOT_INTEGRATED_NOT_INSTALLED.** The operator retains the previous0.1.1/schema0017 installation, but fresh status is **UNAVAILABLE / RECOVERY_REQUIRED, exit4**, not READY. Its mounted web directory and data were not changed. The new inline/feedback refinement and busy correction remain isolated candidates.
+**IMPLEMENTED_CANDIDATE / CHANGES_REQUESTED_ADD_TRANSIENT / REAL_ACCEPTANCE_BLOCKED / NOT_INTEGRATED_NOT_INSTALLED.** The operator retains the previous0.1.1/schema0017 installation; last actual status is **UNAVAILABLE / RECOVERY_REQUIRED, exit4**, not READY. Its mounted web directory and data were not changed. The new inline/feedback refinement and busy correction remain isolated candidates; the focused busy approval does not clear the subsequently reproduced Add regression.
 
 - Candidate branch: `feat/settings-inline-feedback-20261029`.
 - Worktree: `/home/kali/.hermes/cache/scratch/settings-inline-feedback-20261029`.
@@ -21,7 +21,21 @@ Final behavioral source is `0c8bff`; `baf5922` changes only two Playwright held-
 - Finite control matrix: **58 unique sites**,21 real browser/API/PG prefix and37 SOURCE component, with all handlers/navigation represented at their declared levels. Not58 live controls, all combinations or cross-browser/screen-reader certification.
 - Base freeze and review: `source-baf5922-cleanup-freeze.json`, `source-baf5922-review-original.md`; earlier source/body approvals and freezes are siblings. Those build bytes were reviewed0c8bff; the current busy correction has its own build/review below and does not inherit native acceptance.
 
-## Current boundary — execution mandate, 30 October
+## Deep analysis — confirmed Add root cause; no implementation mandate inferred
+
+The operator requested analysis/audit/review first, then remediation. Main remains product-unchanged and candidate `b1d276e` remains byte-exact; no writer, fix, PG replay or installed recovery was started for this analysis.
+
+**Confirmed product defect:** `SettingsModelWizard.tsx:108–114` refuses `add()` while `transient`, but catalog Add (`:147`) and Add model ID (`:151`) expose neither native nor ARIA transient blocking. Manual Add also clears its input even when add was refused. `SettingsModelsPage.tsx:101,399` in `b1d276e` propagates reading/refetch into that guard. The wizard blob is identical in b1d276e/dbf3a13/baf5922: the mismatch existed, but b1 adds a new refusal window for local library reads. This is a regression in the isolated candidate, not the operator installation.
+
+**Native SOURCE discrimination:** existing built App `index-BuIyJOVq.js`, Chromium/synthetic allowlisted HTTP; one invocation, exit0, one diagnostic test/two controls. [Byte-exact original observations](add-native-b1d276e-original.txt), SHA256 `3c2049aeb3166a1f6a0429f53e25ec08e3849c60fb2bf7b11ce89d76483792dd`. Parent read the probe and validated all five observations. Hold only the library GET after Refresh: catalog visible/aria-busy=false, Add enabled; two native Add clicks leave zero chips. Manual `manual/preview` is cleared with zero chips. After releasing the GET, Continue has aria-busy=false but stays natively disabled with zero chips. Explicit Add in the settled state produces two chips and Continue reaches Review. Request counts do not grow after release; zero Save/Start/PG/provider/operator effects. No query loop was observed in this control.
+
+**Test finding:** `settings-models.mjs:334–350` treats successful clicks as selection, without checking resulting chips. Catalog readiness is not library readiness. Fixing the product must align Add availability with its guard and retain manual input on refusal; the consumer test must assert selections/readiness, not force clicks, widen timeouts or remove guards. The prior PG log proves initial aria-busy=true and persistent disabled, **not busy=true for30s**. The native control above distinguishes these states, but does not retrospectively prove the original PG interleaving or the older Stop outcome.
+
+**Supervisor analysis narrowed:** `core/db.py:61–68` sets checkout/connect/statement timeouts, not a whole-transaction deadline. PostgreSQL REL_18_6 [`finish_xact_command`](https://github.com/postgres/postgres/blob/REL_18_6/src/backend/tcop/postgres.c#L2826-L2833) disables statement timeout before commit; synchronous commit can wait in [`XLogFlush`](https://github.com/postgres/postgres/blob/REL_18_6/src/backend/access/transam/xact.c#L1498-L1508). Parent fetched these exact source excerpts and recalculated the retained trace:5852ms context exit,4999ms remaining after the last heartbeat check,5857ms until the fresh check,858ms late. Lease expiry/refusal are real and fail-closed, not takeover/stale snapshot/drain. Physical commit/protocol versus client scheduling remains unproven; require same-cycle driver commit/connection-return markers plus backend PID/wait-state and loop progress before selecting a remedy. Do not disable durability, enlarge the lease or auto-restart to hide it.
+
+**Next phase decision:** minimally repair Add/manual-input and their existing consumer postconditions after explicit implementation admission. Native SOURCE root cause is established; PG/terminal/latest/Stop and full Models acceptance still require their own reviewed bounded evidence. Supervisor needs the missing correlated witness, not a speculative product fix. T1 remains NOT_CLOSED / T2 NOT_READY.
+
+## Execution failures retained — 30 October
 
 [Original observations and adjudication](execution-20261030.json) retain both new real failures, reviewed identities and the fresh supervisor trace. No third real attempt or full replay is admitted by this recovery point.
 
@@ -31,7 +45,7 @@ Final behavioral source is `0c8bff`; `baf5922` changes only two Playwright held-
 - [Narrow test review on dbf3a13](stop-read-dbf3a13-review-original.md) admitted one diagnostic, not a PASS. Healthy route now omits Stop but preserves exact terminal/current/latest; it remains NOT_RUN. Historical SOURCE4PASS/1FAIL and the subsequent marker-absent1PASS remain unexplained. Legacy default-web2/SOURCE observer2 counters are unchanged.
 - Both new runtime families drained; exact CIDs/project networks/socket absent, PGDATA/logs retained. `peer_handlers=1` was observed before drain, not a quiescence claim. All candidate changes are committed; no writer or QA process remains assigned.
 
-The original Stop→Connecting failure below remains **UNADJUDICATED**. Source separates abandoned continuation from readable admitted work, but neither new real run reached an operation. The next discriminant is the native pre-Save library/query/selection boundary, then the same admitted operation/terminal/latest readback; not a third blind effect run, larger timeout or product change inferred solely from the test.
+The original Stop→Connecting failure below remains **UNADJUDICATED**. Source separates abandoned continuation from readable admitted work, but neither new PG run reached an operation. The subsequent native SOURCE analysis above establishes the Add failure class, not an admitted PG operation or its terminal/latest result. No third blind effect run or larger timeout follows from it.
 
 ## Historical blocker: QA-BAF5922-01
 

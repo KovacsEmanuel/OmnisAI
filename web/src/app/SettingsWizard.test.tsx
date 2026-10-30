@@ -8,6 +8,7 @@ import { App } from './App';
 import { catalogId, configured, empty, entry, entryId, selected, settingsBackend } from '../../tests/settings-fixtures';
 import type { ModelEntry } from '../features/engagement/SettingsModels';
 import type { EntryTestView } from '../shared/api/modelTest';
+import { ApiError } from '../shared/api/errors';
 import { catalogStorage, pendingStorage, remember, sessionScope, testStorage } from '../features/engagement/SettingsModels';
 import { session } from '../../tests/fixtures';
 const models = Array.from({ length: 32 }, (_, i) => ({ model: `Catalog/${String(i).padStart(2, '0')}`, name: `Model ${i}`, max_output_tokens: 4096, supports_max_tokens: true, reason: null }));
@@ -521,7 +522,30 @@ it.each(['COMPLETED', 'UNKNOWN'] as const)('does not claim Connected before exac
     if (view && path.includes('/entries/latest/') && path.endsWith(view.entry_id)) { held = true; await gate; return Response.json({ ...view, result_state: result }); }
     if (view && path === '/api/v1/model-test/entries/' + view.operation_id) return Response.json(view);
   };
-  mount(); await wizard(); fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review();
+  let lastCompleted: string | null = null;
+  if (result === 'COMPLETED') {
+    const backend = vi.mocked(fetch).getMockImplementation()!;
+    vi.mocked(fetch).mockImplementation(async (input, init) => {
+      const response = await backend(input, init);
+      const path = String(input).split('?')[0]!;
+      lastCompleted = path.replace(/[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}/g, ':id');
+      return response;
+    });
+  }
+  const mounted = mount();
+  try { await wizard(); }
+  finally {
+    if (result === 'COMPLETED') console.error('SOURCE_LATEST_PRE_WIZARD ' + JSON.stringify({
+      queries: mounted.client.getQueryCache().getAll().filter(query => query.queryKey[0] === 'session' || query.queryKey[1] === 'settings-model-library').map(query => ({
+        label: query.queryKey[0] === 'session' ? 'session' : 'library', status: query.state.status, fetchStatus: query.state.fetchStatus,
+        errorCode: query.state.error instanceof ApiError ? query.state.error.code : query.state.error ? 'NON_API_ERROR' : null,
+      })),
+      lastCompletedPath: lastCompleted,
+      phase: screen.queryByLabelText('Search models') ? 'catalog' : screen.queryByRole('region', { name: 'Add models wizard' }) ? 'wizard-key' : screen.queryByRole('region', { name: 'Configured models' }) ? 'library' : 'bootstrap',
+      add: { disabled: screen.queryByRole('button', { name: 'Add models' })?.hasAttribute('disabled') ?? null, ariaDisabled: screen.queryByRole('button', { name: 'Add models' })?.getAttribute('aria-disabled') ?? null },
+    }));
+  }
+  fireEvent.click(screen.getByRole('button', { name: 'Add Catalog/00' })); await review();
   fireEvent.click(screen.getByRole('checkbox')); fireEvent.click(screen.getByRole('button', { name: 'Save & connect' }));
   try {
     await waitFor(() => expect(held).toBe(true));

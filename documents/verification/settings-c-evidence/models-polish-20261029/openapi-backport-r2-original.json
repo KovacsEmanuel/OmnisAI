@@ -1,0 +1,247 @@
+{
+  "report_id": "T1-OPENAPI-R2-INDEPENDENT-DISTRIBUTION-REVIEW",
+  "recorded_utc": "2026-10-31T17:04:53.482143+00:00",
+  "role": "Independent read-only R2: provenance, reproducibility, license retention, package integrity, hidden vulnerable branch",
+  "verdict": "APPROVED_SCOPED",
+  "verdict_scope": "Frozen developer-only Redocly distribution and its ordinary npm resolution. No confirmed security/correctness finding in this scope. Not integration acceptance, R1 functional QA, product runtime PASS, or global T1/T2 closure.",
+  "snapshot": {
+    "base": "48feecb313121ed03159796486f5ca3f6878e4cc",
+    "head": "fadf396e3e0bc35065161b2cf7d0a2af495fbd50",
+    "manifest_sha256": "a2f33224af5927503a142c8f01ce168822b5c7bc02c6c8ec312b67faab1338a1",
+    "files": {
+      "documents/Omnis_Stack_Baseline.html": "4b8918d1d1b843fa4ccef005ce00e84af1259173ea1ba3bc68d3ee73b43f4a1f",
+      "documents/Omnis_Stack_Baseline.md": "91b95af59304bfd7a1c494d887ee1ef580cc9df1a71e908edb16d4d6e9e5c2e5",
+      "documents/Omnis_Stack_Baseline.versions.json": "e211e0afde6d678cca18c37179c5377df2c8a14139e165e57e37e0b2a8da4097",
+      "tools/development/README.md": "1b130d636f84e7f4d987411aecd13186e223ca81d92c86cb24ea9c6bc2a61063",
+      "tools/development/openapi-core/LICENSE.md": "f6bf9ce4d84b47c1cdda9d8988ac977efc314f00ad65e498fc514ddf118440b5",
+      "tools/development/openapi-core/NOTICE.md": "810573a9689ec1106f96b272259646bb1be959917b66556f5ba720541c2b4945",
+      "tools/development/openapi-core/README.md": "0d931a79c86608e87f3e7e7107732629a5783e23c8977097aa8e1e3a61960d0f",
+      "tools/development/openapi-core/matcher.patch": "987ec9d8ebc99f4b466984fa6eae22d824ec691a3e76071fb39cebf5a0100615",
+      "tools/development/openapi-core/openapi-core-1.34.20-omnis-picomatch.1.tgz": "488c4fff9468f0dd556382aebf474ab1a145a9aa8285cf2732a078ea8a5d2d87",
+      "tools/development/openapi-core/repack.py": "3bc60882411fda024fd26e971a1bbbf881e14e9bbc74cbd7a497dfa5519b96dd",
+      "tools/development/openapi-core/upstream.json": "bed1fe2ca84542e603805156f9524b5097945700785fa170587331449d4f056e",
+      "web/package-lock.json": "75b931b97c6994d639f9a18148f46bdcdf49be2179e1cf3b99f97e9ab176836f",
+      "web/package.json": "9b9f738be722d0a410fe94bfff52f28323a5f4c14c379b690784e06903c1ca6c",
+      "web/scripts/contracts.test.mjs": "d4f2d9b61759665ecaddcae91de3d3abfadfa6a9aae52ab00fbc330b9d8426d2",
+      "web/scripts/openapi-matcher.test.mjs": "569f28196479993b7bd70c1d33ba0648bf9c271da68a47a7b54f43d7b1cafb18"
+    },
+    "author_head": "d1592204a5295cd22514ac21c49c883bf4bbf2eb",
+    "author_manifest_path": "/home/kali/.hermes/cache/scratch/t1-openapi-backport-evidence/frozen-candidate.json",
+    "worktree": "/home/kali/OmnisAI",
+    "all_15_changed_file_hashes_rechecked_at_end": true
+  },
+  "artifact": {
+    "sha256": "488c4fff9468f0dd556382aebf474ab1a145a9aa8285cf2732a078ea8a5d2d87",
+    "integrity": "sha512-omsS7t5u1FJq0g8ZFHFVHxRNBxq6+zsGuWoT1RXDQFLL4AgRcrSrNkykrZbukUgRIYF1OMfe9tG3GV0awKaPWg==",
+    "bytes": 410119,
+    "path": "/home/kali/OmnisAI/tools/development/openapi-core/openapi-core-1.34.20-omnis-picomatch.1.tgz",
+    "version": "1.34.20+omnis.picomatch.1"
+  },
+  "findings": [],
+  "finding_schema": {
+    "required_when_present": [
+      "severity",
+      "file:line",
+      "reproducer",
+      "violated_criterion",
+      "minimal_remedy"
+    ]
+  },
+  "checks": [
+    {
+      "criterion": "Original distribution provenance and declared license identity",
+      "status": "PASS",
+      "file:line": "tools/development/openapi-core/upstream.json:4-24; LICENSE.md:1-7",
+      "evidence": "Fresh public npm metadata for 1.34.20 matches original tarball SHA-512 and registry gitHead b563864727f1c7524021196d27bad4524f32e667. Fresh raw repository LICENSE.md at that commit is byte-exact with retained MIT license, SHA256 f6bf9ce4d84b47c1cdda9d8988ac977efc314f00ad65e498fc514ddf118440b5.",
+      "support": [
+        "public-provenance.json",
+        "archive-identity.json"
+      ]
+    },
+    {
+      "criterion": "Official matcher provenance; no unapproved 2.x API backport",
+      "status": "PASS",
+      "file:line": "tools/development/openapi-core/matcher.patch:1-63; NOTICE.md:9-17",
+      "evidence": "Fresh official f5ce2e82c72034b893e19bfcaad198930a685399.diff hashes to recorded e50ef00990d9aa5d4cd56db7e8e04081841fca6c2b83ea166dd085c23dc9e936. Selected matcher is picomatch.isMatch, with unchanged protocol stripping. Public 2.7.0 tarball was SRI-verified as data and its distributed reader contains that matcher. Exact original-to-candidate diff changes only package.json and the two matcher imports/calls.",
+      "support": [
+        "public-provenance.json",
+        "published-and-transitive-integrity.json",
+        "archive-file-hashes.json"
+      ]
+    },
+    {
+      "criterion": "Full archive/source retention and package integrity",
+      "status": "PASS",
+      "file:line": "tools/development/openapi-core/repack.py:33-54; upstream.json:26-39",
+      "evidence": "Original 687 files; candidate 688. Exactly 683 original files byte-identical, three changed (package.json/src/utils.ts/lib/utils.js), two added (LICENSE.md/OMNIS-PATCH.md), one removed (invalidated tsconfig.tsbuildinfo). No duplicate names, links, traversal or non-regular members. Original file modes retained, normalized owner/time fields. Every installed core file matches the artifact and there are no extra/missing installed core files. Original notices, declarations, entrypoints and remaining implementation retained.",
+      "support": [
+        "archive-identity.json",
+        "archive-file-hashes.json"
+      ]
+    },
+    {
+      "criterion": "Reproducible construction from pinned input",
+      "status": "PASS",
+      "file:line": "tools/development/openapi-core/repack.py:18-57",
+      "evidence": "Ran repository repack.py twice with Python3.13.15/GNU patch2.8 and private HOME/TMPDIR. Both exit0, stdout reports exact application with no offsets/fuzz, identical 410119-byte artifact SHA256 488c4fff9468f0dd556382aebf474ab1a145a9aa8285cf2732a078ea8a5d2d87 and lock SRI. No install/download/lifecycle script in repacker.",
+      "support": [
+        "probe-repack.py",
+        "repack-results.json"
+      ]
+    },
+    {
+      "criterion": "Input refusal, overwrite prevention and owned scratch cleanup",
+      "status": "PASS",
+      "file:line": "tools/development/openapi-core/repack.py:27-44",
+      "evidence": "Wrong upstream byte/SRI refused with exit1 before extraction/patch and no output. Existing output refused with FileExistsError/exit1 and sentinel bytes unchanged. Missing patch executable refused with FileNotFoundError/exit1 and no output. Temporary extraction directories empty after all successful and failed controls.",
+      "support": [
+        "probe-repack.py",
+        "repack-results.json"
+      ]
+    },
+    {
+      "criterion": "Compiler emit binds changed source to distributed JavaScript",
+      "status": "PASS",
+      "file:line": "tools/development/openapi-core/matcher.patch:29-63; README.md:56-58",
+      "evidence": "Actual installed TypeScript5.9.3 transpileModule with CommonJS/ES2021 reports zero diagnostics and emits byte-exact installed lib/utils.js from src/utils.ts; all installed core bytes already bound to frozen artifact. Node24.21.0 --check changed lib/utils.js exit0. This is emit/syntax binding, not full upstream semantic typecheck.",
+      "support": [
+        "compiler-resolution.json",
+        "archive-identity.json"
+      ]
+    },
+    {
+      "criterion": "Ordinary npm SemVer, one real core and no installed minimatch branch",
+      "status": "PASS",
+      "file:line": "web/package.json:29-31; web/package-lock.json:341-363; tools/development/openapi-core/matcher.patch:1-28",
+      "evidence": "npm11.19.0 ls --all --json --offline --ignore-scripts exit0 with no problems. Actual generator resolver and direct dependency resolve the identical installed core path. npm own semver accepts build-metadata version in ^1.34.6 and still in <=2.6.0, so metadata does not itself escape former advisory range. All146 actual installed package versions match lock, including nested packages; exactly one physical core, zero minimatch packages, no installed runtime/optional/peer minimatch declarations. The25 missing lock entries are individually incompatible optional OS/CPU/libc binaries. Unchanged third-party devDependency minimatch references in two dom-accessibility-api manifests are not installed dependency edges.",
+      "support": [
+        "compiler-resolution.json",
+        "archive-identity.json",
+        "published-and-transitive-integrity.json"
+      ]
+    },
+    {
+      "criterion": "Real source removal, not an audit count/version disguise",
+      "status": "PASS",
+      "file:line": "tools/development/openapi-core/matcher.patch:15-16,34-42,50-60; web/package-lock.json:341-363",
+      "evidence": "Candidate archive has no minimatch reference in executable source or package dependency metadata; remaining archive mentions are CHANGELOG/OMNIS-PATCH documentation. Direct package comparison proves replaced runtime import and call in both source and JS, and removed package dependency. Lock delta is root direct devDependency plus core metadata and removal only of minimatch/brace-expansion/balanced-match; all other package entries unchanged. Public picomatch4.0.7 tarball matches registry SRI and all10 installed files, with no runtime dependencies. Author audit RED exit1/three moderate nodes and GREEN exit0/zero were read verbatim, but audit was not rerun and count alone was not used as proof.",
+      "support": [
+        "archive-file-hashes.json",
+        "archive-identity.json",
+        "published-and-transitive-integrity.json",
+        "compiler-resolution.json"
+      ]
+    },
+    {
+      "criterion": "Selected pin and scope remain explicit",
+      "status": "PASS",
+      "file:line": "documents/Omnis_Stack_Baseline.versions.json:101-112; tools/development/openapi-core/README.md:3-21,102-115",
+      "evidence": "Selected local file pin agrees with package manifest/lock, is dev-only and marked candidate. No forced resolver override, audit exception, major upgrade, removed validation path, product authority or runtime permission added. Current explicit user approval supersedes stale README authorization text; parent owns reconciliation, not an R2 defect."
+    }
+  ],
+  "audit_evidence_readback": {
+    "audit-red": {
+      "path": "/home/kali/.hermes/cache/scratch/t1-openapi-backport-evidence/audit-red.stdout",
+      "sha256": "2e112b239f78b15d8cfc5b31fb4893ecf47f9416463b03562282200cfed9cc9b",
+      "author_exit": 1,
+      "argv": [
+        "npm",
+        "audit",
+        "--include=dev",
+        "--json"
+      ],
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 3,
+        "high": 0,
+        "critical": 0,
+        "total": 3
+      },
+      "independently_rerun": false
+    },
+    "audit-final-green": {
+      "path": "/home/kali/.hermes/cache/scratch/t1-openapi-backport-evidence/audit-final-green.stdout",
+      "sha256": "07578ddad5331fc6861c4442d4b8ef309e925b199b2bc43ee28fb029f29a78af",
+      "author_exit": 0,
+      "argv": [
+        "npm",
+        "audit",
+        "--include=dev",
+        "--json"
+      ],
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      },
+      "independently_rerun": false
+    }
+  },
+  "review_probe_issue": {
+    "initial_probe": "Optional-platform predicate checked OS/CPU only and raised AssertionError with 25 missing entries.",
+    "cause": "Two linux-x64-musl optional entries differ by libc, not OS/CPU.",
+    "correction": "Read actual libc using getconf; include lock libc constraints. No package or environment mutation.",
+    "final_assertion_passed": true
+  },
+  "historical_failures_preserved": [
+    "Initial author web run353/354 failed waiting for Wizard button; cause UNKNOWN despite later354/354. Not repaired or reclassified by this review.",
+    "Original audit RED retained; no audit waiver.",
+    "Historical asymmetric patch-context reapply refusal remains in author evidence. Current balanced frozen patch reapplied exactly in both independent runs."
+  ],
+  "limits_and_not_run": [
+    "R1 owns actual generator behavioral/functional tests; R2 read callers/tests but did not duplicate that workstream.",
+    "No main node_modules change, npm ci/install, main build, full gates, PostgreSQL, browser, service, operator profile, vault, DB, target/provider, T2/auth/autopair or protected-file access.",
+    "No fresh npm audit run; exact original author audit outputs read with independent source/archive/dependency proof.",
+    "No full upstream Redocly build/typecheck/test suite, arbitrary minimatch/picomatch pattern equivalence, remote schema authorization or full codebase vulnerability audit.",
+    "Public HTTPS registry/GitHub metadata and source identity checked; npm signature/SLSA attestations not independently verified.",
+    "No new enumeration of every compatible registry release; current selected original/fixed/generator/picomatch provenance checked.",
+    "Failure controls cover wrong SRI, preexisting output and missing patch; interruption/disk-full/power-loss not exercised."
+  ],
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "mutations": {
+    "repository_files_modified": [],
+    "author_installed_tree_modified": false,
+    "only_owned_scratch": "/home/kali/.hermes/cache/scratch/t1-openapi-review-r2",
+    "resources_started": [],
+    "extraction_scratch_empty": true,
+    "evidence_retained": true
+  },
+  "support_files": {
+    "archive-identity.json": {
+      "path": "/home/kali/.hermes/cache/scratch/t1-openapi-review-r2/archive-identity.json",
+      "sha256": "fd2e574ba3dac71d226318c383e532ab0524b724d3966db913a92083b54584ec"
+    },
+    "archive-file-hashes.json": {
+      "path": "/home/kali/.hermes/cache/scratch/t1-openapi-review-r2/archive-file-hashes.json",
+      "sha256": "21d2e239bf657b25f910e3e4457c8b5cc8b6329433ff4cf43862ee95f2669cc0"
+    },
+    "public-provenance.json": {
+      "path": "/home/kali/.hermes/cache/scratch/t1-openapi-review-r2/public-provenance.json",
+      "sha256": "cde4830410976180bfb2d2e4409a6a1f055bba648320b426a3ff1818b0dce527"
+    },
+    "probe-repack.py": {
+      "path": "/home/kali/.hermes/cache/scratch/t1-openapi-review-r2/probe-repack.py",
+      "sha256": "16c01ea4e26e087f352a295662028ba92a7cec1e588669a1856c0424e62316eb"
+    },
+    "repack-results.json": {
+      "path": "/home/kali/.hermes/cache/scratch/t1-openapi-review-r2/repack-results.json",
+      "sha256": "d9b860db1828861f68a7a072ea6699dc36da3c8304a5c251d67d48f77267b701"
+    },
+    "compiler-resolution.json": {
+      "path": "/home/kali/.hermes/cache/scratch/t1-openapi-review-r2/compiler-resolution.json",
+      "sha256": "1e017c2aae1a0cd0691a49917a16a9cd57067fcbc08e72b95b79a88eb9a6bd3b"
+    },
+    "published-and-transitive-integrity.json": {
+      "path": "/home/kali/.hermes/cache/scratch/t1-openapi-review-r2/published-and-transitive-integrity.json",
+      "sha256": "61b550fc3cab4f9e2a8210586ab00db3fe039cd851dfea00f64f091d1fee66ca"
+    }
+  },
+  "next_decision": "Parent adjudicates this frozen distribution review alongside R1, then owns admitted installed/integration/canonical verification and any status closure. This report grants no global gate closure."
+}

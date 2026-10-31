@@ -1,0 +1,117 @@
+{
+  "review_id": "T1-OPENAPI-R1",
+  "role": "independent read-only functional/dependency review",
+  "verdict": "APPROVED_R1_SCOPED",
+  "findings": [],
+  "summary": "No concrete blocking defect found in the frozen generator API, validation/bundling path, dependency resolution or changed tests. Approval is limited to R1 source/dev-consumer compatibility; it is not artifact supply-chain approval, canonical QA or global T1 closure.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "48feecb313121ed03159796486f5ca3f6878e4cc",
+    "reviewed_head": "fadf396e3e0bc35065161b2cf7d0a2af495fbd50",
+    "author_head": "d1592204a5295cd22514ac21c49c883bf4bbf2eb",
+    "author_manifest": "/home/kali/.hermes/cache/scratch/t1-openapi-backport-evidence/frozen-candidate.json",
+    "author_manifest_sha256": "a2f33224af5927503a142c8f01ce168822b5c7bc02c6c8ec312b67faab1338a1",
+    "changed_paths_verified_equal_author_manifest": 15,
+    "artifact_sha256": "488c4fff9468f0dd556382aebf474ab1a145a9aa8285cf2732a078ea8a5d2d87",
+    "installed_review_tree": "/home/kali/.hermes/cache/scratch/t1-openapi-audit-backport",
+    "installed_review_tree_usage": "Read-only. Relevant caller/test/manifest files were compared byte-exact with integrated main before the controls. Nine selected installed core files were compared with the frozen archive, including the actual matcher, exports, resolver, lint and bundle implementations."
+  },
+  "requirement_code_evidence": [
+    {
+      "criterion": "Keep the actual generator API and byte-identical contracts",
+      "code": [
+        "web/scripts/generate-contracts.mjs:5-11",
+        "web/scripts/generate-contracts.mjs:12-25",
+        "web/package.json:12-14",
+        "web/package.json:21"
+      ],
+      "assessment": "The unchanged real caller uses the public openapiTS(file URL) -> astToString API, not a replacement converter or a validation bypass. Generator, contracts/omnis.openapi.json and web/src/shared/api/generated.ts are byte-identical to base and to the author's tree. All 450 schema refs are internal. The real generator --check passed on the installed backport without rewriting output.",
+      "independent_evidence": "commands.json: real-generator-check, exit 0",
+      "status": "PASS_SCOPED"
+    },
+    {
+      "criterion": "Preserve validation, lint, bundling and public exports",
+      "code": [
+        "tools/development/openapi-core/matcher.patch:29-63",
+        "web/scripts/openapi-matcher.test.mjs:58-77",
+        "installed openapi-typescript/dist/index.mjs:27-44",
+        "installed openapi-typescript/dist/lib/redoc.mjs:78-118",
+        "installed @redocly/openapi-core/lib/index.js:17-20,54-64,88-98"
+      ],
+      "assessment": "Traced createConfig, BaseResolver, lintDocument, bundle, Source and makeDocumentFromString through the actual installed generator. Original versus candidate src/index.ts, lib/index.js, lib/index.d.ts, lib/utils.d.ts, lib/resolve.js, lib/lint.js and lib/bundle.js are byte-identical. Error processing remains before and after bundling. The public API control accepts a valid internal ref and rejects a missing ref, a configured operationId lint error and Swagger 2 input. Expected error diagnostics are not test failures.",
+      "independent_evidence": "commands.json: matcher, exit 0; matcher.stdout: 3 passed, 0 failed",
+      "status": "PASS_SCOPED"
+    },
+    {
+      "criterion": "Use a compatible normal dependency graph, one core and no minimatch branch",
+      "code": [
+        "web/package.json:29-44",
+        "web/package-lock.json:341-364",
+        "web/package-lock.json:1795-1815",
+        "web/scripts/openapi-matcher.test.mjs:7-23"
+      ],
+      "assessment": "1.34.20+omnis.picomatch.1 satisfies the generator's unchanged ^1.34.6 range using npm's real semver implementation. It is an ordinary direct developer file dependency, with no overrides. The actual generator resolves the same core as the root; its minimatch resolution fails as required. The lock contains one core and no minimatch package/dependency declarations. Only the root/core entries change; minimatch, brace-expansion and balanced-match are removed, with all other lock entries unchanged. The author's installed inventory records one core and no minimatch among 146 installed packages; the saved npm ls reports overridden=false and the generator uses the same version. Fresh installation and complete artifact verification remain R2's separate scope.",
+      "independent_evidence": "commands.json: matcher and normal-semver, both exit 0; direct base/current lock comparison",
+      "status": "PASS_SCOPED"
+    },
+    {
+      "criterion": "Keep meaningful focused regression tests and finite exact pins",
+      "code": [
+        "web/scripts/openapi-matcher.test.mjs:25-55",
+        "web/scripts/openapi-matcher.test.mjs:58-77",
+        "web/scripts/contracts.test.mjs:26-36",
+        "documents/Omnis_Stack_Baseline.versions.json:101-112",
+        "tests/documentation/test_baseline_contracts.py:125-146",
+        "Makefile:249-261",
+        ".github/workflows/ci.yml:14-30"
+      ],
+      "assessment": "The matcher controls use the real exported URL reader with injected customFetch, exact selected headers, protocol/nesting positives, wrong-host and suffix-host negatives, and a propagated 403 failure. They make no HTTP requests. The pin test still compares every declared dependency against exact approved values and additionally forbids overrides and requires this direct core pin. selected_pins admits exactly the new dependency without rewriting the historical frontend probe. test:tooling includes the new file through its existing glob; the canonical contract/audit gates and full-check CI invocation are unchanged. CI checks out the repository, so the sibling tarball path remains available.",
+      "independent_evidence": "commands.json: matcher (3 passed) and selected-pins (1 passed), both exit 0; inspected test/gate diff",
+      "status": "PASS_SCOPED"
+    },
+    {
+      "criterion": "Report evidence and prior failures honestly",
+      "code": [
+        "tools/development/openapi-core/README.md:68-100",
+        "tools/development/openapi-core/README.md:102-115"
+      ],
+      "assessment": "Read the original audit outputs: audit-red exit 1 with three moderate nodes in the minimatch chain; audit-final-green exit 0 with zero vulnerabilities including dev dependencies. Read tooling final (9 passed), docs freeze (87 passed), lint/build outputs and the retained web failure/final outputs. matcher-red fails the backport identity assertion while the compatibility controls already pass on original core; the README describes that accurately rather than presenting it as an exploit reproducer. No passing label is used to erase the earlier failed web run, and no Wizard repair is claimed.",
+      "status": "HONEST_SCOPED_EVIDENCE"
+    }
+  ],
+  "independent_execution": {
+    "commands": "/home/kali/.hermes/cache/scratch/t1-openapi-review-r1/commands.json",
+    "commands_sha256": "a351ca39cc9b26e603625ea6ca66fcf53b9cba8c55bf233487d0bf14b293b629",
+    "result": "Four bounded invocations, all exit 0: three matcher/API tests, one selected-pin test, real generator --check, and normal SemVer satisfaction.",
+    "environment": "Node v24.21.0; explicit minimal environment; own empty scratch HOME/TMPDIR; compile cache disabled. No installation, full web suite, build, service or network command was run.",
+    "diff_check": "git diff --check 48feecb313121ed03159796486f5ca3f6878e4cc fadf396e3e0bc35065161b2cf7d0a2af495fbd50: exit 0"
+  },
+  "retained_failure": {
+    "source": "/home/kali/.hermes/cache/scratch/t1-openapi-backport-evidence/web-tests-green.stdout and web-tests-green.stderr",
+    "actual_result": "exit 1; 353 passed, 1 failed",
+    "test": "Wizard.test.tsx > points a negative request ceiling at that field before checking the reserve relation",
+    "failure": "Unable to find role=button and name 4. Rules & budgets",
+    "later_evidence": "wizard-failure-localization: 24 passed; web-tests-final: normal npm test, 354 passed, exit 0",
+    "cause": "UNKNOWN",
+    "disposition": "Not diagnosed or remediated by this backport. No producer, timeout, worker, Wizard source or test edits occur in the frozen diff. Preserve the failure; the final canonical gate is still required."
+  },
+  "authority_and_status": {
+    "readme_current_discrepancy": "README and implementation-status still describe the expired earlier authorization question. The current explicit user authorization supersedes that text; updating tracking belongs to the parent and is not an R1 blocker.",
+    "integration": "Candidate only; no self-integration or global T1 approval.",
+    "next_gate": "Parent adjudication plus complementary R2 artifact/construction/licensing review and the separately authorized final canonical gate.",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "not_checked": [
+    "R2-owned artifact construction/repacking, complete licensing and supply-chain verification",
+    "Fresh npm install, fresh network audit, full upstream Redocly tests or typecheck",
+    "Universal minimatch/picomatch equivalence or arbitrary remote-schema behavior",
+    "Full web suite rerun, new public build, PG, browser, lifecycle, canonical gate, provider/model/target traffic, T2, autopair or session commands"
+  ],
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/t1-openapi-review-r1/findings.json",
+    "/home/kali/.hermes/cache/scratch/t1-openapi-review-r1/commands.json",
+    "/home/kali/.hermes/cache/scratch/t1-openapi-review-r1/{matcher,selected-pins,real-generator-check,normal-semver}.{stdout,stderr}"
+  ],
+  "repository_changes": "None. Main node_modules/dist and operator data/config were not changed. The protected tempkey.txt and original HTML were not read, copied or hashed. No commits or status-document writes."
+}

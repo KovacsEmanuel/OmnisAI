@@ -1681,9 +1681,16 @@ async def test_api_pg_sdk_protocol_and_replay(
                             len(handed),
                             len(received),
                         )
-                        start = {**entry_intent, "operation_id": str(uuid4()), "entry_id": new_id}
-                        assert await overlap(tests, start, models, remove_new) == "OPERATION_ACTIVE"
-                        active_path = tests + "/" + str(start["operation_id"])
+                        start_intent = {
+                            **entry_intent,
+                            "operation_id": str(uuid4()),
+                            "entry_id": new_id,
+                        }
+                        assert (
+                            await overlap(tests, start_intent, models, remove_new)
+                            == "OPERATION_ACTIVE"
+                        )
+                        active_path = tests + "/" + str(start_intent["operation_id"])
                         active = (await http.get(active_path)).json()
                         cancel = await http.post(
                             active_path + "/cancel",
@@ -1706,7 +1713,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                             row["dispatch_attempt_id"]
                             for row in dispatch_rows
                             if row["instance_id"] == str(initial.instance_id)
-                            and row["operation_id"] == start["operation_id"]
+                            and row["operation_id"] == start_intent["operation_id"]
                         )
                         sent = [
                             json.loads(raw)
@@ -1788,7 +1795,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                         }
                         for other_path, body, code in (
                             (providers, race_selection, "MODEL_NOT_REGISTERED"),
-                            (tests, start, "NOT_FOUND"),
+                            (tests, start_intent, "NOT_FOUND"),
                         ):
                             next_id = str(uuid4())
                             revision = (await http.get(models)).json()["registry_revision"]

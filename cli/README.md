@@ -57,12 +57,13 @@ cu următorul Start normal `reused=true`. **După reboot, recuperarea autorizat�
 a ajuns exit0/STOPPED29 și Start explicit exit0/READY30/epoch18**, aceeași
 identitate/release/schemă. CLI-ul reparat post-reboot este instalat după reviewuri,
 QA și backup actual0017 restaurat în copie izolată; datele/istoricul/ciphertextul
-sunt verificate, fără apel provider. Models `ae92a65` rămâne integrat; pagina
-publică arată API/control READY, dar tabul separat este neasociat. Acceptarea
-Models autentificată instalată este NOT_CONFIRMED. Nu se exportă cookie sau
-automatizează pairing. [Rezultate actuale și limite](../documents/verification/settings-c-evidence/models-polish-20261029/blocked-resume.md).
-Remove și acceptarea vizuală anterioară rămân scoped; gate-ul roșu și verificarea
-autentificată restantă blochează T1. READY nu este remediu al cauzei istorice
+sunt verificate, fără apel provider inițiat de agent. Models `ae92a65` rămâne
+integrat; operatorul a confirmat manual modelele vizibile/Connected și Test,
+Refresh, Remove și conectări noi funcționale. Tabul automat separat a rămas
+neasociat; nu s-au exportat cookie-uri ori automatizat pairingul.
+[Rezultate actuale și limite](../documents/verification/settings-c-evidence/models-polish-20261029/blocked-resume.md).
+Datele adăugate ulterior de operator nu sunt în backupul anterior recuperării.
+Gate-ul de audit încă blochează T1. READY nu este remediu al cauzei istorice
 necunoscute sau promisiune de disponibilitate.
 
 ```sh
@@ -93,11 +94,12 @@ Start/Open cer deschiderea în profilul desktop curent. Cu sesiune validă, brow
 ajunge în Dashboard; prima asociere sau sesiunea expirată cer pairing manual ales
 explicit. `omnis pair` se execută în terminal local; codul se introduce direct în
 UI, niciodată în URL/chat. Nu se automatizează autentificarea.
-Modul development nu este un release imuabil certificat. Canonicalul actual
-rămâne FAIL: prima oprire la quality a fost remediată fără schimbare de logică;
-a doua are3121API PASS/81FAIL în5fișiere, fixture fixes în lucru. Nu este lipsă
-de pairing sau PASS global din recovery; TIMEOUT-urile vechi rămân istorice.
-T2 nu este autorizat.
+Modul development nu este un release imuabil certificat. Corecțiile quality și
+fixture sunt verificate; probele funcționale curente au trecut în scope-urile lor.
+Canonicalul rămâne FAIL la auditul dependenței OpenAPI/minimatch, fără fix
+compatibil publicat. Întrebarea pentru backport a expirat fără răspuns; nu este
+autorizație și nu se maschează auditul. Nu este lipsă de pairing sau PASS global
+din recovery; FAIL/TIMEOUT-urile vechi rămân istorice. T2 nu este autorizat.
 
 [`operator-launcher.sh`](operator-launcher.sh) este artefactul sursă pentru aceleași
 două fișiere `<root>/omnis` și `/home/kali/.local/bin/omnis`, numai pe această VM;
@@ -144,7 +146,7 @@ se păstrează. La incertitudine nu se pretinde cleanup. Desktop/mobile/focus ș
 acceptarea vizuală Settings se verifică separat/reutilizează scoped, nu sunt
 certificate de scenariul browser session. Fără provider/target traffic sau T2.
 
-## Recuperare explicită T1 — candidat, fără autoresume
+## Recuperare explicită T1 — acceptată local scoped, fără autoresume
 
 `omnis recover [--json]` recuperează **numai** profilul normal `t1-provider-settings`
 cu journal READY format 5 și lease originală expirată atestată în PostgreSQL.
@@ -200,12 +202,14 @@ Nu repornește hostul, nu adoptă instalarea operatorului și nu este executată
 Cere două reviewuri pe bytes exacți înaintea efectelor; datele/logurile se păstrează
 și orice cut/ACK incert oprește proba fără retry. Nu închide T1/T2 sau canonicalul.
 
-CLI-ul nou singur nu actualizează API-ul din imagine. Candidatul necesită ambele
-wheeluri într-un bundle normal nou, după review și QA. Releaseul 0.1.0 existent
+CLI-ul nou singur nu actualizează API-ul din imagine. Introducerea inițială a
+recuperării necesita ambele wheeluri într-un bundle normal nou, după review și
+QA; remediul post-reboot curent schimbă numai CLI-ul, deoarece API-ul0.1.1
+instalat are deja suportul necesar. Releaseul 0.1.0 existent
 este immutable; nu suprascrieți instalarea curentă și nu folosiți restore între
-digesturi diferite drept upgrade. Această implementare nu declară deploy ori
-acceptarea T1; instalarea durabilă nouă aprobată se face separat după gates,
-păstrând integral instalarea actuală.
+digesturi diferite drept upgrade. Aceste condiții istorice nu cer reinstalarea
+actualei0.1.1: rolloutul CLI este deja verificat. Acceptarea globală T1 rămâne
+blocată de audit; datele operatorului și releaseurile existente se păstrează.
 
 ## Pregătire explicită, separată de startup
 
@@ -214,7 +218,7 @@ păstrând integral instalarea actuală.
 Linux/amd64, operator nonroot, Docker Unix local și Compose v2. Toolchain de build: uv **0.12.19**, Python **3.13.15**, Node **24.21.0**/npm **11.19.0**. Nu instalați în mediul Hermes și nu înlocuiți toolchain-ul global.
 
 1. Pregătiți mediile din lockuri: `uv sync --locked --no-config --no-python-downloads --python 3.13.15 --directory cli`; API/web conform README-urilor lor.
-2. Construiți ambele wheeluri: `uv build --no-config --wheel api --out-dir <scratch>/api-wheel` și echivalentul pentru `cli`. Instalați CLI-ul în venv separat: `uv pip install --no-config --python <venv-cli>/bin/python --no-deps <scratch>/cli-wheel/omnis_cli-0.1.0-py3-none-any.whl`.
+2. Construiți ambele wheeluri: `uv build --no-config --wheel api --out-dir <scratch>/api-wheel` și echivalentul pentru `cli`. Instalați CLI-ul în venv separat: `uv pip install --no-config --python <venv-cli>/bin/python --no-deps <scratch>/cli-wheel/omnis_cli-0.1.1-py3-none-any.whl`.
 3. `make build-web`; exportați requirements API cu `uv export --locked --no-config --directory api --no-dev --no-emit-project --no-header --no-annotate --format requirements-txt --output-file <scratch>/requirements.txt --quiet`.
 4. Construiți bundleul: `OMNIS_UV=/cale/uv-0.12.19 cli/.venv/bin/python -I ops/build_control_bundle.py --api-wheel <abs-wheel-api> --cli-wheel <abs-wheel-cli> --requirements <abs-requirements> --web-root <abs-web/dist> --output <abs-bundle-nou>`.
 5. Pregătiți explicit imaginile fixate, dacă lipsesc:

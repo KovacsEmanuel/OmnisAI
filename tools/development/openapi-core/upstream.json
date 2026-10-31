@@ -1,0 +1,49 @@
+{
+  "status": "CANDIDATE_NOT_ACCEPTED",
+  "scope": "developer-only trusted local OpenAPI generation; not product runtime",
+  "source": {
+    "package": "@redocly/openapi-core",
+    "version": "1.34.20",
+    "tarball": "https://registry.npmjs.org/@redocly/openapi-core/-/openapi-core-1.34.20.tgz",
+    "integrity": "sha512-ypeBZ/6BKXR9+7/TtbKhbl4UgD7raHhPS12oknlKno2A8+lnFkxIwiE/Aklu6L2cd/ioH+fCWuMxi9/p3EyAPw==",
+    "sha256": "f45c144d47aa782496db99a5ff33b4cae3c2080d85ea3cbacb8dc4bd6f539529",
+    "registry_git_head": "b563864727f1c7524021196d27bad4524f32e667"
+  },
+  "upstream_change": {
+    "commit": "f5ce2e82c72034b893e19bfcaad198930a685399",
+    "diff_url": "https://github.com/Redocly/redocly-cli/commit/f5ce2e82c72034b893e19bfcaad198930a685399.diff",
+    "diff_sha256": "e50ef00990d9aa5d4cd56db7e8e04081841fca6c2b83ea166dd085c23dc9e936",
+    "published_in": "2.7.0",
+    "selected_part": "packages/core/src/utils/read-file-from-url.ts: picomatch.isMatch; corresponding dependency/type substitution only",
+    "excluded": "2.x API/export changes, module reorganization and unrelated refactors"
+  },
+  "license": {
+    "spdx": "MIT",
+    "source_url": "https://raw.githubusercontent.com/Redocly/redocly-cli/b563864727f1c7524021196d27bad4524f32e667/LICENSE.md",
+    "sha256": "f6bf9ce4d84b47c1cdda9d8988ac977efc314f00ad65e498fc514ddf118440b5",
+    "note": "Original npm archive omits root LICENSE.md; include exact original repository license and retain all shipped notices"
+  },
+  "candidate": {
+    "version": "1.34.20+omnis.picomatch.1",
+    "artifact": "openapi-core-1.34.20-omnis-picomatch.1.tgz",
+    "integrity": "sha512-omsS7t5u1FJq0g8ZFHFVHxRNBxq6+zsGuWoT1RXDQFLL4AgRcrSrNkykrZbukUgRIYF1OMfe9tG3GV0awKaPWg==",
+    "sha256": "488c4fff9468f0dd556382aebf474ab1a145a9aa8285cf2732a078ea8a5d2d87",
+    "bytes": 410119,
+    "matcher": {"picomatch": "4.0.7"},
+    "patch": "matcher.patch",
+    "patch_sha256": "987ec9d8ebc99f4b466984fa6eae22d824ec691a3e76071fb39cebf5a0100615",
+    "construction": "repack.py: verify original SRI, exact patch with fuzz=0, deterministic sorted USTAR/gzip; no upstream scripts",
+    "changed_original_files": ["package.json", "src/utils.ts", "lib/utils.js"],
+    "added_files": ["LICENSE.md", "OMNIS-PATCH.md"],
+    "removed_files": ["tsconfig.tsbuildinfo"],
+    "removal_reason": "Invalidated upstream incremental build cache; all source, implementations and declarations retained"
+  },
+  "selection": {
+    "metadata_refreshed_utc": "2026-10-31",
+    "generator": "openapi-typescript@7.13.0",
+    "parent_range": "^1.34.6",
+    "compatible_stable_versions_checked": ["1.34.6", "1.34.7", "1.34.8", "1.34.9", "1.34.10", "1.34.11", "1.34.12", "1.34.13", "1.34.14", "1.34.15", "1.34.16", "1.34.17", "1.34.18", "1.34.19", "1.34.20", "1.34.21", "1.34.22"],
+    "finding": "Every compatible published version still declares minimatch; highest stable v5 is 5.1.9, affected by GHSA-g3hv-75wg-m249 (<11.0.1)",
+    "not_selected": "Redocly2.72.1 changes generator integration API; no major upgrade, forced override, downgrade or audit exception"
+  }
+}

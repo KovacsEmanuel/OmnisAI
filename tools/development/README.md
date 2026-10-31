@@ -8,6 +8,7 @@ Aceste unelte sunt separate de aplicație și de catalogul runtime de pentest. N
 | [Chisel](https://github.com/ckanthony/Chisel/tree/main) | **NO-GO**, skill de evaluare prezent, server dezactivat/neînregistrat. Folosim uneltele native de fișiere. | [Motive și criterii de reevaluare](chisel/README.md); [probe reale individuale](chisel/audit.json) |
 | [ui-skills](https://github.com/ibelick/ui-skills) | Trei skill-uri adaptate pentru frontend, accesibilitate și performanță; surse/MIT fixate, fără CLI/registry live. | `.hermes/skills/omnis-frontend`, `omnis-accessibility`, `omnis-frontend-performance`, fiecare cu `references/upstream.json` |
 | [anti-slop](https://github.com/dmmulroy/anti-slop) | Trei reguli Oxlint selectate și executabile; fără politici care interzic validarea la boundary. | [Setup, policy și regresii](anti-slop/README.md); [proveniență](anti-slop/upstream.json) |
+| Redocly OpenAPI core | **CANDIDATE**, backport developer-only `1.34.20+omnis.picomatch.1`; matcher oficial picomatch, fără schimbarea API-ului1.x. Nu acceptare T1. | [Reconstrucție, probe și limite](openapi-core/README.md); [proveniență/licență](openapi-core/upstream.json) |
 | [Ponytail](https://github.com/DietrichGebert/ponytail) | Pluginul nativ Hermes v5.3.1, pin `6f1c2bfff0c837d268929a7c4e490918eb4fab29`, instalat și activat în profilul `default`; mod implicit `full`, șase skills și șase comenzi. | [Instalare, probe, limite și rollback](ponytail.json) |
 
 ## Intrarea standard

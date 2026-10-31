@@ -26,11 +26,13 @@ test('canonical check and CI include the web contract gate', () => {
 test('web pins match the baseline, without opportunistic dependencies', () => {
   const pins = JSON.parse(readFileSync(new URL('documents/Omnis_Stack_Baseline.versions.json', root)));
   const pkg = JSON.parse(readFileSync(new URL('web/package.json', root)));
-  const allowed = { ...pins.frontend_runtime, ...pins.frontend_build, ...pins.frontend_tests };
+  const allowed = { ...pins.frontend_runtime, ...pins.frontend_build, ...pins.frontend_tests, ...pins.frontend_openapi_patch_t1.selected_pins };
   for (const [name, version] of Object.entries({ ...pkg.dependencies, ...pkg.devDependencies })) {
     assert.equal(version, allowed[name], name);
   }
   assert.equal(pkg.engines.node, pins.runtimes.node.selected);
+  assert.equal(pkg.overrides, undefined, 'do not force an incompatible dependency graph');
+  assert.equal(pkg.devDependencies['@redocly/openapi-core'], pins.frontend_openapi_patch_t1.selected_pins['@redocly/openapi-core']);
   assert.equal(pkg.packageManager, `npm@${pins.runtimes.node.bundled_npm}`);
 });
 

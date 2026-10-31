@@ -697,7 +697,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   await check(consent).toContainText('Provider charges may apply.');
   await check(consent.getByRole('checkbox')).not.toBeChecked();
   await check(consent.getByRole('button', { name: 'Send model test', exact: true })).toBeDisabled();
-  await capture('direct-test-consent', consent, consent.getByRole('checkbox', { name: 'I approve using this model.', exact: true }));
+  await capture('direct-test-consent', consent);
   await consent.getByRole('checkbox').check();
   await check(consent.getByRole('button', { name: 'Send model test', exact: true })).toBeEnabled();
   await consent.getByRole('button', { name: 'Cancel', exact: true }).click();

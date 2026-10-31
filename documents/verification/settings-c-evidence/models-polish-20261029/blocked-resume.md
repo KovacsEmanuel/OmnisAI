@@ -32,6 +32,12 @@
 
 Final documentary closure `4a5852137eb7cdf2955fb504d5f1e89bde5c99be` has an independent **APPROVED_SCOPED**, no findings: [byte-exact original](openapi-closure-review-original.md), SHA256 `5c6ba2f9e20d0d974482bb6192f80c9ae22b7f66673661aeadd38b839ad8c787`. Parent read/adjudicated it against the retained original gate/install evidence; it confirms factual closure within the eight criteria and T2 not started. This retention-only follow-up changes no product/distribution/test/pin and does not rerun or expand runtime acceptance.
 
+### Remote CI after the authorized push — separate acceptance
+
+Push `a459f1f` to the existing checkpoint branch is verified by exact remote SHA; Git connectivity is intact and protected untracked files were excluded. GitHub Actions [41246337312](https://github.com/KovacsEmanuel/OmnisAI/actions/runs/41246337312) is **FAIL**, not implied PASS from local T1. Setup/static checks passed; the operator-provided outer log reaches PRIVATE_DB_PROBE_OK and inner check-components exit2, then reports exact fixture cleanup. The inner cause remains UNKNOWN because gate.log was not published. The Node20 Actions warning is not a demonstrated cause.
+
+Diagnostic candidate `ba349aaf90b4e519c87e18159e569ebdc5a188b4` preserves the exact original make exit and emits only bounded source-validated identifiers as public annotations. [R1 original](ci-diagnostics-r1-original.json) and [R2 original](ci-diagnostics-r2-original.json) approve SOURCE scopes; parent verified hashes and reran8SOURCE controls, exit0. Docs-only Python/Markdown also passed87documentation/64development; no dependency defect was reproduced. R2-O1 is LOW/nonblocking and retained: a rejected near256KiB path took7.08s; no leak/cap violation, optional suffix optimization deferred until after the real diagnostic consumer rather than expanding this slice. No runtime/pin/test-limit/selection change. One remote observation is admitted next; remote harness-only cycle1, not underlying CI repair or CI-green. No T2/deploy/provider/target effects.
+
 ### Accepted Models and earlier Sol evidence — historical, unchanged
 
 The remaining sections record previous checkpoints, permissions and failures; they are not the current execution queue or fresh authority. The CURRENT and final boundary above supersede their next-action statements without rewriting the original observations.

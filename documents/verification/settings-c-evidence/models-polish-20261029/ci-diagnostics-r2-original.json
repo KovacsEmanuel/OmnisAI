@@ -1,0 +1,80 @@
+{
+  "reviewer": "R2 independent read-only",
+  "snapshot": "ba349aaf90b4e519c87e18159e569ebdc5a188b4",
+  "base": "a459f1fd51dbad7303d59bcb97098d29cc65425a",
+  "verdict": "APPROVED_R2_SCOPED",
+  "approval_scope": "Public annotation secrecy, unsafe log-file refusal, finite input/output limits and source-level compatibility with the existing producer. Not integration, push, remote CI success or root-cause repair.",
+  "blocking_findings": [],
+  "files_reviewed": [
+    ".github/workflows/ci.yml",
+    "scripts/ci_gate_diagnostics.py",
+    "tests/development/test_ci_gate_diagnostics.py"
+  ],
+  "trusted_supporting_sources": ["ops/run_test_db_gate.py", "Makefile"],
+  "identity_evidence": "security-controls.json: identity; all five inspected source files equal their frozen Git blobs",
+  "requirements": [
+    {
+      "criterion": "Private values must not be published",
+      "result": "PASS_SCOPED",
+      "evidence": "scripts/ci_gate_diagnostics.py:26-110 selects only Makefile targets, AST-validated unittest names, tracked canonical source paths with valid line numbers and built-in/source exception names; no raw message/parameter/URL publishing. Independent synthetic control retained only ValueError, ops/run_test_db_gate.py:63 and UnsafeFixture. Original source tests and independent controls exclude synthetic private sentinels."
+    },
+    {
+      "criterion": "Refuse unsafe log files and directories",
+      "result": "PASS_SCOPED",
+      "evidence": "scripts/ci_gate_diagnostics.py:114-160: canonical absolute private root, UID/private directories, FD-relative O_NOFOLLOW opens, O_NONBLOCK log open, fstat regular-file/owner/private/nlink=1 checks. Independent CLI controls refuse public root, public child, public log, FIFO, hardlink and symlink; all emit only static UNAVAILABLE with empty stderr. Existing tests additionally exercise directory and root/child symlink refusal."
+    },
+    {
+      "criterion": "Finite log/source and public output bounds",
+      "result": "PASS_SCOPED",
+      "evidence": "At most 64 entries are processed, 4 matching child directories are attempted, each log read is at most 256 KiB of tail, and per log at most 16 tracked source candidates are read with a 1 MiB acceptance cap (one additional byte detects oversize). Source/Makefile/Git inventory are trusted frozen repository inputs. Output is at most 20 deduplicated messages of at most 350 characters, escaped for percent/CR/LF. Note: enumerate fetches one lookahead directory entry before its break; this does not inspect or open an additional child/log. Existing cap/tail tests pass."
+    },
+    {
+      "criterion": "Real producer layout and permissions must be compatible",
+      "result": "PASS_SOURCE",
+      "evidence": "ops/run_test_db_gate.py:64 creates root mode0700; :691 exclusively opens gate.log with explicit mode0600 and O_NOFOLLOW; :884 uses db- plus 16 lowercase UUID hex characters; :982 locates gate.log in that root; :1016 retains disposable data. Workflow :37-38 creates canonical/private TMPDIR. No claim that umask produces a public real log; no producer execution or PostgreSQL was needed for this source-level check."
+    },
+    {
+      "criterion": "Failure must not publish internal diagnostics or mask gate exit",
+      "result": "PASS_SOURCE_TEST",
+      "evidence": "Workflow :41-46 preserves make status, redirects reporter stderr, and has a static fallback. Existing executable shell controls pass for make7/reporter9, make7/reporter0 and success; R1 owns the primary workflow semantics review."
+    }
+  ],
+  "observations": [
+    {
+      "id": "R2-O1",
+      "severity": "LOW_NONBLOCKING",
+      "file_line": "scripts/ci_gate_diagnostics.py:94-100",
+      "summary": "The traceback suffix regex can spend avoidable CPU on a single very long rejected path before checking its 200-character suffix limit.",
+      "reproducer": "Private synthetic gate.log containing '  File \"' + 'scripts/' * 32760 + 'bad.px\", line 1, in x\\n'; invoke the unchanged real helper with pinned API Python3.13.15. See security_controls.py and security-controls.json.",
+      "observed": "262110-byte input completed in 7.084678 seconds with only static UNAVAILABLE; 65566-byte control completed in 0.482514 seconds. Neither timed out, leaked a value, exceeded read/output caps, or changed repository data.",
+      "criterion": "Untrusted-input resource hygiene. This is not a violation of an agreed wall-clock deadline; none was specified for this helper, and the log byte/count caps remain enforced.",
+      "minimal_optional_remedy": "Bound the candidate suffix before the searching regex, for example examine only the final bounded path window with preserved slash-boundary checks, or use a bounded path parser. No new watchdog/framework or full gate is warranted by this observation.",
+      "disposition": "Informational, not a blocker or a request to expand the acceptance scope."
+    }
+  ],
+  "executed_evidence": [
+    {
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/ci-diag-r2/tmp api/.venv/bin/python -I -B tests/development/test_ci_gate_diagnostics.py -v",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "result": "8 tests passed in 0.713s; workflow uses stand-ins, no Docker or real gate."
+    },
+    {
+      "command": "api/.venv/bin/python -I -B /home/kali/.hermes/cache/scratch/ci-diag-r2/security_controls.py",
+      "cwd": "/home/kali/OmnisAI",
+      "exit_code": 0,
+      "result": "10 independent bounded synthetic controls passed; exact results and five frozen-byte comparisons in security-controls.json. Each helper subprocess has an independent timeout and is reaped."
+    }
+  ],
+  "limits": [
+    "Frozen repository source is trusted; no protection against a malicious whole CI repository or arbitrary same-UID repository mutation is claimed.",
+    "GitHub receiver behavior was reviewed as escaped workflow-command syntax, not live remote receiver QA.",
+    "No remote observation, network, PostgreSQL, Docker, browser, native runtime, provider, target traffic or full gate was run.",
+    "The retained original private failed log was not read; no credential/config/vault/PGDATA/protected-file reads, git status, repository writes, commits or push occurred.",
+    "Remote inner failure cause remains UNKNOWN. This change makes bounded diagnostics available; it does not repair or prove the cause of Actions failure.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "created_files_scope": "/home/kali/.hermes/cache/scratch/ci-diag-r2 only",
+  "cleanup": "All synthetic fixtures used TemporaryDirectory and were removed after subprocess completion. Only reviewer evidence and an empty owned tmp directory remain.",
+  "next_owner": "Parent adjudicates this scoped review together with R1 and owns any separately authorized remote observation/integration. No global closure."
+}

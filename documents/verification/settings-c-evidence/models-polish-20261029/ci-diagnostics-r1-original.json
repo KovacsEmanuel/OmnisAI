@@ -1,0 +1,90 @@
+{
+  "reviewer": "independent R1",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "base": "a459f1fd51dbad7303d59bcb97098d29cc65425a",
+  "frozen_head": "ba349aaf90b4e519c87e18159e569ebdc5a188b4",
+  "author_head": "250bc8f98d89bc08ac3be9de15ebf2b3a636c674",
+  "scope": [
+    ".github/workflows/ci.yml",
+    "scripts/ci_gate_diagnostics.py",
+    "tests/development/test_ci_gate_diagnostics.py"
+  ],
+  "charter": "Actual workflow shell, original exit preservation, same-step TMPDIR/producer compatibility and useful source-bound make/unittest/Python traceback identifiers. No integration, push or remote CI verdict.",
+  "findings": [],
+  "identity": {
+    "tracked_worktree_matches_frozen_head": true,
+    "author_main_owned_files_byte_identical": true,
+    "supporting_sources_unchanged_from_base": true,
+    "sha256": {
+      ".github/workflows/ci.yml": "ed01ee8f6e1115efbe4cfbc3a81d14f4f9bca1b5e996895d39304c507b7c0889",
+      "scripts/ci_gate_diagnostics.py": "7de6e528b28e599e033f870b4af270e8cce27f24d6ffee63caf0d4f603c1d1a7",
+      "tests/development/test_ci_gate_diagnostics.py": "9e45e5fef63446eb4ff40c4655f37b8ec409c10cc5fe46e02e3f8ac1a2216b34",
+      "Makefile": "001f39155184ea972d125cedc292f5dbedf6ff5f633900b1a9562ad5b772ec91",
+      "ops/run_test_db_gate.py": "625688d912faffa08a07970b81b6e254d35f2a5aa1b57c3d3fce87b29ba298aa",
+      "tests/development/test_test_db_gate.py": "72c861d8684edcc02fcd316dd3ae1517ccbd0c1359e30ddb50cf123f8e328a48"
+    }
+  },
+  "criteria": [
+    {
+      "criterion": "Preserve original gate exit and healthy behavior",
+      "code": ".github/workflows/ci.yml:41-46",
+      "evidence": "Existing tests execute the exact extracted workflow run block with inert docker/make/python stand-ins. Gate exit 7 remains 7 with successful diagnostics and with reporter exit 9. Healthy exit 0 remains 0, reporter is not invoked, no error annotations appear.",
+      "status": "PASS_SOURCE"
+    },
+    {
+      "criterion": "Use actual producer directory/log contract in the same workflow step",
+      "code": ".github/workflows/ci.yml:37-44; ops/run_test_db_gate.py:54-68,691,852-865,883-884,981-992,1016",
+      "evidence": "The exported TMPDIR reaches make check and is passed unchanged to the reporter. Producer creates TMPDIR/db-<16 lowercase hex>/gate.log, root mode 0700 and log mode 0600, matching the consumer. Cleanup retains this log. The explicit producer file mode rules out the proposed umask incompatibility.",
+      "status": "PASS_SOURCE"
+    },
+    {
+      "criterion": "Emit useful bounded identifiers tied to current source",
+      "code": "scripts/ci_gate_diagnostics.py:26-111,147-163",
+      "evidence": "Make targets are checked against Makefile; unittest selectors against a tracked test module AST/class/method; traceback locations against tracked source and a valid line range. Existing controls verify these values, tail-only selection, bounded output and unavailable fallback. Read-only replay of the retained local failed log independently returned check-development, the exact test_test_db_gate selector, source frames and UnsafeFixture.",
+      "status": "PASS_SOURCE_AND_RETAINED_LOCAL_LOG"
+    },
+    {
+      "criterion": "Do not change canonical gate behavior or pins",
+      "code": ".github/workflows/ci.yml:21-46; Makefile:19-24; ops/run_test_db_gate.py:876-878,1068",
+      "evidence": "The diff changes only failure observation around the unchanged make check command. Makefile and producer bytes are unchanged from base; Docker image pin, toolchain setup, pre-provisioning checks and 3600-second gate timeout are unchanged. Reporter is a separate Python process after make returns, not a replacement gate.",
+      "status": "PASS_SOURCE"
+    }
+  ],
+  "executions": [
+    {
+      "cwd": "/home/kali/.hermes/cache/scratch/cidiag",
+      "command": "TMPDIR=/home/kali/.hermes/cache/scratch/ci-diag-r1/t /home/kali/OmnisAI/api/.venv/bin/python -I -B -m unittest discover -s tests/development -p test_ci_gate_diagnostics.py -v",
+      "exit_code": 0,
+      "tests_run": 8,
+      "duration_reported_seconds": 0.736,
+      "output": "/home/kali/.hermes/cache/scratch/ci-diag-r1/source-tests.log",
+      "boundary": "SOURCE controls only; exact workflow shell with inert commands, not Docker/PostgreSQL or GitHub Actions"
+    },
+    {
+      "operation": "Bounded read-only summarize of the retained historical local gate log using the frozen main reporter; verify source bytes match author worktree",
+      "exit_code": 0,
+      "output": "/home/kali/.hermes/cache/scratch/ci-diag-r1/bindings-retained.json",
+      "log": "/home/kali/.local/share/omnis-t1-artifacts/postreboot-20261031/openapi-final-verification/failed-fixture/gate.log",
+      "bytes_read": 24851,
+      "file_mode": "0600",
+      "directory_mode": "0700",
+      "boundary": "Historical LOCAL log only, not the unknown remote failure. No log contents copied; only source-validated identifiers emitted. This exercises summarize, not diagnostics directory discovery on the retained renamed layout."
+    }
+  ],
+  "limitations": [
+    "Actual remote gate.log was not available; the remote failure cause remains UNKNOWN. This is observability approval, not a repair or CI green claim.",
+    "Only make/unittest/Python traceback formats are implemented, explicitly documented in the code. Pytest/npm output may yield only the make stage; partial tails may omit context.",
+    "Complementary R2 owns the independent secrecy/path/bounds assessment; this R1 approval does not substitute for it.",
+    "No full canonical suite, install/build, Docker/PostgreSQL, native runtime, browser, provider, target or network effects were run.",
+    "Parent owns operator READY30, integration acceptance and the next authorized remote observation."
+  ],
+  "workspace": {
+    "repository_files_changed": [],
+    "protected_tempkey_and_original_html": "Unread, unhashed, untouched; existing untracked paths preserved",
+    "owned_test_tmp_empty_after_run": true,
+    "final_head_unchanged": true,
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "handoff": "No R1 blocker. Parent may combine this exact-byte source approval with R2 and admit the already-scoped remote observation; no further harness breadth is requested."
+}

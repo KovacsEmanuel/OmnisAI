@@ -1726,16 +1726,17 @@ def start_instance(
 
 
 def _interrupt(signum: int, frame: FrameType | None) -> None:
+    from .stop import stop_instance
+
     # A handled retry exception is NOT cancellation. Only an existing stop,
-    # failed forwarder handoff, or failure already propagated to start_instance
-    # commits startup to unwind/cleanup. Its traceback exists even before the
-    # outer except binds `exc`, so a repeated stop cannot skip cleanup entry.
+    # failed forwarder handoff, or failure propagated to Start/recovery's caller
+    # commits it to unwind/cleanup, even before the outer except binds `exc`.
     failure = sys.exception()
     if isinstance(failure, (KeyboardInterrupt, ForwarderStartError)):
         return
     trace = failure.__traceback__ if failure is not None else None
     while trace is not None:
-        if trace.tb_frame.f_code is start_instance.__code__:
+        if trace.tb_frame.f_code in (start_instance.__code__, stop_instance.__code__):
             return
         trace = trace.tb_next
     raise KeyboardInterrupt()

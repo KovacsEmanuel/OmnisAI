@@ -423,6 +423,81 @@ class RecoverTests(unittest.TestCase):
         )
         self.assertEqual((fixture.root / "vault/sentinel").read_bytes(), b"retained")
 
+    def test_failure_cleanup_entry_signal_cannot_abandon_owned_forwarder(self):
+        import importlib
+        import signal
+        from unittest.mock import Mock
+
+        import omnis_cli.recover as recovery
+        from omnis_cli.lifecycle import StartError
+        from omnis_cli.start import ForwarderOwnership
+
+        stop = importlib.import_module("omnis_cli.stop")
+        publish = recovery._publish_forwarder
+        for sig in (None, signal.SIGTERM, signal.SIGINT):
+            with self.subTest(signal=sig):
+                owner = ForwarderOwnership(process=Mock(pid=424242), pidfd=424243)
+                before = {s: signal.getsignal(s) for s in (signal.SIGTERM, signal.SIGINT)}
+
+                def interrupted_entry(sig=sig):
+                    if sig is not None:
+                        handler = signal.getsignal(sig)
+                        assert callable(handler)
+                        handler(sig, None)
+                    return publish()
+
+                def failed_instance(owner=owner, **kwargs):
+                    with contextlib.ExitStack() as held:
+                        held.callback(recovery.reap_forwarder, owner)
+                        raise StartError("READBACK_LOST", 4)
+
+                stopped, closed = Mock(), Mock()
+                with (
+                    patch.object(stop, "stop_instance", failed_instance),
+                    patch.object(recovery, "_publish_forwarder", side_effect=interrupted_entry),
+                    patch.object(recovery, "stop_forwarder", stopped),
+                    patch.object(recovery.os, "close", closed),
+                    patch("subprocess.Popen", side_effect=AssertionError("No subprocess")),
+                    contextlib.redirect_stdout(io.StringIO()) as output,
+                ):
+                    code = stop.stop(as_json=True, recover=True)
+                self.assertEqual(code, 4)
+                self.assertEqual(json.loads(output.getvalue())["state"], "UNCERTAIN")
+                stopped.assert_called_once_with(owner.process, 424243)
+                closed.assert_called_once_with(424243)
+                self.assertEqual(owner.pidfd, -1)
+                self.assertEqual(json.loads(output.getvalue())["reason"], "READBACK_LOST")
+                self.assertEqual({s: signal.getsignal(s) for s in before}, before)
+
+    def test_recovery_first_signal_in_handled_retry_still_cancels(self):
+        import importlib
+        import signal
+
+        from omnis_cli.control import ControlUnavailable
+
+        stop = importlib.import_module("omnis_cli.stop")
+        for sig in (signal.SIGTERM, signal.SIGINT):
+            with self.subTest(signal=sig):
+
+                def retrying_peer(sig=sig):
+                    try:
+                        raise ControlUnavailable("readiness retry")
+                    except ControlUnavailable:
+                        handler = signal.getsignal(sig)
+                        assert callable(handler)
+                        handler(sig, None)
+                    self.fail("First cancellation was swallowed in retry")
+
+                def retrying_instance(**kwargs):
+                    retrying_peer()
+
+                with (
+                    patch.object(stop, "stop_instance", retrying_instance),
+                    contextlib.redirect_stdout(io.StringIO()) as output,
+                ):
+                    self.assertEqual(stop.stop(as_json=True, recover=True), 4)
+                self.assertEqual(json.loads(output.getvalue())["reason"], "STOP_UNCERTAIN")
+
     def test_post_reboot_cli_term_handler_unwinds_owned_forwarder(self):
         import signal
 

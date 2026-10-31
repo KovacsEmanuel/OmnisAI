@@ -60,6 +60,10 @@ async def test_schema_refuses_conditional_immutability_trigger(
 
     connection.execute = AsyncMock(side_effect=execute)
     assert await authority_schema_matches(connection) is unconditional
+    assert any(
+        "FROM pg_trigger" in str(call.args[0]) and call.args[1] == {"table": table_under_test}
+        for call in connection.execute.call_args_list
+    )
 
 
 def test_stop_reconciliation_is_new_schema_authority() -> None:

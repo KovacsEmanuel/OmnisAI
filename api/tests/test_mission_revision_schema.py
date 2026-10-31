@@ -13,12 +13,14 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 from omnis.core.db import SCHEMA_REVISION
 from omnis.core.managed_schema import MANAGED_TABLES
 from omnis.core.model_schema import MODEL_TABLES
+from omnis.core.provider_schema import MODEL_RETIRE_GUARD
 from omnis.core.schema import AUTHORITY_TABLES, authority_schema_matches
 
 SOURCE_OIDS = {
     "managed_mission_revision": 42001,
     "managed_record": 42002,
     **{name: 42003 + index for index, name in enumerate(MODEL_TABLES)},
+    "provider_model_entry": 43001,
 }
 
 
@@ -177,8 +179,25 @@ def source_catalog_connection(
             result.one.return_value = (True, True)
             return result
         if "FROM pg_catalog.pg_index" in query:
-            assert parameters == {"table": SOURCE_OIDS["system_operation"]}
-            result.one_or_none.return_value = (True, True, True, "2", "(state <> 'FINISHED'::text)")
+            if "'public.provider_model_available_unique'" in query:
+                assert parameters == {"table": SOURCE_OIDS["provider_model_entry"]}
+                result.one_or_none.return_value = (
+                    True,
+                    True,
+                    True,
+                    "1 3 4",
+                    "(removed_registry_revision IS NULL)",
+                )
+            else:
+                assert "'public.model_test_one_active'" in query
+                assert parameters == {"table": SOURCE_OIDS["system_operation"]}
+                result.one_or_none.return_value = (
+                    True,
+                    True,
+                    True,
+                    "2",
+                    "(state <> 'FINISHED'::text)",
+                )
             return result
         if "FROM pg_catalog.pg_class" in query:
             table = str(parameters["table"]).removeprefix("public.")
@@ -221,7 +240,7 @@ def source_catalog_connection(
                 result.all.return_value = [
                     (
                         name,
-                        58,
+                        42 if table == "provider_model_entry" else 58,
                         "O",
                         function,
                         f"BEGIN\n        RAISE EXCEPTION '{message}';\n        END;",
@@ -234,6 +253,23 @@ def source_catalog_connection(
                         "trigger",
                     )
                 ]
+                if table == "provider_model_entry":
+                    result.all.return_value.append(
+                        (
+                            "provider_model_retire",
+                            19,
+                            "O",
+                            "provider_model_retire_guard",
+                            MODEL_RETIRE_GUARD,
+                            "plpgsql",
+                            False,
+                            0,
+                            0,
+                            True,
+                            "",
+                            "trigger",
+                        )
+                    )
         elif "FROM pg_attribute" in query or "FROM pg_catalog.pg_attribute" in query:
             result.all.return_value = [
                 (name, *spec) for name, spec in AUTHORITY_TABLES[table][0].items()
@@ -419,6 +455,7 @@ async def test_source_mission_catalog_reads_bind_one_public_physical_oid() -> No
     assert {call.args[1]["table"] for call in identities} == {
         "public.managed_mission_revision",
         "public.managed_record",
+        "public.provider_model_entry",
         *("public." + name for name in MODEL_TABLES),
     }
     for call in identities:

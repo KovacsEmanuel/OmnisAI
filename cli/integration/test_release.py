@@ -143,6 +143,72 @@ class ReleaseBundleTest(unittest.TestCase):
                     boundary.assert_called_once()
                 self.assertFalse((state / "s/omnis/startup.json").exists())
 
+    def test_reboot_probe_waits_for_port_after_forwarder_exit(self):
+        import ast
+        import inspect
+        from types import SimpleNamespace
+
+        from installed_stop import run_installed_stop
+        from omnis_cli.start import preflight_port
+
+        tree = ast.parse(inspect.getsource(run_installed_stop))
+        waiter = next(
+            n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "wait_port"
+        )
+        cut = next(
+            n
+            for n in ast.walk(tree)
+            if isinstance(n, ast.Try)
+            and len(n.finalbody) == 1
+            and ast.unparse(n.finalbody[0]) == "os.close(fd)"
+        )
+        reboot = next(n for n in ast.walk(tree) if isinstance(n, ast.If) and cut in n.body)
+        recovery = next(
+            n
+            for n in reboot.body
+            if isinstance(n, ast.Assign) and ast.unparse(n.targets[0]) == "recovered"
+        )
+        # Execute the actual post-exit tail, not Docker cuts or the installed CLI.
+        body = [
+            waiter,
+            *cut.finalbody,
+            *reboot.body[reboot.body.index(cut) + 1 : reboot.body.index(recovery) + 1],
+        ]
+        events = []
+        with socket.socket() as held:
+            held.bind(("127.0.0.1", 0))
+            port = held.getsockname()[1]
+
+            def release(delay):
+                self.assertEqual(delay, 0.2)
+                self.assertEqual(events, ["forwarder-exited"])
+                held.close()
+                events.append("port-released")
+
+            def recover(*args):
+                self.assertEqual(args, ("recover", "--json"))
+                self.assertEqual(events, ["forwarder-exited", "port-released", "record-written"])
+                preflight_port(port)
+                events.append("recover")
+
+            namespace = dict(
+                time=SimpleNamespace(monotonic=time.monotonic, sleep=release),
+                socket=socket,
+                port=port,
+                os=SimpleNamespace(close=lambda fd: events.append("forwarder-exited")),
+                fd=None,
+                record={"forwarder": {}},
+                uuid4=uuid4,
+                Path=Path,
+                root=Path("/unused-source-probe"),
+                write_record=lambda *args, **kwargs: events.append("record-written"),
+                command=recover,
+            )
+            exec(
+                compile(ast.Module(body=body, type_ignores=[]), "<reboot-tail>", "exec"), namespace
+            )
+        self.assertEqual(events[-1], "recover")
+
     def test_reboot_cli_outcome_omits_private_output_and_keeps_install_refusal(self):
         from installed_stop import save_cli_outcome
 

@@ -466,6 +466,7 @@ def run_installed_stop(
                 assert select.select([fd], [], [], remaining(runtime.deadline))[0]
             finally:
                 os.close(fd)
+            wait_port()  # The simulated reboot does not clear the host's TCP TIME_WAIT.
             record["forwarder"]["boot_id"] = str(uuid4())
             assert (
                 record["forwarder"]["boot_id"]

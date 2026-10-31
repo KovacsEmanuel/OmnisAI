@@ -67,7 +67,8 @@ class SourceControls(unittest.TestCase):
                     for name, raw in [('18/docker', None), ('18/docker/PG_VERSION', b'18\n'),
                                       ('18/docker/global/pg_control', b'SOURCE physical bytes')]:
                         info = tarfile.TarInfo(name)
-                        info.uid = info.gid = 999
+                        info.uid = 999
+                        info.gid = 0 if raw is None else 999
                         info.mode = 0o700 if raw is None else 0o600
                         info.type = tarfile.DIRTYPE if raw is None else tarfile.REGTYPE
                         info.size = 0 if raw is None else len(raw)
@@ -192,6 +193,31 @@ class SourceControls(unittest.TestCase):
                          'Mounts': [{'Source': str(m.SOURCE.parent)}]}
         with self.assertRaisesRegex(m.StartError, 'LIVE_SOURCE_MOUNT'):
             m.original_containers(runtime, record)
+
+    def test_tar_content_requires_observed_pgdata_owner_group_and_mode(self):
+        m = self.module()
+        with tempfile.TemporaryDirectory(dir=os.environ['TMPDIR']) as temp:
+            target = pathlib.Path(temp)/'source-headers.tar'
+            for uid, gid, mode in [(999, 0, 0o700), (999, 999, 0o700),
+                                   (0, 0, 0o700), (999, 0, 0o750)]:
+                with self.subTest(uid=uid, gid=gid, mode=mode):
+                    with tarfile.open(target, 'w') as tar:
+                        for name, owner, group, permissions, raw in [
+                            ('./18', 0, 0, 0o755, None),
+                            ('./18/docker', uid, gid, mode, None),
+                            ('./18/docker/PG_VERSION', 999, 999, 0o600, b'18\n'),
+                            ('./18/docker/global/pg_control', 999, 999, 0o600, b'SOURCE'),
+                        ]:
+                            info = tarfile.TarInfo(name)
+                            info.uid, info.gid, info.mode = owner, group, permissions
+                            info.type = tarfile.DIRTYPE if raw is None else tarfile.REGTYPE
+                            info.size = 0 if raw is None else len(raw)
+                            tar.addfile(info, None if raw is None else io.BytesIO(raw))
+                    if (uid, gid, mode) == (999, 0, 0o700):
+                        self.assertRegex(m.tar_content(target, time.monotonic()+10), r'^[0-9a-f]{64}$')
+                    else:
+                        with self.assertRaisesRegex(m.StartError, 'PGDATA_OWNER_OR_MODE'):
+                            m.tar_content(target, time.monotonic()+10)
 
     def test_partial_archive_is_retained_on_failure(self):
         m = self.module()

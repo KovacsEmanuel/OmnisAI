@@ -29,7 +29,7 @@ from omnis_cli.start_runtime import ControlRuntime, private_identity, refuse_upg
 BASE = Path('/home/kali/.local/share/omnis-settings-c-9e51d10')
 SOURCE = BASE / 's/omnis'
 DATA = BASE / 'd'
-OUTPUT = Path('/home/kali/.local/share/omnis-backups/t1-crash-preservation-20261031')
+OUTPUT = Path('/home/kali/.local/share/omnis-backups/t1-crash-preservation-20261031-r2')
 QUERIES = Path('/home/kali/.local/share/omnis-backups/t1-finalization-20261029T194541Z/comparison-queries.json')
 QUERY_SHA = 'a85fdef4700f455f51af9afdf80df1f4136732aabb3aebc00e880d42c440cff2'
 JOURNAL_SHA = '3e88e9e6e8a87a3186031dad173ccbb9bd36822c6bb078c684ad97c7ff34e264'
@@ -184,7 +184,8 @@ def tar_content(path, deadline):
                         value.update(part)
             members[name] = [member.type.decode(), member.uid, member.gid, member.mode,
                              member.size, value.hexdigest()]
-    require(members['18/docker'][:4] == ['5', 999, 999, 0o700], 'PGDATA_OWNER_OR_MODE')
+    # Exact source header: postgres UID 999 uses owner bits even with copy GID 999.
+    require(members['18/docker'][:4] == ['5', 999, 0, 0o700], 'PGDATA_OWNER_OR_MODE')
     return hashlib.sha256(json.dumps(members, sort_keys=True).encode()).hexdigest()
 
 

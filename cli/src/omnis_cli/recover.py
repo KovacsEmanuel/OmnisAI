@@ -7,6 +7,7 @@ import os
 import socket
 import stat
 import time
+from contextlib import ExitStack
 from pathlib import Path
 from uuid import uuid4
 
@@ -22,16 +23,22 @@ from .lifecycle import (
     socket_identity,
     write_record,
 )
+from .release import _sync_dir, publish_directory
 from .start import (
+    ForwarderOwnership,
     _bound_instance,
     _check_pgdata,
+    _publish_forwarder,
     _ready_record,
     api_process,
     database_identity,
+    launch_forwarder,
+    preflight_port,
     service_ids,
+    stop_forwarder,
 )
 from .start_runtime import ControlRuntime
-from .stop import _containers, _integer, _stopping_record
+from .stop import _containers, _integer, _listener_absent, _stopping_record
 
 
 def _owner(
@@ -190,8 +197,164 @@ def _inventory(
     return pid
 
 
+def _reboot_resources(
+    runtime: ControlRuntime,
+    root: Path,
+    control: Path,
+    record: dict[str, object],
+    *,
+    running: frozenset[str] = frozenset(),
+) -> int:
+    _ready_record(record)
+    _check_pgdata(root, record)
+    _bound_instance(runtime, root, control, record)
+    if os.path.lexists(root / "unreconciled.json"):
+        raise StartError("RECOVERY_REQUIRED", 4)
+    runtime.attempt = str(record["attempt"])
+    port = _integer(record, "port")
+    ids = service_ids(runtime, root, control, port)
+    if ids != _containers(record):
+        raise StartError("RESOURCE_IDENTITY_MISMATCH", 4)
+    pid = 0
+    for role, cid in ids.items():
+        state = mapping(runtime.attest(cid, role, root, control, port).get("State"))
+        live = role in running
+        raw = state.get("Pid")
+        if (
+            state.get("Running") is not live
+            or state.get("Status") != ("running" if live else "exited")
+            or type(raw) is not int
+            or (raw <= 1 if live else raw != 0)
+            or state.get("Paused") is not False
+            or state.get("Restarting") is not False
+            or state.get("Dead") is not False
+            or state.get("Error") != ""
+            or type(state.get("ExitCode")) is not int
+        ):
+            raise StartError("RECOVERY_RESOURCE_STATE_UNVERIFIED", 4)
+        if role == "supervisor" and live:
+            pid = raw
+    if runtime.uncertain or not runtime.family_drained:
+        raise StartError("RECOVERY_UNCERTAIN", 4)
+    return pid
+
+
+def _stale_socket(path: Path, deadline: float) -> list[int] | None:
+    private_dir(path.parent)
+    if not os.path.lexists(path):
+        return None
+    identity = socket_identity(path)
+    if path.lstat().st_nlink != 1:
+        raise StartError("UNSAFE_IPC", 4)
+    with socket.socket(socket.AF_UNIX) as peer:
+        peer.settimeout(remaining(deadline, 0.2))
+        try:
+            peer.connect(str(path))
+        except OSError as exc:
+            if exc.errno != errno.ECONNREFUSED:
+                raise StartError("IPC_OWNERSHIP_UNCERTAIN", 4) from None
+        else:
+            raise StartError("IPC_PEER_STILL_LIVE", 4)
+    if socket_identity(path) != identity:
+        raise StartError("IPC_IDENTITY_MISMATCH", 4)
+    return identity
+
+
+def _reboot_files(
+    runtime: ControlRuntime,
+    root: Path,
+    control: Path,
+    record: dict[str, object],
+    *,
+    locks: ExitStack | None = None,
+) -> dict[str, object]:
+    boot = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+    if not _uuid(boot) or mapping(record["forwarder"])["boot_id"] == boot:
+        raise StartError("RECOVERY_BOOT_UNVERIFIED", 4)
+    _listener_absent(record)
+    preflight_port(_integer(record, "port"))
+    result: dict[str, object] = {}
+    for directory, stem in ((control, "control"), (root / "http", "api")):
+        private_dir(directory)
+        path = directory / f"{stem}.lock"
+        fd = os.open(path, os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK)
+        try:
+            info = os.fstat(fd)
+            if (
+                not stat.S_ISREG(info.st_mode)
+                or info.st_uid != os.getuid()
+                or stat.S_IMODE(info.st_mode) != 0o600
+                or info.st_nlink != 1
+                or info.st_size != 0
+            ):
+                raise StartError("UNSAFE_IPC_LOCK", 4)
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                raise StartError("IPC_OWNERSHIP_UNCERTAIN", 4) from None
+            identity = _stale_socket(directory / f"{stem}.sock", runtime.deadline)
+            if identity is not None and identity != record[f"{stem}_socket"]:
+                raise StartError("IPC_IDENTITY_MISMATCH", 4)
+            after = path.lstat()
+            if (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
+                raise StartError("IPC_IDENTITY_MISMATCH", 4)
+            result[f"{stem}.lock"] = [info.st_dev, info.st_ino]
+            result[f"{stem}.sock"] = identity
+            if locks is not None:
+                locks.callback(os.close, fd)
+                fd = -1
+        finally:
+            if fd >= 0:
+                os.close(fd)
+    result["model-egress.sock"] = _stale_socket(root / "vault/model-egress.sock", runtime.deadline)
+    for path in (control / "control.cap", root / "vault/model-relay.cap", root / "forwarder.log"):
+        if not os.path.lexists(path):
+            result[path.name] = None
+            continue
+        before = path.lstat()
+        private_file(path, limit=4 * 1024 * 1024 if path.name == "forwarder.log" else 64)
+        after = path.lstat()
+        identity = [
+            before.st_dev,
+            before.st_ino,
+            before.st_size,
+            before.st_mtime_ns,
+            before.st_ctime_ns,
+        ]
+        if identity != [
+            after.st_dev,
+            after.st_ino,
+            after.st_size,
+            after.st_mtime_ns,
+            after.st_ctime_ns,
+        ]:
+            raise StartError("IPC_IDENTITY_MISMATCH", 4)
+        result[path.name] = identity
+    return result
+
+
+def reap_forwarder(owner: ForwarderOwnership) -> None:
+    """The recovering caller owns its child through Stop completion or failure."""
+    try:
+        if owner.process is not None:
+            if owner.pidfd < 0 and owner.process.poll() is None:
+                owner.pidfd = os.pidfd_open(owner.process.pid)
+            # Reuse bounded child cleanup even when the operation budget expired.
+            with _publish_forwarder():
+                stop_forwarder(owner.process, owner.pidfd)
+    finally:
+        if owner.pidfd >= 0:
+            os.close(owner.pidfd)
+            owner.pidfd = -1
+
+
 def recover_barrier(
-    runtime: ControlRuntime, root: Path, control: Path, record: dict[str, object]
+    runtime: ControlRuntime,
+    root: Path,
+    control: Path,
+    record: dict[str, object],
+    *,
+    forwarder_owner: ForwarderOwnership,
 ) -> dict[str, object]:
     _ready_record(record)
     if (
@@ -203,14 +366,27 @@ def recover_barrier(
         or not 1 <= _integer(record, "supervisor_epoch") < 9223372036854775807
     ):
         raise StartError("RECOVERY_REQUIRED", 4)
-    _inventory(runtime, root, control, record, dead=True)
-    owner = _owner(runtime, record)
-    intent = {
+    reboot = (
+        mapping(record["forwarder"])["boot_id"]
+        != Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+    )
+    files: dict[str, object] = {}
+    owner = None
+    if reboot:
+        _reboot_resources(runtime, root, control, record)
+        files = _reboot_files(runtime, root, control, record)
+        if os.path.lexists(root / f"recovery-{record['attempt']}"):
+            raise StartError("RECOVERY_REQUIRED", 4)
+    else:
+        _inventory(runtime, root, control, record, dead=True)
+        owner = _owner(runtime, record)
+    intent: dict[str, object] = {
         "version": 1,
         "original": record,
         "owner": owner,
         "stop_command": str(uuid4()),
         "finalize_command": str(uuid4()),
+        **({"files": files} if reboot else {}),
     }
     intent_path = root / f"recovery-{record['attempt']}.json"
     write_record(intent_path, intent)
@@ -221,18 +397,113 @@ def recover_barrier(
     write_record(journal, pending, replace=True)
     if read_record(journal) != pending:
         raise StartError("RECOVERY_INTENT_UNVERIFIED", 4)
-    _inventory(runtime, root, control, record, dead=True)
+    if reboot:
+        _reboot_resources(runtime, root, control, record)
+        if (
+            _reboot_files(runtime, root, control, record) != files
+            or read_record(intent_path) != intent
+            or read_record(journal) != pending
+        ):
+            raise StartError("RECOVERY_AUTHORITY_CHANGED", 4)
+        runtime.run("start", _containers(record)["db"], effect=True)
+        if runtime.uncertain or not runtime.family_drained:
+            raise StartError("RECOVERY_UNCERTAIN", 4)
+        runtime.wait_container(_containers(record)["db"], healthy=True)
+        _reboot_resources(runtime, root, control, record, running=frozenset({"db"}))
+        if database_identity(runtime, _containers(record)["db"]) != (
+            record["system_id"],
+            record["instance_id"],
+        ):
+            raise StartError("DATABASE_IDENTITY_MISMATCH", 4)
+        owner = _owner(runtime, record)
+        with ExitStack() as ipc_locks:
+            if (
+                _reboot_files(runtime, root, control, record, locks=ipc_locks) != files
+                or read_record(intent_path) != intent
+                or read_record(journal) != pending
+            ):
+                raise StartError("RECOVERY_AUTHORITY_CHANGED", 4)
+            intent["owner"] = owner
+            write_record(intent_path, intent, replace=True)
+            archive = root / f"recovery-{record['attempt']}"
+            archive.mkdir(mode=0o700)
+            _sync_dir(root)
+            for source in (
+                root / "http/api.sock",
+                control / "control.sock",
+                root / "vault/model-egress.sock",
+                control / "control.cap",
+                root / "vault/model-relay.cap",
+                root / "forwarder.log",
+            ):
+                expected = files[source.name]
+                if expected is None:
+                    if os.path.lexists(source):
+                        raise StartError("IPC_IDENTITY_MISMATCH", 4)
+                    continue
+                info = source.lstat()
+                actual = (
+                    _stale_socket(source, runtime.deadline)
+                    if source.suffix == ".sock"
+                    else [
+                        info.st_dev,
+                        info.st_ino,
+                        info.st_size,
+                        info.st_mtime_ns,
+                        info.st_ctime_ns,
+                    ]
+                )
+                if actual != expected:
+                    raise StartError("IPC_IDENTITY_MISMATCH", 4)
+                publish_directory(source, archive / source.name)
+                moved = (archive / source.name).lstat()
+                if (moved.st_dev, moved.st_ino) != (info.st_dev, info.st_ino):
+                    raise StartError("IPC_IDENTITY_MISMATCH", 4)
+                _sync_dir(source.parent)
+                _sync_dir(archive)
+            for lock in (control / "control.lock", root / "http/api.lock"):
+                info = lock.lstat()
+                if [info.st_dev, info.st_ino] != files[lock.name]:
+                    raise StartError("IPC_IDENTITY_MISMATCH", 4)
+        _reboot_resources(runtime, root, control, record, running=frozenset({"db"}))
+    else:
+        _inventory(runtime, root, control, record, dead=True)
     if (
         _owner(runtime, record) != owner
         or read_record(intent_path) != intent
         or read_record(journal) != pending
     ):
         raise StartError("RECOVERY_AUTHORITY_CHANGED", 4)
+    observed = dict(record)
+    if reboot:
+        _listener_absent(record)
+        _, _, forwarder, inode = launch_forwarder(
+            root,
+            _integer(record, "port"),
+            runtime.deadline,
+            ownership=forwarder_owner,
+            stop_attempt=str(record["attempt"]),
+            model=True,
+        )
+        observed.update(forwarder=forwarder, listener_inode=inode)
+        pending.update(forwarder=forwarder, listener_inode=inode)
+        write_record(journal, pending, replace=True)
+        if (
+            read_record(journal) != pending
+            or read_record(intent_path) != intent
+            or _owner(runtime, record) != owner
+        ):
+            raise StartError("RECOVERY_AUTHORITY_CHANGED", 4)
+        _reboot_resources(runtime, root, control, record, running=frozenset({"db"}))
     remaining(runtime.deadline)
     runtime.run("start", _containers(record)["supervisor"], effect=True)
     if runtime.uncertain or not runtime.family_drained:
         raise StartError("RECOVERY_UNCERTAIN", 4)
-    pid = _inventory(runtime, root, control, record, dead=False)
+    pid = (
+        _reboot_resources(runtime, root, control, record, running=frozenset({"db", "supervisor"}))
+        if reboot
+        else _inventory(runtime, root, control, record, dead=False)
+    )
     while True:
         remaining(runtime.deadline)
         try:
@@ -255,9 +526,32 @@ def recover_barrier(
         or read_record(intent_path) != intent
     ):
         raise StartError("RECOVERY_BARRIER_UNVERIFIED", 4)
+    if reboot:
+        _reboot_resources(runtime, root, control, record, running=frozenset({"db", "supervisor"}))
+        runtime.run("start", _containers(record)["api"], effect=True)
+        if runtime.uncertain or not runtime.family_drained:
+            raise StartError("RECOVERY_UNCERTAIN", 4)
+        while True:
+            remaining(runtime.deadline)
+            try:
+                observed["api_socket"] = socket_identity(root / "http/api.sock")
+                _inventory(runtime, root, control, observed, dead=False)
+                break
+            except (FileNotFoundError, ConnectionRefusedError):
+                time.sleep(min(0.1, remaining(runtime.deadline)))
+            except StartError as exc:
+                if exc.reason != "HTTP_NOT_READY":
+                    raise
+                time.sleep(min(0.1, remaining(runtime.deadline)))
+        if (
+            _owner(runtime, record, current) == owner
+            or read_record(journal) != pending
+            or read_record(intent_path) != intent
+        ):
+            raise StartError("RECOVERY_BARRIER_UNVERIFIED", 4)
     socket = socket_identity(control / "control.sock")
     stopped = {
-        **record,
+        **observed,
         "phase": "STOPPING",
         "generation": current["generation"],
         "supervisor_epoch": current["supervisor_epoch"],

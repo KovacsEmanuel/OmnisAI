@@ -626,6 +626,8 @@ def stop_instance(
 ) -> dict[str, object]:
     from .config import _integer as config_integer
     from .config import load_config
+    from .recover import reap_forwarder, recover_barrier
+    from .start import ForwarderOwnership
     from .stop_owner import prepare_stop_inventory, run_stop_owner, verify_stop_completion
 
     config = load_config()
@@ -654,6 +656,7 @@ def stop_instance(
     if preflight is not None:
         _bound_instance(runtime, root, control, preflight)
     deadline = runtime.deadline
+    forwarder_owner = ForwarderOwnership()
     with ExitStack() as held:
         data_fd = held.enter_context(lifecycle_lock(data_home / "omnis", deadline))
         refuse_upgrade(data_home / "omnis")
@@ -691,11 +694,12 @@ def stop_instance(
         if os.path.lexists(root / "unreconciled.json"):
             raise StartError("RECOVERY_REQUIRED", 4)
         if recover:
-            from .recover import recover_barrier
-
             if record != preflight:
                 raise StartError("RECOVERY_REQUIRED", 4)
-            record = recover_barrier(runtime, root, control, record)
+            held.callback(reap_forwarder, forwarder_owner)
+            record = recover_barrier(
+                runtime, root, control, record, forwarder_owner=forwarder_owner
+            )
         if record.get("phase") == "STOPPED":
             readback_stopped(runtime, root, control, record)
         elif record.get("phase") == "STOPPING" and record.get("finalized_generation") is not None:
@@ -831,6 +835,8 @@ def stop_instance(
                     deadline=deadline,
                 )
                 verify_stop_completion(runtime, root, control, record, grant)
+                if recover:
+                    reap_forwarder(forwarder_owner)
                 _publish_stopped(runtime, root, control, path, record)
             except ControlUnavailable:
                 if (
@@ -867,6 +873,13 @@ def stop_instance(
 
 
 def stop(*, as_json: bool, shutdown_timeout: int | None = None, recover: bool = False) -> int:
+    from .start import _interrupt
+
+    previous = (
+        {sig: signal.signal(sig, _interrupt) for sig in (signal.SIGTERM, signal.SIGINT)}
+        if recover
+        else {}
+    )
     try:
         result = stop_instance(shutdown_timeout=shutdown_timeout, recover=recover)
         code = 0
@@ -885,6 +898,9 @@ def stop(*, as_json: bool, shutdown_timeout: int | None = None, recover: bool = 
             "assessment_ready": False,
             "browser_opened": False,
         }
+    finally:
+        for sig, handler in previous.items():
+            signal.signal(sig, handler)
     if as_json:
         print(json.dumps(result, sort_keys=True))
     else:

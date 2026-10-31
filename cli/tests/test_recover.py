@@ -152,6 +152,7 @@ class RecoveryFixture(Fixture):
         self.sockets["control"] = fresh
         old.close()
         (self.control / "control.cap").write_text("c" * 64)
+        (self.control / "control.cap").chmod(0o600)
         return subprocess.CompletedProcess(args, 0, self.ids["supervisor"] + "\n", "")
 
     def psql(self, ident, query):
@@ -195,6 +196,89 @@ class RecoveryFixture(Fixture):
         return dict(self.current)
 
 
+class RebootFixture(RecoveryFixture):
+    """Fresh SOURCE fixture: dead services and a deliberately synthetic old boot."""
+
+    def prepare(self, *, live_control=False):
+        from omnis_cli.lifecycle import write_record
+        from omnis_cli.start import stop_forwarder
+
+        super().prepare(live_control=live_control)
+        stop_forwarder(self.forwarder, self.forwarder_fd)
+        self.sockets["api"].close()
+        self.record["forwarder"]["boot_id"] = "dddddddd-dddd-4ddd-8ddd-dddddddddddd"
+        for item in self.items.values():
+            item["State"].update(
+                Running=False,
+                Status="exited",
+                Pid=0,
+                Paused=False,
+                Restarting=False,
+                Dead=False,
+                Error="",
+                ExitCode=255,
+            )
+        relay = socket.socket(socket.AF_UNIX)
+        relay.bind(str(self.root / "vault/model-egress.sock"))
+        (self.root / "vault/model-egress.sock").chmod(0o600)
+        relay.close()
+        (self.root / "forwarder.log").write_bytes(b"original log\n")
+        (self.root / "forwarder.log").chmod(0o600)
+        self.effects, self.children = [], []
+        self.authority_seen = False
+        write_record(self.root / "startup.json", self.record, replace=True)
+
+    def start(self, *args, **kwargs):
+        import subprocess
+
+        from omnis_cli.lifecycle import read_record
+
+        role = next(role for role, cid in self.ids.items() if args == ("start", cid))
+        assert kwargs["effect"] is True
+        assert role not in self.effects
+        assert self.journal()["phase"] == "RECOVERING"
+        assert read_record(self.root / f"recovery-{self.attempt}.json")["original"] == self.record
+        if role != "db":
+            assert self.authority_seen
+        if role == "supervisor":
+            assert self.effects == ["db"]
+            assert (self.root / "vault/model-egress.sock").exists()
+            # Real recovery quarantines this socket instead of deleting it.
+            if not (self.control / "control.sock").exists():
+                stale = socket.socket(socket.AF_UNIX)
+                stale.bind(str(self.control / "control.sock"))
+                stale.close()
+            result = super().start(*args, **kwargs)
+        else:
+            if role == "api":
+                assert self.effects == ["db", "supervisor"]
+                assert self.ops == ["status"]
+                assert not (self.root / "http/api.sock").exists()
+                fresh = socket.socket(socket.AF_UNIX)
+                fresh.bind(str(self.root / "http/api.sock"))
+                (self.root / "http/api.sock").chmod(0o600)
+                fresh.listen()
+                self.sockets["api"] = fresh
+            self.items[self.ids[role]]["State"].update(
+                Running=True,
+                Status="running",
+                Pid=self.processes[role].pid,
+                Health={"Status": "healthy"},
+            )
+            result = subprocess.CompletedProcess(args, 0, self.ids[role] + "\n", "")
+        self.effects.append(role)
+        return result
+
+    def psql(self, ident, query):
+        from omnis_cli.lifecycle import StartError
+
+        if "db" not in self.effects:
+            raise StartError("LOCAL_SERVICE_COMMAND_FAILED", 3)
+        if "json_build_object" in query:
+            self.authority_seen = True
+        return super().psql(ident, query)
+
+
 class RecoverTests(unittest.TestCase):
     def invoke(self, fixture, command="recover"):
         import importlib
@@ -209,6 +293,20 @@ class RecoverTests(unittest.TestCase):
         def spawn(argv, **kwargs):
             if "omnis_cli.stop_owner" in argv:
                 argv = owner_test_argv(argv)
+            elif "omnis_cli.forwarder" in argv:
+                from pathlib import Path
+
+                source = str(Path(__file__).resolve().parents[1] / "src")
+                argv = [
+                    argv[0],
+                    "-I",
+                    "-c",
+                    f"import sys,runpy; sys.path.insert(0,{source!r}); runpy.run_module('omnis_cli.forwarder',run_name='__main__')",
+                    *argv[4:],
+                ]
+                child = popen(argv, **kwargs)
+                fixture.children.append(child)
+                return child
             return popen(argv, **kwargs)
 
         with (
@@ -227,6 +325,426 @@ class RecoverTests(unittest.TestCase):
             with contextlib.redirect_stdout(output):
                 code = main([command, "--json"])
         return code, json.loads(output.getvalue())
+
+    def test_post_reboot_recovery_uses_original_services_and_real_stop_owner(self):
+        from omnis_cli.lifecycle import read_record
+
+        fixture = RebootFixture()
+        self.addCleanup(fixture.close)
+        fixture.prepare()
+        code, result = self.invoke(fixture)
+        self.assertEqual((code, result), (0, result), result)
+        self.assertEqual(result["state"], "STOPPED")
+        self.assertEqual(fixture.effects, ["db", "supervisor", "api"])
+        self.assertEqual(
+            fixture.ops, ["status", "status", "shutdown", "status", "finalize", "arm_stop"]
+        )
+        stopped = read_record(fixture.root / "startup.json")
+        self.assertEqual(stopped["phase"], "STOPPED")
+        self.assertNotEqual(stopped["forwarder"], fixture.record["forwarder"])
+        self.assertEqual(stopped["containers"], fixture.record["containers"])
+        self.assertEqual(
+            (fixture.root / f"recovery-{fixture.attempt}/forwarder.log").read_bytes(),
+            b"original log\n",
+        )
+        self.assertTrue((fixture.root / f"recovery-{fixture.attempt}/model-egress.sock").exists())
+        self.assertTrue(all(child.returncode == 0 for child in fixture.children))
+        self.assertEqual(len(fixture.children), 1)
+        self.assertFalse(fixture.items)
+        self.assertEqual((fixture.root / "vault/sentinel").read_bytes(), b"retained")
+        self.assertTrue((fixture.root / "postgres").is_dir())
+
+    def test_post_reboot_stopped_admits_normal_development_start_prefix(self):
+        import importlib
+
+        from omnis_cli.lifecycle import StartError, read_record
+        from test_development import build_fixture, develop
+
+        start = importlib.import_module("omnis_cli.start")
+        fixture = RebootFixture()
+        self.addCleanup(fixture.close)
+        # Start's real layout rejects a control directory nested at an arbitrary leaf.
+        control = fixture.base / "control"
+        fixture.control.rename(control)
+        fixture.control = control
+        fixture.record["control_dir"] = str(control)
+        for item in fixture.items.values():
+            for mount in item["Mounts"]:
+                if mount["Destination"] == "/run/omnis-control":
+                    mount["Source"] = str(control)
+        fixture.prepare()
+        workspace = fixture.base / "workspace"
+        build_fixture(workspace)
+        develop(fixture, str(workspace))
+        config = fixture.base / "config/omnis"
+        config.mkdir(parents=True, mode=0o700)
+        (config / "config.toml").write_text(
+            f"development_workspace = {json.dumps(str(workspace))}\n"
+        )
+        (config / "config.toml").chmod(0o600)
+        code, result = self.invoke(fixture)
+        self.assertEqual((code, result["state"], result["mode"]), (0, "STOPPED", "DEVELOPMENT"))
+        stopped = fixture.journal()
+        inspect = fixture.runtime.inspect
+
+        def inspect_named(kind, ident):
+            if kind == "network" and ident == fixture.project + "_control":
+                return fixture.network_item
+            return inspect(kind, ident)
+
+        fixture.runtime.inspect = inspect_named
+
+        # The actual Start consumer must accept the recovered Stop receipt and rotate
+        # only the new forwarder log before the first mocked Docker create boundary.
+        def reached(runtime, env):
+            self.assertEqual(runtime.development_workspace, str(workspace))
+            self.assertEqual(read_record(fixture.root / "startup.json")["phase"], "STARTING")
+            raise StartError("SOURCE_PREFIX_INTERCEPT", 4)
+
+        with (
+            patch.dict(os.environ, fixture.environment),
+            patch.object(start, "state_dir", return_value=fixture.root),
+            patch.object(start, "control_dir", return_value=control),
+            patch.object(start, "ControlRuntime", return_value=fixture.runtime),
+            patch.object(start, "validate_config", side_effect=reached) as boundary,
+            patch.object(
+                fixture.runtime, "compose", side_effect=AssertionError("No Docker")
+            ) as compose,
+        ):
+            with self.assertRaisesRegex(StartError, "RESTART_RECONCILIATION_REQUIRED"):
+                start.start_instance()
+        boundary.assert_called_once()
+        compose.assert_not_called()
+        self.assertEqual(fixture.effects, ["db", "supervisor", "api"])
+        self.assertTrue((fixture.root / f"forwarder-{fixture.attempt}.log").exists())
+        self.assertTrue((fixture.root / f"recovery-{fixture.attempt}/forwarder.log").exists())
+        self.assertEqual(
+            read_record(fixture.root / f"stopped-{stopped['stop_command']}.json"), stopped
+        )
+        self.assertEqual((fixture.root / "vault/sentinel").read_bytes(), b"retained")
+
+    def test_post_reboot_cli_term_handler_unwinds_owned_forwarder(self):
+        import signal
+
+        import omnis_cli.recover as recovery
+
+        fixture = RebootFixture()
+        self.addCleanup(fixture.close)
+        fixture.prepare()
+        launch = recovery.launch_forwarder
+        before = signal.getsignal(signal.SIGTERM)
+
+        def interrupt(*args, **kwargs):
+            launch(*args, **kwargs)
+            handler = signal.getsignal(signal.SIGTERM)
+            self.assertTrue(callable(handler), "recover must handle TERM before spawning")
+            assert callable(handler)
+            handler(signal.SIGTERM, None)
+
+        with patch.object(recovery, "launch_forwarder", side_effect=interrupt):
+            code, result = self.invoke(fixture)
+        self.assertEqual((code, result["state"]), (4, "UNCERTAIN"))
+        self.assertEqual(fixture.effects, ["db"])
+        self.assertTrue(all(child.returncode == 0 for child in fixture.children))
+        self.assertEqual(signal.getsignal(signal.SIGTERM), before)
+
+    def test_post_reboot_expired_operation_budget_still_reaps_owned_child(self):
+        import time
+
+        import omnis_cli.recover as recovery
+        from omnis_cli.lifecycle import StartError
+        from omnis_cli.start import stop_forwarder
+
+        fixture = RebootFixture()
+        self.addCleanup(fixture.close)
+        fixture.prepare()
+        launch = recovery.launch_forwarder
+        fixture.runtime.deadline = time.monotonic() + 2
+
+        def expire(*args, **kwargs):
+            launch(*args, **kwargs)
+            time.sleep(max(0, fixture.runtime.deadline - time.monotonic()))
+            raise StartError("READBACK_LOST", 4)
+
+        try:
+            with patch.object(recovery, "launch_forwarder", side_effect=expire):
+                code, result = self.invoke(fixture)
+            self.assertNotEqual(code, 0)
+            self.assertEqual(result["state"], "UNCERTAIN")
+            self.assertEqual(fixture.effects, ["db"])
+            self.assertEqual(fixture.journal()["phase"], "RECOVERING")
+            self.assertTrue(all(child.poll() == 0 for child in fixture.children))
+        finally:
+            for child in fixture.children:
+                if child.poll() is None:
+                    fd = os.pidfd_open(child.pid)
+                    try:
+                        stop_forwarder(child, fd)
+                    finally:
+                        os.close(fd)
+
+    def test_post_reboot_reap_failure_cannot_publish_stopped(self):
+        import omnis_cli.recover as recovery
+        from omnis_cli.lifecycle import StartError
+
+        fixture = RebootFixture()
+        self.addCleanup(fixture.close)
+        fixture.prepare()
+        reap = recovery.reap_forwarder
+
+        def failed(owner):
+            reap(owner)
+            raise StartError("REAP_UNCERTAIN", 4)
+
+        with patch.object(recovery, "reap_forwarder", side_effect=failed):
+            code, result = self.invoke(fixture)
+        self.assertEqual((code, result["state"]), (4, "UNCERTAIN"))
+        self.assertEqual(fixture.journal()["phase"], "STOPPING")
+        self.assertNotEqual(self.invoke(fixture)[0], 0)
+        self.assertTrue(all(child.returncode == 0 for child in fixture.children))
+
+    def test_post_reboot_denials_before_intent_have_zero_effects(self):
+        from pathlib import Path
+
+        from omnis_cli.lifecycle import write_record
+
+        for fault, reason in (
+            ("boot", "LOCAL_SERVICE_COMMAND_FAILED"),
+            ("cid", "RESOURCE_IDENTITY_MISMATCH"),
+            ("live-db", "RECOVERY_RESOURCE_STATE_UNVERIFIED"),
+            ("partial-state", "RECOVERY_RESOURCE_STATE_UNVERIFIED"),
+            ("ipc", "IPC_PEER_STILL_LIVE"),
+            ("port", "STOP_READBACK_UNCERTAIN"),
+            ("log-link", "STOP_UNCERTAIN"),
+            ("pgdata", "RECOVERY_REQUIRED"),
+            ("intent", "RECOVERY_INTERRUPTED"),
+        ):
+            with self.subTest(fault=fault):
+                fixture = RebootFixture()
+                try:
+                    fixture.prepare()
+                    with contextlib.ExitStack() as held:
+                        if fault == "boot":
+                            fixture.record["forwarder"]["boot_id"] = (
+                                Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+                            )
+                            write_record(
+                                fixture.root / "startup.json", fixture.record, replace=True
+                            )
+                        elif fault == "cid":
+                            changed = dict(
+                                fixture.record, containers={**fixture.ids, "api": "9" * 64}
+                            )
+                            write_record(fixture.root / "startup.json", changed, replace=True)
+                        elif fault == "live-db":
+                            fixture.items[fixture.ids["db"]]["State"]["Running"] = True
+                        elif fault == "partial-state":
+                            del fixture.items[fixture.ids["api"]]["State"]["Dead"]
+                        elif fault == "ipc":
+                            path = fixture.root / "vault/model-egress.sock"
+                            path.rename(path.with_suffix(".original"))
+                            peer = held.enter_context(socket.socket(socket.AF_UNIX))
+                            peer.bind(str(path))
+                            path.chmod(0o600)
+                            peer.listen()
+                        elif fault == "port":
+                            peer = held.enter_context(socket.socket())
+                            peer.bind(("127.0.0.1", fixture.port))
+                            peer.listen()
+                        elif fault == "log-link":
+                            os.link(fixture.root / "forwarder.log", fixture.root / "log-alias")
+                        elif fault == "pgdata":
+                            (fixture.root / "postgres").rename(fixture.root / "saved-postgres")
+                            (fixture.root / "postgres").mkdir(mode=0o711)
+                        else:
+                            write_record(
+                                fixture.root / f"recovery-{fixture.attempt}.json",
+                                {"original": fixture.record},
+                            )
+                        before = (fixture.root / "startup.json").read_bytes()
+                        code, result = self.invoke(fixture)
+                        self.assertNotEqual(code, 0)
+                        self.assertEqual(result["reason"], reason)
+                        self.assertEqual((fixture.root / "startup.json").read_bytes(), before)
+                        self.assertEqual(fixture.effects, [])
+                        self.assertEqual(fixture.ops, [])
+                        self.assertEqual(fixture.children, [])
+                        fixture.runtime.run.assert_not_called()
+                        if fault != "intent":
+                            self.assertFalse(
+                                (fixture.root / f"recovery-{fixture.attempt}.json").exists()
+                            )
+                finally:
+                    fixture.close()
+
+    def test_post_reboot_authority_and_db_identity_block_other_services(self):
+        from omnis_cli.lifecycle import read_record
+
+        for fault, reason in (
+            ("authority", "RECOVERY_AUTHORITY_UNVERIFIED"),
+            ("system", "DATABASE_IDENTITY_MISMATCH"),
+            ("schema", "SCHEMA_UPDATE_REQUIRED"),
+        ):
+            with self.subTest(fault=fault):
+                fixture = RebootFixture()
+                try:
+                    fixture.prepare()
+                    original = fixture.psql
+
+                    def sql(cid, query, *, fault=fault, fixture=fixture, original=original):
+                        result = original(cid, query)
+                        if fault == "authority" and "json_build_object" in query:
+                            for predicate in (
+                                "l.expires_at <= clock_timestamp()",
+                                "NOT EXISTS (SELECT 1 FROM instance_stop_fence",
+                                "c.admission_open",
+                                "kind = 'OPEN'",
+                                "c.quiesced_generation IS NULL",
+                            ):
+                                self.assertIn(predicate, query)
+                            return json.dumps(dict(owner=fixture.old_owner, eligible=False))
+                        if fault == "system" and "pg_control_system" in query:
+                            return "98765"
+                        if fault == "schema" and "alembic_version" in query:
+                            return "0016_provider_models"
+                        return result
+
+                    fixture.runtime.psql.side_effect = sql
+                    code, result = self.invoke(fixture)
+                    self.assertNotEqual(code, 0)
+                    self.assertEqual(result["reason"], reason)
+                    self.assertEqual(fixture.effects, ["db"])
+                    self.assertEqual(fixture.children, [])
+                    self.assertEqual(fixture.ops, [])
+                    self.assertEqual(
+                        read_record(fixture.root / f"recovery-{fixture.attempt}.json")["original"],
+                        fixture.record,
+                    )
+                    self.assertEqual(fixture.journal()["phase"], "RECOVERING")
+                    self.assertNotEqual(self.invoke(fixture)[0], 0)
+                    self.assertEqual(fixture.effects, ["db"])
+                    self.assertTrue((fixture.root / "postgres").exists())
+                finally:
+                    fixture.close()
+
+    def test_post_reboot_no_ack_and_invalid_barrier_reap_only_owned_forwarder(self):
+        import omnis_cli.recover as recovery
+        from omnis_cli.lifecycle import StartError
+
+        for fault in (
+            "db",
+            "supervisor",
+            "api",
+            "forwarder",
+            "generation",
+            "epoch",
+            "owner",
+            "admission",
+            "drain",
+            "shutdown",
+        ):
+            with self.subTest(fault=fault):
+                fixture = RebootFixture()
+                try:
+                    fixture.prepare()
+                    start, launch, control = (
+                        fixture.start,
+                        recovery.launch_forwarder,
+                        fixture.control_request,
+                    )
+
+                    def no_ack(*args, fault=fault, fixture=fixture, start=start, **kwargs):
+                        result = start(*args, **kwargs)
+                        if args == ("start", fixture.ids.get(fault)):
+                            raise StartError("READBACK_LOST", 4)
+                        return result
+
+                    def forwarder(*args, launch=launch, fault=fault, **kwargs):
+                        result = launch(*args, **kwargs)
+                        if fault == "forwarder":
+                            raise StartError("HANDOFF_LOST", 4)
+                        return result
+
+                    def request(directory, command, control=control, fault=fault, **kwargs):
+                        result = control(directory, command, **kwargs)
+                        if fault == "shutdown" and command["op"] == "shutdown":
+                            from omnis_cli.control import ControlUnavailable
+
+                            raise ControlUnavailable()
+                        return result
+
+                    fixture.runtime.run.side_effect = no_ack
+                    fixture.control_request = request
+                    if fault in {"generation", "epoch"}:
+                        fixture.current[
+                            "generation" if fault == "generation" else "supervisor_epoch"
+                        ] += 1
+                    elif fault == "owner":
+                        fixture.new_owner = fixture.old_owner
+                    elif fault == "admission":
+                        fixture.current["admission_open"] = True
+                    elif fault == "drain":
+                        fixture.current["quiesced_generation"] = None
+                    with patch.object(recovery, "launch_forwarder", side_effect=forwarder):
+                        code, result = self.invoke(fixture)
+                    self.assertNotEqual(code, 0)
+                    self.assertEqual(result["state"], "UNCERTAIN")
+                    self.assertIn(fixture.journal()["phase"], ("RECOVERING", "STOPPING"))
+                    self.assertTrue(all(child.returncode == 0 for child in fixture.children))
+                    self.assertEqual(len(fixture.effects), len(set(fixture.effects)))
+                    if fault not in {"api", "shutdown"}:
+                        self.assertNotIn("api", fixture.effects)
+                    self.assertFalse(
+                        any(row.startswith(("POST", "DELETE")) for row in fixture.requests)
+                    )
+                    self.assertNotEqual(self.invoke(fixture)[0], 0)
+                    self.assertTrue((fixture.root / "postgres").exists())
+                    self.assertFalse((fixture.root / "unreconciled.json").exists())
+                finally:
+                    fixture.close()
+
+    def test_post_reboot_journal_and_ipc_drift_before_db_have_zero_effects(self):
+        import omnis_cli.recover as recovery
+        from omnis_cli.lifecycle import write_record
+
+        for fault in ("journal", "ipc", "marker"):
+            with self.subTest(fault=fault):
+                fixture = RebootFixture()
+                try:
+                    fixture.prepare()
+
+                    def persist(path, value, *, fixture=fixture, fault=fault, **kwargs):
+                        write_record(path, value, **kwargs)
+                        if value.get("phase") == "RECOVERING":
+                            if fault == "journal":
+                                write_record(path, dict(value, generation=99), replace=True)
+                            elif fault == "marker":
+                                write_record(
+                                    fixture.root / "unreconciled.json", {"state": "UNCERTAIN"}
+                                )
+                            else:
+                                ipc = fixture.root / "http/api.sock"
+                                ipc.rename(ipc.with_suffix(".retained"))
+                                with socket.socket(socket.AF_UNIX) as peer:
+                                    peer.bind(str(ipc))
+                                    ipc.chmod(0o600)
+
+                    with patch.object(recovery, "write_record", side_effect=persist):
+                        code, result = self.invoke(fixture)
+                    self.assertEqual(code, 4)
+                    self.assertIn(
+                        result["reason"],
+                        (
+                            "RECOVERY_INTENT_UNVERIFIED",
+                            "IPC_IDENTITY_MISMATCH",
+                            "RECOVERY_REQUIRED",
+                        ),
+                    )
+                    fixture.runtime.run.assert_not_called()
+                    self.assertEqual(fixture.effects, [])
+                    self.assertTrue((fixture.root / f"recovery-{fixture.attempt}.json").exists())
+                finally:
+                    fixture.close()
 
     def test_busy_control_ipc_refuses_before_intent(self):
         import omnis_cli.recover as recovery

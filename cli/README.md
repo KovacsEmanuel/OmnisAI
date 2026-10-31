@@ -53,14 +53,17 @@ verificați starea curentă, nu deduceți autostart:
 
 Tranziția explicită revizuită pe aceleași date a avut istoric
 **READY27/epoch16, CLI/release0.1.1 și schema0017_model_removal**, DEVELOPMENT,
-cu următorul Start normal `reused=true`. **Citirea curentă este exit4,
-UNAVAILABLE/RECOVERY_REQUIRED**, aceeași identitate/release/schemă; nu s-a repetat
-recovery/Start. Models `ae92a65` este integrat, iar buildul public verificat API/PG
-este instalat/servit/executat la8780, cu inode/rollback păstrate. Nu este acceptare
-Models autentificată instalată: controlul privat este indisponibil, iar tabul
-separat de verificare neasociat. Nu se exportă cookie sau automatizează pairing.
-Remove și acceptarea vizuală anterioară rămân scoped; supervisorul/default-web
-blochează T1. READY istoric nu este remediu sau promisiune de disponibilitate.
+cu următorul Start normal `reused=true`. **După reboot, recuperarea autorizată
+a ajuns exit0/STOPPED29 și Start explicit exit0/READY30/epoch18**, aceeași
+identitate/release/schemă. CLI-ul reparat post-reboot este instalat după reviewuri,
+QA și backup actual0017 restaurat în copie izolată; datele/istoricul/ciphertextul
+sunt verificate, fără apel provider. Models `ae92a65` rămâne integrat; pagina
+publică arată API/control READY, dar tabul separat este neasociat. Acceptarea
+Models autentificată instalată este NOT_CONFIRMED. Nu se exportă cookie sau
+automatizează pairing. [Rezultate actuale și limite](../documents/verification/settings-c-evidence/models-polish-20261029/blocked-resume.md).
+Remove și acceptarea vizuală anterioară rămân scoped; gate-ul roșu și verificarea
+autentificată restantă blochează T1. READY nu este remediu al cauzei istorice
+necunoscute sau promisiune de disponibilitate.
 
 ```sh
 omnis status --json
@@ -90,9 +93,11 @@ Start/Open cer deschiderea în profilul desktop curent. Cu sesiune validă, brow
 ajunge în Dashboard; prima asociere sau sesiunea expirată cer pairing manual ales
 explicit. `omnis pair` se execută în terminal local; codul se introduce direct în
 UI, niciodată în URL/chat. Nu se automatizează autentificarea.
-Modul development nu este un release imuabil certificat. Canonicalul nou unic
-5400s este NOT_RUN/neconsumat/BLOCKED_PREREQUISITES (supervisor/default-web),
-nu BLOCKED_BUDGET/pairing; TIMEOUT-ul vechi rămâne istoric. T2 nu este autorizat.
+Modul development nu este un release imuabil certificat. Canonicalul actual
+rămâne FAIL: prima oprire la quality a fost remediată fără schimbare de logică;
+a doua are3121API PASS/81FAIL în5fișiere, fixture fixes în lucru. Nu este lipsă
+de pairing sau PASS global din recovery; TIMEOUT-urile vechi rămân istorice.
+T2 nu este autorizat.
 
 [`operator-launcher.sh`](operator-launcher.sh) este artefactul sursă pentru aceleași
 două fișiere `<root>/omnis` și `/home/kali/.local/bin/omnis`, numai pe această VM;

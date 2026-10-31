@@ -45,6 +45,49 @@ def _render_config(paths):
 
 
 class SafeTestDatabaseGateTests(unittest.TestCase):
+    def test_full_make_check_forwards_measured_family_deadline(self) -> None:
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as raw:
+            root = Path(raw)
+            (root / "Makefile").write_bytes((SCRIPT.parent.parent / "Makefile").read_bytes())
+            completed = subprocess.run(
+                [
+                    "make",
+                    "--no-print-directory",
+                    "--silent",
+                    "check",
+                    "API_PY=printf '%s\\n'",
+                    "UV=/pinned/uv",
+                ],
+                cwd=root,
+                env={"PATH": os.environ.get("PATH", "")},
+                capture_output=True,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        argv = completed.stdout.splitlines()
+        self.assertEqual(
+            argv,
+            [
+                "-I",
+                "ops/run_test_db_gate.py",
+                "--check",
+                "--uv",
+                "/pinned/uv",
+                "--timeout-seconds",
+                "4800",
+            ],
+        )
+        module = runpy.run_path(str(SCRIPT))
+        main = module["main"]
+        with (
+            patch.object(sys, "argv", argv[1:]),
+            patch.dict(main.__globals__, {"prove_private_fixture": lambda *args: args}),
+            patch.object(module["signal"], "signal"),
+        ):
+            self.assertEqual(main(), ("check-components", "/pinned/uv", 4800))
+
     def test_gate_environment_preserves_only_explicit_native_source(self) -> None:
         module = runpy.run_path(str(SCRIPT))
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as raw:

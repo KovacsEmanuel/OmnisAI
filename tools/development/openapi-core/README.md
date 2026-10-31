@@ -1,6 +1,8 @@
 # OpenAPI matcher backport — development only
 
-**CANDIDATE, not independently accepted and not global T1 closure.**
+**ACCEPTED_SCOPED — developer-only local contract generation.** R1/R2 reviewed
+the exact artifact at `fadf396`; the full canonical gate at `ba6c6ff` returned
+exit0/drained and main installation audit0. [Acceptance and retained failures](../../../documents/verification/settings-c-evidence/models-polish-20261029/blocked-resume.md).
 `openapi-typescript@7.13.0` still requires Redocly `^1.34.6`. The public metadata
 refresh found no compatible official fix for GHSA-g3hv-75wg-m249 /
 CVE-2026-118764. Do not replace the 1.x API with 2.x or force the resolver.
@@ -109,7 +111,8 @@ probe, provider call, session/T2 work or operator mutation is part of this slice
 Reticle is NOT_APPLICABLE; Chisel remains BLOCKED_NO_GO.
 
 Independent exact-snapshot reviews and the parent's integration/canonical gate
-remain required. When a compatible official fixed release exists, remove this
+passed for the recorded scope; arbitrary remote-pattern equivalence and T2 are
+not certified. When a compatible official fixed release exists, remove this
 local dependency/patch after equivalent checks. Rollback: revert integration
 before the baseline annotation, then fresh install from the reverted lock;
 that restores the **known audit blocker**, not a safe accepted release.

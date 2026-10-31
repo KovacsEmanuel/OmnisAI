@@ -99,7 +99,7 @@
     }
   },
   "frontend_openapi_patch_t1": {
-    "status": "CANDIDATE_NOT_ACCEPTED",
+    "status": "ACCEPTED_SCOPED",
     "scope": "developer_only_contract_generation",
     "reason": "GHSA-g3hv-75wg-m249 / CVE-2026-118764; no compatible official release at metadata refresh",
     "base_version": "1.34.20",
@@ -108,7 +108,8 @@
     "matcher": {"picomatch": "4.0.7"},
     "upstream_commit": "f5ce2e82c72034b893e19bfcaad198930a685399",
     "license": "MIT",
-    "acceptance": "Independent review and exact-artifact install/reapply/build/audit required; not global T1 closure"
+    "acceptance": "R1/R2 approve fadf396; exact-artifact install/reapply/emit/build/audit passed; full canonical ba6c6ff exit0/drained and main install audit0. Developer-only local/internal-ref scope; T2 not started.",
+    "evidence": "verification/settings-c-evidence/models-polish-20261029/blocked-resume.md"
   },
   "frontend_product": {
     "phase": "P0.3",

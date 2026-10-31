@@ -1,5 +1,6 @@
 {
-  "status": "CANDIDATE_NOT_ACCEPTED",
+  "status": "ACCEPTED_SCOPED",
+  "acceptance_record": "../../../documents/verification/settings-c-evidence/models-polish-20261029/blocked-resume.md",
   "scope": "developer-only trusted local OpenAPI generation; not product runtime",
   "source": {
     "package": "@redocly/openapi-core",

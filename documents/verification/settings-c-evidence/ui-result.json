@@ -4,9 +4,9 @@
   "implementation": "IMPLEMENTED",
   "evidence": "PASS_LOCAL_RECORDED_BROWSER_API_PRIVATE_PG_SYNTHETIC_TLS_SCOPED",
   "review": "APPROVED_SOURCE_SCOPED_COMPOSED",
-  "acceptance": "OPERATOR_RECOVERY_ACCEPTED_SCOPED_READY30_EPOCH18; CURRENT_0017_BACKUP_RESTORED_SAME_DATA_VERIFIED; OPERATOR_REPORTED_MODELS_AND_MANUAL_ACTIONS_WORKING; FUNCTIONAL_CHECKS_COMPOSED_PASS_CANONICAL_FAIL_DEPENDENCY_AUDIT; T1_NOT_CLOSED_T2_NOT_READY",
+  "acceptance": "T1_FINALIZATION_CLOSED_SCOPED; READY_FOR_T2_ADMISSION_NOT_STARTED; OPERATOR_RECOVERY_AND_SETTINGS_ACCEPTED_SCOPED; FULL_CANONICAL_BA6C6FF_EXIT0_DRAINED; OPENAPI_BACKPORT_FADF396_R1_R2_APPROVED_MAIN_INSTALLED_AUDIT0; HISTORICAL_UNKNOWN_CAUSES_AND_FAILURES_RETAINED",
   "postreboot_recovery_20261031": {
-    "status": "T1_BLOCKED_AUDIT_T2_NOT_READY",
+    "status": "T1_FINALIZATION_CLOSED_SCOPED_READY_FOR_T2_ADMISSION_NOT_STARTED",
     "recovery_record": "models-polish-20261029/blocked-resume.md",
     "runtime_commits": ["1cb25de", "59ed5dd"],
     "last_test_commit": "5a21accbd727dc20a0c8b3653389d614819fbabf",
@@ -27,10 +27,14 @@
       "models_pg_browser_passed": 1,
       "remove_pg_browser_passed": 1,
       "other_e2e_passed": 10,
-      "interpretation": "Composed scoped results, with unchanged evidence reused; not one clean full canonical PASS or a sum of unique tests. All original failures retained."
+      "interpretation": "These counts were also reached in the subsequent single full canonical ba6c6ff invocation, exit0/drained; not a sum of unique tests. Historical composed results and every original failure remain at their recorded scopes."
     },
-    "canonical": "Additional90minute run authorized; full attempt exit2 at npm audit after API/migration/web/build passed. Corrected E2E and release input ran separately. Aggregate recorded verification execution4374.989s within5400s; no broad rerun pending.",
+    "canonical": "Full ba6c6ff/proc_8df9893d0692 exit0/family_drained; 2308tracked files and7live assets unchanged, exact CID/project/network/socket absent. Family4660s+600s reserve+140s prior reserved within5400s; completion-observed upper bound including prior reserve4280.704s, not exact runtime. Earlier auditFAIL and initial socket109>107 preparationFAIL retained; only TMPDIR shortened, same check-development56PASS before corrected invocation.",
+    "canonical_evidence": "/home/kali/.local/share/omnis-t1-artifacts/postreboot-20261031/openapi-final-verification/result.json",
+    "canonical_source": "ba6c6ffef431d31b031891856162b1f530167fc8",
+    "canonical_log_sha256": "2786065d8473c2a43c9b041f3c766bacae2effdd293aa2acd06943d73f047ced",
     "blocker": {
+      "status": "RESOLVED_SCOPED_BY_REVIEWED_BACKPORT",
       "advisory": "GHSA-g3hv-75wg-m249",
       "chain": "openapi-typescript7.13.0 -> @redocly/openapi-core1.34.20 -> minimatch5.1.9",
       "audit_exit": 1,
@@ -39,16 +43,20 @@
       "previous_backport_question": "TIMED_OUT_UNANSWERED",
       "backport_authorization": "SUBSEQUENT_EXPLICIT_USER_POINT1_AUTHORIZED",
       "candidate": "fadf396e3e0bc35065161b2cf7d0a2af495fbd50",
-      "candidate_status": "IN_REVIEW_NOT_ACCEPTED",
+      "candidate_status": "ACCEPTED_SCOPED_R1_R2_QA_CANONICAL_MAIN_INSTALL",
+      "reviews": ["models-polish-20261029/openapi-backport-r1-original.json", "models-polish-20261029/openapi-backport-r2-original.json"],
+      "current_main_audit_exit": 0,
+      "current_main_vulnerabilities": 0,
       "author_evidence": "/home/kali/.local/share/omnis-t1-artifacts/postreboot-20261031/openapi-backport-author/frozen-candidate.json",
       "author_audit_exit": 0,
       "author_initial_web_failure": "353PASS/1FAIL Wizard negative request ceiling, missing button 4. Rules & budgets; narrow24/final354PASS without edits; causeUNKNOWN",
-      "next_decision": "Independent reviews and isolated QA, then the authorized bounded final canonical gate on exact accepted bytes. No forced override, downgrade, audit suppression, operator lifecycle, autopair implementation or T2."
+      "next_decision": "No remaining blocker in the admitted T1 criteria. T2 Agent/Runner requires a separate mandate; backport retirement waits for a compatible official release and equivalent checks. No forced override, downgrade, audit suppression, operator lifecycle, autopair, provider/target or push."
     },
     "historical_latency_cause": "UNKNOWN_NOT_CAUSALLY_REPAIRED",
     "durable_artifacts": "/home/kali/.local/share/omnis-t1-artifacts/postreboot-20261031",
     "backup": "/home/kali/.local/share/omnis-backups/t1-crash-preservation-20261031-r2",
-    "local_dependencies": "Earlier149-manifest main alignment remains installed, including Undici8.12.2; original tree preserved and served assets unchanged. New candidate lock is committed, but main installation waits for reviews/QA; candidate146-manifest audit0 is author-isolated evidence only.",
+    "local_dependencies": "Main fresh offline/scripts-disabled install verified146actual package versions against lock, one core/688files exactly matching reviewed artifact, zero minimatch, contracts0/audit0. All7served assets unchanged; prior149-manifest tree preserved inode-exact in rollback-pre-openapi-node-modules. Plan and inverse under durable_artifacts/openapi-main-rollout-plan.json; readback in openapi-main-rollout/result.json.",
+    "operator_after_dependency_install": "Read-only omnis status --json exit0; stateREADY/generation30/modeDEVELOPMENT/api_ready=true/control_ready=true/dashboard_ready=true. No lifecycle, model/settings mutation or provider call.",
     "cleanup": "Owned test families settled and exact resources retired; data/evidence retained. Operator intentionally remainsREADY. No push or T2."
   },
   "models_refinement_20261030": {

@@ -257,7 +257,7 @@ async def test_model_prepare_qa_owner_preserves_host_until_intentional_stop(
             if isinstance(n, ast.ExceptHandler)
             and any(isinstance(c, ast.Attribute) and c.attr == "quiesce" for c in ast.walk(n))
         )
-        work = next(n for n in tick.body if isinstance(n, ast.Try))
+        (work,) = [n for n in ast.walk(tick) if isinstance(n, ast.Try)]
         heartbeat = next(
             i
             for i, n in enumerate(work.body)
@@ -379,6 +379,8 @@ async def test_model_prepare_qa_owner_preserves_host_until_intentional_stop(
             "runtime": runtime,
             "model_prepare": True,
             "model_execute": False,
+            "model_owner": None,
+            "diagnostic": SimpleNamespace(phase=""),
             "task_owner": task_owner,
             "startup_generation": 0,
             "probe": None,

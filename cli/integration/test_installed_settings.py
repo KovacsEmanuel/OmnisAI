@@ -87,7 +87,7 @@ class InstalledSettingsTest(unittest.TestCase):
         )
         self.assertLess(
             source.index('settings_visit("settings-readback")'),
-            source.index("proof = cleanup = True"),
+            source.rindex("proof = cleanup = True"),
         )
         self.assertIn("driver_pending = True", source)
         self.assertIn("not driver_pending", source)

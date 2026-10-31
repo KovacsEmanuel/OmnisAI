@@ -26,6 +26,28 @@ from omnis_cli.lifecycle import lifecycle_lock
 from omnis_cli.start_runtime import ControlRuntime
 
 
+def save_cli_outcome(path, phase, result):
+    """Retain the inner exit/refusal, never raw private child output."""
+    assert phase in {"install", "install-image", "start", "stop", "status", "recover", "upgrade"}
+    reason = "UNOBSERVED"
+    try:
+        value = json.loads(result.stdout)
+    except ValueError:
+        value = None
+    if isinstance(value, dict):
+        raw = value.get("reason", "UNOBSERVED")
+        if raw is None or isinstance(raw, str) and re.fullmatch(r"[A-Z][A-Z0-9_]{0,79}", raw):
+            reason = raw
+    else:
+        for known in ("RELEASE_INSTALL_REFUSED", "IMAGE_INSTALL_REFUSED"):
+            if result.stderr.startswith(known + ":"):
+                reason = known
+    with path.open("a", encoding="utf-8") as evidence:
+        evidence.write(json.dumps(dict(phase=phase, exit=result.returncode, reason=reason)) + "\n")
+        evidence.flush()
+        os.fsync(evidence.fileno())
+
+
 def _upgrade_census_sql(table):
     if re.fullmatch(r"[a-z_0-9]+", table) is None:
         raise ValueError("Invalid census table")
@@ -141,6 +163,9 @@ def run_installed_stop(
             for value in settings_browser.values()
         )
     state = Path(tempfile.mkdtemp(prefix="s4-", dir=os.environ["TMPDIR"]))
+    outcomes = state / "cli-outcomes.jsonl"
+    if post_reboot_workspace is not None:
+        outcomes.touch(mode=0o600, exist_ok=False)
     root, control = state / "s/omnis", state / "r/omnis"
     cwd = state / "cwd"
     cwd.mkdir(mode=0o700)
@@ -212,6 +237,8 @@ def run_installed_stop(
             text=True,
             timeout=timeout,
         )
+        if post_reboot_workspace is not None:
+            save_cli_outcome(outcomes, args[0], result)
         if result.returncode not in {0, 2, 3, 4}:
             raise RuntimeError("Unknown installed CLI child outcome")
         driver_pending = prior_pending
@@ -334,14 +361,30 @@ def run_installed_stop(
             ]
         require_observer_settled()
 
-    if post_reboot_workspace is not None:
-        for name in ("api/src/omnis", "web/dist"):
-            shutil.copytree(Path(post_reboot_workspace) / name, workspace / name)
-        validate_new(str(workspace))
-        config.write_text(f"port = {port}\ndevelopment_workspace = {json.dumps(str(workspace))}\n")
-
     try:
         started = command("start", "--no-open", "--json")
+        if post_reboot_workspace is not None:
+            assert started["state"] == "READY" and started["mode"] == "RELEASE"
+            record = json.loads((root / "startup.json").read_text())
+            runtime.attempt = record["attempt"]
+            released = command("stop", "--json")
+            assert released["state"] == "STOPPED" and released["mode"] == "RELEASE"
+            record = json.loads((root / "startup.json").read_text())
+            assert record["phase"] == "STOPPED"
+            runtime.deadline = time.monotonic() + 30
+            assert_resources_absent(runtime, root, control, record)
+            require_observer_settled()
+            wait_port()
+            for name in ("api/src/omnis", "web/dist"):
+                shutil.copytree(Path(post_reboot_workspace) / name, workspace / name)
+            validate_new(str(workspace))
+            config.write_text(
+                f"port = {port}\ndevelopment_workspace = {json.dumps(str(workspace))}\n"
+            )
+            started = command("start", "--no-open", "--json")
+            assert started["mode"] == "DEVELOPMENT"
+            assert started["instance_id"] == released["instance_id"]
+            assert started["generation"] == released["generation"] + 1
         assert started["state"] == "READY" and started["assessment_ready"] is False
         assert started["origin"] == f"http://127.0.0.1:{port}"
         record = json.loads((root / "startup.json").read_text())
@@ -367,7 +410,10 @@ def run_installed_stop(
             config.write_bytes(original_config)
             assert config.read_bytes() == original_config
         initial = request(control, {"op": "status"})
-        assert initial["admission_open"] is True and initial["generation"] == 1
+        assert initial["admission_open"] is True
+        assert initial["generation"] == (
+            record["generation"] if post_reboot_workspace is not None else 1
+        )
         db = record["containers"]["db"]
         runtime.psql(db, "CREATE TABLE sl04_sentinel (value integer NOT NULL)")
         require_observer_settled()
@@ -381,6 +427,10 @@ def run_installed_stop(
 
             assert started["mode"] == "DEVELOPMENT"
             runtime.development_workspace = selection(record)
+            open_before = int(
+                runtime.psql(db, "SELECT count(*) FROM instance_command WHERE kind='OPEN'")
+            )
+            require_observer_settled()
             assert command("recover", "--json", expected=4)["state"] == "UNCERTAIN"
             assert (root / "startup.json").read_bytes() == before_journal
             original = json.loads(before_journal)
@@ -428,12 +478,14 @@ def run_installed_stop(
             assert record["containers"] == original["containers"]
             assert record["supervisor_epoch"] == original["supervisor_epoch"] + 1
             assert record["stop_generation"] == original["generation"] + 2
+            recovered_generation = record["stop_generation"]
             runtime.deadline = time.monotonic() + 30
             assert_resources_absent(runtime, root, control, record)
             require_observer_settled()
             wait_port()
             restarted = command("start", "--no-open", "--json")
             assert restarted["state"] == "READY" and restarted["mode"] == "DEVELOPMENT"
+            assert restarted["generation"] == recovered_generation + 1
             record = json.loads((root / "startup.json").read_text())
             runtime.attempt = record["attempt"]
             runtime.deadline = time.monotonic() + 30
@@ -450,7 +502,16 @@ def run_installed_stop(
             db = record["containers"]["db"]
             assert runtime.psql(db, "SELECT value FROM sl04_sentinel") == "7"
             assert (
-                runtime.psql(db, "SELECT count(*) FROM instance_command WHERE kind='OPEN'") == "2"
+                int(runtime.psql(db, "SELECT count(*) FROM instance_command WHERE kind='OPEN'"))
+                == open_before + 1
+            )
+            assert (
+                runtime.psql(
+                    db,
+                    "SELECT count(*) FROM instance_command WHERE kind='OPEN' "
+                    f"AND result_generation > {original['generation']} AND result_generation <= {recovered_generation}",
+                )
+                == "0"
             )
             for table in ("model_dispatch_v2", "system_operation"):
                 assert runtime.psql(db, f"SELECT count(*) FROM {table}") == "0"

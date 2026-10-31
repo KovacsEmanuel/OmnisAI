@@ -57,8 +57,117 @@ class ReleaseBundleTest(unittest.TestCase):
                     post_reboot_workspace="/missing",
                 )
 
+    def test_reboot_fixture_first_start_reaches_real_release_admission(self):
+        import contextlib
+        import importlib
+        import io
+        from types import SimpleNamespace
+
+        import installed_stop
+
+        start = importlib.import_module("omnis_cli.start")
+        for reboot, fresh_development in ((False, False), (True, False), (True, True)):
+            with (
+                self.subTest(reboot=reboot, fault=fresh_development),
+                tempfile.TemporaryDirectory(prefix="rp-", dir=os.environ["TMPDIR"]) as name,
+            ):
+                base = Path(name)
+                data = base / "data"
+                (data / "omnis").mkdir(parents=True, mode=0o700)
+                state = base / "fixture"
+                state.mkdir(mode=0o700)
+                receipt = dict(
+                    profile="t1-provider-settings", image_id="synthetic", project="inert"
+                )
+                runtime = SimpleNamespace(
+                    receipt=SimpleNamespace(image_id="synthetic"),
+                    schema="0017_model_removal",
+                    native=False,
+                    provider_settings=True,
+                    uncertain=False,
+                    family_drained=True,
+                )
+
+                def real_start(
+                    argv, *, env, fresh_development=fresh_development, base=base, **kwargs
+                ):
+                    self.assertEqual(argv[1:], ["start", "--no-open", "--json"])
+                    if fresh_development:
+                        config = Path(env["XDG_CONFIG_HOME"]) / "omnis/config.toml"
+                        config.write_text(
+                            f"development_workspace = {json.dumps(str(base / 'workspace'))}\n"
+                        )
+                    with patch.dict(os.environ, env, clear=True):
+                        code, result = start.start_result(None)
+                    self.assertEqual(
+                        (code, result["reason"]), (2, "DEVELOPMENT_REQUIRES_STOPPED_RELEASE")
+                    )
+                    return subprocess.CompletedProcess(
+                        argv, code, json.dumps(result), "private-output-not-for-evidence"
+                    )
+
+                with (
+                    patch.object(installed_stop.tempfile, "mkdtemp", return_value=str(state)),
+                    patch.object(installed_stop, "ControlRuntime", return_value=runtime),
+                    patch.object(start, "ControlRuntime", return_value=runtime),
+                    patch.object(installed_stop, "validate_new"),
+                    patch.object(installed_stop.shutil, "copytree"),
+                    patch.object(installed_stop.subprocess, "run", side_effect=real_start),
+                    patch("subprocess.Popen", side_effect=AssertionError("No child/daemon")),
+                    patch.object(
+                        start, "preflight_port", side_effect=RuntimeError("SOURCE_RELEASE_PREFIX")
+                    ) as boundary,
+                    contextlib.redirect_stdout(io.StringIO()),
+                ):
+                    expected = (
+                        self.assertRaisesRegex(AssertionError, "Installed start exit 2")
+                        if fresh_development
+                        else self.assertRaisesRegex(RuntimeError, "SOURCE_RELEASE_PREFIX")
+                    )
+                    with expected:
+                        installed_stop.run_installed_stop(
+                            data,
+                            receipt,
+                            "synthetic-cli",
+                            post_reboot_workspace=str(base / "workspace") if reboot else None,
+                        )
+                if fresh_development:
+                    boundary.assert_not_called()
+                    evidence = state / "cli-outcomes.jsonl"
+                    self.assertEqual(
+                        json.loads(evidence.read_text()),
+                        dict(phase="start", exit=2, reason="DEVELOPMENT_REQUIRES_STOPPED_RELEASE"),
+                    )
+                    self.assertEqual(evidence.stat().st_mode & 0o777, 0o600)
+                else:
+                    boundary.assert_called_once()
+                self.assertFalse((state / "s/omnis/startup.json").exists())
+
+    def test_reboot_cli_outcome_omits_private_output_and_keeps_install_refusal(self):
+        from installed_stop import save_cli_outcome
+
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            path = Path(name) / "cli-outcomes.jsonl"
+            path.touch(mode=0o600)
+            for phase, code, stdout, stderr in (
+                ("start", 0, '{"reason":null,"private":"not-for-evidence"}', "private-stderr"),
+                ("start", 4, '{"reason":"private text"}', "private-stderr"),
+                ("start", 4, "{}", "private-stderr"),
+                ("install-image", 2, "", "IMAGE_INSTALL_REFUSED: private detail"),
+            ):
+                save_cli_outcome(path, phase, subprocess.CompletedProcess([], code, stdout, stderr))
+            self.assertEqual(
+                [json.loads(line) for line in path.read_text().splitlines()],
+                [
+                    dict(phase="start", exit=0, reason=None),
+                    dict(phase="start", exit=4, reason="UNOBSERVED"),
+                    dict(phase="start", exit=4, reason="UNOBSERVED"),
+                    dict(phase="install-image", exit=2, reason="IMAGE_INSTALL_REFUSED"),
+                ],
+            )
+
     def test_t1_post_reboot_installed(self):
-        from installed_stop import run_installed_stop
+        from installed_stop import run_installed_stop, save_cli_outcome
         from omnis_cli.development import validate_new
         from omnis_cli.release import _manifest
 
@@ -85,8 +194,11 @@ class ReleaseBundleTest(unittest.TestCase):
             "TMPDIR": str(scratch),
         }
         print(f"REBOOT_QA_FRESH_DATA_RETAINED {data}", flush=True)
+        outcomes = scratch / "cli-outcomes.jsonl"
+        outcomes.touch(mode=0o600, exist_ok=False)
         for args in (("install", "--bundle", str(bundle)), ("install-image",)):
             result = self.run_cli_scope([cli, *args], cwd=scratch, env=env, timeout=360)
+            save_cli_outcome(outcomes, args[0], result)
             self.assertEqual(result.returncode, 0, "Fresh fixture installation failed")
         receipt = json.loads((data / "omnis/image.json").read_text())
         run_installed_stop(data, receipt, cli, post_reboot_workspace=workspace)

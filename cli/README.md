@@ -142,14 +142,27 @@ certificate de scenariul browser session. Fără provider/target traffic sau T2.
 ## Recuperare explicită T1 — candidat, fără autoresume
 
 `omnis recover [--json]` recuperează **numai** profilul normal `t1-provider-settings`
-cu journal READY format 5, supervisorul original existent dar oprit și lease expirată
-atestată în PostgreSQL. DB, API, forwarder, imaginea/releaseul, daemonul, rețeaua,
-socketurile și directoarele de date trebuie să corespundă instalării originale.
-O instanță sănătoasă, un supervisor absent/înlocuit, alt profil, metadata nesigură,
-Stop în curs/fence ori marker nereconciliat sunt refuzate fără pornire/teardown.
+cu journal READY format 5 și lease originală expirată atestată în PostgreSQL.
+Sunt admise două cazuri stricte: supervisorul original oprit cu DB/API/forwarder
+încă vii, sau **post-reboot**, cu toate cele trei CID-uri originale `exited`, fără
+stări parțiale și cu boot-ul forwarderului diferit de boot-ul OS curent. Releaseul,
+daemonul, rețeaua, mounturile, PGDATA, seiful și modul trebuie să rămână identice.
+Portul nu poate avea un listener străin; IPC-ul vechi trebuie să fie privat,
+stabil și fără peer viu. O instanță sănătoasă, resurse absente/înlocuite, alt profil,
+metadata nesigură, Stop în curs/fence ori marker nereconciliat sunt refuzate.
+
+În cazul post-reboot, intentul durabil și copia READY originală preced primul
+efect: pornirea **o singură dată a aceluiași CID DB**. Identitatea DB/schema și
+lease-ul/OPEN-ul original, fără fence, se verifică înaintea celorlalte servicii.
+Logul anterior și IPC-ul stale verificat sunt păstrate prin rename NOREPLACE în
+`recovery-<attempt>/`, nu șterse; logul nu ocupă arhiva folosită de Start normal.
+Forwarderul existent este relansat înaintea supervisorului reconciler; API-ul
+pornește abia după owner/epoch/bariera închisă și quiescența verificate. Identitățile
+noi sunt observate, nu copiate din receiptul vechi. Callerul păstrează ownership-ul
+forwarderului până la drain/reap, inclusiv când handshake-ul sau ACK-ul eșuează.
 
 Comanda persistă un intent `recovery-<attempt>.json`, verifică din nou identitățile,
-apoi pornește **o singură dată același CID**. Noul owner execută reconcilierea și
+apoi pornește **o singură dată același CID supervisor**. Noul owner execută reconcilierea și
 quiescența existente cu admission închisă; produce un SHUTDOWN nou autentic,
 FINALIZE și grantul către Stop-ownerul existent. Exit 0 înseamnă exclusiv
 **STOPPED verificat**, cu resursele proprii retrase și datele păstrate. Nu înseamnă
@@ -157,13 +170,30 @@ READY sau reluarea operațiilor; pornirea ulterioară cere separat
 `omnis start --no-open --json`. Nu se execută OPEN, Pair, Refresh, Test model,
 provider IO, pull, migrare ori upgrade în recuperare.
 
-Bugetul este `shutdown_timeout_seconds`, același deadline monotonic până la
-completion. Un ACK/readback/reap incert nu autorizează retransmiterea efectului.
+Bugetul efectelor de recuperare/Stop este `shutdown_timeout_seconds`, fără
+modificări ale lease-urilor sau timeouturilor configurate. Numai cleanupul copilului
+forwarder nou folosește limita existentă `stop_forwarder` (maximum 27s), inclusiv
+după expirarea bugetului operației; nu mai admite efecte DB/controller. Reap-ul se
+verifică înainte de publicarea STOPPED. Un ACK/readback/reap incert nu autorizează
+retransmiterea efectului.
 **Recuperarea întreruptă nu se reia în acest increment:** intentul rămâne, iar
 Start/Stop/recover refuză continuarea. Nu ștergeți manual intentul/socketul/capability
 pentru a forța retry. Limitele protocolului rămân neschimbate; journalul READY
 admis are generation cel mult 9223372036854775804, rezervând takeover, SHUTDOWN
 și limita existentă a cererii FINALIZE.
+
+Pentru operator, backupul verificat este prerechizit operațional separat; această
+ramură nu face backup/restore automat. SOURCE folosește daemon/SQL/control doubles,
+forwarder și Stop-owner reale; Start este probat până la frontieră inertă, nu un
+reboot fizic. QA instalată opt-in este `test_t1_post_reboot_installed` din
+`cli/integration/test_release.py`, cu `OMNIS_T1_REBOOT_PROBE=1`,
+`OMNIS_T1_REBOOT_BUNDLE`, `OMNIS_T1_REBOOT_WORKSPACE` și `OMNIS_CLI_BIN` absolute.
+Ea creează numai o instalare fresh proprie, copiază source/buildul DEVELOPMENT,
+taie exact procesele fixture-ului și modifică **explicit numai boot-ul din journal**
+ca simulare; verifică recover→STOPPED→Start normal→Stop și sentinelul/datele.
+Nu repornește hostul, nu adoptă instalarea operatorului și nu este executată implicit.
+Cere două reviewuri pe bytes exacți înaintea efectelor; datele/logurile se păstrează
+și orice cut/ACK incert oprește proba fără retry. Nu închide T1/T2 sau canonicalul.
 
 CLI-ul nou singur nu actualizează API-ul din imagine. Candidatul necesită ambele
 wheeluri într-un bundle normal nou, după review și QA. Releaseul 0.1.0 existent

@@ -117,8 +117,15 @@ def run_installed_stop(
     development=None,
     upgrade=None,
     upgrade_failure=False,
+    post_reboot_workspace=None,
 ):
     """Opt-in finite Settings visits share this fixture and its normal Stop owner."""
+    if post_reboot_workspace is not None:
+        if receipt.get("profile") != "t1-provider-settings" or any(
+            value is not None for value in (settings_browser, development, upgrade)
+        ):
+            raise ValueError("REBOOT_PROBE_PROFILE")
+        validate_new(post_reboot_workspace)
     if upgrade is not None:
         upgrade_preflight(upgrade)
         if development is not None or settings_browser is not None:
@@ -176,9 +183,11 @@ def run_installed_stop(
     )
 
     def require_observer_settled():
-        if (settings_browser is not None or development is not None) and (
-            runtime.uncertain or not runtime.family_drained
-        ):
+        if (
+            settings_browser is not None
+            or development is not None
+            or post_reboot_workspace is not None
+        ) and (runtime.uncertain or not runtime.family_drained):
             raise RuntimeError("Installed observer family unsettled")
 
     def command(*args, expected=0, timeout=330):
@@ -325,11 +334,18 @@ def run_installed_stop(
             ]
         require_observer_settled()
 
+    if post_reboot_workspace is not None:
+        for name in ("api/src/omnis", "web/dist"):
+            shutil.copytree(Path(post_reboot_workspace) / name, workspace / name)
+        validate_new(str(workspace))
+        config.write_text(f"port = {port}\ndevelopment_workspace = {json.dumps(str(workspace))}\n")
+
     try:
         started = command("start", "--no-open", "--json")
         assert started["state"] == "READY" and started["assessment_ready"] is False
         assert started["origin"] == f"http://127.0.0.1:{port}"
         record = json.loads((root / "startup.json").read_text())
+        runtime.development_workspace = selection(record)
         assert record["port"] == port
         runtime.attempt = record["attempt"]
         runtime.deadline = time.monotonic() + 30
@@ -357,6 +373,97 @@ def run_installed_stop(
         require_observer_settled()
         runtime.psql(db, "INSERT INTO sl04_sentinel VALUES (7)")
         require_observer_settled()
+        if post_reboot_workspace is not None:
+            import select
+            import signal
+
+            from omnis_cli.lifecycle import process_identity, remaining, write_record
+
+            assert started["mode"] == "DEVELOPMENT"
+            runtime.development_workspace = selection(record)
+            assert command("recover", "--json", expected=4)["state"] == "UNCERTAIN"
+            assert (root / "startup.json").read_bytes() == before_journal
+            original = json.loads(before_journal)
+            write_record(
+                root / "reboot-simulation.json",
+                {
+                    "version": 1,
+                    "original": original,
+                    "boundary": "SIMULATED_OS_BOOT_RECORD_ONLY_NO_HOST_REBOOT",
+                },
+            )
+            lock_probe_pending = True  # Any partial cut preserves this fixture for readback.
+            runtime.deadline = time.monotonic() + 30
+            runtime.attest(record["containers"]["supervisor"], "supervisor", root, control, port)
+            runtime.run("kill", "--signal", "KILL", record["containers"]["supervisor"], effect=True)
+            require_observer_settled()
+            while (
+                runtime.psql(
+                    db, "SELECT expires_at <= clock_timestamp() FROM supervisor_lease WHERE id=1"
+                )
+                != "t"
+            ):
+                time.sleep(min(0.1, remaining(runtime.deadline)))
+            for role in ("api", "db"):
+                cid = record["containers"][role]
+                runtime.attest(cid, role, root, control, port)
+                runtime.run("kill", "--signal", "KILL", cid, effect=True)
+                require_observer_settled()
+            fd = os.pidfd_open(record["forwarder"]["pid"])
+            try:
+                assert process_identity(record["forwarder"]["pid"]) == record["forwarder"]
+                signal.pidfd_send_signal(fd, signal.SIGKILL)
+                assert select.select([fd], [], [], remaining(runtime.deadline))[0]
+            finally:
+                os.close(fd)
+            record["forwarder"]["boot_id"] = str(uuid4())
+            assert (
+                record["forwarder"]["boot_id"]
+                != Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+            )
+            write_record(root / "startup.json", record, replace=True)
+            recovered = command("recover", "--json")
+            assert recovered["state"] == "STOPPED" and recovered["mode"] == "DEVELOPMENT"
+            record = json.loads((root / "startup.json").read_text())
+            assert record["containers"] == original["containers"]
+            assert record["supervisor_epoch"] == original["supervisor_epoch"] + 1
+            assert record["stop_generation"] == original["generation"] + 2
+            runtime.deadline = time.monotonic() + 30
+            assert_resources_absent(runtime, root, control, record)
+            require_observer_settled()
+            wait_port()
+            restarted = command("start", "--no-open", "--json")
+            assert restarted["state"] == "READY" and restarted["mode"] == "DEVELOPMENT"
+            record = json.loads((root / "startup.json").read_text())
+            runtime.attempt = record["attempt"]
+            runtime.deadline = time.monotonic() + 30
+            for key in (
+                "instance_id",
+                "system_id",
+                "pgdata_identity",
+                "vault_identity",
+                "vault_key_identity",
+                "release_digest",
+                "development_workspace",
+            ):
+                assert record[key] == original[key]
+            db = record["containers"]["db"]
+            assert runtime.psql(db, "SELECT value FROM sl04_sentinel") == "7"
+            assert (
+                runtime.psql(db, "SELECT count(*) FROM instance_command WHERE kind='OPEN'") == "2"
+            )
+            for table in ("model_dispatch_v2", "system_operation"):
+                assert runtime.psql(db, f"SELECT count(*) FROM {table}") == "0"
+            require_observer_settled()
+            assert command("stop", "--json")["state"] == "STOPPED"
+            record = json.loads((root / "startup.json").read_text())
+            runtime.deadline = time.monotonic() + 30
+            assert_resources_absent(runtime, root, control, record)
+            require_observer_settled()
+            lock_probe_pending = False
+            proof = cleanup = True
+            print("POST_REBOOT_SIMULATED_BOUNDARY_STOP_START_VERIFIED", flush=True)
+            return
         census = {}
         vault_before = {}
         if upgrade is not None:

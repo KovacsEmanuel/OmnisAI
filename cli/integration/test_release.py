@@ -35,6 +35,62 @@ class ReleaseBundleTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             _upgrade_census_sql("model_record_v2; DROP TABLE model_record_v2")
 
+    def test_reboot_probe_refuses_invalid_inputs_before_fixture_or_daemon(self):
+        import inspect
+
+        from installed_stop import run_installed_stop
+
+        self.assertIn("post_reboot_workspace", inspect.signature(run_installed_stop).parameters)
+        with (
+            patch("tempfile.mkdtemp", side_effect=AssertionError("No fixture")),
+            patch("subprocess.run", side_effect=AssertionError("No daemon")),
+        ):
+            with self.assertRaisesRegex(ValueError, "REBOOT_PROBE_PROFILE"):
+                run_installed_stop(
+                    None, {"profile": "legacy"}, None, post_reboot_workspace="/missing"
+                )
+            with self.assertRaises(ValueError):
+                run_installed_stop(
+                    None,
+                    {"profile": "t1-provider-settings"},
+                    None,
+                    post_reboot_workspace="/missing",
+                )
+
+    def test_t1_post_reboot_installed(self):
+        from installed_stop import run_installed_stop
+        from omnis_cli.development import validate_new
+        from omnis_cli.release import _manifest
+
+        if os.environ.get("OMNIS_T1_REBOOT_PROBE") != "1":
+            self.skipTest("Two source reviews and explicit fresh-fixture QA required")
+        bundle = Path(os.environ["OMNIS_T1_REBOOT_BUNDLE"])
+        cli = os.environ["OMNIS_CLI_BIN"]
+        workspace = os.environ["OMNIS_T1_REBOOT_WORKSPACE"]
+        manifest = json.loads(_manifest(bundle)[0])
+        self.assertEqual(
+            (manifest["release"], manifest["schema"], manifest.get("profile")),
+            ("0.1.1", "0017_model_removal", "t1-provider-settings"),
+        )
+        validate_new(workspace)
+        self.assertTrue(Path(cli).is_absolute() and os.access(cli, os.X_OK))
+        scratch = Path(tempfile.mkdtemp(prefix="reboot-qa-", dir=os.environ["TMPDIR"]))
+        data = scratch / "data"
+        env = {
+            "PATH": "/usr/bin:/bin",
+            "HOME": str(scratch),
+            "XDG_DATA_HOME": str(data),
+            "XDG_CONFIG_HOME": str(scratch / "config"),
+            "XDG_STATE_HOME": str(scratch / "unused"),
+            "TMPDIR": str(scratch),
+        }
+        print(f"REBOOT_QA_FRESH_DATA_RETAINED {data}", flush=True)
+        for args in (("install", "--bundle", str(bundle)), ("install-image",)):
+            result = self.run_cli_scope([cli, *args], cwd=scratch, env=env, timeout=360)
+            self.assertEqual(result.returncode, 0, "Fresh fixture installation failed")
+        receipt = json.loads((data / "omnis/image.json").read_text())
+        run_installed_stop(data, receipt, cli, post_reboot_workspace=workspace)
+
     def test_t1_upgrade_preflight_refuses_missing_inputs_before_daemon(self):
         from installed_stop import upgrade_preflight
 

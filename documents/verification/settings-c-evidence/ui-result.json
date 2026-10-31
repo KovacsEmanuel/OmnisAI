@@ -36,13 +36,19 @@
       "audit_exit": 1,
       "moderate_package_nodes": 3,
       "compatible_published_fix": "NOT_FOUND_AT_REVIEW",
-      "backport_authorization": "TIMED_OUT_UNANSWERED_NOT_AUTHORIZED",
-      "next_decision": "Explicit approval for a minimal compatible backport, or a compatible fixed upstream release; preserve API/generated output/provenance/licences and require review, clean audit and final gate. No forced override, downgrade, audit suppression, operator lifecycle or T2."
+      "previous_backport_question": "TIMED_OUT_UNANSWERED",
+      "backport_authorization": "SUBSEQUENT_EXPLICIT_USER_POINT1_AUTHORIZED",
+      "candidate": "fadf396e3e0bc35065161b2cf7d0a2af495fbd50",
+      "candidate_status": "IN_REVIEW_NOT_ACCEPTED",
+      "author_evidence": "/home/kali/.local/share/omnis-t1-artifacts/postreboot-20261031/openapi-backport-author/frozen-candidate.json",
+      "author_audit_exit": 0,
+      "author_initial_web_failure": "353PASS/1FAIL Wizard negative request ceiling, missing button 4. Rules & budgets; narrow24/final354PASS without edits; causeUNKNOWN",
+      "next_decision": "Independent reviews and isolated QA, then the authorized bounded final canonical gate on exact accepted bytes. No forced override, downgrade, audit suppression, operator lifecycle, autopair implementation or T2."
     },
     "historical_latency_cause": "UNKNOWN_NOT_CAUSALLY_REPAIRED",
     "durable_artifacts": "/home/kali/.local/share/omnis-t1-artifacts/postreboot-20261031",
     "backup": "/home/kali/.local/share/omnis-backups/t1-crash-preservation-20261031-r2",
-    "local_dependencies": "149 actual main web package manifests now equal the isolated tested lock, Undici8.12.2; offline/scripts-disabled alignment, original tree preserved, manifests/lock/7served assets unchanged. Audit remainsFAIL; this is not a backport.",
+    "local_dependencies": "Earlier149-manifest main alignment remains installed, including Undici8.12.2; original tree preserved and served assets unchanged. New candidate lock is committed, but main installation waits for reviews/QA; candidate146-manifest audit0 is author-isolated evidence only.",
     "cleanup": "Owned test families settled and exact resources retired; data/evidence retained. Operator intentionally remainsREADY. No push or T2."
   },
   "models_refinement_20261030": {

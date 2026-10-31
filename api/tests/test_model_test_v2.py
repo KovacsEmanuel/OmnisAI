@@ -58,20 +58,30 @@ def cancel_observation(command: ModelTestControl, observed: dict[str, object]) -
 def test_cancel_observation_source() -> None:
     identity = str(uuid4())
     command = ModelTestControl(
-        op="entry_model_test", action="cancel", operation_id=identity,
-        command_id=str(uuid4()), expected_state_revision=1,
+        op="entry_model_test",
+        action="cancel",
+        operation_id=identity,
+        command_id=str(uuid4()),
+        expected_state_revision=1,
     )
     observed: dict[str, object] = {
-        "operation_id": identity, "state": "RUNNING", "state_revision": 2,
+        "operation_id": identity,
+        "state": "RUNNING",
+        "state_revision": 2,
         "response_text": "not retained",
     }
     assert cancel_observation(command, observed) == {
-        "operation_id": identity, "requested_revision": 1,
-        "observed_state": "RUNNING", "observed_revision": 2,
+        "operation_id": identity,
+        "requested_revision": 1,
+        "observed_state": "RUNNING",
+        "observed_revision": 2,
     }
-    assert cancel_observation(command.model_copy(update={"expected_state_revision": 2}), observed)[
-        "requested_revision"
-    ] == 2
+    assert (
+        cancel_observation(command.model_copy(update={"expected_state_revision": 2}), observed)[
+            "requested_revision"
+        ]
+        == 2
+    )
     with pytest.raises(AssertionError):
         cancel_observation(command, {**observed, "operation_id": str(uuid4())})
     with pytest.raises(AssertionError):
@@ -320,9 +330,9 @@ async def test_api_pg_sdk_protocol_and_replay(
                     await catalog_release.wait()
                 if metadata_outage:
                     return  # Real TLS peer EOF before any response bytes.
-                if (entry_scenario or scenario == "settings_ui" or cancel_probe) and first.startswith(
-                    "GET /api/v1/models?"
-                ):
+                if (
+                    entry_scenario or scenario == "settings_ui" or cancel_probe
+                ) and first.startswith("GET /api/v1/models?"):
                     offset = 0 if "offset=0&" in first else 16
                     assert first == f"GET /api/v1/models?offset={offset}&limit=1000 HTTP/1.1"
                     rows = (
@@ -368,9 +378,17 @@ async def test_api_pg_sdk_protocol_and_replay(
                         payload["total_count"] = 32
                     if cancel_probe:
                         assert offset == 0
-                        payload = {"data": [{"id": "fixture/model", "supported_parameters": ["max_tokens"],
-                                             "top_provider": {"max_completion_tokens": 128}}],
-                                   "links": {"next": None}, "total_count": 1}
+                        payload = {
+                            "data": [
+                                {
+                                    "id": "fixture/model",
+                                    "supported_parameters": ["max_tokens"],
+                                    "top_provider": {"max_completion_tokens": 128},
+                                }
+                            ],
+                            "links": {"next": None},
+                            "total_count": 1,
+                        }
                     if catalog_mode == "unknown":
                         payload.pop("total_count")
                         payload["links"] = {"next": None}
@@ -492,7 +510,9 @@ async def test_api_pg_sdk_protocol_and_replay(
     ) -> list[tuple[object, ...]]:
         assert family in (0, network_socket.AF_INET) and type in (0, network_socket.SOCK_STREAM)
         assert proto in (0, network_socket.IPPROTO_TCP) and flags == 0
-        if (scenario in {"settings_ui", "entry_remove_ui", "entry_stop_read_ui"} or cancel_probe) and host == "127.0.0.1":
+        if (
+            scenario in {"settings_ui", "entry_remove_ui", "entry_stop_read_ui"} or cancel_probe
+        ) and host == "127.0.0.1":
             assert 0 < port <= 65535
             return [
                 (
@@ -623,7 +643,11 @@ async def test_api_pg_sdk_protocol_and_replay(
                     cancel_observations.append(observation)
                     print("CANCEL_PRE_HANDLE " + json.dumps(observation), flush=True)
                     if scenario == "settings_cancel_current_ui":
-                        assert observation["requested_revision"] == observation["observed_revision"] == 2
+                        assert (
+                            observation["requested_revision"]
+                            == observation["observed_revision"]
+                            == 2
+                        )
                         assert observation["observed_state"] == "RUNNING"
                 if scenario == "settings_ui" and command.action == "start":
                     ui_starts.append(len(received))
@@ -636,21 +660,35 @@ async def test_api_pg_sdk_protocol_and_replay(
                 try:
                     value = await owner.handle(command)
                     if stop_read:
-                        stop_reads.append({
-                            "action": command.action,
-                            "requested_operation_id": command.operation_id,
-                            "requested_entry_id": command.entry_id,
-                            "requested_entry_revision": command.expected_entry_revision,
-                            "requested_connection_revision": command.expected_connection_revision,
-                            "workers_pending": len(owner.tasks),
-                            "settlement_failed": owner.settlement_failed,
-                            "peer_completed_models": list(peer_completed),
-                            "response": {key: value.get(key) for key in (
-                                "operation_id", "entry_id", "entry_revision", "connection_id",
-                                "connection_revision", "current", "state", "state_revision",
-                                "result_state", "finish_reason", "requested_model", "requested_output_tokens",
-                            )},
-                        })
+                        stop_reads.append(
+                            {
+                                "action": command.action,
+                                "requested_operation_id": command.operation_id,
+                                "requested_entry_id": command.entry_id,
+                                "requested_entry_revision": command.expected_entry_revision,
+                                "requested_connection_revision": command.expected_connection_revision,
+                                "workers_pending": len(owner.tasks),
+                                "settlement_failed": owner.settlement_failed,
+                                "peer_completed_models": list(peer_completed),
+                                "response": {
+                                    key: value.get(key)
+                                    for key in (
+                                        "operation_id",
+                                        "entry_id",
+                                        "entry_revision",
+                                        "connection_id",
+                                        "connection_revision",
+                                        "current",
+                                        "state",
+                                        "state_revision",
+                                        "result_state",
+                                        "finish_reason",
+                                        "requested_model",
+                                        "requested_output_tokens",
+                                    )
+                                },
+                            }
+                        )
                     if (scenario == "settings_ui" or cancel_probe) and command.action == "start":
                         assert command.operation_id is not None
                         ui_admitted.append(command.operation_id)
@@ -709,18 +747,27 @@ async def test_api_pg_sdk_protocol_and_replay(
                             await asyncio.sleep(0.01)
                 finally:
                     witness = {
-                        "commands": [{"action": c.action, "operation_id": c.operation_id,
-                                      "entry_id": c.entry_id} for c in commands],
+                        "commands": [
+                            {
+                                "action": c.action,
+                                "operation_id": c.operation_id,
+                                "entry_id": c.entry_id,
+                            }
+                            for c in commands
+                        ],
                         "reads": stop_reads,
                         "peer_requests": [first for first, _ in received],
                         "peer_completed_models": peer_completed,
                         "peer_handlers": len(tasks),
-                        "workers": [{"done": t.done(), "cancelled": t.cancelled()}
-                                    for t in owner.tasks],
+                        "workers": [
+                            {"done": t.done(), "cancelled": t.cancelled()} for t in owner.tasks
+                        ],
                         "settlement_failed": owner.settlement_failed,
                     }
                     # This runs before the fixture's drain, including a browser assertion failure.
-                    (tmp_path / "settings-stop-read-owner.json").write_text(json.dumps(witness, indent=2))
+                    (tmp_path / "settings-stop-read-owner.json").write_text(
+                        json.dumps(witness, indent=2)
+                    )
                     print("SETTINGS_STOP_READ_OWNER " + json.dumps(witness), flush=True)
                 assert [c.action for c in commands if c.action != "read"] == ["start"]
                 assert [first for first, _ in received] == [
@@ -736,9 +783,13 @@ async def test_api_pg_sdk_protocol_and_replay(
                 assert start.entry_id == browser["exact"]["entry_id"]
                 assert start.expected_generation == generation
                 exact = await owner.view(start.operation_id, entry=True)
-                latest = await owner.handle(ModelTestControl(
-                    op="entry_model_test", action="read", entry_id=start.entry_id,
-                ))
+                latest = await owner.handle(
+                    ModelTestControl(
+                        op="entry_model_test",
+                        action="read",
+                        entry_id=start.entry_id,
+                    )
+                )
                 assert latest == exact
                 for key, value in browser["exact"].items():
                     if key != "status":
@@ -747,31 +798,64 @@ async def test_api_pg_sdk_protocol_and_replay(
                 assert exact["result_state"] == exact["finish_reason"] == "COMPLETED"
                 assert exact["current"] is True
                 assert exact["entry_revision"] == exact["connection_revision"] == 1
-                assert exact["requested_model"] == "fixture/01" and exact["requested_output_tokens"] == 64
+                assert (
+                    exact["requested_model"] == "fixture/01"
+                    and exact["requested_output_tokens"] == 64
+                )
                 async with engine.connect() as db:
                     assert (await settings.selection(db)) is None
-                    assert (await db.execute(text("SELECT count(*) FROM provider_model_entry"))).scalar_one() == 2
-                    assert (await db.execute(text("SELECT count(*) FROM system_operation"))).scalar_one() == 1
-                    assert (await db.execute(text("SELECT count(*) FROM model_dispatch_event_v2 WHERE state='SENT'"))).scalar_one() == 1
+                    assert (
+                        await db.execute(text("SELECT count(*) FROM provider_model_entry"))
+                    ).scalar_one() == 2
+                    assert (
+                        await db.execute(text("SELECT count(*) FROM system_operation"))
+                    ).scalar_one() == 1
+                    assert (
+                        await db.execute(
+                            text("SELECT count(*) FROM model_dispatch_event_v2 WHERE state='SENT'")
+                        )
+                    ).scalar_one() == 1
                 return
 
             if cancel_probe:
                 from test_web_e2e import settings_models_browser
 
-                await settings.handle(ModelRegistryControl.model_validate({
-                    "op": "provider_models", "request": {
-                        "action": "save_models", "command_id": str(uuid4()),
-                        "expected_registry_revision": 0, "connection_id": connection_id,
-                        "connection_revision": 1, "models": [{"entry_id": str(uuid4()),
-                        "expected_revision": 0, "model": "fixture/model", "output_tokens": 64}],
-                    },
-                }))
+                await settings.handle(
+                    ModelRegistryControl.model_validate(
+                        {
+                            "op": "provider_models",
+                            "request": {
+                                "action": "save_models",
+                                "command_id": str(uuid4()),
+                                "expected_registry_revision": 0,
+                                "connection_id": connection_id,
+                                "connection_revision": 1,
+                                "models": [
+                                    {
+                                        "entry_id": str(uuid4()),
+                                        "expected_revision": 0,
+                                        "model": "fixture/model",
+                                        "output_tokens": 64,
+                                    }
+                                ],
+                            },
+                        }
+                    )
+                )
                 # One owned TLS metadata prerequisite; no browser Refresh or catalog cycle.
-                await owner.catalog_handle(CatalogControl.model_validate({
-                    "op": "provider_catalog", "request": {"action": "refresh",
-                    "command_id": str(uuid4()), "connection_id": connection_id,
-                    "connection_revision": 1},
-                }))
+                await owner.catalog_handle(
+                    CatalogControl.model_validate(
+                        {
+                            "op": "provider_catalog",
+                            "request": {
+                                "action": "refresh",
+                                "command_id": str(uuid4()),
+                                "connection_id": connection_id,
+                                "connection_revision": 1,
+                            },
+                        }
+                    )
+                )
                 async with asyncio.timeout(15):
                     while owner.tasks:
                         await asyncio.sleep(0.01)
@@ -780,9 +864,14 @@ async def test_api_pg_sdk_protocol_and_replay(
                 ]
                 async with asyncio.timeout(120):
                     await settings_models_browser(
-                        migrated_database_url, control_dir, tmp_path,
-                        scenario=("settings-cancel-current" if scenario == "settings_cancel_current_ui"
-                                  else "settings-cancel-probe"),
+                        migrated_database_url,
+                        control_dir,
+                        tmp_path,
+                        scenario=(
+                            "settings-cancel-current"
+                            if scenario == "settings_cancel_current_ui"
+                            else "settings-cancel-probe"
+                        ),
                     )
                 assert len(ui_admitted) == len(cancel_observations) == 1
                 assert [c.action for c in commands if c.action != "read"] == ["start", "cancel"]
@@ -792,8 +881,12 @@ async def test_api_pg_sdk_protocol_and_replay(
                 ]
                 async with engine.connect() as db:
                     assert (await settings.selection(db)) is None
-                    assert (await db.execute(text("SELECT count(*) FROM system_operation"))).scalar_one() == 1
-                    assert (await db.execute(text("SELECT count(*) FROM provider_model_entry"))).scalar_one() == 1
+                    assert (
+                        await db.execute(text("SELECT count(*) FROM system_operation"))
+                    ).scalar_one() == 1
+                    assert (
+                        await db.execute(text("SELECT count(*) FROM provider_model_entry"))
+                    ).scalar_one() == 1
                 return
 
             if scenario == "settings_ui":
@@ -1109,48 +1202,116 @@ async def test_api_pg_sdk_protocol_and_replay(
                                 "GET /api/v1/models?offset=0&limit=1000 HTTP/1.1",
                                 "GET /api/v1/models?offset=16&limit=1000 HTTP/1.1",
                             ]
-                            calls = [json.loads(body) for first, body in received[traffic:] if first.startswith("POST")]
-                            assert [(call["model"], call["max_tokens"]) for call in calls] == [
-                                ("fixture/01", 64), ("fixture/selected", 64)
+                            calls = [
+                                json.loads(body)
+                                for first, body in received[traffic:]
+                                if first.startswith("POST")
                             ]
-                            browser = json.loads((tmp_path / "browser-result.json").read_text())["catalog"]
+                            assert [(call["model"], call["max_tokens"]) for call in calls] == [
+                                ("fixture/01", 64),
+                                ("fixture/selected", 64),
+                            ]
+                            browser = json.loads((tmp_path / "browser-result.json").read_text())[
+                                "catalog"
+                            ]
                             starts = [command for command in commands if command.action == "start"]
-                            assert [command.action for command in commands if command.action != "read"] == ["start", "start", "start"]
-                            assert [command.operation_id for command in starts[1:]] == [result["operation_id"] for result in browser["results"]]
+                            assert [
+                                command.action for command in commands if command.action != "read"
+                            ] == ["start", "start", "start"]
+                            assert [command.operation_id for command in starts[1:]] == [
+                                result["operation_id"] for result in browser["results"]
+                            ]
                             assert len({command.operation_id for command in starts}) == 3
-                            assert [command.expected_generation for command in starts] == [generation] * 3
+                            assert [command.expected_generation for command in starts] == [
+                                generation
+                            ] * 3
                             after_browser = await census_remove()
                             deltas = {
-                                "provider_connection_revision": 2, "provider_settings_command": 3,
-                                "provider_selection_revision": 1, "provider_model_registry_revision": 3,
-                                "provider_model_entry": 2, "provider_model_entry_revision": 2,
-                                "provider_model_command": 3, "model_command_v2": 6,
-                                "system_operation": 2, "system_operation_event": 6,
-                                "model_dispatch_v2": 2, "model_dispatch_event_v2": 6,
+                                "provider_connection_revision": 2,
+                                "provider_settings_command": 3,
+                                "provider_selection_revision": 1,
+                                "provider_model_registry_revision": 3,
+                                "provider_model_entry": 2,
+                                "provider_model_entry_revision": 2,
+                                "provider_model_command": 3,
+                                "model_command_v2": 6,
+                                "system_operation": 2,
+                                "system_operation_event": 6,
+                                "model_dispatch_v2": 2,
+                                "model_dispatch_event_v2": 6,
                             }
                             for table in tables:
                                 if table in deltas:
-                                    assert len(after_browser[table]) == len(before_browser[table]) + deltas[table], table
+                                    assert (
+                                        len(after_browser[table])
+                                        == len(before_browser[table]) + deltas[table]
+                                    ), table
                                 if table != "provider_model_entry":
-                                    assert all(row in after_browser[table] for row in before_browser[table]), f"Baseline changed: {table}"
-                            before_entries = [json.loads(row) for row in before_browser["provider_model_entry"]]
-                            after_entries = [json.loads(row) for row in after_browser["provider_model_entry"]]
+                                    assert all(
+                                        row in after_browser[table] for row in before_browser[table]
+                                    ), f"Baseline changed: {table}"
+                            before_entries = [
+                                json.loads(row) for row in before_browser["provider_model_entry"]
+                            ]
+                            after_entries = [
+                                json.loads(row) for row in after_browser["provider_model_entry"]
+                            ]
                             for previous in before_entries:
-                                expected = {**previous, "removed_registry_revision": extra.json()["registry_revision"] + 1} if previous["entry_id"] == ids[0] else previous
+                                expected = (
+                                    {
+                                        **previous,
+                                        "removed_registry_revision": extra.json()[
+                                            "registry_revision"
+                                        ]
+                                        + 1,
+                                    }
+                                    if previous["entry_id"] == ids[0]
+                                    else previous
+                                )
                                 assert expected in after_entries
                             from collections import Counter
 
-                            before_kinds = Counter(json.loads(row)["kind"] for row in before_browser["model_record_v2"])
-                            after_kinds = Counter(json.loads(row)["kind"] for row in after_browser["model_record_v2"])
-                            assert after_kinds == Counter({kind: count + 4 if kind in {"catalog-request", "catalog-result"} else count * 3 for kind, count in before_kinds.items()})
-                            assert browser["receipt"]["total"] == 17 and browser["readdEntries"] == 18 and browser["entries"] == 19
-                            (tmp_path / "settings-controls-census.json").write_text(json.dumps({
-                                "boundary": "owned API/PG/TLS peer; no external provider",
-                                "before": {table: len(rows) for table, rows in before_browser.items()},
-                                "after": {table: len(rows) for table, rows in after_browser.items()},
-                                "operation_ids": [command.operation_id for command in starts],
-                                "new_calls": [(call["model"], call["max_tokens"]) for call in calls],
-                            }, indent=2))
+                            before_kinds = Counter(
+                                json.loads(row)["kind"] for row in before_browser["model_record_v2"]
+                            )
+                            after_kinds = Counter(
+                                json.loads(row)["kind"] for row in after_browser["model_record_v2"]
+                            )
+                            assert after_kinds == Counter(
+                                {
+                                    kind: count + 4
+                                    if kind in {"catalog-request", "catalog-result"}
+                                    else count * 3
+                                    for kind, count in before_kinds.items()
+                                }
+                            )
+                            assert (
+                                browser["receipt"]["total"] == 17
+                                and browser["readdEntries"] == 18
+                                and browser["entries"] == 19
+                            )
+                            (tmp_path / "settings-controls-census.json").write_text(
+                                json.dumps(
+                                    {
+                                        "boundary": "owned API/PG/TLS peer; no external provider",
+                                        "before": {
+                                            table: len(rows)
+                                            for table, rows in before_browser.items()
+                                        },
+                                        "after": {
+                                            table: len(rows)
+                                            for table, rows in after_browser.items()
+                                        },
+                                        "operation_ids": [
+                                            command.operation_id for command in starts
+                                        ],
+                                        "new_calls": [
+                                            (call["model"], call["max_tokens"]) for call in calls
+                                        ],
+                                    },
+                                    indent=2,
+                                )
+                            )
                             return
                         history = await census_remove()
                         settings_before = (await http.get(providers)).json()

@@ -68,7 +68,7 @@ def test_catalog_candidates_pg_installed_cli_status(
             "--python",
             str(venv / "bin/python"),
             "--no-deps",
-            str(wheel_dir / "omnis_cli-0.1.0-py3-none-any.whl"),
+            str(wheel_dir / "omnis_cli-0.1.1-py3-none-any.whl"),
         ],
     ]
     for index, command in enumerate(commands):

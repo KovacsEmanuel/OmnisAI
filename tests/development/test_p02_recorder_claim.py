@@ -24,6 +24,10 @@ class RecorderClaim(unittest.TestCase):
         assert spec is not None and spec.loader is not None
         self.rec = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.rec)
+        self.rec.REPO = Path(self.directory.name) / "repo"
+        self.source = self.rec.REPO / RECORDER.relative_to(ROOT)
+        self.source.parent.mkdir(parents=True)
+        self.source.write_bytes(RECORDER.read_bytes())
         self.rec.ATTEMPT = Path(self.directory.name) / "attempt"
         self.rec.INTEGRATION = Path(self.directory.name) / "registry"
         self.rec.ATTEMPT.mkdir(mode=0o700)
@@ -33,7 +37,13 @@ class RecorderClaim(unittest.TestCase):
         manifest = self.rec.INTEGRATION / "inputs.json"
         manifest.write_text(
             json.dumps(
-                {"inputs": {str(RECORDER.relative_to(ROOT)): self.rec.sha(RECORDER.read_bytes())}}
+                {
+                    "inputs": {
+                        str(self.source.relative_to(self.rec.REPO)): self.rec.sha(
+                            self.source.read_bytes()
+                        )
+                    }
+                }
             )
         )
         self.rec.write_registry(
@@ -68,7 +78,15 @@ class RecorderClaim(unittest.TestCase):
             "def prove_private_fixture(target, uv, seconds):\n    calls.append((target, seconds))\n    return 0\n",
             owner,
         )
+        read_bytes = Path.read_bytes
+
+        def read_owned(path):
+            if not path.is_relative_to(self.directory.name):
+                raise FileNotFoundError(f"SOURCE read outside fixture: {path}")
+            return read_bytes(path)
+
         for change in (
+            patch.object(Path, "read_bytes", read_owned),
             patch.object(self.rec.runpy, "run_path", return_value=owner),
             patch.object(signal, "signal", return_value=None),
             patch.object(self.rec, "require_grant", self.rec.registry),
@@ -81,6 +99,20 @@ class RecorderClaim(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.rec.main()
         self.assertEqual(self.calls, [(self.rec.TARGET, 900)])
+
+    def test_foreign_source_root_refused_even_with_identical_source(self):
+        with patch.object(self.rec, "REPO", ROOT):
+            with self.assertRaisesRegex(FileNotFoundError, "SOURCE read outside fixture"):
+                self.rec.main()
+        self.assertEqual(self.calls, [])
+        self.assertFalse((self.rec.ATTEMPT / ("consumed-" + self.rec.NONCE + ".json")).exists())
+
+    def test_source_tamper_refused_before_claim(self):
+        self.source.write_bytes(b"changed SOURCE fixture")
+        with self.assertRaisesRegex(ValueError, "P02 source changed"):
+            self.rec.main()
+        self.assertEqual(self.calls, [])
+        self.assertFalse((self.rec.ATTEMPT / ("consumed-" + self.rec.NONCE + ".json")).exists())
 
     def test_two_valid_ready_readers_only_one_owner_entry(self):
         barrier = threading.Barrier(2, timeout=3)

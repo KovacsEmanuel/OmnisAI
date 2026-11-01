@@ -91,6 +91,18 @@ class CiGateDiagnosticsTests(unittest.TestCase):
                     self.assertIn("(outer-capture-failed)", result.stdout)
                     self.assertNotIn(SECRET, result.stdout + result.stderr)
 
+    def test_workflow_fallback_output_failures_preserve_gate_exit(self):
+        for broken, code in ((False, 7), (True, 7), (False, 0)):
+            with self.subTest(reporter_failure=broken, code=code), open("/dev/full", "w") as output:
+                # Quiet make lets real tee succeed so the reporter fallback is reached.
+                result, called = self.workflow(
+                    code, broken=broken, quiet=broken, stdout=output.fileno()
+                )
+                self.assertEqual(called, broken)
+                self.assertIn("printf: write error", result.stderr)
+                self.assertNotIn(SECRET, result.stderr)
+                self.assertEqual(result.returncode, code or 1)
+
     def test_pytest_selectors_require_tracked_source_and_exact_ast_names(self):
         module = runpy.run_path(str(SCRIPT))
         selector = f"tests/development/test_test_db_gate.py::SafeTestDatabaseGateTests::{METHOD}"
@@ -333,6 +345,8 @@ api/tests/test_health.py:999999: {SECRET}
         content=FAILED_LOG,
         capture_failure=None,
         marker="valid",
+        quiet=False,
+        stdout=subprocess.PIPE,
     ):
         workflow = (ROOT / ".github/workflows/ci.yml").read_text()
         step = workflow.split(
@@ -374,7 +388,8 @@ api/tests/test_health.py:999999: {SECRET}
                 'install -d -m 0700 "$TMPDIR/db-0123456789abcdef"\n'
                 'cp "$SOURCE_ROOT/input.log" "$TMPDIR/db-0123456789abcdef/gate.log"\n'
                 'chmod 0600 "$TMPDIR/db-0123456789abcdef/gate.log"\n'
-                'printf "PUBLIC_BEFORE\\nPUBLIC_AFTER\\n"\n' + begin + f"exit {exit_code}\n",
+                + ("" if quiet else 'printf "PUBLIC_BEFORE\\nPUBLIC_AFTER\\n"\n' + begin)
+                + f"exit {exit_code}\n",
             )
             if capture_failure:
                 executable(
@@ -403,7 +418,8 @@ api/tests/test_health.py:999999: {SECRET}
                 ["bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", shell],
                 cwd=ROOT,
                 env=env,
-                capture_output=True,
+                stdout=stdout,
+                stderr=subprocess.PIPE,
                 text=True,
                 timeout=10,
             )

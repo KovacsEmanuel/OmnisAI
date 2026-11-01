@@ -48,9 +48,9 @@ jobs:
           gate_status=${statuses[0]}
           if [ "$capture_status" -eq 0 ]; then capture_status=${statuses[1]}; fi
           if [ "$capture_status" -ne 0 ]; then
-            printf '%s\n' '::error::Gate diagnostics unavailable; private log not published (outer-capture-failed)'
+            printf '%s\n' '::error::Gate diagnostics unavailable; private log not published (outer-capture-failed)' || :
             if [ "$gate_status" -eq 0 ]; then gate_status=$capture_status; fi
           elif [ "$gate_status" -ne 0 ]; then
-            python -I -B scripts/ci_gate_diagnostics.py "$TMPDIR" "$outer_log" 2>/dev/null || printf '%s\n' '::error::Gate diagnostics unavailable; private log not published (reporter-failed)'
+            python -I -B scripts/ci_gate_diagnostics.py "$TMPDIR" "$outer_log" 2>/dev/null || printf '%s\n' '::error::Gate diagnostics unavailable; private log not published (reporter-failed)' || :
           fi
           exit "$gate_status"

@@ -1,0 +1,105 @@
+{
+  "reviewer": "R1 independent read-only",
+  "verdict": "APPROVED_SCOPED",
+  "findings": [],
+  "scope": "Combined CI-portability candidate: Git-history prerequisites, authentic historical SOURCE consumers, unchanged pins/digests and checkout/gate configuration. Complementary SOURCE scratch-root behavior belongs to R2; this is not remote CI or global product acceptance.",
+  "freeze": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "a5704061bf631e0875be959a4b0ea44784b9f7a5",
+    "head": "e175b065c6415886c3cf6856f74c4d093399d148",
+    "tree": "e74b4d241129b81cedea0259ad82637e7e1cf3e6",
+    "diff_sha256": "eecf2983135808f5b06a507eb2450ff97ae11097a1a716b0d593fdac77683237",
+    "diff_command": "git diff --no-ext-diff --no-textconv a5704061bf631e0875be959a4b0ea44784b9f7a5 e175b065c6415886c3cf6856f74c4d093399d148 -- .github/workflows/ci.yml api/tests/test_contract_method_pg.py",
+    "changed_files": [
+      {
+        "path": ".github/workflows/ci.yml",
+        "blob": "2a75489f4e18944c69198319fd1d3b544c0c2aab",
+        "sha256": "8e5b934af04e127b93c933e960a0e4041d0f6ef8ae9cf8c305ff55fc79391023"
+      },
+      {
+        "path": "api/tests/test_contract_method_pg.py",
+        "blob": "5e158784bcc200df1013dfe8f1606c954a6f3215",
+        "sha256": "156f8b59dd7aa2de82e4fc11a88f757acae7da5cbf430322bc3442ff0cdaf9a3"
+      }
+    ],
+    "disk_matches_frozen_blobs": true,
+    "only_changed_paths_are_the_two_declared_paths": true
+  },
+  "acceptance": [
+    {
+      "criterion": "Repair the demonstrated shallow-checkout failure, not the provenance oracle",
+      "code": ".github/workflows/ci.yml:14-17",
+      "result": "PASS_SCOPED",
+      "evidence": "Direct byte comparison removes exactly the new with/comment/fetch-depth: 0 block and reproduces the entire base workflow. The existing checkout SHA, all other action pins, ref behavior, contents:read permission, tool/image versions and run commands are unchanged. Independently retrieved official source at the exact checkout pin confirms default depth 1, depth 0 all-history branch/tag fetching, and --unshallow for an existing shallow repository.",
+      "original_author_freeze": "/home/kali/.hermes/cache/scratch/cihist-evidence/freeze.json",
+      "independent_public_readback": "public-readback.json"
+    },
+    {
+      "criterion": "Real same-checkout RED to GREEN through unchanged SOURCE consumers",
+      "result": "PASS_SCOPED_REUSED_AUTHOR_EXECUTION",
+      "evidence": "Read original initial public clone command, source-origin collection bindings, shallow preflight, complete failure output, unshallow fetch command, full-history bytes and GREEN output. Same clone /home/kali/.hermes/cache/scratch/cihist-depth, same HEAD a5704061bf631e0875be959a4b0ea44784b9f7a5. Shallow depth 1: three selected SOURCE tests fail, pytest exit 1, each historical Git lookup exits 128. Public full fetch: exit 0; both pins reachable; all 2320 tracked files compared byte-identically with base; identical three selectors pass in 1.71s, exit 0. No native producer execution, substituted source, test skip or local object import is part of these recorded commands.",
+      "original_evidence_directory": "/home/kali/.hermes/cache/scratch/cihist-evidence",
+      "original_evidence_files": [
+        "checkout-source-evidence.json",
+        "shallow-preflight.json",
+        "shallow-collection-bindings.json",
+        "shallow-red.json",
+        "full-history-fetch.json",
+        "full-history-bytes.json",
+        "full-history-green.json"
+      ]
+    },
+    {
+      "criterion": "Historical pins are published and their declared bytes are authentic, not unpublished local objects",
+      "result": "PASS_INDEPENDENT_PUBLIC_READBACK",
+      "evidence": "Unauthenticated HTTPS GETs independently returned HTTP 200 for both exact historical raw files and GitHub comparisons to a5704061bf631e0875be959a4b0ea44784b9f7a5. Both comparison merge bases equal the historical pins, status ahead, behind_by 0. Downloaded raw bytes reproduce the declared SHA-256 values. No Git fetch, credentials or Git-config inspection performed by this reviewer.",
+      "pins": [
+        {
+          "revision": "a7ecb04f36b7e6f57e7e38df9943d097c3bc8fe7",
+          "path": "skills/recon-mapping-contract/references/methodology.md",
+          "sha256": "1211bc8b49d40dab55709873c1d178d07ee5fe384ffaa35fa943a146087861d6",
+          "bytes": 225
+        },
+        {
+          "revision": "e6ffcf8ede7393332e6a928a00585ff0327a3d6a",
+          "path": "api/tests/test_contract_method_pg.py",
+          "sha256": "c498b38264e0f0238f6087d6e410cfe70fff2a54197e5b23f616a6bf920a0e6f",
+          "bytes": 102125
+        }
+      ]
+    },
+    {
+      "criterion": "No historical-source, hash or compiler assertion weakening on combined bytes",
+      "code": "api/tests/test_b06a_provenance.py:10-27; api/tests/test_contract_method_pg.py:508-668",
+      "result": "PASS_SCOPED",
+      "evidence": "The entire B06a provenance test, its seed/CLI fixture, package manifest and pytest configuration are byte-identical to base. The test still performs actual seed.compile(), obtains revision/path from that manifest, git-shows exactly that source and checks its SHA-256. Independent AST and function-source comparisons show historical_producer_source, both historical SOURCE tests and historical_installed_journey unchanged byte-for-byte; every HISTORICAL_* constant is unchanged. Authentic-byte mismatch rejection, original teardown assertions and actual skip-decorator checks remain present. The new scratch fixture is explicit, non-autouse and is not attached to these history tests.",
+      "independent_current_execution": "source-tests.json",
+      "current_execution_result": "Three exact SOURCE selectors pass in 1.63s, exit 0, on e175b065c6415886c3cf6856f74c4d093399d148 with an empty isolated environment except explicit safe variables, owned HOME/TMPDIR, -I -B, cacheprovider disabled and not legacy_native. Temporary test directory empty afterward. No native or PostgreSQL execution."
+    },
+    {
+      "criterion": "No canonical or diagnostic gate weakening",
+      "code": ".github/workflows/ci.yml:35-59; Makefile:19-24,233-234",
+      "result": "PASS_SCOPED",
+      "evidence": "Makefile, scripts/ci_gate_diagnostics.py and tests/development/test_ci_gate_diagnostics.py match base bytes and the history author's frozen hashes. make check still uses timeout-seconds 4800; test-api still uses the same selectors. All workflow bytes outside the checkout block are identical, including PIPESTATUS capture, diagnostics and final exit propagation. Read the author's original 16-test diagnostics regression output: exit 0, 16 tests OK. Reused unchanged evidence rather than introducing another diagnostic harness. git diff --check base head returns 0."
+    }
+  ],
+  "preserved_status": {
+    "remote_original": "Run 41258853697 / job 124707729000 remains FAIL at a5704061bf631e0875be959a4b0ea44784b9f7a5; no new hosted run or push. Nine normalized diagnostic identifiers are not a parameterized-case count.",
+    "product": "T1 local accepted status is unchanged. No T2, native qualification, runtime acceptance or global closure inferred.",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "changes_by_reviewer": {
+    "repository_edits": [],
+    "scratch_directory": "/home/kali/.hermes/cache/scratch/ci-r1-review-1b03f445",
+    "created_files": ["review.json", "source-tests.json", "public-readback.json"],
+    "protected_untracked_paths": "Only their names appeared in git status. Neither tempkey.txt nor documents/Omnis_Notite_Originale.html was opened, modified or hashed."
+  },
+  "limits": [
+    "R1 approves only the history/provenance/checkout gate scope on this exact combined freeze; R2 owns the complementary scratch-root guards and SOURCE-fixture breadth.",
+    "No fresh shallow/full clone rerun: original failed and green author executions were read directly and their public-source prerequisite was independently verified.",
+    "No full make check, new remote CI, native/PG/browser/model/target execution, operator runtime/configuration access or push.",
+    "Full-history checkout inherently fetches more repository history than depth 1; hosted execution/performance remains a separate acceptance boundary.",
+    "Existing diagnostics and product tests were not broadly replayed. No new framework, reader harness or skill changes were introduced."
+  ]
+}

@@ -11,8 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MAX_LOG_BYTES = 256 * 1024
-MAX_LOGS = 4
-MAX_ENTRIES = 64
+MAX_OUTER_BYTES = 64 * 1024
 MAX_ANNOTATIONS = 20
 MAX_SOURCE_FILES = 16
 MAX_SOURCE_BYTES = 1024 * 1024
@@ -64,7 +63,7 @@ def summarize(text):
                 )
         return sources.get(relative)
 
-    # shortcut: make/unittest/Python traceback formats only; add formats after a real miss.
+    # shortcut: make/unittest/pytest/Python frames only; add formats after a real miss.
     for line in text.splitlines():
         message = None
         if match := re.fullmatch(
@@ -90,7 +89,29 @@ def summarize(text):
                         for node in parsed[0].body
                     ):
                         message = f"unittest: {module}.{cls}.{method}"
-        elif match := re.fullmatch(r'  File "([^"]+)", line (\d{1,6}), in .+', line):
+        elif match := re.match(
+            r"^(?:FAILED|ERROR) ([A-Za-z0-9_/.-]+\.py)((?:::[A-Za-z_]\w*){1,2})(?=\[| - |$)",
+            line,
+        ):
+            parsed = source(match[1])
+            names = match[2].split("::")[1:]
+            nodes = parsed[0].body if parsed else []
+            if len(names) == 2:
+                nodes = [
+                    item
+                    for node in nodes
+                    if isinstance(node, ast.ClassDef) and node.name == names[0]
+                    for item in node.body
+                ]
+            if names[-1].startswith("test_") and any(
+                isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == names[-1]
+                for node in nodes
+            ):
+                message = f"pytest: {match[1]}{match[2]}"
+        elif match := (
+            re.fullmatch(r'  File "([^"]+)", line (\d{1,6}), in .+', line)
+            or re.fullmatch(r"([A-Za-z0-9_/.-]+\.py):(\d{1,6}):(?: .*)?", line)
+        ):
             location = re.search(
                 r"(?:^|/)((?:tests/(?:development|documentation)|ops|scripts|api/(?:src|tests)|cli/(?:src|tests))/[A-Za-z0-9_/.-]+\.py)$",
                 match[1],
@@ -115,58 +136,91 @@ def private(info, kind):
     return kind(info.st_mode) and info.st_uid == os.getuid() and not info.st_mode & 0o077
 
 
-def diagnostics(root):
-    messages = []
+def unavailable(reason):
+    return [f"{UNAVAILABLE} ({reason})"]
+
+
+def private_file(parent, name):
+    fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
+    try:
+        info = os.fstat(fd)
+        if not private(info, stat.S_ISREG) or info.st_nlink != 1:
+            raise ValueError("Unsafe file")
+        return os.fdopen(fd, "rb")
+    except BaseException:
+        os.close(fd)
+        raise
+
+
+def diagnostics(root, outer):
     directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
     if not root.is_absolute() or root.resolve() != root:
-        return [UNAVAILABLE]
-    root_fd = os.open(root, directory_flags)
+        return unavailable("root-unsafe")
+    try:
+        root_fd = os.open(root, directory_flags)
+    except OSError:
+        return unavailable("root-unsafe")
     try:
         if not private(os.fstat(root_fd), stat.S_ISDIR):
-            return [UNAVAILABLE]
-        logs = 0
-        with os.scandir(root_fd) as entries:
-            for index, entry in enumerate(entries):
-                if index >= MAX_ENTRIES or logs >= MAX_LOGS:
-                    break
-                if not re.fullmatch(r"db-[0-9a-f]{16}", entry.name):
-                    continue
-                logs += 1
-                try:
-                    child = os.open(entry.name, directory_flags, dir_fd=root_fd)
-                    try:
-                        if not private(os.fstat(child), stat.S_ISDIR):
-                            continue
-                        fd = os.open(
-                            "gate.log", os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=child
-                        )
-                        with os.fdopen(fd, "rb") as log:
-                            info = os.fstat(log.fileno())
-                            if not private(info, stat.S_ISREG) or info.st_nlink != 1:
-                                continue
-                            offset = max(0, info.st_size - MAX_LOG_BYTES)
-                            log.seek(offset)
-                            data = log.read(MAX_LOG_BYTES)
-                            if offset:
-                                data = data.partition(b"\n")[2]
-                            for message in summarize(data.decode("utf-8", errors="replace")):
-                                if message not in messages:
-                                    messages.append(message)
-                    finally:
-                        os.close(child)
-                except OSError:
-                    continue
+            return unavailable("root-unsafe")
+        if outer.parent != root or not re.fullmatch(r"ci-outer\.[A-Za-z0-9]{8}", outer.name):
+            return unavailable("outer-unsafe")
+        try:
+            with private_file(root_fd, outer.name) as capture:
+                data = capture.read(MAX_OUTER_BYTES + 1)
+        except (OSError, ValueError):
+            return unavailable("outer-unsafe")
+        if len(data) > MAX_OUTER_BYTES:
+            return unavailable("outer-bounds")
+        markers = [
+            line
+            for line in data.splitlines(keepends=True)
+            if line.startswith(b"CANONICAL_GATE_BEGIN")
+        ]
+        if not markers:
+            return unavailable("locator-missing")
+        if len(markers) != 1:
+            return unavailable("locator-duplicate")
+        if not markers[0].endswith(b"\n"):
+            return unavailable("locator-truncated")
+        match = re.fullmatch(
+            r"CANONICAL_GATE_BEGIN target=check-components log=([^\r\n]+)\n",
+            markers[0].decode("utf-8", errors="replace"),
+        )
+        if not match:
+            return unavailable("locator-invalid")
+        if not match[1].startswith(str(root) + "/"):
+            return unavailable("locator-foreign")
+        location = re.fullmatch(re.escape(str(root)) + r"/(db-[0-9a-f]{16})/gate\.log", match[1])
+        if not location:
+            return unavailable("locator-invalid")
+        try:
+            child = os.open(location[1], directory_flags, dir_fd=root_fd)
+            try:
+                if not private(os.fstat(child), stat.S_ISDIR):
+                    return unavailable("log-unsafe")
+                with private_file(child, "gate.log") as log:
+                    offset = max(0, os.fstat(log.fileno()).st_size - MAX_LOG_BYTES)
+                    log.seek(offset)
+                    data = log.read(MAX_LOG_BYTES)
+                    if offset:
+                        data = data.partition(b"\n")[2]
+            finally:
+                os.close(child)
+        except (OSError, ValueError):
+            return unavailable("log-unsafe")
     finally:
         os.close(root_fd)
-    priority = {"make target": 0, "unittest": 1, "exception": 2, "source": 3}
+    messages = summarize(data.decode("utf-8", errors="replace"))
+    priority = {"make target": 0, "unittest": 1, "pytest": 1, "exception": 2, "source": 3}
     messages.sort(key=lambda message: priority[message.split(":", 1)[0]])
-    return messages[:MAX_ANNOTATIONS] or [UNAVAILABLE]
+    return messages[:MAX_ANNOTATIONS] or unavailable("log-unclassified")
 
 
 if __name__ == "__main__":
     try:
-        result = diagnostics(Path(sys.argv[1]))
-    except (OSError, ValueError, SyntaxError, IndexError):
-        result = [UNAVAILABLE]
+        result = diagnostics(Path(sys.argv[1]), Path(sys.argv[2]))
+    except (OSError, ValueError, SyntaxError, IndexError, subprocess.SubprocessError):
+        result = unavailable("reporter-failed")
     for message in result[:MAX_ANNOTATIONS] or [UNAVAILABLE]:
         print(annotation(message))

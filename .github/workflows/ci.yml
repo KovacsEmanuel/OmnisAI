@@ -32,15 +32,25 @@ jobs:
       - name: Verify Python lint, formatting and strict types before provisioning
         run: make lint-api typecheck-api
       - name: Run the local gate against a dedicated PostgreSQL instance
+        shell: bash
         run: |
           set -euo pipefail
           export TMPDIR="$HOME/.cache/omnis-ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           install -d -m 0700 "$TMPDIR"
           # Explicit prerequisite; the gate itself never pulls or adopts an old DB.
           docker pull --platform linux/amd64 postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650
-          gate_status=0
-          PATH="$RUNNER_TEMP/omnis-docs/bin:$PATH" make check || gate_status=$?
-          if [ "$gate_status" -ne 0 ]; then
-            python -I -B scripts/ci_gate_diagnostics.py "$TMPDIR" 2>/dev/null || printf '%s\n' '::error::Gate diagnostics unavailable; private log not published'
+          capture_status=0
+          outer_log=$(mktemp "$TMPDIR/ci-outer.XXXXXXXX" 2>/dev/null) || capture_status=$?
+          set +e
+          PATH="$RUNNER_TEMP/omnis-docs/bin:$PATH" make check | tee --output-error=warn -- "$outer_log" 2>/dev/null
+          statuses=("${PIPESTATUS[@]}")
+          set -e
+          gate_status=${statuses[0]}
+          if [ "$capture_status" -eq 0 ]; then capture_status=${statuses[1]}; fi
+          if [ "$capture_status" -ne 0 ]; then
+            printf '%s\n' '::error::Gate diagnostics unavailable; private log not published (outer-capture-failed)'
+            if [ "$gate_status" -eq 0 ]; then gate_status=$capture_status; fi
+          elif [ "$gate_status" -ne 0 ]; then
+            python -I -B scripts/ci_gate_diagnostics.py "$TMPDIR" "$outer_log" 2>/dev/null || printf '%s\n' '::error::Gate diagnostics unavailable; private log not published (reporter-failed)'
           fi
           exit "$gate_status"

@@ -7301,11 +7301,13 @@ def test_batch2_actual_persisted_correspondence(mutation: str | None) -> None:
         )
 
 
+@pytest.mark.usefixtures("source_scratch_root")
 @pytest.mark.parametrize(
     "mutation",
     [
         None,
         "descriptor-pin",
+        "outside-root",
         "commit-type",
         "commit-format",
         "root-byte",
@@ -7335,6 +7337,7 @@ def test_h04_current_reader_source_snapshot(
     import shutil
     import zipfile
 
+    assert NATIVE_SCRATCH_ROOT == tmp_path
     fixture = tmp_path / "h04-reader"
     fixture.mkdir(mode=0o700)
     source, checkout = fixture / "snapshot", fixture / "checkout"
@@ -7418,6 +7421,8 @@ def test_h04_current_reader_source_snapshot(
     }
     if mutation == "descriptor-extra":
         descriptor["unlisted"] = True
+    elif mutation == "outside-root":
+        descriptor["root"] = str(tmp_path.parent)
     elif mutation == "current-extra":
         current["unlisted"] = True
     elif mutation == "commit-type":
@@ -7619,13 +7624,16 @@ def test_h04_rejects_exact_retained_batch2_reader_before_origin(
     assert not calls
 
 
+@pytest.mark.usefixtures("source_scratch_root")
 def test_h04_rejects_synthetic_stale_reader_before_origin(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Fresh SOURCE inventory mismatch, not retained-private provenance."""
     import shutil
     import zipfile
+    from unittest.mock import Mock
 
+    assert NATIVE_SCRATCH_ROOT == tmp_path
     source = tmp_path / "source"
     installed = tmp_path / "reader/lib/python3.13/site-packages"
     raw = b"# synthetic stale SOURCE inventory\n"
@@ -7661,12 +7669,18 @@ def test_h04_rejects_synthetic_stale_reader_before_origin(
     )
     handle.chmod(0o600)
 
-    def forbidden(*args: object, **kwargs: object) -> subprocess.CompletedProcess[bytes]:
-        raise AssertionError("H04_STALE_READER_ORIGIN_REACHED")
-
-    monkeypatch.setattr(subprocess, "run", forbidden)
+    origin = Mock(side_effect=AssertionError("H04_STALE_READER_ORIGIN_REACHED"))
+    inventory = Mock(wraps=batch2_reader_inventory)
+    monkeypatch.setattr(sys.modules[__name__], "batch2_reader_inventory", inventory)
+    monkeypatch.setattr(subprocess, "run", origin)
     with pytest.raises(AssertionError, match="^BATCH2_CURRENT_READER_REFUSED$"):
         batch2_current_reader(handle, expected_sha256=sha(handle.read_bytes()))
+    assert inventory.call_count == 1  # Stale inventory, not an earlier root refusal.
+    assert origin.call_count == 0
+
+
+def test_h04_native_scratch_root_default() -> None:
+    assert NATIVE_SCRATCH_ROOT == Path("/home/kali/.hermes/cache/scratch")
 
 
 def batch2_persisted_correspondence(back: dict[str, object]) -> None:
@@ -7804,9 +7818,7 @@ def batch2_current_reader(handle: Path, *, expected_sha256: str) -> dict[str, ob
         if type(descriptor["root"]) is not str:
             raise ValueError
         root = Path(str(descriptor["root"]))
-        if root.resolve(strict=True) != root or not root.is_relative_to(
-            Path("/home/kali/.hermes/cache/scratch")
-        ):
+        if root.resolve(strict=True) != root or not root.is_relative_to(NATIVE_SCRATCH_ROOT):
             raise ValueError
         current = mapping(descriptor["current"])
         if set(current) != {"tag", "commit", "source", "wheel", "wheel_sha256", "python", "files"}:

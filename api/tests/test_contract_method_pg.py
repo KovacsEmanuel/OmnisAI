@@ -51,6 +51,7 @@ if TYPE_CHECKING:
     from omnis_hermes.runtime_host import RuntimeHost
 
 ROOT = Path(__file__).resolve().parents[2]
+NATIVE_SCRATCH_ROOT = Path("/home/kali/.hermes/cache/scratch")
 PIN = Path("/home/kali/.hermes/cache/scratch/contract-method-evidence/pinned")
 LIBRARIES = Path(
     "/home/kali/.hermes/installs/87750418cc01d4b0/environments/"
@@ -1977,6 +1978,14 @@ def test_historical_installed_plan_refuses_changed_wheel_before_effects(tmp_path
         historical_installed_plan(bad_path)
 
 
+@pytest.fixture
+def source_scratch_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Bind only explicit SOURCE callers; native admission keeps its fixed root."""
+    monkeypatch.setattr(sys.modules[__name__], "NATIVE_SCRATCH_ROOT", tmp_path)
+    monkeypatch.setenv("TMPDIR", str(tmp_path))
+
+
+@pytest.mark.usefixtures("source_scratch_root")
 def test_historical_review_gate_precedes_database_fixture(
     request: pytest.FixtureRequest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -2724,6 +2733,7 @@ def test_stock_site_binds_real_main_once_without_package_import(
     assert host_launch_checkpoint(tmp_path / "host-launch-diagnostic.json")["status"] == "OBSERVED"
 
 
+@pytest.mark.usefixtures("source_scratch_root")
 def test_stock_site_mount_is_single_ro_outside_rw_roots(tmp_path: Path) -> None:
     runtime, state = tmp_path / "runtime", tmp_path / "state"
     runtime.mkdir(mode=0o700)
@@ -3914,6 +3924,7 @@ runpy = SimpleNamespace(run_module=invoke)
         assert "UNKNOWN_EVENT" in sequence(launch_bootstrap_checkpoint(evidence)["issues"])
 
 
+@pytest.mark.usefixtures("source_scratch_root")
 @pytest.mark.parametrize("scenario", ["runtime-restart", "runtime-restart-no-final"])
 def test_h03_review_gate_precedes_database_and_container(
     request: pytest.FixtureRequest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, scenario: str
@@ -3980,6 +3991,7 @@ def test_h03_process_receipt_requires_actual_replacement(mutation: str | None) -
             compare(old, new)
 
 
+@pytest.mark.usefixtures("source_scratch_root")
 def test_h03_stock_container_plan_is_owned_and_contained(tmp_path: Path) -> None:
     build = globals().get("h03_container_argv")
     assert callable(build), "H03_CONTAINER_PLAN_MISSING"
@@ -3993,7 +4005,7 @@ def test_h03_stock_container_plan_is_owned_and_contained(tmp_path: Path) -> None
         assert flag in argv
     assert "--entrypoint" not in argv and "/var/run/docker.sock" not in " ".join(argv)
     with pytest.raises(AssertionError, match="^H03_CONTAINER_PLAN_REFUSED$"):
-        build(image, "b" * 32, Path("/home/kali/.hermes"), tmp_path / "state")
+        build(image, "b" * 32, tmp_path.parent, tmp_path / "state")
 
 
 @pytest.mark.parametrize("mutation", [None, "task", "inbox-other", "no-consumption"])
@@ -4054,6 +4066,7 @@ def test_h03_static_installed_origin_preflight(
             h03_prerequisites()
 
 
+@pytest.mark.usefixtures("source_scratch_root")
 @pytest.mark.parametrize(
     "mode",
     [
@@ -4505,6 +4518,7 @@ def test_h03_actual_lifecycle_source_seams(
             assert calls.count("oracle") == 2
 
 
+@pytest.mark.usefixtures("source_scratch_root")
 @pytest.mark.parametrize(
     "mode,exit_path",
     [
@@ -4773,6 +4787,7 @@ def test_h03_settled_connection_retires_after_offline_readers(
     asyncio.run(run())
 
 
+@pytest.mark.usefixtures("source_scratch_root")
 def test_h03_mount_roots_refuse_physical_alias(tmp_path: Path) -> None:
     runtime, state = tmp_path / "runtime", tmp_path / "state"
     runtime.mkdir(mode=0o700)
@@ -4989,7 +5004,7 @@ def h03_replaced_processes(old: dict[str, object], new: dict[str, object]) -> No
 def h03_container_argv(
     image: str, nonce: str, runtime: Path, state: Path, qa_file: Path | None = None
 ) -> list[str]:
-    scratch = Path("/home/kali/.hermes/cache/scratch")
+    scratch = NATIVE_SCRATCH_ROOT
     if (
         re.fullmatch(r"sha256:[a-f0-9]{64}", image) is None
         or re.fullmatch(r"[a-f0-9]{32}", nonce) is None
@@ -5046,6 +5061,7 @@ def h03_container_argv(
     ]
 
 
+@pytest.mark.usefixtures("source_scratch_root")
 @pytest.mark.parametrize(
     "scenario",
     [
@@ -5912,6 +5928,7 @@ def test_startup_primary_stop_before_effect(
     assert [row["edge"] for row in rows] == ["ENTER", "END"]
 
 
+@pytest.mark.usefixtures("source_scratch_root")
 @pytest.mark.parametrize("exit_path", ["return", "failure", "cancel", "pre-acquire"])
 def test_startup_primary_shared_cleanup(tmp_path: Path, exit_path: str) -> None:
     test_h03_actual_lifecycle_source_seams(
@@ -8508,9 +8525,7 @@ def test_contract_method_real_native_pg_owner_receipts_check_inbox(
     applicability: str | None,
 ) -> None:
     scratch = Path(os.environ["TMPDIR"]).resolve(strict=True)
-    assert scratch == Path("/home/kali/.hermes/cache/scratch") or scratch.is_relative_to(
-        Path("/home/kali/.hermes/cache/scratch")
-    )
+    assert scratch == NATIVE_SCRATCH_ROOT or scratch.is_relative_to(NATIVE_SCRATCH_ROOT)
     assert tmp_path.resolve().is_relative_to(scratch)
     h03 = applicability in {"runtime-restart", "runtime-restart-no-final"}
     batch2 = applicability in {"batch2-release-first", "batch2-stop-first"}

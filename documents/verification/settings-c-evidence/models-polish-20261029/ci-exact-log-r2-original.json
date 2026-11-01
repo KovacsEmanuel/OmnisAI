@@ -1,0 +1,71 @@
+{
+  "reviewer": "R2 independent read-only",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "base": "b43d984cd4a319a72e6acd51f06d24d1bfafd093",
+  "freeze": "0b8eae56661dfe790a098615c580978073f49234",
+  "author_candidate": "ae07da214bbae15db71769dc53c65534df91a208",
+  "author_scope_byte_equivalent": true,
+  "scope": "Exact-log identity, unsafe-file refusal, finite untrusted-input/output bounds, public-output secrecy, new outer capture and pytest forms. R1 owns workflow shell end-to-end acceptance.",
+  "files_sha256": {
+    ".github/workflows/ci.yml": "77aa7a84e34b9a9ce6c566c243c5249574c59b96f32ecc3071e3a166e6d33b0e",
+    "scripts/ci_gate_diagnostics.py": "8cf914c449c667fcc21b32a2a8ad51748b92270f8bbe9bb58516c8e5a15b7642",
+    "tests/development/test_ci_gate_diagnostics.py": "c4dcc62ee265d8a620f35dbe4284aa754b32f9428727e3ed017ebd380d0cc6a6"
+  },
+  "findings": [],
+  "verified": [
+    {
+      "criterion": "One exact captured locator; no enumeration or foreign-log fallback",
+      "code": "scripts/ci_gate_diagnostics.py:155-213",
+      "evidence": "15 focused SOURCE tests pass; independent identity-probe.json forbids os.scandir, opens only exact root/capture/selected child/gate.log plus git stderr /dev/null, and refuses foreign locator before opening any inner directory/log. Fixture has 154 unrelated directories plus a valid decoy. MAX_ENTRIES/MAX_LOGS traversal is removed."
+    },
+    {
+      "criterion": "Unsafe files refused and public unavailable reasons contain no raw location/value",
+      "code": "scripts/ci_gate_diagnostics.py:135-211",
+      "evidence": "Private current-UID root/child/capture/log checks; FD-relative NOFOLLOW directory/file opens; NONBLOCK regular single-link file checks. Tests cover symlink/hardlink/FIFO/directory/public modes, missing/duplicate/truncated/foreign/invalid locators, absent and unclassified log. Reasons are static constants."
+    },
+    {
+      "criterion": "Finite untrusted reads and output; selectors validated against tracked source",
+      "code": "scripts/ci_gate_diagnostics.py:13-17,44-63,92-131,169-174,202-217",
+      "evidence": "Outer read 64KiB+1 then refusal; one 256KiB inner tail with partial leading line discarded; at most 16 source files of 1MiB each; 20 annotations and message length <=350. Pytest function/class names require matching tracked-source AST definitions; parameters/messages/raw payload are not published. Tail, annotation-count, AST-name and sentinel tests pass."
+    },
+    {
+      "criterion": "Outer capture is an already-public stream, not raw worker output",
+      "code": ".github/workflows/ci.yml:43-54; Makefile:19-20; ops/run_test_db_gate.py:76-80,691-700,759-783,981-999",
+      "evidence": "Actual unchanged producer prints canonical BEGIN on stdout with flush=True. Child stdout+stderr go to private gate.log; intermediate worker stdout/stderr go to DEVNULL. tee streams existing outer stdout unchanged to its former public sink while retaining a private capture. Outer make/runner stderr remains inherited/public, not captured; only tee/reporter stderr is suppressed. No new raw-worker-log publication or artifact upload."
+    }
+  ],
+  "execution": {
+    "command": "TMPDIR=<owned scratch>/t api/.venv/bin/python -I -B -m unittest discover -s tests/development -p test_ci_gate_diagnostics.py -v",
+    "python": "3.13.15",
+    "tests": 15,
+    "exit_code": 0,
+    "reported_test_seconds": 1.548,
+    "log": "source-tests.log",
+    "metadata": "execution.json",
+    "independent_identity_probe": "identity-probe.json",
+    "identity_probe_exit": 0,
+    "initial_probe_failure": "identity-probe-initial-fail.txt",
+    "initial_probe_failure_disposition": "Reviewer assertion omitted expected git subprocess.DEVNULL open. Corrected exact expected sequence; no product change. Original FAIL retained."
+  },
+  "prior_observations": [
+    {
+      "id": "R2-O1",
+      "severity": "LOW",
+      "disposition": "Existing nonblocking near-256KiB path-regex cost remains unchanged; not rebenchmarked and not closed by this review."
+    }
+  ],
+  "failure_evidence_preserved": {
+    "remote_run": "41251380308",
+    "remote_commit": "b43d984cd4a319a72e6acd51f06d24d1bfafd093",
+    "remote_outcome": "FAIL late with no inner diagnostic, as supplied by parent; no receipts or original private logs read",
+    "root_cause": "UNKNOWN",
+    "not_inferred": "No proof of sourcefix c55e7a7 recurrence, full-gate timeout, or remote CI success. Diagnostic locator repair cycle 2 is not causal repair of the underlying late failure."
+  },
+  "limits": [
+    "Approval binds only the three exact frozen paths and R2 charter; no global CI/runtime approval or integration acceptance.",
+    "No full gate, real Docker, DB, native runtime, browser, network/provider, receipts, credentials, operator files, protected HTML or Git status accessed.",
+    "Existing current-UID private-directory and trusted-checkout boundary retained; not isolation from a malicious same-UID process.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ],
+  "writes": "Only own scratch evidence and synthetic private fixture; no repository edits/commits/push/status or other evidence modified."
+}

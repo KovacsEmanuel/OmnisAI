@@ -1,0 +1,51 @@
+{
+  "reviewer": "R1 independent read-only",
+  "verdict": "CHANGES_REQUESTED_SCOPED",
+  "base": "b43d984cd4a319a72e6acd51f06d24d1bfafd093",
+  "head": "0b8eae56661dfe790a098615c580978073f49234",
+  "author_candidate": "ae07da214bbae15db71769dc53c65534df91a208",
+  "identity": "Author and frozen head are byte-identical in all three scoped files; final current-file readback matches frozen head; repository unchanged by reviewer.",
+  "scope": [
+    {"path": ".github/workflows/ci.yml", "sha256": "77aa7a84e34b9a9ce6c566c243c5249574c59b96f32ecc3071e3a166e6d33b0e"},
+    {"path": "scripts/ci_gate_diagnostics.py", "sha256": "8cf914c449c667fcc21b32a2a8ad51748b92270f8bbe9bb58516c8e5a15b7642"},
+    {"path": "tests/development/test_ci_gate_diagnostics.py", "sha256": "c4dcc62ee265d8a620f35dbe4284aa754b32f9428727e3ed017ebd380d0cc6a6"}
+  ],
+  "findings": [
+    {
+      "id": "R1-EXIT-01",
+      "severity": "MEDIUM",
+      "file_lines": ".github/workflows/ci.yml:51,54",
+      "title": "Failed diagnostic fallback output replaces the original gate exit",
+      "reproducer": "Execute the exact extracted workflow bash block with inert docker returning 0 and inert make printing one public line then exiting 7; leave real GNU tee/mktemp in place and connect workflow stdout to /dev/full. tee --output-error=warn drains and returns nonzero, then the capture-failure printf fails under set -e: actual workflow exit is 1, not 7. Also reproduced with make emitting no stdout and exiting 7, reporter stub exiting 9, and stdout=/dev/full: the reporter-failed fallback printf similarly replaces exit 7 with 1.",
+      "criterion": "The original nonzero gate status must survive tee/reporter failures. The saved PIPESTATUS is correct, but the workflow can abort before its final exit gate_status.",
+      "minimal_fix": "Make the two fallback annotation printf commands best-effort with || : (or equivalent), preserving the already saved statuses. No reporter/parser or producer change is needed. Add one narrowly scoped failing-output control to the existing extracted-workflow tests.",
+      "verification": "Same extracted shell with only the two || : additions made in memory preserves exit 7 in both cases; repository bytes were not edited.",
+      "impact_boundary": "Requires failure of the public stdout sink as well as the error-reporting path. Does not produce false GREEN; job still fails. Ordinary capture-file errors and reporter errors with healthy stdout already preserve the exit.",
+      "evidence": "exit-preservation-reproducer.json"
+    }
+  ],
+  "accepted_observations": [
+    "Makefile:19-20 selects unchanged canonical runner --check; default target is check-components. Producer uses resolved TMPDIR/db-16hex, root 0700, gate.log 0600, and flushes exact CANONICAL_GATE_BEGIN target=check-components log=... to stdout at ops/run_test_db_gate.py:983. Private component stdout/stderr goes to gate.log, not outer stdout.",
+    "Workflow explicitly selects bash, uses private mktemp capture, streams stdout via tee --output-error=warn, and saves PIPESTATUS before any clobbering command. Reader opens only the captured exact canonical locator; no directory scan/latest selection or unrelated DB lookup remains.",
+    "Independent readback of retained of1 root found 154 entries and canonical DB at index 101. Historical failed/passed outer logs are 1045/1008 bytes, each with exactly one conforming canonical locator, comfortably within 64 KiB. These were only read, never executed.",
+    "All 15 existing focused SOURCE controls passed on the current freeze, including 154 decoys plus 8 unrelated DB logs, original exit 7, success 0 without reporter, capture/reporter errors, and missing/duplicate/foreign/truncated/invalid locators.",
+    "Independent real GNU tee failure against an owned directory preserved original gate 7 and converted healthy 0 to nonzero 1. Public output was observed before the fake make exited; output after the pause remained visible. This supplements mocked-tee tests with actual tee streaming/error behavior.",
+    "Independent inert pytest 9.1.1 calibration used a byte-copy of the real api/pyproject.toml and the normal Makefile test-api argv/path form, with -B added solely to prohibit bytecode writes. Actual failure used api/tests/test_health.py:5 and FAILED api/tests/test_health.py::test_live_rejects_a_foreign_host[param]. Feeding this real output through the extracted workflow with large scratch layout produced the source-validated selector/frame, preserved gate exit 7, and omitted the synthetic parameter/message value.",
+    "Read-only parsing of the retained failed gate yielded the expected unittest selector, known source locations, UnsafeFixture class and check-development target. No raw private log or private values were printed. The previous remote failure's underlying test remains UNKNOWN."
+  ],
+  "commands_and_results": [
+    {"command": "TMPDIR=<owned scratch> PYTHONDONTWRITEBYTECODE=1 api/.venv/bin/python -I -B -m unittest discover -s tests/development -p test_ci_gate_diagnostics.py -v", "exit": 0, "result": "15 tests passed", "evidence": "source-controls.log"},
+    {"command": "<repo>/api/.venv/bin/python -I -B -m pytest api/tests --ignore=api/tests/test_migrations.py --ignore=api/tests/test_web_e2e.py --ignore=api/tests/test_cli_status.py -q -m 'not legacy_native'", "cwd": "owned scratch calibration root with inert test and copied api/pyproject.toml", "exit": 1, "result": "One deliberate inert assertion failure; actual emitted text was passed to existing extracted workflow SOURCE fixture", "evidence": ["pytest-real-api-config.log", "workflow-real-pytest.log"]},
+    {"command": "Execute exact workflow bash via existing fixture construction, real tee and own scratch; make/docker replaced with inert commands", "exit": 0, "result": "Independent control assertions passed", "evidence": ["real-tee-streaming.json", "exit-preservation-reproducer.json"]},
+    {"command": "git diff --exit-code ae07da214bbae15db71769dc53c65534df91a208 0b8eae56661dfe790a098615c580978073f49234 -- <three scope paths>; git diff --check b43d984cd4a319a72e6acd51f06d24d1bfafd093 0b8eae56661dfe790a098615c580978073f49234", "exit": 0, "result": "Scope identical; whitespace check clean"}
+  ],
+  "artifacts": ["source-controls.log", "pytest-real-api-config.log", "workflow-real-pytest.log", "real-tee-streaming.json", "stdout-failure.json", "exit-preservation-reproducer.json", "retained-layout-shape.json", "final-readback.json"],
+  "limits": [
+    "No repository edits, commit, push, installs, actual make check, Docker/PG provisioning, native/browser/provider/target operation, operator/config access or protected-file content read.",
+    "Only own scratch artifacts were created; retained source/logs were read-only. Pre-existing untracked documents/Omnis_Notite_Originale.html and tempkey.txt remained untouched.",
+    "Actual workflow shell and installed pytest output were exercised with inert producers, not a full local/remote CI run. Remote consumer verification remains the parent's next admitted stage after review/adjudication; no CI GREEN or integration approval is claimed.",
+    "No generic third harness repair is proposed: R1-EXIT-01 is one specific two-line error-path issue. Parent adjudicates against cycle-2 boundary.",
+    "R2 owns complementary secrecy/path/bounds review; unknown future formats remain statically unavailable, not universally classified.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. Prior unchanged portability/4800 calibration scope was not reopened."
+  ]
+}

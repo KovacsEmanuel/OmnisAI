@@ -1,0 +1,72 @@
+{
+  "reviewer": "Independent focused read-only R1-EXIT-01 re-review",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "disposition": "R1-EXIT-01 CLOSED_SCOPED",
+  "base": "0b8eae56661dfe790a098615c580978073f49234",
+  "freeze": "51ed6d4c2b909d59b7e512c9f5622f39debcb39a",
+  "author_candidate": "f79e00725ddcc62b758c6f9b110ee47ae78f611c",
+  "author_scope_byte_identical": true,
+  "original_review": {
+    "path": "/home/kali/.hermes/cache/scratch/r1g.hnGGcN/r1-review.json",
+    "sha256": "fcb8b2d62b3997098523bdf019219963a8c6aa1a5250180cdeb70b959a4af0d1"
+  },
+  "changed_files": {
+    ".github/workflows/ci.yml": {
+      "blob": "81888b5dca265002831cf5cbef198587ddcbf47a",
+      "sha256": "22bac2fb969e8a7227834dbef559d1c93bbee89901a88dfe7debe6fda40a7e1d"
+    },
+    "tests/development/test_ci_gate_diagnostics.py": {
+      "blob": "4a57666df6aaacc48175a4054acbb6b556cc0cfa",
+      "sha256": "5bd20d730fdf0de873a5a51ae2959ad71e94a288f9a85f4e447e0213f928bf4c"
+    }
+  },
+  "reviewed_delta": "Only the two fallback printf commands gain || : at workflow lines 51 and 54. One three-case test and optional quiet/stdout fixture arguments are added; original fixture defaults are preserved. No reporter, producer, Make/pins/application/limit changes or parser features.",
+  "branch_verification": [
+    {
+      "case": "make exits 7 with public stdout; workflow stdout=/dev/full",
+      "observed_assertions": "Actual extracted workflow, real tee/mktemp; reporter not called; fallback printf write error; workflow exit 7. Capture-failure branch reached."
+    },
+    {
+      "case": "quiet make exits 7; reporter stub exits 9; workflow stdout=/dev/full",
+      "observed_assertions": "Actual extracted workflow, real tee/mktemp; reporter called; fallback printf write error; workflow exit 7. Empty make output allows tee success and reaches reporter-failure branch."
+    },
+    {
+      "case": "make exits 0 with public stdout; workflow stdout=/dev/full",
+      "observed_assertions": "Actual extracted workflow, real tee/mktemp; reporter not called; fallback printf write error; workflow exit 1, not false GREEN."
+    },
+    {
+      "case": "Existing healthy stdout success and prior regression controls",
+      "observed_assertions": "Healthy gate exits 0 without diagnostics; all 15 old tests and the new parameterized test pass."
+    }
+  ],
+  "execution": {
+    "command": "TMPDIR=/home/kali/.hermes/cache/scratch/r1x.2Hlbro/t PYTHONDONTWRITEBYTECODE=1 api/.venv/bin/python -I -B -m unittest discover -s tests/development -p test_ci_gate_diagnostics.py -v",
+    "cwd": "/home/kali/OmnisAI",
+    "python": "3.13.15",
+    "tests": 16,
+    "exit_code": 0,
+    "reported_seconds": 1.763,
+    "log": "/home/kali/.hermes/cache/scratch/r1x.2Hlbro/source-controls.log",
+    "log_sha256": "636a31c07431ab93c2a39f4a4b6c7c029dcbcf6bc789d7935d5949a8d69d05a4"
+  },
+  "identity_verification": "git diff author..freeze -- two scope paths exit0; current scope matches HEAD exit0; git diff --check base..freeze exit0. HEAD and scoped SHA256 stable after testing. Only the two stated files differ between base and freeze. Repository status unchanged, including two protected pre-existing untracked paths; their contents were not read.",
+  "red_green_readback": {
+    "red": "/home/kali/.hermes/cache/scratch/r1-exit01-red-final.log",
+    "red_result": "Two failures at exact exit assertion, 1 != 7, for capture and reporter fallback branches.",
+    "green": "/home/kali/.hermes/cache/scratch/r1-exit01-green.log",
+    "green_result": "16 tests OK; independently rerun above on the frozen integrated bytes."
+  },
+  "reused_unchanged_approvals": [
+    "R1 prior accepted producer exact locator, retained 154+8 layout and real-pytest source-config observations remain scoped; not reaudited.",
+    "R2 /home/kali/.hermes/cache/scratch/r2-fsxtgsl8/review-r2.json APPROVED_SOURCE_SCOPED reused only for unchanged charter/bytes. Reporter SHA256 remains 8cf914c449c667fcc21b32a2a8ad51748b92270f8bbe9bb58516c8e5a15b7642.",
+    "R2-O1 LOW path-regex CPU observation remains open/nonblocking, not rebenchmarked or closed."
+  ],
+  "new_blocking_findings": [],
+  "writes": "Only own scratch source-controls.log and this report; temporary test fixtures self-cleaned. No repository edits, commits or push.",
+  "limits": [
+    "SOURCE evidence executes the actual workflow shell with inert make/docker and real tee/mktemp; it is not full make check or remote CI.",
+    "No PG/native/browser/model/operator/protected-file effects or new generic audit. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "No CI/runtime/global PASS, parent acceptance or phase transition. Remote run 41251380308 at b43d984 remains historical FAIL with underlying test cause UNKNOWN, as supplied by parent; not queried here.",
+    "This closes only the adjudicated R1-EXIT-01 within the second/last diagnostic harness repair; no third harness layer proposed."
+  ]
+}

@@ -45,7 +45,7 @@ Aceasta este o agendă de discuție, **nu ordinea de implementare și nu o list�
 |---|---|---|
 | M01 — rezultatul T2 | Familia **IDOR/BOLA**, primul subset limitat și calibrarea adaptivă pe circuitul complet sunt acceptate (§3.1/§4.1). Rămân cazul exact, oracle/controale, precondiții, efecte și criteriul detaliat de închidere. | M01 nu este închis prin trecerea discuției la M02; detaliile rămase se consolidează cu execuția/validarea M06 și probele M09. Inventarul/PoC-urile evaluatorului nu sunt date agentului drept soluție. |
 | M02 — setup și autonomie | Cum se separă obiectivul, autorizația, scope-ul și efectele; ce ambiguități cer Needs you; ce acțiuni se execută autonom. | Comparația și recomandarea sunt în §3.2; mapa KEEP/EXTEND/NEW și direcția confirmată de reuse inclusiv backbone sunt în §3.3. Păstrăm engagementul și contractul canonic; avansarea discuției nu aprobă automat detaliile încă PROPUS sau închide M02. |
-| **M03 — Engagement Map / AICI** | Obiectele/punctele hărții, ce poate citi și modifica fiecare rol, referințele din delegare, corecții/contradicții, simultaneitate, freshness, coverage și întrebări pentru operator. | Recomandarea și cercetarea sunt în §5. Începem cu regula colaborării și autoritatea scrierilor; comportamentul rămâne de agreat înainte de schemă/API. Nu confundăm RAG/notes cu starea canonică a probelor. |
+| **M03 — Engagement Map / AICI** | Colaborarea este decisă: un document logic comun per engagement, contribuții/corecții atribuite cu istoric și stări bazate pe probe. Rămân conținutul punctelor, referințele din delegare, simultaneitatea, freshness și prezentarea. | Acordul exact este în §5.1; cercetarea și restul propunerii în §5.2–§5.4. Document comun nu fixează un fișier fizic ori schema/API și nu aprobă toate detaliile tehnice. |
 | M04 — delegare și context | Rolurile inițiale, granularitatea taskului, ce primește obligatoriu workerul, retrieval din hartă, ce predă, când mesaj către agent existent vs task nou, dedup și independența validatorului. | Goal/intentie/non-goals/context critic/refs/metodă/limite/încheiere/predare; fără inheritance automat al întregului istoric. Forma și regulile exacte sunt PROPUS, nu complete. |
 | M05 — skills, modele și reuse | Subsetul de conținut/cod importat pentru întregul prim flux recon→mapping→threat model→investigație→validare, maparea toolurilor/formatele, proveniență/licențe, bibliotecă/pin, compatibilitate, default/override, pachete fixate și context mandatory. | Reutilizarea cerută și formatele verificate sunt în §4.1. Păstrăm direcția API-key-only. `openai-agents` este candidat, nu pin admis; nu adoptăm întregul manifest Strix. Nu importăm toate skills înaintea primului consumer. |
 | M06 — execuție și validare | Primul transport real, policy/Stop la sink, capture/evidence/DATA, auth necesară cazului, investigator/triage/validator, ce produce CONFIRMED și ce produce INCONCLUSIVE. | Aducem explicit doar subsetul necesar T3/T4 în traseul T2 extins. HTTP trusted poate preceda browser/shell/scannere; nu le presupunem necesare și nu ocolim confinarea. |
@@ -183,18 +183,20 @@ Rularea de referință este păstrată local la `/home/kali/strix_runs/host-dock
 
 **Extindere ulterioară:** aceeași infrastructură trebuie reutilizată pentru familii care au capabilități compatibile. O clasă nouă poate cere doar metodologie/configurație și reguli de validare noi, dar un protocol, un efect, o identitate ori un oracle nesuportat poate cere adaptor/cod și verificări suplimentare. Mai multe fișiere nu înseamnă automat mai multă acoperire executată. Primul subset trebuie să fie complet pe traseu; inventarul celor 75 skills rămâne sursă/candidat, nu catalog executabil admis integral.
 
-## 5. Engagement Map — cercetare și propunere, încă de decis
+## 5. Engagement Map — cercetare, decizii și propuneri
 
-### 5.1. Comportamentul cerut și forma minimă propusă
+### 5.1. Colaborarea acceptată și forma minimă propusă
 
 Operatorul a cerut o hartă comună, consultabilă și actualizabilă de agenți, cu puncte/subpuncte folosite în delegare: ce s-a identificat, testat, pe ce parametri, ce a rămas și unde este nevoie de operator.
 
+**DECIS — un document logic comun per engagement:** operatorul a confirmat explicit această unitate, nu un document per agent și nu o hartă globală între engagementuri. Agenții pot consulta informațiile relevante și adăuga observații, ipoteze, probe, indicii și corecții inclusiv la contribuțiile altora, cu autor, motiv și istoric, fără ștergere sau suprascriere tăcută. Brain folosește harta pentru prioritizare și delegare; „testat” rezultă din execuție documentată, iar „confirmat” necesită validarea corespunzătoare, nu eticheta unilaterală a investigatorului. Accesul rămâne în limitele engagementului/DATA. „Document” descrie obiectul comun de lucru; formatul fizic, schema și mecanismul de actualizare nu sunt alese prin acest acord.
+
 **PROPUS pentru Omnis:** o vedere coerentă a datelor existente de inventory/observations/tasks/evidence/coverage, în PostgreSQL, nu încă o sursă de adevăr. Delegarea păstrează goal-ul, intenția, non-goals și contextul critic; referințele stabile către hartă înlocuiesc repetarea întregului istoric, nu sarcina. Agenții pot cere detalii relevante la nevoie.
 
-De agreat explicit:
+De detaliat/agreat în continuare, fără redeschiderea regulii de colaborare:
 
-- Ce poate modifica orice worker: observații/ipoteze/contradicții/continuări versus stări rezervate ownerului și validatorului.
-- Corecții atribuite și versionate; păstrarea probelor și a concluziei istorice, fără overwrite pierdut la actualizări simultane.
+- Conținutul unui punct și maparea exactă a contribuțiilor/stărilor la roluri: observații/ipoteze/contradicții/continuări versus stări derivate din execuție sau rezervate validării.
+- Mecanismul tehnic al corecțiilor și concurenței: istoricul/atribuirea sunt acceptate, dar versionarea, rezolvarea conflictelor și refuzul suprascrierilor stale trebuie concretizate.
 - `observed/inferred/contradicted` separat de `unknown/untested/assigned/blocked/inconclusive/tested`; detalierea coverage pe operație, parametru, metodă și identitate/context.
 - Noutățile din hartă nu modifică pe ascuns obiectivul ori autorizația unui task admis; când se revalidează o precondiție schimbată.
 - Acces engagement-scoped și după policy; fără secrete sau acces global la toate datele brute.
@@ -222,17 +224,17 @@ Notes și threat model au mirroring/hydration JSON în această sursă, chiar da
 
 Locatoare utile: PentAGI `backend/pkg/tools/executor.go:597–644`, `memory.go:74–179,261–266`; NeuroSploit `neurosploit-rs/crates/harness/src/graph_memory.rs:226–304,940–1025,2250–2287`, `pipeline.rs:1954–2030,3742–3787`. Sursele fixate de mai jos permit recuperarea fără cache. Notele publice de cercetare sunt temporar în `/home/kali/.hermes/cache/scratch/t2-map-research-20261102/other-oss/`.
 
-### 5.4. Recomandarea rezultată — PROPUS, nu încă decis
+### 5.4. Recomandarea rezultată — principii parțial acceptate, detalii propuse
 
-1. **O singură hartă canonică în PostgreSQL existent**, cu proiecții pentru agenți și UI. Notes/RAG/sumare rămân derivate și nu dublează autoritatea probelor.
+1. **Un singur document logic/hartă per engagement — DECIS.** Persistența în PostgreSQL existent și proiecțiile pentru agenți/UI rămân recomandarea tehnică PROPUSĂ; notes/RAG/sumare sunt derivate, nu altă autoritate a probelor.
 2. **Index/metadata întâi, detaliu la cerere:** citiri bounded pe puncte și referințe relevante, fără dump al întregii hărți în fiecare prompt și fără relaxarea accesului către alt engagement.
 3. **Fapte și relații adresabile, cu proveniență:** cine/ce task a observat, sursa și dovada, revizia și contextul; observed/inferred/contradicted nu se reduc la confidence.
-4. **Corecții atribuite și control al reviziei:** actualizări înguste, istoric păstrat și refuzul suprascrierii stale; contradicția se păstrează până la adjudecare, nu „ultima propoziție câștigă”. Nu acordăm agenților acces SQL direct.
+4. **Corecții atribuite și istoric — DECIS; controlul reviziei — PROPUS:** actualizări înguste și refuzul suprascrierii stale; contradicția se păstrează până la adjudecare, nu „ultima propoziție câștigă”. Nu acordăm agenților acces SQL direct.
 5. **Freshness și invalidare în ambele sensuri:** o schimbare de auth/precondiții poate cere reverificare. Un rezultat istoric rămâne în istoric, dar nu certifică automat starea curentă; concluziile nu pot doar să se întărească.
-6. **Coverage bazat pe execuție/probe**, distinct de inventar, task alocat sau agent selectat. Un request ori un sumar nu închide toate metodele/identitățile/parametrii acelui punct.
+6. **Coverage bazat pe execuție/probe — principiu DECIS**, distinct de inventar, task alocat sau agent selectat. Granularitatea exactă rămâne de stabilit; un request ori un sumar nu închide toate metodele/identitățile/parametrii acelui punct.
 7. **Schimbări ale hărții legate de evenimentele Omnis și aceeași revizie**, pentru stream, retrieval și reload coerente. Nu adăugăm alt scheduler, publisher autoritativ, graph canvas sau serviciu de memorie pentru această funcție.
 
-Această recomandare combină mecanisme concrete din cele trei surse; importurile efective, schema, API-urile, politicile de scriere/citire și alegerea operatorului rămân M03/M04/M06/M07. Codul public inspectat nu certifică eficacitatea, izolarea ori compatibilitatea integrării Omnis.
+Această recomandare combină mecanisme concrete din cele trei surse. Acordul §5.1 nu aprobă automat toate punctele: importurile efective, schema, API-urile, mecanismele de scriere/citire și restul alegerilor rămân M03/M04/M06/M07. Codul public inspectat nu certifică eficacitatea, izolarea ori compatibilitatea integrării Omnis.
 
 ## 6. Reguli rămase din canon și implicațiile schimbării T2
 
@@ -245,7 +247,7 @@ Această recomandare combină mecanisme concrete din cele trei surse; importuril
 
 ## 7. Recuperare și următorul pas
 
-**AICI: M03 — Engagement Map.** Operatorul a cerut ce mai rămâne și continuarea agendei după acordul asupra reuse-first inclusiv backbone. Începem cu regula colaborării: cine citește/contribuie/corectează și ce stări sunt derivate din probe ori rezervate validării. Propunerea de discutat este hartă comună în limitele engagementului/DATA, contribuții și corecții atribuite cu istoric, fără ștergere/suprascriere arbitrară, fără auto-confirmare sau coverage declarat fără execuție. Alegerea rămâne deschisă; §5.4 nu devine aprobat prin mutarea acestui pointer. M01/M02 nu sunt închise automat: cazul/precondițiile/efectele/controalele/exitul se consolidează cu M06/M09, iar SDK/pinul, modelul de execuție, integrarea și delta MONITOR se detaliază cu M05/M08. §3.2/§3.3 rămân cercetare și mapă de integrare, nu runtime PASS. Nu relansăm audituri generale sau dovezi T1 neschimbate. Nu este mandat de amendament canonic, implementare, apeluri provider/țintă ori push.
+**AICI: M03 — conținutul documentului comun.** Operatorul a confirmat documentul logic comun per engagement și regula colaborării din §5.1: contribuții/corecții atribuite cu istoric și stări bazate pe probe/validare. Urmează conținutul și legăturile punctelor: suprafețe/operații, actori/context, observații/investigații/probe și lucru/coverage/gapuri; această grupare este de discutat, nu schemă aprobată. Persistența, concurența, retrieval-ul, freshness și UI rămân de detaliat; §5.4 este doar parțial acceptat. M01/M02 nu sunt închise automat: cazul/precondițiile/efectele/controalele/exitul se consolidează cu M06/M09, iar SDK/pinul, modelul de execuție, integrarea și delta MONITOR se detaliază cu M05/M08. §3.2/§3.3 rămân cercetare și mapă de integrare, nu runtime PASS. Nu relansăm audituri generale sau dovezi T1 neschimbate. Nu este mandat de amendament canonic, implementare, apeluri provider/țintă ori push.
 
 După fiecare decizie, actualizăm rândul și detaliile sale în acest fișier; o întrebare rămasă nu devine „decisă” printr-un rezumat. Când toate punctele necesare sunt suficient de clare, consolidăm mini-planul cu subfelii, reutilizare, dependențe, consumer/exit real, verificări și limite, apoi cerem separat aplicarea amendamentului și mandatul de implementare.
 

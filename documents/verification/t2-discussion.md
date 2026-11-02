@@ -59,6 +59,8 @@ Aceasta este o agendă de discuție, **nu ordinea de implementare și nu o list�
 
 Operatorul a cerut verificarea metodologiei și a referinței Strix înainte de restrângerea cazului T2: skillul/agentul nu trebuie proiectat numai pentru exemplul cu doi utilizatori și citirea unui obiect. **IDOR/BOLA este ales; scenariul restrâns de citire rămâne PROPUS, nu aprobat.** Metodologia, capabilitatea efectiv implementată și primul caz de acceptare sunt trei lucruri distincte.
 
+**DECIS — direcție și principii metodologice:** operatorul a acceptat dimensiunile și adaptările descrise mai jos: folosim metodologia Strix ca bază, o adaptăm și o îmbunătățim pentru Omnis, fără wrapper și fără limitarea skillului la primul exemplu. Acest acord nu aprobă automat cazul concret, schema/API, toate transporturile în T2, amendamentul canonic, implementarea sau efectele live.
+
 **Analizat public, STATIC_NOT_TESTED:** Strix `skills/vulnerabilities/idor.md` și `broken_function_level_authorization.md`, la pinul §4.[30][31] Comparație cu OWASP API Security 2023 API1/API3 și WSTG v4.2 WSTG-ATHZ-04.[32][33][34] Nu s-au reluat analiza findingurilor blocată, testele ori ținta.
 
 | Axă metodologică de păstrat în proiectare | Variante/context relevante, nu activare implicită |
@@ -74,13 +76,13 @@ Operatorul a cerut verificarea metodologiei și a referinței Strix înainte de 
 
 Strix descrie explicit o matrice Subject × Object × Action, acces orizontal/vertical/cross-tenant, forme și locații variate ale referințelor, operații bulk/job/file și verificări pe transporturi; nu este doar o rețetă A→obiectB.[30] WSTG recomandă identificarea locațiilor referințelor și identități/obiecte de test care economisesc ghicitul, păstrând regula business.[34]
 
-**Adaptări propuse, nu copiere oarbă:**
+**Adaptări acceptate ca principii, nu copiere oarbă și nu implementare autorizată:**
 - `owner != actor` sau HTTP200 nu sunt suficiente: accesul poate fi legitim prin partajare ori rol. OWASP cere permisiunea asupra acțiunii și obiectului; proprietățile și funcțiile au frontiere distincte.[32][33]
 - Strix cere în secțiunile sale Validation demonstrații pe cel puțin două transporturi/encodings. Nu transformăm asta într-un prerequisite artificial al confirmării când aplicația are un singur transport aplicabil; trasabilitatea și controalele sunt obligatorii, iar breadth-ul aplicabil se evaluează separat.[30][31]
 - Semnale de existență, dimensiune/timing, o identitate greșită sau un răspuns gol nu sunt automat expunere confirmată. Păstrăm public/shared/owner și auth-invalid între controale, cu rezultate distincte.
 - Cunoașterea unei variante nu acordă tools, permisiuni ori auto-fallback. T2 primește subsetul necesar cazului ales; restul rămâne documentat și se introduce cu consumerul său real.
 
-**Încă BLOCKED:** traseul detaliat al findingurilor reale din aplicația operatorului și evaluarea probelor agentului IDOR din acele rapoarte nu au fost reluate după refuzul providerului. Acest studiu public nu le înlocuiește. Este necesară rezolvarea/confirmarea cerinței de securitate a contului înainte de reluarea scope-ului blocat; nu reformulare, alt model ori preluare manuală pentru ocolire. Nu selectăm un caz sau declarăm probe reale validate numai din metodologia publică.
+**Limită a probelor, nu condiție pentru discuție:** apelul anterior de analiză a findingurilor a fost refuzat de provider invocând cerințele de securitate ale contului; acea încercare rămâne BLOCKED și nu a fost reluată sau rerutată. Nu transformăm acest refuz într-o cerință a Omnis ori într-o condiție pentru discutarea și alegerea metodologiei. Studiul public nu înlocuiește analiza detaliată a probelor reale și nu validează findingurile aplicației. Eventuala reluare a apelului refuzat se tratează separat de acordul de proiectare, fără ocolirea refuzului.
 
 ## 4. Ce reutilizăm și ce știm din referința Strix
 
@@ -164,7 +166,7 @@ Această recomandare combină mecanisme concrete din cele trei surse; importuril
 
 ## 7. Recuperare și următorul pas
 
-**AICI: M01 — rezultatul T2.** IDOR/BOLA este ales; operatorul a cerut aprofundarea metodologiei/referinței înainte de alegerea cazului. Studiul public este în §3.1, iar analiza findingurilor reale rămâne blocată de provider; scenariul restrâns de citire nu este încă aprobat. Urmează cazul concret, precondițiile, controalele și criteriul exact de confirmare/închidere; M01 nu este încă închis. Comparația statică Engagement Map din §5.2–5.3 este consemnată, iar recomandarea din §5.4 rămâne neaprobată. Celelalte puncte rămân agenda din §3. Nu revenim la un tur general de audit Strix și nu relansăm acceptări T1 neschimbate.
+**AICI: M01 — rezultatul T2.** IDOR/BOLA și direcția/principiile metodologiei din §3.1 sunt acceptate: bază Strix, adaptare și îmbunătățire Omnis, fără limitarea skillului la primul caz. Scenariul restrâns de citire nu este încă aprobat. Urmează cazul concret, precondițiile, controalele și criteriul exact de confirmare/închidere; M01 nu este încă închis. Refuzul providerului afectează încercarea de analiză a probelor indicată în §3.1, nu admiterea discuției de proiectare. Comparația statică Engagement Map din §5.2–5.3 este consemnată, iar recomandarea din §5.4 rămâne neaprobată. Celelalte puncte rămân agenda din §3. Nu revenim la un tur general de audit Strix și nu relansăm acceptări T1 neschimbate.
 
 După fiecare decizie, actualizăm rândul și detaliile sale în acest fișier; o întrebare rămasă nu devine „decisă” printr-un rezumat. Când toate punctele necesare sunt suficient de clare, consolidăm mini-planul cu subfelii, reutilizare, dependențe, consumer/exit real, verificări și limite, apoi cerem separat aplicarea amendamentului și mandatul de implementare.
 

@@ -55,6 +55,33 @@ Aceasta este o agendă de discuție, **nu ordinea de implementare și nu o list�
 | M10 — auto-pair | Handoff launcher→browser sigur, asociere inițială, browser existent/absent, expirare/logout, headless și recuperare. | Extindem traseul existent; nu auth Strix, URL cu secret, CDP ori scriere arbitrară în profilul browserului ca scurtătură implicită. Metoda rămâne de ales. |
 | M11 — mini-plan final | Ordinea/dependențele subfeliilor, producătorul și primul consumer real, fișiere/calleri, verificarea și limitele, rollback și momentul acceptării. | Se completează după acordul punctelor de mai sus; reconciliere cu canonul, fără plan concurent și fără pornire automată a implementării. |
 
+### 3.1. M01 — amplitudinea metodologiei IDOR/BOLA, înaintea cazului de acceptare
+
+Operatorul a cerut verificarea metodologiei și a referinței Strix înainte de restrângerea cazului T2: skillul/agentul nu trebuie proiectat numai pentru exemplul cu doi utilizatori și citirea unui obiect. **IDOR/BOLA este ales; scenariul restrâns de citire rămâne PROPUS, nu aprobat.** Metodologia, capabilitatea efectiv implementată și primul caz de acceptare sunt trei lucruri distincte.
+
+**Analizat public, STATIC_NOT_TESTED:** Strix `skills/vulnerabilities/idor.md` și `broken_function_level_authorization.md`, la pinul §4.[30][31] Comparație cu OWASP API Security 2023 API1/API3 și WSTG v4.2 WSTG-ATHZ-04.[32][33][34] Nu s-au reluat analiza findingurilor blocată, testele ori ținta.
+
+| Axă metodologică de păstrat în proiectare | Variante/context relevante, nu activare implicită |
+|---|---|
+| Actor și permisiune | Anonymous, owner/non-owner, roluri diferite, relații de partajare; o identitate privilegiată nu demonstrează accesul nepermis al uneia obișnuite. |
+| Obiect și relație | Obiecte private/publice/partajate, parent–child, organizație/proiect/tenant și identificatori simpli, opaci sau compuși. |
+| Acțiune și efect | Citire, creare/modificare/ștergere, export, partajare ori acțiuni de workflow — numai când ROE și adaptorul le permit, cu probă/cleanup adecvate. |
+| Localizarea referinței | Path/query/body/form/header și formele relevante ale identificatorului; metodologia nu se limitează la un integer într-un URL. |
+| Suprafață și transport | List/search/detail/bulk, fișiere și joburi; variante API/GraphQL/WS/gRPC doar dacă există și sunt admise. O variantă nesuportată rămâne gap/UNSUPPORTED, nu este testată fictiv. |
+| Clasificarea rezultatului | BOLA privește accesul la obiect; BFLA privește funcția/acțiunea nepermisă, iar API3 accesul nepermis la proprietăți. Indiciile vecine cer clasificare/handoff, nu același verdict sau raport duplicat. |
+| Context schimbător | Auth expirat/invalid, rol/tenant/context schimbat, cache/flow și dovezi stale; un test fără precondiții valide nu este negativ sigur. |
+| Dovadă și controale | Identitate verificată, regulă business de acces, obiect și operație exacte, rezultat/impact observat, control legitim și replay independent; semnalele slabe rămân candidați. |
+
+Strix descrie explicit o matrice Subject × Object × Action, acces orizontal/vertical/cross-tenant, forme și locații variate ale referințelor, operații bulk/job/file și verificări pe transporturi; nu este doar o rețetă A→obiectB.[30] WSTG recomandă identificarea locațiilor referințelor și identități/obiecte de test care economisesc ghicitul, păstrând regula business.[34]
+
+**Adaptări propuse, nu copiere oarbă:**
+- `owner != actor` sau HTTP200 nu sunt suficiente: accesul poate fi legitim prin partajare ori rol. OWASP cere permisiunea asupra acțiunii și obiectului; proprietățile și funcțiile au frontiere distincte.[32][33]
+- Strix cere în secțiunile sale Validation demonstrații pe cel puțin două transporturi/encodings. Nu transformăm asta într-un prerequisite artificial al confirmării când aplicația are un singur transport aplicabil; trasabilitatea și controalele sunt obligatorii, iar breadth-ul aplicabil se evaluează separat.[30][31]
+- Semnale de existență, dimensiune/timing, o identitate greșită sau un răspuns gol nu sunt automat expunere confirmată. Păstrăm public/shared/owner și auth-invalid între controale, cu rezultate distincte.
+- Cunoașterea unei variante nu acordă tools, permisiuni ori auto-fallback. T2 primește subsetul necesar cazului ales; restul rămâne documentat și se introduce cu consumerul său real.
+
+**Încă BLOCKED:** traseul detaliat al findingurilor reale din aplicația operatorului și evaluarea probelor agentului IDOR din acele rapoarte nu au fost reluate după refuzul providerului. Acest studiu public nu le înlocuiește. Este necesară rezolvarea/confirmarea cerinței de securitate a contului înainte de reluarea scope-ului blocat; nu reformulare, alt model ori preluare manuală pentru ocolire. Nu selectăm un caz sau declarăm probe reale validate numai din metodologia publică.
+
 ## 4. Ce reutilizăm și ce știm din referința Strix
 
 Sursă publică inspectată: `usestrix/strix` la `6b7ae2ebe4d47037a927aade23265ff4e4f27e84`. Binarul instalat nu este demonstrat byte-identic acestei surse. Licența și dependențele se reverifică pentru fiecare import efectiv.
@@ -137,7 +164,7 @@ Această recomandare combină mecanisme concrete din cele trei surse; importuril
 
 ## 7. Recuperare și următorul pas
 
-**AICI: M01 — rezultatul T2.** Operatorul a cerut parcurgerea agendei de la punctul 1 și a confirmat IDOR/BOLA ca prima familie. Urmează cazul concret, precondițiile, controalele și criteriul exact de confirmare/închidere; M01 nu este încă închis. Comparația statică Engagement Map din §5.2–5.3 este consemnată, iar recomandarea din §5.4 rămâne neaprobată. Celelalte puncte rămân agenda din §3. Nu revenim la un tur general de audit Strix și nu relansăm acceptări T1 neschimbate.
+**AICI: M01 — rezultatul T2.** IDOR/BOLA este ales; operatorul a cerut aprofundarea metodologiei/referinței înainte de alegerea cazului. Studiul public este în §3.1, iar analiza findingurilor reale rămâne blocată de provider; scenariul restrâns de citire nu este încă aprobat. Urmează cazul concret, precondițiile, controalele și criteriul exact de confirmare/închidere; M01 nu este încă închis. Comparația statică Engagement Map din §5.2–5.3 este consemnată, iar recomandarea din §5.4 rămâne neaprobată. Celelalte puncte rămân agenda din §3. Nu revenim la un tur general de audit Strix și nu relansăm acceptări T1 neschimbate.
 
 După fiecare decizie, actualizăm rândul și detaliile sale în acest fișier; o întrebare rămasă nu devine „decisă” printr-un rezumat. Când toate punctele necesare sunt suficient de clare, consolidăm mini-planul cu subfelii, reutilizare, dependențe, consumer/exit real, verificări și limite, apoi cerem separat aplicarea amendamentului și mandatul de implementare.
 
@@ -153,3 +180,8 @@ După fiecare decizie, actualizăm rândul și detaliile sale în acest fișier;
 [27] https://github.com/vxcontrol/pentagi/blob/cffed9485aa1cca70762cd08a57ac62a80406258/docker-compose-graphiti.yml
 [28] https://github.com/CyberSecurityUP/NeuroSploit/blob/92e8959f4ea17bddaa0436505edcddf98f7d6b16/neurosploit-rs/crates/harness/src/graph_memory.rs
 [29] https://github.com/CyberSecurityUP/NeuroSploit/blob/92e8959f4ea17bddaa0436505edcddf98f7d6b16/neurosploit-rs/crates/harness/src/pipeline.rs
+[30] https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/strix/skills/vulnerabilities/idor.md
+[31] https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/strix/skills/vulnerabilities/broken_function_level_authorization.md
+[32] https://api-security.owasp.org/editions/2023/en/0xa1-broken-object-level-authorization
+[33] https://api-security.owasp.org/editions/2023/en/0xa3-broken-object-property-level-authorization
+[34] https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References

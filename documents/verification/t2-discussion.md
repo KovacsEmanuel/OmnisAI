@@ -47,7 +47,7 @@ Aceasta este o agendă de discuție, **nu ordinea de implementare și nu o list�
 | M02 — setup și autonomie | Cum se separă obiectivul, autorizația, scope-ul și efectele; ce ambiguități cer Needs you; ce acțiuni se execută autonom. | Refolosim engagementul/wizardul existent. Autonomie pentru acțiuni deja permise, fără confirmare la fiecare request; efectele neadmise nu sunt aprobate de textul modelului. Detaliile nu sunt încă decise. |
 | M03 — Engagement Map | Obiectele/punctele hărții, ce poate citi și modifica fiecare rol, referințele din delegare, corecții/contradicții, simultaneitate, freshness, coverage și întrebări pentru operator. | Recomandarea și cercetarea sunt în §5. Trebuie agreat comportamentul înainte de schemă/API. Nu confundăm RAG/notes cu starea canonică a probelor. |
 | M04 — delegare și context | Rolurile inițiale, granularitatea taskului, ce primește obligatoriu workerul, retrieval din hartă, ce predă, când mesaj către agent existent vs task nou, dedup și independența validatorului. | Goal/intentie/non-goals/context critic/refs/metodă/limite/încheiere/predare; fără inheritance automat al întregului istoric. Forma și regulile exacte sunt PROPUS, nu complete. |
-| M05 — skills, modele și reuse | Subsetul de conținut/cod importat, maparea toolurilor, proveniență/licențe, bibliotecă/pin, compatibilitate, default/override, pachete fixate și context mandatory. | Păstrăm direcția API-key-only. `openai-agents` este candidat, nu pin admis; nu adoptăm întregul manifest Strix. Nu importăm toate skills înaintea primului consumer. |
+| M05 — skills, modele și reuse | Subsetul de conținut/cod importat pentru întregul prim flux recon→mapping→threat model→investigație→validare, maparea toolurilor/formatele, proveniență/licențe, bibliotecă/pin, compatibilitate, default/override, pachete fixate și context mandatory. | Reutilizarea cerută și formatele verificate sunt în §4.1. Păstrăm direcția API-key-only. `openai-agents` este candidat, nu pin admis; nu adoptăm întregul manifest Strix. Nu importăm toate skills înaintea primului consumer. |
 | M06 — execuție și validare | Primul transport real, policy/Stop la sink, capture/evidence/DATA, auth necesară cazului, investigator/triage/validator, ce produce CONFIRMED și ce produce INCONCLUSIVE. | Aducem explicit doar subsetul necesar T3/T4 în traseul T2 extins. HTTP trusted poate preceda browser/shell/scannere; nu le presupunem necesare și nu ocolim confinarea. |
 | M07 — experiența operatorului | Ce apare în stream/hartă/inspector/finding, legătura părinte vs cauză, prompt redactat, reload/reconectare, clarificări/intervenții și controale active. | Reutilizăm baseline-ul UI; o singură sursă coerentă, nu hărți/contoare contradictorii. Nu se aprobă estetică nouă sau ecrane demo din registru. |
 | M08 — lifecycle și resurse | Stop/Pause/HOLD/Resume, restart/checkpoint, pierdere de owner/răspuns, rezultate tardive/duplicate, stagnare, priorități și plafon de workeri. | Nucleele de siguranță preced efectele. MONITOR fără plafon total artificial LLM și Resume manual rămân canon; limitele tehnice/target rămân. Canonul are prima probă cu un copil, apoi maximum doi: o altă alegere cere decizie, nu copierea fan-out-ului Strix. |
@@ -112,6 +112,27 @@ Rularea de referință este păstrată local la `/home/kali/strix_runs/host-dock
 
 **BLOCKED:** analiza detaliată și reconcilierea probelor celor 27 findinguri/60 intrări coverage au fost oprite de provider cu `content_policy_blocked` și cerințe de securitate ale contului. Nu au fost încheiate și nu sunt preluate prin reformulare/alt model. Scriptul și matricea parțiale nu sunt rezultate acceptate. Această limită nu împiedică discuția generică a hărții, dar nu permite folosirea întregii liste Strix ca ground truth validat.
 
+### 4.1. Reutilizarea întregului prim circuit, nu doar a skillului IDOR
+
+**Direcție confirmată de operator:** reutilizăm substanțial din Strix conținutul și componentele utile recon/mapping/threat model, promptingului, specializărilor și legăturilor dintre agenți. Le adaptăm la Omnis, observăm primul flux complet pe aplicație și comparăm rezultatele/traseele pentru a localiza lipsa reală: recon, mapping, context, delegare, investigație, tools sau validare. Nu compensăm o hartă incompletă numai prin schimbarea promptului ultimului agent. Nu este wrapper, copiere a întregului produs ori mandat de implementare/execuție în sesiunea de discuție.
+
+**Formate verificate în sursa fixată, STATIC_NOT_TESTED:** skillurile sunt fișiere Markdown cu frontmatter YAML, parsate separat de corp; numai cele cu `template: jinja` sunt randate ca template.[35] Compoziția promptului este Python/Jinja, cu componente comune, specializări și contextul runului; nu este un singur JSON/YAML copiat pentru toate rolurile.[10][36] Toolurile de delegare/finalizare și threat model sunt funcții Python tipizate expuse prin SDK, cu rezultate JSON; modelul partajat conține metodologie/text Markdown și amendamente, nu un pachet de skill executabil.[11][23]
+
+| Piesă reutilizată pentru primul circuit | Ce păstrăm/adaptăm în Omnis |
+|---|---|
+| Root coordination și compoziția prompturilor | Brain coordonator, obiectiv/intenție, metodologie comună și selecția contextului relevant, nu toate skills în fiecare worker.[10][17] |
+| Recon și mapping | Discovery-ul aplicației în scope, suprafețe/operații/parametri/auth/roluri și proveniența lor. `asset_discovery.md` este pentru descoperire largă și cere explicit scope adecvat; nu îl facem prerequisite pentru un singur URL de aplicație.[36][37] |
+| Threat model comun | Actori, trust boundaries, suprafețe, reguli/assumptions și corecții atribuite, legate de Engagement Map; adaptare la starea/reviziile Omnis, nu o a doua persistență JSON autoritativă.[17][23] |
+| Investigație și verificare | Skill IDOR/BOLA restrâns inițial, conținut metodologic și controale relevante, apoi validator independent. Nu importăm automat tooluri/efecte doar fiindcă sunt pomenite în text.[30] |
+| Delegare, mesaje și predare | Reutilizăm ideile și codul compatibil pentru task/skills, sumar, observații, open items și recomandări. Adaptăm la brief/result refs și lifecycle Omnis; nu inheritance implicit al întregului istoric și nu prose `findings` tratată ca înregistrare confirmată.[11] |
+| Observabilitate | Același fir de intrări/ieșiri adresabile pentru Brain stream și inspector: prompt/context redactat, skill/model/revizie, acțiuni, rezultate și predare. Diagnosticul se face la etapa care a produs gapul, nu din verdictul final singur. |
+
+**Maparea formatelor, fără framework nou:** contractul Omnis existent în arhitectură §9.4 definește `SKILL.md`, `omnis.yaml`, referințe și scheme JSON. Păstrăm conținutul upstream util și îl legăm de aceste contracte, tooluri și scheme de input/output; nu inventăm un al doilea loader ori o variantă paralelă de manifest. Fișierele de stare ale runului Strix sunt referință de semantică/proveniență, nu înlocuitor pentru persistența Omnis. Proveniența, pinul, licența și modificările se păstrează pentru fiecare import; sursa fixată are Apache-2.0.[38]
+
+**Adaptări necesare, nu numai redenumiri:** promptul general și compoziția Strix includ presupuneri despre autorizație deja acordată și capabilități shell/browser, iar reconul larg presupune tooluri și expansiune de assets.[10][36][37] Le înlocuim cu autoritatea/ROE, capabilitățile efectiv admise și sandboxul Omnis. Nu încărcăm toată infrastructura/scannerele pentru prima probă și nu tratăm instrucțiunea dintr-un skill ca enforcement. Nu copiem fallbackul la prompt gol sau omiterea silențioasă a unui skill necesar din compoziția/loaderul upstream.[10][35]
+
+**Extindere ulterioară:** aceeași infrastructură trebuie reutilizată pentru familii care au capabilități compatibile. O clasă nouă poate cere doar metodologie/configurație și reguli de validare noi, dar un protocol, un efect, o identitate ori un oracle nesuportat poate cere adaptor/cod și verificări suplimentare. Mai multe fișiere nu înseamnă automat mai multă acoperire executată. Primul subset trebuie să fie complet pe traseu; inventarul celor 75 skills rămâne sursă/candidat, nu catalog executabil admis integral.
+
 ## 5. Engagement Map — cercetare și propunere, încă de decis
 
 ### 5.1. Comportamentul cerut și forma minimă propusă
@@ -174,7 +195,7 @@ Această recomandare combină mecanisme concrete din cele trei surse; importuril
 
 ## 7. Recuperare și următorul pas
 
-**AICI: M01 — rezultatul T2.** Familia, principiile metodologiei și proveniența regulilor de acces sunt acceptate. Ultima propunere a operatorului din §3.1 este o primă variantă limitată, cu prompting complet, observarea comportamentului modelului selectat și comparație Strix pentru calibrare, nu impunerea unui răspuns/finding. Urmează consolidarea protocolului adaptiv, cazul/precondițiile, efectele admise și verificarea semantică a concluziilor; M01 nu este încă închis, iar exitul D03 nu a fost retras. Refuzul providerului afectează încercarea de analiză a probelor indicată în §3.1, nu admiterea discuției de proiectare. Comparația statică Engagement Map din §5.2–5.3 este consemnată, iar recomandarea din §5.4 rămâne neaprobată. Celelalte puncte rămân agenda din §3. Nu revenim la un tur general de audit Strix și nu relansăm acceptări T1 neschimbate.
+**AICI: M01 — rezultatul T2, cu legăturile de reuse M04/M05/M06.** Familia, principiile metodologiei și proveniența regulilor de acces sunt acceptate. Operatorul confirmă prima variantă limitată și observarea adaptivă din §3.1, cu reutilizarea întregului circuit recon→mapping→threat model→delegare→investigație→validare, nu doar a skillului IDOR; delimitarea și formatele verificate sunt în §4.1. Urmează consolidarea subsetului/protocolului, cazul/precondițiile, efectele admise și verificarea semantică a concluziilor; M01 nu este încă închis, iar exitul D03 nu a fost retras. Refuzul providerului afectează încercarea de analiză a probelor indicată în §3.1, nu admiterea discuției de proiectare. Comparația statică Engagement Map din §5.2–5.3 este consemnată, iar recomandarea din §5.4 rămâne neaprobată. Celelalte puncte rămân agenda din §3. Nu revenim la un tur general de audit Strix și nu relansăm acceptări T1 neschimbate.
 
 După fiecare decizie, actualizăm rândul și detaliile sale în acest fișier; o întrebare rămasă nu devine „decisă” printr-un rezumat. Când toate punctele necesare sunt suficient de clare, consolidăm mini-planul cu subfelii, reutilizare, dependențe, consumer/exit real, verificări și limite, apoi cerem separat aplicarea amendamentului și mandatul de implementare.
 
@@ -182,6 +203,9 @@ După fiecare decizie, actualizăm rândul și detaliile sale în acest fișier;
 
 ## Sources
 
+[10] https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/strix/agents/prompt.py
+[11] https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/strix/tools/agents_graph/tools.py
+[17] https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/strix/skills/coordination/root_agent.md
 [22] https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/strix/tools/notes/tools.py
 [23] https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/strix/tools/threat_model/tools.py
 [24] https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/strix/tools/coverage/tools.py
@@ -195,3 +219,7 @@ După fiecare decizie, actualizăm rândul și detaliile sale în acest fișier;
 [32] https://api-security.owasp.org/editions/2023/en/0xa1-broken-object-level-authorization
 [33] https://api-security.owasp.org/editions/2023/en/0xa3-broken-object-property-level-authorization
 [34] https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References
+[35] https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/strix/skills/__init__.py
+[36] https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/strix/agents/prompts/system_prompt.jinja
+[37] https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/strix/skills/reconnaissance/asset_discovery.md
+[38] https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/LICENSE

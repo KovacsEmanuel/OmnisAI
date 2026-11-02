@@ -236,6 +236,30 @@ Locatoare utile: PentAGI `backend/pkg/tools/executor.go:597–644`, `memory.go:7
 
 Această recomandare combină mecanisme concrete din cele trei surse. Acordul §5.1 nu aprobă automat toate punctele: importurile efective, schema, API-urile, mecanismele de scriere/citire și restul alegerilor rămân M03/M04/M06/M07. Codul public inspectat nu certifică eficacitatea, izolarea ori compatibilitatea integrării Omnis.
 
+### 5.5. Îmbunătățiri și format/livrare — comparație documentară și variantă recomandată
+
+**DOCS_REVIEWED / PROPUS / NOT_IMPLEMENTED.** Operatorul consideră potrivită organizarea în suprafețe, context de acces, investigații și progres, dar cere îmbunătățiri și compararea formatului/livrării înaintea alegerii finale. Nu tratăm această apreciere ca aprobare a schemei sau a tuturor detaliilor. Reutilizăm analiza de cod Strix/PentAGI/NeuroSploit din §5.2–§5.3; completarea de aici este documentație oficială de produs/standard, nu audit de cod sau rulare a unor proiecte noi.
+
+| Referință complementară | Ce este documentat | Adaptare propusă / limită |
+|---|---|---|
+| Dradis **Pro**, documentație oficială | API JSON cu entități distincte pentru Nodes, Issues, Evidence și Methodologies; Node properties consolidează informația adusă de mai multe pluginuri în locul unor notes fragmentate.[54][55] | Un punct comun cu proprietăți/legături și probe adresabile; prezentare lizibilă derivată. Nu atribuim API-ul Pro ediției OSS și nu importăm cod comercial. |
+| DefectDojo, documentație oficială | Deduplicare, aceeași pagină/context pentru original și istoric de import/reimport.[52][53] | Identitate stabilă pentru același punct și istoric al contribuțiilor, fără pierderea probelor distincte. **Nu copiem** închiderea pe absență din raport sau eliminarea potrivirilor: lipsa într-o investigație adaptivă nu demonstrează FIXED ori tested_no_issue. |
+| Agent Skills, specificație publică | Progressive disclosure: metadata → instrucțiuni → resurse la nevoie.[56] | Adaptăm principiul la indexul hărții → punctul relevant → probe la cerere. Nu este un standard de Engagement Map și nu adăugăm alt loader/runtime sau permisiuni din metadata. |
+
+CAI a fost verificat ca posibilă referință suplimentară, dar pagina primară îl declară arhivat/read-only; nu este selectat ca nou backbone sau sursă necesară acestui punct.[57] Nu urmărim încă un catalog de platforme: exemplele de mai sus completează exact identitatea/istoricul și livrarea contextului, iar backbone-ul rămâne cel discutat în §3.3/§4.1.
+
+**Varianta recomandată pentru Omnis, încă de ales:**
+
+1. **Un document logic, nu un singur text rescris.** Date canonice structurate în PostgreSQL existent, accesate prin DTO-uri JSON versionate; textul explicativ poate fi Markdown. UI-ul/documentul lizibil și sumarul pentru agent sunt proiecții ale aceleiași revizii, nu copii autoritative. YAML rămâne pentru configurația/pachetele declarative, nu formatul de editare concurentă a stării live. Nici JSON, nici Markdown nu acordă singure autoritate.
+2. **Puncte legate, nu doar un arbore de titluri.** Operație ↔ parametru/obiect ↔ identitate/rol ↔ observație/ipoteză ↔ încercare/probă ↔ task/finding. Deduplicăm punctul/operația numai după identitate verificată; nu amestecăm rezultate ale altor identități, tenants, obiecte sau revizii. Fiecare observație își păstrează proveniența, inclusiv cea negativă sau contradictorie.
+3. **Context și valabilitate explicite.** Păstrăm ce știm versus ce presupunem, când și în ce condiții s-a observat, auth/rol/tenant și versiunea țintei când este disponibilă. O schimbare relevantă marchează necesitatea reverificării, nu șterge istoricul și nu relansează automat efecte. Relația cu scope-ul se citește din autoritatea fixată: descoperit nu înseamnă autorizat.
+4. **Livrare progresivă, aceeași bază.** Brain primește index/sumar și stări relevante; workerul primește goal/intention, contextul critic și refs către puncte, apoi poate cere detaliul și probele necesare. Scope/auth/limitele obligatorii nu sunt omise din brief în numele economiei. Schimbările pot folosi cursorul/evenimentele Omnis; dacă delta nu este disponibilă, recitim punctul calificat, nu inventăm context și nu construim un transport nou doar pentru hartă.
+5. **Lucru rămas și responsabilitate vizibile.** Gapuri, blocaje, întrebări operator, indicii și următorul pas propus; alocarea/ownerul vin din taskurile existente, nu dintr-un al doilea scheduler sau din declarația liberă a agentului. Starea de lucru este distinctă de verdict și de coverage. Nu afișăm un procent de testare a întregii aplicații din universul doar descoperit.
+
+**Pentru primul T2:** prioritate pentru puncte stabile, contribuții cu istoric/probe/context, index + detaliu la cerere și legarea la taskurile/streamul reale. Deltas avansate, căutare semantică, embeddings, graph DB, canvas de attack graph și memorie comună între engagementuri sunt DEFER până când un consumer sau un gap măsurat le justifică; nu sunt prerequisite ascunse. Formatul propus trebuie probat în calibrare prin contextul efectiv primit și acțiunile modelului, fără a impune o traiectorie ori o formulare fixă.
+
+**Decizia cerută:** păstrăm baza deja agreată și alegem modelul structurat cu vedere de document + consultare progresivă, păstrând probele/valabilitatea/lucrul rămas explicit. Recomandarea nu pretinde „cea mai bună variantă universală” și nu aprobă schema/API sau modificarea canonului. Documentația publică nu demonstrează CAS, confinare ori integrare Omnis; importurile de cod rămân de admis separat.
+
 ## 6. Reguli rămase din canon și implicațiile schimbării T2
 
 - Direcția runtime rămâne API-key-only OpenRouter/OrcaRouter, cu Hermes/Codex numai tooling de dezvoltare. Nu se redeschide alegerea runtime-ului prin cercetarea hărții.
@@ -247,7 +271,7 @@ Această recomandare combină mecanisme concrete din cele trei surse. Acordul §
 
 ## 7. Recuperare și următorul pas
 
-**AICI: M03 — conținutul documentului comun.** Operatorul a confirmat documentul logic comun per engagement și regula colaborării din §5.1: contribuții/corecții atribuite cu istoric și stări bazate pe probe/validare. Urmează conținutul și legăturile punctelor: suprafețe/operații, actori/context, observații/investigații/probe și lucru/coverage/gapuri; această grupare este de discutat, nu schemă aprobată. Persistența, concurența, retrieval-ul, freshness și UI rămân de detaliat; §5.4 este doar parțial acceptat. M01/M02 nu sunt închise automat: cazul/precondițiile/efectele/controalele/exitul se consolidează cu M06/M09, iar SDK/pinul, modelul de execuție, integrarea și delta MONITOR se detaliază cu M05/M08. §3.2/§3.3 rămân cercetare și mapă de integrare, nu runtime PASS. Nu relansăm audituri generale sau dovezi T1 neschimbate. Nu este mandat de amendament canonic, implementare, apeluri provider/țintă ori push.
+**AICI: M03 — alegerea formatului și livrării după îmbunătățiri.** Colaborarea per engagement din §5.1 este decisă. Operatorul consideră bună baza de conținut, dar cere alegerea celei mai potrivite variante după comparație; completarea documentară și recomandarea sunt în §5.5. Propunem date structurate cu vedere de document, puncte legate/proveniență/context/valabilitate și index→detaliu→probe la cerere, pe fundația Omnis, fără infrastructură nouă implicită. Alegerea finală și schema/API rămân deschise; nu repetăm un audit general. M01/M02 nu sunt închise automat: cazul/precondițiile/efectele/controalele/exitul se consolidează cu M06/M09, iar SDK/pinul, modelul de execuție, integrarea și delta MONITOR se detaliază cu M05/M08. Nu relansăm dovezi T1 neschimbate. Nu este mandat de amendament canonic, implementare, apeluri provider/țintă ori push.
 
 După fiecare decizie, actualizăm rândul și detaliile sale în acest fișier; o întrebare rămasă nu devine „decisă” printr-un rezumat. Când toate punctele necesare sunt suficient de clare, consolidăm mini-planul cu subfelii, reutilizare, dependențe, consumer/exit real, verificări și limite, apoi cerem separat aplicarea amendamentului și mandatul de implementare.
 
@@ -285,3 +309,9 @@ După fiecare decizie, actualizăm rândul și detaliile sale în acest fișier;
 [49] https://github.com/CyberSecurityUP/NeuroSploit/blob/92e8959f4ea17bddaa0436505edcddf98f7d6b16/neurosploit-rs/crates/harness/src/scope.rs
 [50] https://github.com/CyberSecurityUP/NeuroSploit/blob/92e8959f4ea17bddaa0436505edcddf98f7d6b16/neurosploit-rs/crates/harness/src/probe.rs
 [51] https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/pyproject.toml
+[52] https://docs.defectdojo.com/import_data/import_intro/reimport
+[53] https://docs.defectdojo.com/triage_findings/finding_deduplication/about_deduplication
+[54] https://dradis.com/support/guides/rest_api
+[55] https://dradis.com/support/guides/projects/node_properties.html
+[56] https://agentskills.io/specification
+[57] https://github.com/aliasrobotics/CAI

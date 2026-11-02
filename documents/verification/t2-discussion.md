@@ -119,6 +119,12 @@ Strix descrie explicit o matrice Subject × Object × Action, acces orizontal/ve
 
 **Constatare importantă:** cele trei categorii nu trebuie importate din Rust/Go: `ScopeAccess` și `ScopeEntry` există în `api/src/omnis/modules/engagements/schemas.py:53`, iar selectul lor este deja în `web/src/features/engagement/Wizard.tsx:260`. Acestea validează/salvează date declarative; nu demonstrează enforcement la trafic.
 
+**Direcție confirmată — backbone prin reuse înainte de cod nou:** operatorul cere aceeași prioritate și pentru lipsurile de infrastructură, nu numai pentru skills/prompturi. Pentru fiecare seam verificăm întâi implementarea Strix și biblioteca folosită: folosim biblioteca compatibilă sau copiem/portăm unitatea utilă, păstrăm componentele Omnis deja funcționale și scriem numai adaptarea/invariantul care nu poate fi preluat corect. **NEW în tabel înseamnă destinație/legătură nouă în Omnis, nu obligația de a rescrie implementarea de la zero.** În mini-plan, fiecare unitate va avea sursa/pinul, modul de reuse, modificările, primul consumer și verificarea relevantă; o reimplementare cere motiv concret. Nu copiem runtime-ul Strix ca aplicație și nu înlocuim autoritatea/persistența Omnis.
+
+Inventarul existent a fost recitit selectiv și agregat prin cod: 32 unități distincte, încă propuneri, nu importuri admise. Pentru backbone folosim în special R06 (biblioteca Agent/Runner și `factory.py`/`core/runner.py`/`core/execution.py`), R08–R13 (tools, spawn, completion, mailbox/wait, context și checkpoint/session), R19/R20/R23 (output bounded, usage și evenimente). Clasificarea/ordinea veche din acel inventar este proveniență; subsetul necesar primului flux real se reconciliază în mini-plan, nu se transferă automat ca alt plan.
+
+**Compatibilitate de verificat, nu motiv de rescriere:** manifestul Strix inspectat cere `openai-agents[litellm]>=0.19.0,<0.20` și `openai>=2.45.0,<3`.[51] Omnis declară acum `openai==2.24.0` (`api/pyproject.toml:20`). Aceasta arată diferența dintre manifestele produselor, nu dovedește singură că SDK-ul nu se poate integra. Evaluăm pinul/subsetul necesar fără a importa automat extras, clienți cloud sau întregul manifest și fără upgrade implicit al fundației T1; rezolvarea/compatibilitatea efectivă rămân NOT_RUN.
+
 | Legătură | Păstrăm din Omnis / stare observată | Integrarea propusă și primul consumator |
 |---|---|---|
 | Formular → draft | `Wizard.tsx:17` are cinci pași; `WizardSections.tsx:59` reguli de efect/date/bugete, `ReviewStep:98` citește ultima revizie salvată. | **KEEP/EXTEND:** același wizard și baseline vizual; completăm numai câmpurile și stările necesare execuției, fără încă un formular sau un wizard copiat. Contextul alimentează promptul; scope/ROE alimentează admiterea deterministă. |
@@ -276,3 +282,4 @@ După fiecare decizie, actualizăm rândul și detaliile sale în acest fișier;
 [48] https://github.com/CyberSecurityUP/NeuroSploit/blob/92e8959f4ea17bddaa0436505edcddf98f7d6b16/web/server.js
 [49] https://github.com/CyberSecurityUP/NeuroSploit/blob/92e8959f4ea17bddaa0436505edcddf98f7d6b16/neurosploit-rs/crates/harness/src/scope.rs
 [50] https://github.com/CyberSecurityUP/NeuroSploit/blob/92e8959f4ea17bddaa0436505edcddf98f7d6b16/neurosploit-rs/crates/harness/src/probe.rs
+[51] https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/pyproject.toml

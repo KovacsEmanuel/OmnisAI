@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "verdict": "FAIL_NOT_S0_ACCEPTANCE",
+  "product_commit": "9ec3587245fa9e36369acc8f186b33d33860b494",
+  "process": "proc_3d83089b95d9",
+  "command": "env -i PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin:/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin HOME=/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/home TMPDIR=/home/kali/.hermes/cache/scratch/s0g-wnyxj_1x api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target check-components --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 4800",
+  "cwd": "/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/checkout",
+  "exit_code": 2,
+  "family_drained": true,
+  "failed_stage": "test-api",
+  "api_summary": {
+    "failed": 25,
+    "passed": 3193,
+    "skipped": 70,
+    "deselected": 7,
+    "duration_seconds": 3312.54
+  },
+  "cause": {
+    "classification": "CURRENT_API_SOURCE_TEST_PIN_DRIFT",
+    "file": "api/tests/test_model_test_prepare_source.py",
+    "assertions": [1606, 2367],
+    "expected_by_tests": "openai==2.24.0",
+    "candidate_api_pin": "openai==2.45.0",
+    "failing_families": {
+      "test_model_execute_cold_sdk_metadata_is_denied_and_qualified": 4,
+      "test_execution_owner_commits_reserve_and_sent_then_replays_without_send": 21
+    },
+    "evidence": "Actual frozen-source traceback and exact failed-case summary stop at the two version assertions. This is not a demonstrated defect in production sender behavior, and historical native execution is not requalified by changing current API SOURCE tests.",
+    "next_decision": "Assigned technical developer reproduces the exact version denial, minimally aligns only current-API SOURCE pin assertions without changing controls or historical artifacts, runs affected cases and freezes for focused independent review before a fresh full gate.",
+    "canonical_harness_only_repair_counter": 1
+  },
+  "readback": {
+    "tracked_files_checked": 2327,
+    "tracked_drift": [],
+    "operator_public_assets_checked": 7,
+    "operator_public_asset_drift": [],
+    "container_id": "6875b4ba84e26597c320e31d4b8c7f4c1abe3f2267ac26e28be6dbe9989ede39",
+    "project": "omnis-p01-f82d33f621944b128cafab86d8173107",
+    "container_absent": true,
+    "project_networks_absent": true,
+    "socket_absent": true,
+    "fixture_data_retained": true,
+    "fixture_root": "/home/kali/.hermes/cache/scratch/s0g-wnyxj_1x/db-6406a13256e14290",
+    "retention_limit": "Synthetic PGDATA remains in scratch, not a certified backup or indefinite retention guarantee. No operator data or credentials were accessed."
+  },
+  "originals": {
+    "archive": "canonical-first-fail-originals.tar.gz",
+    "sha256": "49f8c89b733e0bc69a0c29c868478b00d05ec7055b404e05ad101112fb8f3072",
+    "files": ["gate.log", "gate.log.result.json"],
+    "log_sha256": "a8645e6c79d73ff2eca7ccefc589d327caf3309218f71aff317ce717187e0164",
+    "verification": "Both archive members read back byte-identical to originals; private DB password/config/data omitted."
+  },
+  "limits": [
+    "The failed full gate remains FAIL; focused passes or source reviews do not convert it to PASS.",
+    "Downstream migrations/wheel/web/E2E/CLI/release stages were not reached by this invocation.",
+    "No S1, provider/target inference, operator installation, push or runtime source change is authorized by this record."
+  ]
+}

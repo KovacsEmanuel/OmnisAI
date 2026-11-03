@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "reviewer": "independent-focused-source-pin-review",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "findings": [],
+  "minimal_remedy": null,
+  "snapshot": {
+    "base_commit": "fa28be79fb4be40f07486814169b1c98922bd657",
+    "reviewed_commit": "79151f1aed8bc91133ca64860ed6309cb4b402c8",
+    "file": "api/tests/test_model_test_prepare_source.py",
+    "lines": [1607, 2369],
+    "sha256": "5c68aa1d69c942783902185fba1dcd8464099648f17408c3f3b3068b9b71259c",
+    "base_sha256": "9ea15ac670cb89d1baa727da938c915c60b263d09aad367a592c32009531f309",
+    "delta": "One file, four added lines and two removed lines: two exact version assertions changed from 2.24.0 to 2.45.0 and two SOURCE-versus-historical-native comments.",
+    "working_file_equals_frozen_blob": true,
+    "head_unchanged_at_final_readback": true,
+    "tracked_and_staged_diffs_empty": true
+  },
+  "scope": {
+    "requirement": "Remedy CURRENT_API_SOURCE_TEST_PIN_DRIFT without weakening controls or changing runtime, historical pins or fixtures; S0 only.",
+    "consumer": "Current API pytest interpreter and its cold sys.executable subprocess, plus SOURCE owner/ledger and extracted native-function tests with HTTP/storage doubles.",
+    "risk_and_decision": "Reject if the new expectation contradicts the current API manifest, changes a real historical-native qualification requirement, removes cases, relaxes assertions or bypasses guards. No such defect was found in this exact delta.",
+    "mode": "Read-only repository and retained-evidence review. The sole created file is this requested scratch report. No test, SDK, runtime, service, DB, provider or target execution; no environment synchronization or commit.",
+    "governance": "Read AGENTS.md, CONTRIBUTING.md, team-slice, README CURRENT, affected S0/status rows, omnis-review-qa and omnis-project-status. Parent owns adjudication and canonical QA."
+  },
+  "criterion_review": [
+    {
+      "criterion": "Both pin assertions belong to the current API SOURCE environment",
+      "status": "SUPPORTED",
+      "references": [
+        "api/pyproject.toml:20",
+        "api/tests/test_model_test_prepare_source.py:1590-1682",
+        "api/tests/test_model_test_prepare_source.py:2341-2388",
+        "api/tests/test_model_test_prepare_source.py:2686-2702",
+        "integrations/hermes/tests/test_model_terminal.py:14-29"
+      ],
+      "assessment": "The cold test imports real openai in a new subprocess using sys.executable, -I and -B; it does not select a legacy installed interpreter. The owner test imports openai in the API test process, replaces HTTPTransport with MockTransport, and loads only the selected run_model_test_request AST function from source. The exact 2.45.0 expectation matches the already reviewed current API manifest; requiring legacy 2.24.0 here would test the wrong environment. These are not installed-native requalification tests."
+    },
+    {
+      "criterion": "Preserve SOURCE controls and evidence boundaries",
+      "status": "SUPPORTED",
+      "references": [
+        "api/tests/test_model_test_prepare_source.py:780-845",
+        "api/tests/test_owned_model_initialization.py:33-138",
+        "api/tests/test_model_test_prepare_source.py:1608-1682",
+        "api/tests/test_model_test_prepare_source.py:2418-2475",
+        "api/tests/test_model_test_prepare_source.py:2714-2800",
+        "api/tests/test_model_test_prepare_source.py:2850-2936"
+      ],
+      "assessment": "SourceOwner uses mock connections, in-memory records and a simulated transaction fence. The cold test retains a genuinely cold platform cache, exact audit-row qualification, foreign/argv/hold refusals and invalid-observation negatives. The owner cases retain intent-before-send, SENT ordering, immutable fixture hash, request mutations, deadline/Stop checks, output parsing, replay/foreign-owner denial, one-send accounting and frame-size assertions. Both version comparisons remain exact equality. No new skip, xfail, timeout, mock, fixture, guard or runtime change exists. Existing socket-detach skip logic is unchanged, and the recorded GREEN run skipped nothing."
+    },
+    {
+      "criterion": "Exact minimal delta with all tests retained",
+      "status": "SUPPORTED_BY_INDEPENDENT_STATIC_CHECKS",
+      "assessment": "Programmatic Git-blob comparison confirmed that applying exactly the two specified pin/comment replacements reproduces the candidate byte-for-byte. Reversing only those replacements gives an identical whole-file AST. Both files contain 197 outer AST Assert nodes; decorators are identical. Original collect-before/after logs contain the same 135 unique IDs. Original GREEN JUnit contains those same 135 cases, including all 25 affected cases and 110 siblings. Historical integrations/hermes and api/tests/fixtures have no base-to-candidate diff."
+    }
+  ],
+  "evidence": {
+    "root": "/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/pin-source-fix",
+    "attribution": "Execution results below are retained developer evidence read by this reviewer, not new reviewer executions. Independent reviewer execution was limited to Git, stdlib AST/hash checks and parsing existing JSON/log/JUnit files; all completed with exit0.",
+    "red": {
+      "files": ["red.json", "red.log", "preflight.json", "preflight.log"],
+      "exit": 1,
+      "failed": 2,
+      "duration_seconds": 3.61,
+      "cases": ["sdk", "complete"],
+      "assessment": "Original version-denial reproduction uses candidate project/.venv OpenAI 2.45.0. The owner traceback explicitly reports 2.45.0 != 2.24.0; cold subprocess command retains the old exact assertion."
+    },
+    "green": {
+      "files": ["green-private.json", "green-private.log", "green-private.xml", "green-counts.json"],
+      "exit": 0,
+      "passed": 135,
+      "affected_passed": 25,
+      "sibling_passed": 110,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_duration_seconds": 41.95,
+      "source_sha256_matches_review": true,
+      "command_boundary": "Whole module via project/.venv/bin/python -I -B -m pytest, explicit pytest_asyncio.plugin, no cacheprovider, api/pyproject.toml; bwrap --unshare-net, clean env and read-only source/dependencies. Full original argv remains in green-private.json."
+    },
+    "quality": {
+      "ruff_check_no_cache_exit": 0,
+      "ruff_format_check_no_cache_exit": 0,
+      "mypy_exit": 0,
+      "assessment": "Read original matching JSON/log files; Ruff reports all checks passed and one file already formatted, mypy has no diagnostics. Existing strict configuration is unchanged."
+    },
+    "retained_prerequisite_failures": {
+      "initial_green_exit": 1,
+      "initial_green_passed": 115,
+      "initial_green_failed": 20,
+      "all_25_affected_already_passed": true,
+      "assessment": "Original green.xml reports replaceable-ancestor failures for the 20 siblings. Developer result records owned scratch 0775 -> 0700 only; private-path-preflight.json/log confirm the actual API and adapter guards pass with /s and /s/t mode0700. Guards and repository code are unchanged. The initial Ruff cache-write failure is retained; --no-cache corrected the invocation without changing rules."
+    }
+  },
+  "reused_unaffected_approvals": {
+    "commit": "9ec3587245fa9e36369acc8f186b33d33860b494",
+    "reports": [
+      "documents/verification/t2-s0-evidence/sdk-review-r1.json",
+      "documents/verification/t2-s0-evidence/sdk-review-r2.json"
+    ],
+    "identity_check": "All four file hashes in both reports match frozen79151f1 and are byte-identical to9ec3587: api/pyproject.toml, api/uv.lock, api/tests/test_agent_sdk_admission.py and api/tests/fixtures/agent_sdk_admission.json.",
+    "disposition": "Reuse original SDK/dependency approvals only within their unchanged scope; no broad re-audit or new SDK/runtime approval."
+  },
+  "status_and_limits": {
+    "delta_review": "APPROVED_SOURCE_SCOPED; no concrete findings or remedy required",
+    "canonical": "Previous canonical-first-fail.json remains FAIL_NOT_S0_ACCEPTANCE: exit2, family_drained=true, 25 failed / 3193 passed. Focused GREEN and this review do not convert it to PASS.",
+    "canonical_harness_only_repair_counter": 1,
+    "next_owner_decision": "Parent adjudicates this focused approval and proceeds with separately admitted canonical QA on the final snapshot. No S0 closure or S1 admission by this reviewer.",
+    "not_checked": "No fresh pytest/canonical run, installed-native qualification, DB, provider/target, runtime acceptance, environment synchronization or operator installation. Main API environment remains deliberately unsynced per the task contract.",
+    "protected_paths": "Pre-existing tempkey.txt and original untracked HTML were not opened or modified.",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  }
+}

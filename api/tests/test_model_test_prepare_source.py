@@ -1603,7 +1603,8 @@ def test_model_execute_cold_sdk_metadata_is_denied_and_qualified(tmp_path: Path,
     script = """
 import json, os, sys, platform, subprocess, openai
 from pathlib import Path
-assert openai.__version__ == "2.24.0"
+# SOURCE uses the current API SDK, not the historical native pin.
+assert openai.__version__ == "2.45.0"
 assert not platform._platform_cache
 libraries = Path(openai.__file__).parent.parent
 home = Path(sys.argv[1])
@@ -2364,7 +2365,8 @@ async def test_execution_owner_commits_reserve_and_sent_then_replays_without_sen
         finally:
             probe.close()
             peer_probe.close()
-    assert import_module("openai").__version__ == "2.24.0"  # existing native SDK, no network
+    # SOURCE uses the current API SDK, not the historical native pin.
+    assert import_module("openai").__version__ == "2.45.0"
     from hashlib import sha256
     from typing import Callable
 

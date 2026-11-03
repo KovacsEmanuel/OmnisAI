@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "verdict": "FAIL_S0_INTEGRATION_BLOCKED",
+  "commit": "22eaecdd73d6a42d9a1a79f2edada109ae1f4804",
+  "process": "proc_0ce7bd7e4332",
+  "command": "env -i PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin:/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin HOME=/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/home TMPDIR=/home/kali/.hermes/cache/scratch/s0g-wnyxj_1x api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target check-components --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 4800",
+  "cwd": "/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/checkout",
+  "exit_code": 2,
+  "family_drained": true,
+  "failed_stage": "test-web",
+  "completed_stage_evidence": {
+    "documentation_tests": 87,
+    "development_tests": 75,
+    "api_dependency_audit": {"packages": 67, "known_vulnerabilities": 0, "adverse_statuses": 0},
+    "api_lint_format_typecheck": "PASS",
+    "api_tests": {"passed": 3218, "skipped": 70, "deselected": 7, "seconds": 3136.81},
+    "migrations": {"passed": 23, "seconds": 69.22},
+    "api_wheel_build_import_factory": "PASS",
+    "contract_generation_drift_and_types": "PASS",
+    "web_lint": "PASS"
+  },
+  "web_tests": {
+    "passed": 351,
+    "failed": 3,
+    "test_files_passed": 17,
+    "test_files_failed": 3,
+    "total_tests": 354,
+    "seconds": 42.88,
+    "failures": [
+      {"file": "web/src/app/ProjectionStates.test.tsx", "name": "a dashboard 401 expires auth and removes every private query", "observed": "TestingLibraryElementError: Unable to find role=link and name Synthetic read-only draft"},
+      {"file": "web/src/app/SettingsModels.test.tsx", "name": "activates Skills and Models navigation, wiping unsent secrets without resuming work", "observed": "TestingLibraryElementError: Unable to find role=region and name Configured models"},
+      {"file": "web/src/app/SettingsWizard.test.tsx", "name": "explicit Refresh creates one fresh catalog identity and retains chosen models without any test or assignment", "observed": "TestingLibraryElementError: Unable to find role=button and name Add models"}
+    ],
+    "cause": "UNKNOWN. These are actual failures on unchanged frontend source/dependencies, not a proven SDK regression or a diagnosed flaky-test cause. No frontend fix, test deadline change, deselection or fresh rerun was attempted."
+  },
+  "not_reached": ["web production build and web dependency audit later in check-web", "browser/API E2E", "CLI source/wheel/status/release stages"],
+  "readback": {
+    "tracked_files_checked": 2338,
+    "tracked_drift": [],
+    "operator_public_assets_checked": 7,
+    "operator_public_asset_drift": [],
+    "container_id": "3757d2644edcba7b6b2edddfdbb7bc0a065f312abf590f5aa05fb61839409d51",
+    "project": "omnis-p01-a1eb812da807482d842cfb9debd48594",
+    "container_absent": true,
+    "project_networks_absent": true,
+    "socket_absent": true,
+    "fixture_data_retained": true,
+    "fixture_root": "/home/kali/.hermes/cache/scratch/s0g-wnyxj_1x/db-279263d395934f46"
+  },
+  "originals": {
+    "archive": "canonical-final-fail-originals.tar.gz",
+    "sha256": "3a20e237148e3df58073fce2f95ae555e984549ea64ec90dfa325adf707a1784",
+    "log_sha256": "76d0f64bff724dc48122027c1db126b3a29509a8111094a9a88c8597ce1f6177",
+    "files": ["gate.log", "gate.log.result.json"],
+    "verification": "Both archived members read back byte-identical to original log/receipt; private credential/data/cache trees excluded."
+  },
+  "disposition": {
+    "s0": "PARTIAL / BLOCKED_FULL_GATE; reviewed contract and isolated SDK prerequisite remain accepted only within their proven scopes.",
+    "harness_only_repairs": 2,
+    "action": "Stop broad retries and further harness repairs. Preserve one recovery point, original failures and scoped passes. Any continuation must first diagnose the exact existing web consumers with a discriminating bounded reproducer, not reset the counter, silently widen timeouts or infer PASS from unchanged source.",
+    "next_phase": "S1_NOT_STARTED_NOT_ADMITTED",
+    "operator_environment": "NOT_SYNCED; existing API environment and installed application are not upgraded to these candidate dependencies.",
+    "external_effects": "No provider/target inference, personal credentials, operator database changes or push.",
+    "retention": "Synthetic PGDATA remains in scratch, not certified backup or indefinite retention. Original nonsecret evidence is versioned."
+  }
+}

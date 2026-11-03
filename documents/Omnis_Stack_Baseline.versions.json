@@ -1,16 +1,17 @@
 {
   "schema_version": 1,
   "api_key_runtime": {
-    "status": "T0_SPECIFIED_NOT_IMPLEMENTED",
+    "status": "T1_CLOSED_SCOPED_T2_S0_PARTIAL_BLOCKED_FULL_GATE",
     "providers": ["OpenRouter", "OrcaRouter"],
     "authentication": "API_KEYS_ONLY",
-    "agent_library": {"package": "openai-agents", "status": "CANDIDATE_NOT_ADMITTED", "selected_version": null},
+    "agent_library": {"package": "openai-agents", "status": "CANDIDATE_NOT_ADMITTED", "selected_version": null, "candidate_version": "0.19.0", "pinned_candidate_version": "0.19.0"},
     "client_package": "openai",
+    "client_candidate_version": "2.45.0",
     "llm_accounting": "MONITOR",
     "vault": "LOCAL_AEAD_AUTOUNLOCK_PRIVATE_MASTER_KEY",
     "legacy_policy": "READERS_AND_MIGRATIONS_RETAINED_NO_RUNTIME_REEXECUTION",
     "first_consumer": "T1_SETTINGS_SYSTEM_OPERATION_MODEL_TEST",
-    "pin_admission": "T1 client/crypto; T2 Agent/Runner; no install or latest selection in T0"
+    "pin_admission": "S0 candidate library0.19.0/client2.45.0 pinned in api/pyproject.toml and api/uv.lock; isolated SDK SOURCE proof and reviews approved scoped, integrated gate22eaecd FAIL. pinned_candidate_version is the manifest library version, not global admission; selected_version remains null. Main API/operator environment NOT_SYNCED; S1_NOT_STARTED_NOT_ADMITTED. Evidence: verification/t2-discussion.md section10."
   },
   "verified_at_utc": "2026-09-25T07:00:09.121772+00:00",
   "status": "PARTIAL_WITH_EXPLICIT_PROXY_SECURITY_BLOCKER",

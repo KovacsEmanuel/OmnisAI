@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "verdict": "FAIL_NOT_S0_ACCEPTANCE",
+  "product_and_test_commit": "79151f1aed8bc91133ca64860ed6309cb4b402c8",
+  "process": "proc_2bfd51fc4974",
+  "command": "env -i PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin:/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin HOME=/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/home TMPDIR=/home/kali/.hermes/cache/scratch/s0g-wnyxj_1x api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target check-components --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 4800",
+  "cwd": "/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/checkout",
+  "exit_code": 2,
+  "family_drained": true,
+  "failed_stage": "test-api",
+  "api_summary": {"failed": 1, "passed": 3217, "skipped": 70, "deselected": 7, "duration_seconds": 3121.92},
+  "failure": {
+    "node_id": "api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[entry_remove]",
+    "file_line": "api/tests/test_model_test_v2.py:1625",
+    "assertion": "with pytest.raises(AssertionError, match=table): unchanged_except_start(first_snapshot, challenged, identity)",
+    "observed": "Failed: DID NOT RAISE AssertionError",
+    "phase": "Foreign-row negative-control challenge after the real overlapping Start/Remove commands and census assertions returned successfully.",
+    "source_hypothesis": "The first historical model_record_v2 row can be a shared catalog reference legitimately reachable from the new operation. Adding bait without changing its identity would not make it foreign. The original failing table/row was not printed; exact attribution remains unobserved pending a deterministic SOURCE reproducer.",
+    "next_decision": "Narrow to the existing oracle/control, preserve positive owned/ref and all-table negative checks; assigned developer may minimally repair only a reproduced fixture defect. No blind full-gate retry or product safety relaxation.",
+    "previous_pin_drift": "Resolved by 79151f1; the previous 25 version-assertion failures did not recur.",
+    "canonical_harness_only_repairs_completed": 1,
+    "second_repair": "IN_DIAGNOSIS; count remains across sessions and any narrowing"
+  },
+  "readback": {
+    "tracked_files_checked": 2334,
+    "tracked_drift": [],
+    "operator_public_assets_checked": 7,
+    "operator_public_asset_drift": [],
+    "container_id": "229bec2348f9384da400e82e80db61b62fcdea13a97b85d2ed724f543b13f1d7",
+    "project": "omnis-p01-2ba5c8baa6dd41ce8d8f977355cf3a26",
+    "container_absent": true,
+    "project_networks_absent": true,
+    "socket_absent": true,
+    "fixture_data_retained": true,
+    "fixture_root": "/home/kali/.hermes/cache/scratch/s0g-wnyxj_1x/db-cdb2cc6939fc4ac1",
+    "retention_limit": "Synthetic PGDATA remains in scratch, not a certified backup or indefinite retention guarantee. Operator data/environment were not changed."
+  },
+  "originals": {
+    "archive": "canonical-second-fail-originals.tar.gz",
+    "sha256": "aac8f83d5bda383cfe9550555a2d141110012df25d542c9f6d4849262d10b10e",
+    "files": ["gate.log", "gate.log.result.json"],
+    "log_sha256": "e10d6393af91bb97f89959cf9dff0ce801ed250676a976eaa4556bf8bda4c989",
+    "verification": "Both members byte-identical to originals. The one database URL authority in pytest output already masks its password with ***; no credential file or database data is archived."
+  },
+  "limits": [
+    "A focused passing correction cannot rewrite either failed canonical invocation as PASS.",
+    "Downstream canonical migrations/wheel/web/E2E/CLI/release stages were not reached.",
+    "No S1, provider/target inference, operator installation or push. Do not attribute this failure to SDK2.45 or production behavior without a reproducer."
+  ]
+}

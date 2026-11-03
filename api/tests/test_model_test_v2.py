@@ -1615,6 +1615,8 @@ async def test_api_pg_sdk_protocol_and_replay(
                                             (history[table] or first_snapshot[table])[0]
                                         )
                                         if table == "model_record_v2":
+                                            # Historical catalog records may be shared by the new start.
+                                            foreign["id"] = str(uuid4())
                                             foreign["payload"]["unrelated_bait"] = identity
                                         else:
                                             foreign["unrelated_bait"] = identity

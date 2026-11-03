@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "role": "independent_read_only_reviewer",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "scope": "Only the two-line synthetic model_record_v2 foreign-canary correction; approval permits the parent's separately admitted bounded existing-consumer PG QA, not S0 acceptance or a runtime PASS.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "13a0b9d0825ec4b0dda18f7521f26101a861cf2c",
+    "head": "22eaecdd73d6a42d9a1a79f2edada109ae1f4804",
+    "path": "api/tests/test_model_test_v2.py",
+    "lines": "1618-1619",
+    "blob": "7239bdaa2660149f59ed5fe2d91e71cad0376433",
+    "sha256": "2355dc9d78ddd976aa462689a3309b54c000b35f84eb6d8c886c33db3d07fdb4",
+    "base_sha256": "05aca50d19b667c985477ef5fadd6f9543cd1ba6510adc76e3b731cca67acc43",
+    "diff": "One changed file, two insertions, zero deletions; no tracked working-tree or staged changes at review.",
+    "preexisting_untracked": ["documents/Omnis_Notite_Originale.html", "tempkey.txt"],
+    "untracked_disposition": "Names observed in git status only; neither file opened or modified."
+  },
+  "findings": [],
+  "criteria": [
+    {
+      "criterion": "Synthetic foreign row is outside the legitimate typed-reference closure even when history selects the shared catalog record.",
+      "disposition": "SATISFIED_SOURCE_SCOPED",
+      "locations": ["api/tests/test_model_test_v2.py:1437-1491", "api/tests/test_model_test_v2.py:1525-1536", "api/tests/test_model_test_v2.py:1613-1630"],
+      "reason": "The new UUID changes the id component of the five-field record identity while retaining the same instance and operation-ID bait. No operation/dispatch reference is added or redirected to the new id. The oracle traverses only explicit producer reference fields and compares foreign rows, so arbitrary payload bait cannot grant ownership. This remains a same-instance unreferenced-record challenge, not merely a different-instance check."
+    },
+    {
+      "criterion": "Legitimate shared historical records remain allowed and intact.",
+      "disposition": "SATISFIED_SOURCE_SCOPED",
+      "locations": ["api/src/omnis/modules/settings/provider_model_test.py:44-83", "api/src/omnis/modules/runs/model_test_runtime.py:372-375", "api/src/omnis/modules/runs/model_test_runtime.py:404-440", "api/tests/test_model_test_v2.py:1614-1625"],
+      "reason": "The real prepare caller reuses the catalog-result selected by catalog_command_id, places its Ref in capabilities, then stores the entry snapshot in the operation configuration chain. json.loads creates a separate canary object; the challenged list appends its serialization without changing the original retained row or any reference. The positive quiet/legal-owned checks remain before the negative challenge."
+    },
+    {
+      "criterion": "Ownership oracle, census/write-set, negative assertions and lifecycle controls are not weakened.",
+      "disposition": "SATISFIED_SOURCE_SCOPED",
+      "locations": ["api/tests/test_model_test_v2.py:1089-1118", "api/tests/test_model_test_v2.py:1385-1536", "api/tests/test_model_test_v2.py:1603-1644", "api/tests/test_model_test_v2.py:1665-1873"],
+      "reason": "Independent AST comparison confirms the oracle is identical and the entire file AST equals the base after removing only the new id assignment. Both versions contain 345 assertions; the census still contains 13 tables. Exact error matches, overlaps, Cancel/settlement, dispatch/sink checks, removal/replay/history/restart and cleanup remain unchanged. Unchanged does not mean newly executed."
+    },
+    {
+      "criterion": "Reproducer supports the correction without claiming an observed historical row or product defect.",
+      "disposition": "SATISFIED_SOURCE_SCOPED",
+      "locations": ["test_remove_oracle_source.py:25-43", "test_remove_oracle_source.py:46-141", "source-red-two-orders.stdout", "source-green.stdout", "parent-source.stdout", "documents/verification/t2-s0-evidence/canonical-second-fail.json:12-23"],
+      "reason": "Read the exact-AST synthetic reproducer and saved original results: shared-first alone failed DID NOT RAISE before the correction; foreign-first passed. The corrected developer run and independent parent rerun each passed 16 controls. Real Pydantic reference chains validate the shared-record mechanism; the synthetic row deltas are not SQL inserts or a native/runtime certification. The original failing table/row remains unknown."
+    }
+  ],
+  "verification_performed_here": [
+    {"command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff --cached --stat", "exit_code": 0, "result": "Frozen HEAD matches; no tracked or staged changes; protected preexisting untracked paths left untouched."},
+    {"command": "git diff --check 13a0b9d0825ec4b0dda18f7521f26101a861cf2c 22eaecdd73d6a42d9a1a79f2edada109ae1f4804; git diff --numstat 13a0b9d0825ec4b0dda18f7521f26101a861cf2c 22eaecdd73d6a42d9a1a79f2edada109ae1f4804", "exit_code": 0, "result": "Only api/tests/test_model_test_v2.py +2/-0; whitespace check clean."},
+    {"command": "sha256sum api/tests/test_model_test_v2.py; git rev-parse HEAD:api/tests/test_model_test_v2.py", "exit_code": 0, "result": "SHA256 and blob match the frozen candidate."},
+    {"command": "python -B -c (stdlib-only AST/hash comparison of git base source and current file; no test import or execution)", "exit_code": 0, "result": {"oracle_ast_unchanged": true, "entire_ast_unchanged_except_added_assignment": true, "assertions_base": 345, "assertions_candidate": 345, "census_tables": 13, "reproducer_sha256": "ebbee59a008b164115392c921b3554993c1abaec7b3a4832efae9a89af5c16f0"}}
+  ],
+  "retained_evidence_read_not_rerun": [
+    {"receipt": "source-red-two-orders.json", "stdout": "source-red-two-orders.stdout", "exit_code": 1, "result": "1 failed, 15 passed; only shared-first fails at the original line1625."},
+    {"receipt": "source-green.json", "stdout": "source-green.stdout", "exit_code": 0, "result": "16 passed, developer synthetic SOURCE controls."},
+    {"receipt": "parent-source.json", "stdout": "parent-source.stdout", "exit_code": 0, "result": "16 passed, parent independent synthetic SOURCE rerun."},
+    {"receipt": "source-regressions.json", "stdout": "source-regressions.stdout", "exit_code": 0, "result": "4 existing SOURCE regressions passed."},
+    {"receipts": ["ruff-check.json", "ruff-format.json", "mypy.json"], "exit_code": 0, "result": "Existing targeted quality outputs clean."},
+    {"receipt": "collect-remove-target.json", "stdout": "collect-remove-target.stdout", "exit_code": 0, "result": "Four existing cases collected: three registry schema parameters and entry_remove. Collection only; PG execution NOT_RUN."}
+  ],
+  "historical_failure_disposition": {
+    "canonical_second": "FAIL retained; actual overlap/census preceding the failing challenge passed in that original run. Later lifecycle assertions were not reached there.",
+    "original_table_or_row": "UNKNOWN; source reproduction does not retroactively identify it.",
+    "prior_approvals": "SDK9ec3587 R1/R2 and SOURCE pin79151f1 approvals unchanged and not reopened. No changed product or distribution artifact is approved by this report."
+  },
+  "status_delta_proposed_to_parent": {
+    "code": "Two-line test-only candidate committed at frozen HEAD; product code unchanged.",
+    "proof": "Existing SOURCE controls and regressions recorded PASS; bounded real-consumer PG remains NOT_RUN.",
+    "review": "APPROVED_SOURCE_SCOPED for the foreign-canary delta only.",
+    "harness_only_repairs": 2,
+    "next": "Use the already collected test-settings-remove-pg consumer under the parent's bounded no-external-effects QA contract; preserve original failures and exact cleanup. No third harness-only cycle or blind full rerun.",
+    "global": "S0 not closed; S1 NOT_STARTED; no native/runtime certification or operator/provider/target authority."
+  },
+  "limits": [
+    "No new tests, PostgreSQL, browser, runtime, provider, network or operator effects executed during this review.",
+    "uuid4 supplies the fresh identity using the fixture's existing UUID convention; this is not a mathematical proof of collision impossibility.",
+    "The synthetic malformed-payload canary tests attribution, not SQL validity, digest validation or permission to mutate legitimate shared records.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO. No tooling smoke or generic audit performed.",
+    "Only this requested scratch report was created; no repository file, skill, credential or evidence original was modified."
+  ]
+}

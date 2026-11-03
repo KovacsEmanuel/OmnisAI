@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "verdict": "PASS_SCOPED_EXISTING_REMOVE_CONSUMER",
+  "commit": "22eaecdd73d6a42d9a1a79f2edada109ae1f4804",
+  "process": "proc_ceead51cd8d7",
+  "command": "env -i PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin:/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin HOME=/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/home TMPDIR=/home/kali/.hermes/cache/scratch/s0g-wnyxj_1x api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target test-settings-remove-pg --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 600",
+  "cwd": "/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/checkout",
+  "exit_code": 0,
+  "family_drained": true,
+  "passed": 4,
+  "duration_seconds": 19.61,
+  "selection": [
+    "api/tests/test_provider_key_api.py::test_registry_schema_empty_upgrade_backfill_and_constraints (3 parameters)",
+    "api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[entry_remove]"
+  ],
+  "proof_boundary": "Existing real PostgreSQL/API/sender/owned synthetic TLS-peer journey after focused review. The Remove foreign-canary and remaining lifecycle assertions execute on final bytes. No external provider/target inference, browser, installed operator rollout or S1 runtime is claimed.",
+  "source_fix": {
+    "file": "api/tests/test_model_test_v2.py",
+    "sha256": "2355dc9d78ddd976aa462689a3309b54c000b35f84eb6d8c886c33db3d07fdb4",
+    "change": "Give only the synthetic model_record_v2 negative canary a fresh id; retain shared reference, operation-ID bait and unchanged oracle/all 345 assertions/13 census tables.",
+    "source_reproduction": "Shared-first original challenge fails while foreign-first passes; corrected exact-AST controls16PASS by developer and16PASS by parent, plus4existing SOURCE regressions. These are distinct from PG execution, not extra PG cases.",
+    "review": "remove-oracle-review.json",
+    "historical_row": "UNKNOWN; the deterministic reproduced mechanism does not identify the original unprinted failing row.",
+    "harness_only_repairs": 2
+  },
+  "readback": {
+    "tracked_files_checked": 2338,
+    "tracked_drift": [],
+    "operator_public_assets_checked": 7,
+    "operator_public_asset_drift": [],
+    "container_id": "7b2fdf144cf5ae685ec98803392c659078b4fa1c9cce1929c59cd149b428ad67",
+    "project": "omnis-p01-d1e5ba5faff14db6978583224b70906c",
+    "container_absent": true,
+    "project_networks_absent": true,
+    "socket_absent": true,
+    "fixture_data_retained": true,
+    "fixture_root": "/home/kali/.hermes/cache/scratch/s0g-wnyxj_1x/db-c3b5bd7b55de493e"
+  },
+  "originals": {
+    "archive": "remove-oracle-and-pg-originals.tar.gz",
+    "sha256": "9a0cf1b51248482299b81496d4dd702fbf4f16b1f1e34176274a063197e64a39",
+    "original_files": 51,
+    "verification": "All archived source/probe outputs and real-pg gate.log/result.json read back byte-identical; fixture/cache/credential/data trees excluded."
+  },
+  "decision": "The narrow real-consumer proof clears the reproduced canary defect, not either historical full-gate FAIL. Both minimal repairs are now reviewed and exercised. One final mandatory integration attempt may assess the complete unchanged product/dependency snapshot and unreached downstream stages; it is not another observer experiment. No third harness-only repair cycle, timeout widening, skip-for-green or relabelled partial canonical is allowed if another blocker appears.",
+  "limits": ["S0 remains IN_PROGRESS until the required integrated verification is accepted.", "PGDATA is retained in scratch, not a certified backup or indefinite retention guarantee.", "No S1 or operator environment synchronization; no provider/target or push."]
+}

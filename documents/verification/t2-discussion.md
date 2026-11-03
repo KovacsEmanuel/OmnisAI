@@ -1,12 +1,12 @@
-# T2 — registru provizoriu de discuție și decizii
+# T2 — registru de discuție, proveniență și S0
 
-**DISCUSSION_ONLY / REVIEW_M01_M11_SCOPED / PORTING_DETAIL_REVIEWED / IMPLEMENTATION NOT_STARTED.**
+**S0 IN_PROGRESS / DOCUMENTARY_CANDIDATE / SDK CANDIDATE_NOT_ADMITTED / S1 NOT_STARTED.** Reviewurile M01–M11 și PORTING_DETAIL_REVIEWED rămân dovezi de proiectare, nu acceptarea amendamentului curent sau runtime PASS.
 
 Acesta este fișierul de lucru cerut de operator: păstrează ce s-a discutat, ce s-a hotărât ca direcție și ce mai trebuie precizat. „Provizoriu” descrie maturitatea deciziilor, nu o locație care expiră. Se actualizează în loc, în Git, pentru continuitate între sesiuni.
 
-Nu este un al doilea plan, amendament aplicat, mandat de implementare, autorizație de scanare ori acceptare de produs. [Unicul CURRENT](../../README.md), [arhitectura](../Omnis_MVP_Architecture.md) și [planul canonic](../Omnis_Implementation_Plan.md) rămân autoritatea. Canonul încă descrie T2 inert; extinderea cerută mai jos trebuie reconciliată explicit înainte de implementare. Nu se reia integrarea istorică Hermes/Codex/P2.
+Nu este un al doilea plan sau autorizație de scanare/acceptare de produs. [Unicul CURRENT](../../README.md), [arhitectura](../Omnis_MVP_Architecture.md) și [planul canonic](../Omnis_Implementation_Plan.md) rămân autoritatea. Operatorul a aprobat ulterior **numai S0 — amendament + SDK izolat fără provider/target**; §8–§9.7 sunt proveniența transpusă în candidatul canonic, nu instrucțiuni concurente. Formulările DISCUSSION_ONLY/mandat încă absent/oprire după commit din corpul istoric se referă la sesiunile lor și sunt înlocuite pentru mandatul actual numai de §10. Nu se reia Hermes/Codex/P2; fără S1/cod runtime, instalare operator sau push.
 
-Baza Git la deschiderea registrului: `0003ef0b040022714a4dfb0d2c9351deba9057c4`. T1 este CLOSED_SCOPED la dovezile sale; acest registru nu schimbă starea T2 și nu revendică o observație live nouă a instalației.
+Baza Git la deschiderea registrului: `0003ef0b040022714a4dfb0d2c9351deba9057c4`. T1 este CLOSED_SCOPED la dovezile sale; admiterea S0 nu revendică execuție T2 ori observație live nouă a instalației.
 
 ## 1. Cum folosim registrul
 
@@ -719,6 +719,13 @@ Amânăm graph/vector DB/canvas, mesh/nesting/pool permanent, Jev/research supli
 **Limita sesiunii cerută de operator:** această completare este numai documentară; după review/checks/commit se oprește lucrul. O sesiune nouă reia Git/CURRENT și §9.4–9.7, clarifică acordul pentru amendament/S0 și execută numai mandatul primit atunci. Nici completionul unui subagent, nici existența fișelor nu pornesc cod, servicii, instalări sau efecte live.
 
 **Starea candidatului:** reviewul M11 de bază a trecut de la CHANGES_REQUESTED (`6cc4b6cf9b3b3529abd27979e46f8620bb2d7154`) la APPROVED_PLAN_SCOPED pe `dee0db5356c7b9e05b80ec06b80b66153bbcf25d` după F01/F02, păstrat în commitul `e8b8516`. Completarea §9.5–9.7 și corecția de envelope §9.2 au review independent `sa-0-930c3bc7`, **APPROVED_PLAN_DETAIL_SCOPED**, pe blob `a78ca71033e35a4a854f49421ad6bbccc7124fa8`, fără findings și cu acoperire U01–U09. Corpul tehnic este neschimbat la această actualizare de status. Rapoartele `core.json`, `recon-map-ui.json`, `parent-cards.json`, `review.json` sunt în `/home/kali/.hermes/cache/scratch/t2-porting-contract-e8b8516/`; fișele de mai sus sunt varianta durabilă. Nu este acceptare SDK/target/auto-pair sau mandat de implementare. Sesiunea se oprește după verificarea și commitul documentului, conform cererii operatorului.
+
+## 10. Registru S0 — amendament documentar
+
+- **Mandat/bază:** „ok, deci s0? din T2, ok, dai drumul la treaba”; baza `4bb942047b5a16c8d3f821a97fcac722dc7c4717`. Numai amendament și SDK izolat, fără S1/provider/target/instalare operator/push. Autorul documentar nu comite; părintele controlează integrarea și acceptarea exact-snapshot.
+- **Candidat:** §8–§9.7 transpuse în arhitectură §4–§6/§9–§11, plan §4/§7/§9–§11/§19.2 și UI/stack afectate; CURRENT/harta sunt proiecții. T1/legacy păstrate; S0–S7 și A BLOCKED_ADMISSION, fără amânare implicită; D03/finding independent obligatoriu, SECURITY eval-before-Publish fără ciclu. Corpul istoric al discuției este păstrat.
+- **Limite:** `openai-agents==0.19.0`/`openai==2.45.0` rămân CANDIDATE, `cryptography==50.0.1` neschimbat. Preflightul preliminar resolve/audit/import comunicat de părinte nu este admitere; serializer/sizing și review/QA independente rămân deschise. Request32KiB/response128KiB/300s rămân condiționate de S0 măsurat. Nicio schimbare de manifest/lock/versions.json sau produs în candidatul documentar.
+- **Verificare/predare:** renderer numai pentru cele patru surse schimbate, `--check`, suita `tests/documentation` și `git diff --check`; comenzi/exit/count și manifestul exact se predau părintelui. Candidatul nu se autoaprobă; S0 rămâne **IN_PROGRESS**, S1 NOT_STARTED. Reviewurile independente urmează pe bytes frozen; Reticle NOT_APPLICABLE, Chisel BLOCKED_NO_GO, fără probe runtime/browser/PG ori successor în această atribuire.
 
 ## Sources
 

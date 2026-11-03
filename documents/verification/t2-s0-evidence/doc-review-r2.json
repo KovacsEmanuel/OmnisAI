@@ -1,0 +1,79 @@
+{
+  "review": "R2 independent documentary safety/limits/compatibility review",
+  "repo": "/home/kali/OmnisAI",
+  "base": "4bb942047b5a16c8d3f821a97fcac722dc7c4717",
+  "head": "7ace4f034e81a8753bf294b6f2243352730e64d2",
+  "verdict": "APPROVED_DOCUMENTARY_R2_SCOPED",
+  "findings": [],
+  "conclusion": "Nu am identificat un defect concret blocant în delta documentară pentru criteriile R2. Aprobarea privește numai amendamentul, nu admiterea SDK, închiderea S0 sau execuția T2.",
+  "identity": {
+    "manifest": "/home/kali/.hermes/cache/scratch/t2-s0-doc-amendment-4bb9420/freeze-manifest.json",
+    "matched_files": 11,
+    "expected_files": 11,
+    "verification": "SHA256, Git blob și byte count din toate cele 11 obiecte Git ale commitului coincid cu manifestul candidatului. Câmpul head din manifest descrie baza precommit; identitatea reviewului este commitul explicit de mai sus.",
+    "proposal_comparison": "Corpul §8–§9.7 din t2-discussion.md este identic cu baza; comparat cu delta canonică.",
+    "final_readback": "HEAD neschimbat, diff tracked/index gol; cele patru căi untracked inițiale rămân în afara reviewului. git diff --check base head: exit 0."
+  },
+  "coverage": [
+    {
+      "criterion": "Mandat numai S0; fără activare implicită",
+      "anchors": ["README.md:3-4", "documents/Omnis_Implementation_Plan.md:249-261", "documents/Omnis_Implementation_Plan.md:705-709"],
+      "result": "S1/runtime/provider/target/servicii/instalare operator nu sunt admise; SDK candidat și runtime NOT_RUN rămân distincte."
+    },
+    {
+      "criterion": "Limite complete și separarea stocare/API/prompt",
+      "anchors": ["documents/Omnis_MVP_Architecture.md:340-342", "documents/Omnis_MVP_Architecture.md:511", "documents/Omnis_MVP_Architecture.md:608", "documents/Omnis_Stack_Baseline.md:75-77"],
+      "result": "Command 3600 versus HTTP/full frame+newline 4096 verificate separat; request32KiB/response128KiB/300s condiționate de sizing S0; API64KiB și materialele persistate nu sunt buget implicit de prompt."
+    },
+    {
+      "criterion": "Autoritate, compatibilitate și selecții versionate",
+      "anchors": ["documents/Omnis_MVP_Architecture.md:230-240", "documents/Omnis_MVP_Architecture.md:348-350", "documents/Omnis_MVP_Architecture.md:394-396", "documents/Omnis_Implementation_Plan.md:282"],
+      "result": "Context trusted emis de owner, nu LLM; RECON și RUN extinse versionat, T1/legacy/receipts/digests/readerii receive-only păstrați; Remove și assignments extinse împreună."
+    },
+    {
+      "criterion": "Dispatch, DATA, secrete și lipsa căilor SDK implicite",
+      "anchors": ["documents/Omnis_MVP_Architecture.md:334-344", "documents/Omnis_MVP_Architecture.md:549-557", "documents/Omnis_Implementation_Plan.md:255", "documents/Omnis_Implementation_Plan.md:322"],
+      "result": "Final body validat înainte de SENT, Permit request-local retras în finally, settlement bounded înainte de coercție; retry/fallback/traces externe/sessions/MCP/hosted tools/compaction/handoffs automate dezactivate. Namespace și codec target distincte, secrete backend-only/write-only."
+    },
+    {
+      "criterion": "Stop, concurență, HOLD/MONITOR și UNKNOWN",
+      "anchors": ["documents/Omnis_MVP_Architecture.md:342", "documents/Omnis_MVP_Architecture.md:366-372", "documents/Omnis_MVP_Architecture.md:404-406", "documents/Omnis_MVP_Architecture.md:429-433", "documents/Omnis_Implementation_Plan.md:254-258"],
+      "result": "FENCE/DRAIN admise la saturație, retirement fără stale replay, închidere/fence înainte de drain, consum Brain separat de notificare, Resume manual și UNKNOWN fără resend; sloturile includ draining/validator. Protecțiile preced prima inferență, nu sunt amânate în S5."
+    },
+    {
+      "criterion": "D13 pe toate finalizările și D14 independent",
+      "anchors": ["documents/Omnis_MVP_Architecture.md:838", "documents/Omnis_MVP_Architecture.md:930", "documents/Omnis_Implementation_Plan.md:254-257"],
+      "result": "Direct-final/finish/error/cancel trec prin owner, nu doar on_agent_end; partial nu devine succes, D13 nu confirmă vulnerabilitatea; validatorul are propriile attempt/auth/probe/control."
+    },
+    {
+      "criterion": "Polling read-only, autentificare și cursori",
+      "anchors": ["documents/Omnis_MVP_Architecture.md:584", "documents/Omnis_MVP_Architecture.md:606-610", "documents/Omnis_UI_UX_Spec.md:216", "documents/Omnis_UI_UX_Spec.md:257"],
+      "result": "SSE inițial înlocuit explicit, event store/snapshot/auth păstrate; sesiune expirată refuză citirea, cursor străin nu dă date; GET/reconnect/rerender nu admit efecte."
+    },
+    {
+      "criterion": "Target identity gates și auto-pair fără derogare",
+      "anchors": ["documents/Omnis_Implementation_Plan.md:255", "documents/Omnis_Implementation_Plan.md:304-334", "documents/Omnis_MVP_Architecture.md:103"],
+      "result": "Scope/efect/identitate/epoch/Stop/DATA și gate-urile browser preced utilizarea; A rămâne BLOCKED_ADMISSION, fără excepție argv/URL/OS sau închidere prin fallback manual."
+    }
+  ],
+  "evidence": {
+    "fresh": "Git status/base/head/diff, identitate 11/11 față de manifest, comparație corp proposal, review delta și context normativ, final readback, frozen diff --check exit0.",
+    "reused_unchanged": "Dovezile comunicate de părinte și înregistrate în manifest: documentation87PASS, render-check exit0, diff-check exit0. Nu rerulate și nu prezentate ca probe runtime."
+  },
+  "remaining_gates_not_findings": [
+    "Compatibilitatea și sizingul SDK pe producerul complet rămân de dovedit în S0; WIP-ul tehnic este exclus.",
+    "Implementarea enforcementului, fault/PG/browser/provider/target și QA instalată rămân obligatorii în feliile admise ulterior; nu sunt defecte ale amendamentului doar fiindcă încă nu există.",
+    "Acceptarea integrată aparține părintelui după reviewurile complementare și probele aferente; nici acest verdict, nici docs87PASS nu închid S0/T2."
+  ],
+  "changes": {
+    "repository": "Niciun fișier modificat, niciun commit.",
+    "report_only": "/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/doc-review-r2.json"
+  },
+  "limitations": [
+    "Fără audit general de surse/upstream sau soluții noi.",
+    "WIP api/tests/fixtures/agent_sdk_admission.json și api/tests/test_agent_sdk_admission.py ignorat.",
+    "tempkey.txt și documents/Omnis_Notite_Originale.html necitite/neatinse.",
+    "Fără servicii/runtime/PG/browser/provider/target sau schimbări OS/operator.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO."
+  ]
+}

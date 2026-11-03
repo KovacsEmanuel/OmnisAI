@@ -1,0 +1,66 @@
+{
+  "review_id": "T2-S0-DOC-R1",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Acceptare documentară R1: conformitatea transpunerii, ordinea/dependențele și consumerii afectați. Nu admitere SDK, închidere S0, implementare S1 sau runtime PASS.",
+  "base": "4bb942047b5a16c8d3f821a97fcac722dc7c4717",
+  "reviewed_commit": "7ace4f034e81a8753bf294b6f2243352730e64d2",
+  "snapshot": {
+    "actual_head_at_readback": "7ace4f034e81a8753bf294b6f2243352730e64d2",
+    "changed_paths": 11,
+    "manifest_blob_sha256_and_worktree_matches": 11,
+    "proposal_sections_8_to_9_7": "UNCHANGED",
+    "index": "NO_STAGED_CHANGES",
+    "manifest": "/home/kali/.hermes/cache/scratch/t2-s0-doc-amendment-4bb9420/freeze-manifest.json"
+  },
+  "findings": [],
+  "coverage": [
+    {
+      "criterion": "Numai S0 admis; CURRENT/harta disting documente, SDK candidat și runtime; T1/FAIL/UNKNOWN/istoricul păstrate",
+      "result": "CONFORM_DOCUMENTARY",
+      "locations": ["README.md:3-8", "documents/verification/implementation-status.md:3", "documents/Omnis_Implementation_Plan.md:705-709", "documents/verification/t2-discussion.md:723-728"]
+    },
+    {
+      "criterion": "S0–S7/A păstrate; subset T3/T4 avansat fără prerequisite circular; A blocat și fără amânare implicită; S1 trei taskuri secvențiale/slot1 versus S5 doi workeri inclusiv draining/validator",
+      "result": "CONFORM_DOCUMENTARY",
+      "locations": ["documents/Omnis_Implementation_Plan.md:249-261", "documents/Omnis_MVP_Architecture.md:234", "documents/Omnis_UI_UX_Spec.md:191"]
+    },
+    {
+      "criterion": "SDK/pinurile și sizing rămân condiționate; command/body/frame distincte; stocare/API nu sunt alocații simultane de prompt; T1 nu este lărgit",
+      "result": "CONFORM_DOCUMENTARY",
+      "locations": ["documents/Omnis_Implementation_Plan.md:253-254", "documents/Omnis_MVP_Architecture.md:340-350", "documents/Omnis_MVP_Architecture.md:511", "documents/Omnis_Stack_Baseline.md:78-80", "documents/Omnis_UI_UX_Spec.md:127"]
+    },
+    {
+      "criterion": "Consumerii livrați cu producerul; extensia Recon cu assignments/Remove/API/decoder/readeri; Needs you persistent și consume-once; reconcile/ACK nu reprezintă consum Brain; polling păstrează auth/cursor/event store",
+      "result": "CONFORM_DOCUMENTARY",
+      "locations": ["documents/Omnis_MVP_Architecture.md:350", "documents/Omnis_MVP_Architecture.md:404-405", "documents/Omnis_MVP_Architecture.md:511", "documents/Omnis_MVP_Architecture.md:585-610", "documents/Omnis_UI_UX_Spec.md:127", "documents/Omnis_UI_UX_Spec.md:173", "documents/Omnis_UI_UX_Spec.md:257-273"]
+    },
+    {
+      "criterion": "Frozen candidate evaluate/qualification înainte de Publish; SECURITY evaluat pe fixture autorizat fără a cere propriul finding ShopShfere; fără promovare STATIC/PURE sau loader paralel",
+      "result": "CONFORM_DOCUMENTARY",
+      "locations": ["documents/Omnis_MVP_Architecture.md:799-803", "documents/Omnis_Implementation_Plan.md:263", "documents/Omnis_UI_UX_Spec.md:175"]
+    },
+    {
+      "criterion": "D13 distinct de D14; toate finalizările, partial/gaps fără success fals; validare cu probe proprii; D03 și prima calibrare autonomă plus owner/shared/fixed/benign/auth-invalid negative păstrate",
+      "result": "CONFORM_DOCUMENTARY",
+      "locations": ["documents/Omnis_MVP_Architecture.md:838", "documents/Omnis_MVP_Architecture.md:926-934", "documents/Omnis_Implementation_Plan.md:257-261", "documents/Omnis_UI_UX_Spec.md:203"]
+    }
+  ],
+  "verification": {
+    "executed_read_only": [
+      "git status --short --branch; git rev-parse HEAD; git diff --stat; git show --stat --oneline 7ace4f034e81a8753bf294b6f2243352730e64d2: exit 0",
+      "git diff --no-ext-diff --unified=4 BASE FROZEN -- seven scoped Markdown paths: exit 0; full output paginated for review",
+      "Python -B assertions against Git blobs: exact base/parent, 11 scoped paths, SHA256/blob/worktree matches, unchanged proposal sections 8–9.7, staged-stat empty: exit 0"
+    ],
+    "reused_evidence_not_rerun": "Manifestul autorului consemnează render, render --check, 87 teste documentation și diff --check exit 0; verificarea părintelui este furnizată în mandat. Identitatea celor 11 artefacte a fost reconfirmată independent. Nu s-au rerulat suite neschimbate pentru acest review.",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "repository_writes": [],
+  "limits": [
+    "Fără review al WIP-ului SDK, reaudite M01–M11/surse upstream sau produs neschimbat.",
+    "Fără runtime, servicii, DB, browser, provider, target, instalare operator, commit sau push.",
+    "tempkey.txt și documents/Omnis_Notite_Originale.html nu au fost citite sau modificate.",
+    "HTML: identitate exactă verificată; dovada rendererului reutilizată, fără QA vizuală nouă.",
+    "S0 rămâne IN_PROGRESS; SDK/sizing și acceptarea tehnică sunt porți distincte; S1 NOT_STARTED. Acceptarea integrării aparține părintelui."
+  ]
+}

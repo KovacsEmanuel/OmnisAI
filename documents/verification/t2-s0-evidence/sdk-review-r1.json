@@ -1,0 +1,44 @@
+{
+  "reviewer": "R1-independent-technical",
+  "base_commit": "7ace4f034e81a8753bf294b6f2243352730e64d2",
+  "reviewed_commit": "9ec3587245fa9e36369acc8f186b33d33860b494",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "findings": [],
+  "scope": {
+    "criterion": "S0 dependency and serializer compatibility admission for the first S1 caller, not implementation or acceptance of S1 runtime.",
+    "files": [
+      {
+        "path": "api/pyproject.toml",
+        "sha256": "58916a4267ad577d07a46fdb6b41297f66c514f0ebf4cec98386275c189471ad"
+      },
+      {
+        "path": "api/uv.lock",
+        "sha256": "510a882533829ed993b0d03eaac6f5295329e56688f9c4c1c9c05c5c95ec8a9b"
+      },
+      {
+        "path": "api/tests/test_agent_sdk_admission.py",
+        "sha256": "56a69cd1b8d913c3c48be9f24e86f11a3f5b5d6a4c4494069b59c5dcc4e0b134"
+      },
+      {
+        "path": "api/tests/fixtures/agent_sdk_admission.json",
+        "sha256": "48790f0b4cfc2d1a605ed9b2e914e75085d9f8cce2da07859df4c30e9edcf1a5"
+      }
+    ],
+    "identity": "All four working-tree files were compared with the exact frozen commit and SHA-256 checked. api/src has no base-to-candidate changes. The old main-manifest identities in technical/freeze.json are pre-adoption evidence; the reviewed commit contains the candidate manifest and lock identities listed here.",
+    "reviewed_boundaries": [
+      "Pinned openai-agents 0.19.0 without extras and OpenAI 2.45.0; parsed lock delta preserves every other pre-existing package record and changes only the root dependency metadata plus OpenAI. Transitive MCP installation is not MCP activation.",
+      "Public Agent/Runner/FunctionTool/OpenAIChatCompletionsModel configuration uses an explicit model/client, SDK and client retries zero, tracing and sensitive trace data disabled, store false, no session, context management, handoffs or MCP servers. Relevant installed SDK serialization/client and trace configuration source was read without importing or executing it.",
+      "Both expected complete request projections are constructed before Runner.run, independently of captured requests. The request-local test Permit selects that predetermined body, then calls the captured original Transport.handle_async_request. Only the lower httpcore pool is scripted. The actual Transport equality/size gate and ResponseStream remain exercised by the recorded developer run.",
+      "Complete selected instructions, brief/context, history, tool schema, assistant tool call and tool result reach the real SDK composition. The recorded original output supports initial/follow-up equality, 32768 accepted versus 32769 denied, Unicode and escaping, an 8192-byte NUL result expanding beyond the wire cap, and 131072 response bytes accepted versus 131073 denied.",
+      "Model override, unadmitted field and foreign-ref result mutations reach the actual serializer and are denied before the lower sink. Failure and cancellation controls assert request counts, tool invocation counts, response closure and CURRENT reset; these are not fabricated persistence, SENT or Brain-consumption assertions.",
+      "IPC tests use existing concrete DTO encoders/decoder. Whitespace padding is explicitly an envelope-capacity exemplar, not enforcement of a 3600-byte raw-input gate or a guarantee for the absent Needs-you schema. Fixture source revision, selected-section digests, modification label and retained Apache license/notice context are explicit."
+    ]
+  },
+  "evidence_boundary": {
+    "review_execution": "Read-only Git, source, static dependency parsing, hashes and existing evidence inspection only. No fresh test suite, SDK execution, database, browser, network/provider/target action, environment sync, repository edit or commit.",
+    "developer_evidence": "Original complete-sdk-ipc.stdout records 14 passing SDK/IPC tests. Existing T1 evidence remains 40 PASS plus seven corrected-namespace PASS, not one fresh 47-test pass. Supplied parent lint/typecheck and artifact/source-identity evidence remain separately attributed.",
+    "remaining": "Independent QA and the applicable final canonical gate remain parent-owned. No universal future S1 composition, operation-owner 300-second deadline, authority/persistence/SENT/Brain-consumption, provider compatibility across all models, or operator installation is approved by this review.",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  }
+}

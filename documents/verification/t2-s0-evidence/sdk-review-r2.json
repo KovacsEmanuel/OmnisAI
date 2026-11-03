@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "reviewer": "R2-independent",
+  "verdict": "APPROVED_SCOPED_S0_SDK_PREREQUISITE",
+  "base": "7ace4f034e81a8753bf294b6f2243352730e64d2",
+  "head": "9ec3587245fa9e36369acc8f186b33d33860b494",
+  "findings": [],
+  "scope": {
+    "decision": "No confirmed defect blocks this exact test/dependency candidate as the isolated S0 serializer/admission prerequisite. This is not S0 integration closure, S1 approval, inference proof or runtime acceptance.",
+    "requirement_consumer_risk": "S0 SDK admission through public Agent/Runner/OpenAI -> final HTTPX request -> existing Omnis Transport/ResponseStream; detect an independent-projection bypass, unexpected provider/credential/retry/tracing path, incomplete encoded-body sizing, or mislabelled synthetic evidence.",
+    "review_mode": "Read-only source and retained-evidence review. No SDK/test/runtime execution by this reviewer; only stdlib/Git read-only identity, dependency-delta, fixture-provenance and evidence-count checks. The sole created artifact is this requested original report.",
+    "files": [
+      {
+        "path": "api/pyproject.toml",
+        "sha256": "58916a4267ad577d07a46fdb6b41297f66c514f0ebf4cec98386275c189471ad"
+      },
+      {
+        "path": "api/uv.lock",
+        "sha256": "510a882533829ed993b0d03eaac6f5295329e56688f9c4c1c9c05c5c95ec8a9b"
+      },
+      {
+        "path": "api/tests/test_agent_sdk_admission.py",
+        "sha256": "56a69cd1b8d913c3c48be9f24e86f11a3f5b5d6a4c4494069b59c5dcc4e0b134"
+      },
+      {
+        "path": "api/tests/fixtures/agent_sdk_admission.json",
+        "sha256": "48790f0b4cfc2d1a605ed9b2e914e75085d9f8cce2da07859df4c30e9edcf1a5"
+      }
+    ],
+    "identity_result": "All four working files equal the exact frozen commit blobs. Main manifest/lock equal the candidate-only manifest rows of technical/freeze.json, not its historical pre-adoption main rows. Shared model_sender, test_model_sender, local_control and instance schemas match the unchanged frozen hashes. Final HEAD unchanged; tracked and staged diffs empty. Protected untracked HTML and tempkey.txt were neither opened nor modified."
+  },
+  "criterion_review": [
+    {
+      "criterion": "Independent final-body authority at the shared boundary",
+      "status": "SUPPORTED_SCOPED",
+      "references": [
+        "api/tests/test_agent_sdk_admission.py:73-105",
+        "api/tests/test_agent_sdk_admission.py:174-204",
+        "api/tests/test_agent_sdk_admission.py:223-238",
+        "api/tests/test_agent_sdk_admission.py:270-327",
+        "api/src/omnis/supervisor/model_sender.py:166-209",
+        "agents/models/openai_chatcompletions.py:568-619",
+        "openai/_base_client.py:520-586,1628-1652"
+      ],
+      "assessment": "The two permitted projections are built before requests from fixture composition and predetermined tool-result content. The request-local wrapper selects that prebuilt projection, records the actual encoded body, calls the captured original Transport implementation and restores CURRENT in finally. It does not derive authority from observed requests. OpenAI merges extra_body and runs request preparation before HTTPX reaches this boundary. Only the lower httpcore pool is replaced. Complete request bytes, method, endpoint, auth/retry headers and the original digest comparison remain on the tested path. Model override, an unknown field and a changed tool-result reference are denied before the lower sink; same-channel positive requests reach it. Synthetic completion data drives a genuine public Runner tool invocation and continuation serialization, not inference."
+    },
+    {
+      "criterion": "Explicit model/client and no implicit retry or active auxiliary SDK effects",
+      "status": "SUPPORTED_FOR_RECORDED_CLEAN_ENVIRONMENT",
+      "references": [
+        "api/tests/test_agent_sdk_admission.py:272-327",
+        "api/tests/test_agent_sdk_admission.py:329-350",
+        "agents/run_internal/turn_preparation.py:134-151",
+        "agents/run_internal/model_retry.py:265-291,339-389,409-510",
+        "agents/models/openai_chatcompletions.py:652-659",
+        "agents/run.py:561-575,609-618",
+        "agents/tracing/setup.py:39-66",
+        "agents/tracing/provider.py:374-451",
+        "agents/tracing/processors.py:118-133,578-620",
+        "technical/complete-sdk-ipc.json"
+      ],
+      "assessment": "An explicit OpenAIChatCompletionsModel with injected AsyncOpenAI client bypasses default model-provider resolution. Client and ModelRetrySettings both set max_retries=0; SDK retry logic disables provider retries and the conversation_locked compatibility retry for this setting. The retained 503, connection-error and cancellation cases each observe exactly one attempt/sink call and no tool invocation; third-turn/retry assertions also guard successful cases. Explicit empty handoffs/MCP servers, session=None, context_management=None, store=False and tracing disabled restrict the exercised configuration. The original execution uses env -i, isolated Python and bwrap --unshare-net. No personal credential lookup or actual provider/target invocation is established by or required for the proof.",
+      "qualification": "Do not generalize this to an intrinsically side-effect-free SDK. Its trace provider can lazily allocate an HTTPX exporter client even for disabled tracing; the disabled trace/spans enqueue nothing and do not start its export worker on this path. OpenAI 2.45.0 still consults optional OPENAI_ADMIN_KEY, OPENAI_WEBHOOK_SECRET and OPENAI_CUSTOM_HEADERS environment settings; default_headers={} alone is not environment isolation. The recorded clean environment is material to this S0 result. No ambient credential values were read by this reviewer."
+    },
+    {
+      "criterion": "Complete encoded-body bounds and failure cleanup",
+      "status": "SUPPORTED_SCOPED",
+      "references": [
+        "api/tests/test_agent_sdk_admission.py:162-177",
+        "api/tests/test_agent_sdk_admission.py:206-238",
+        "api/tests/test_agent_sdk_admission.py:329-365",
+        "api/src/omnis/supervisor/model_sender.py:136-149,166-209",
+        "technical/complete-sdk-ipc.stdout"
+      ],
+      "assessment": "Recorded actual initial/continued bodies are 7917/16500 bytes. Unicode-padded continuation of 32768 bytes succeeds and 32769 fails with FINAL_DATA_DENIED; an 8192-byte NUL tool result becomes a complete 57434-byte encoded body and is denied rather than truncated. ResponseStream allows 131072 bytes and rejects the next byte with RESPONSE_LIMIT. Test assertions check exact underlying denial causes, response closure where a response exists, sink/attempt/tool counts and CURRENT restoration. Cancellation is injected before a response exists; this does not claim every mid-stream cancellation race is tested. The 10-second test timeout is not proof of an operation-owner 300-second deadline."
+    },
+    {
+      "criterion": "Honest IPC sizing and S0-only acceptance",
+      "status": "SUPPORTED_SCOPED",
+      "references": [
+        "api/tests/test_agent_sdk_admission.py:369-445",
+        "technical/handoff.md:15-49",
+        "documents/Omnis_Implementation_Plan.md:249-254"
+      ],
+      "assessment": "Existing KeySettingsControl/CatalogControl and ControlRequest schemas are serialized and decoded, including Unicode/escaping, unknown-envelope rejection, 4096-byte acceptance and 4097-byte denial. JSON-whitespace padding to a 3600-byte command measures envelope capacity only. Source and handoff explicitly do not claim raw-command cap enforcement, an HTTP route effect, future Needs-you schema, Bridge, SENT/persistence/Brain consumption or a product agent loop. The selected source composition is a fixed serializer-sizing fixture, not all U02 content or all maximum refs. None of those S1 obligations is demanded as circular S0 evidence."
+    },
+    {
+      "criterion": "Dependency delta and source/license provenance",
+      "status": "SUPPORTED_SCOPED",
+      "references": [
+        "api/pyproject.toml:17-24",
+        "api/uv.lock",
+        "api/tests/fixtures/agent_sdk_admission.json:3-45",
+        "lock-delta.json",
+        "package-closure.json",
+        "sdk-artifacts.json",
+        "audit-corrected.stdout"
+      ],
+      "assessment": "Programmatic comparison matches the recorded dependency delta: OpenAI is the only previously locked package version changed, from 2.24.0 to 2.45.0; cryptography stays 50.0.1. The agents pin has no extras. New MCP is an explicit transitive dependency, not an activated server. Both recorded SDK/client artifact hashes occur in the final lock. Retained closure reports 64 installed distributions, 5906 checked RECORD hashes and no mismatches; the retained audit reports 67 packages and zero vulnerabilities. This reviewer did not repeat package downloads, installation or network audit. Local pinned Strix source HEAD and both whole-source hashes match the fixture. Exact selected chunks, preserving their final newlines and joining chunks with one newline, match both selected hashes and occur literally in instructions. The referenced Apache-2.0 license copy equals pinned upstream LICENSE; no upstream root NOTICE file was present."
+    }
+  ],
+  "evidence_reviewed": {
+    "root": "/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy",
+    "sdk_ipc": {
+      "receipt": "technical/complete-sdk-ipc.json",
+      "stdout": "technical/complete-sdk-ipc.stdout",
+      "exit": 0,
+      "sdk_distinct_cases": 12,
+      "ipc_distinct_cases": 2,
+      "passed": 14,
+      "attribution": "Retained developer execution, not a fresh reviewer run. Counts parsed from the original stdout."
+    },
+    "t1_regression": {
+      "initial": "technical/t1-regression.json and .stdout: exit1, 40 passed, 7 failed",
+      "corrected": "technical/t1-relay-regression.json and .stdout: exit0, 7 passed",
+      "interpretation": "47 distinct existing cases across the original and corrected runs, not a single fresh 47/47 run. Initial namespace/ancestor-ownership failures remain preserved; shared guards are unchanged."
+    },
+    "other_preserved_failures": "Original collect exit1 and first-producer exit3 remain recorded; corrected private-dev collection and producer succeed. These prerequisite failures are not rewritten as successes.",
+    "reviewer_read_only_checks": [
+      "Git status/base/head/diff and git diff --check: exit0, scope exactly four files",
+      "SHA256 and frozen-blob equality checks for all changed files: exit0, all equal",
+      "TOML package-record/version delta and frozen shared-boundary hash comparison: exit0, expected delta only",
+      "Pinned Strix source/selected hashes, literal selected text and Apache license equality: confirmed with preserved line endings",
+      "Original SDK stdout unique-mode/count aggregation: 12 SDK + 2 IPC = 14",
+      "Final HEAD/status/staged-diff readback: exact head retained, no tracked edits"
+    ]
+  },
+  "limits_and_remaining_owner_decisions": [
+    "This review approves only the exact S0 test/dependency prerequisite; parent adjudication, complementary review and separately admitted QA/integration remain parent-owned.",
+    "No production runtime, service, DB, browser, provider, target, network, install, commit or repository edit was performed. Main API/operator environment was not synced by this reviewer.",
+    "No fresh runtime test, canonical gate, independent audit/download, live inference, installed upgrade or operator-environment compatibility claim.",
+    "No approval of S1 Bridge/owner deadline, persistence/SENT, Needs-you schema, durable result consumption, authentication/ref lookup, Stop concurrency or complete future composition sizing.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "No confirmed finding or unresolved blocker was found in the reviewed scope. Existing documentary CURRENT/status updates are for the parent; accepted documentary base 7ace4f0 was not broadly re-reviewed."
+  ]
+}

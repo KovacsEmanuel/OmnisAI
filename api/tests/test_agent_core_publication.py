@@ -641,7 +641,7 @@ async def test_probe_legacy_is_read_only_at_each_new_admission(
 
 
 @pytest.mark.asyncio
-async def test_core_publication_composition_pg(
+async def test_catalog_candidates_pg_core_publication_composition(
     migrated_database_url: URL,
     tmp_path: Path,
 ) -> None:

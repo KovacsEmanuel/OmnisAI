@@ -339,6 +339,10 @@ class AgentRunOwner:
                     )
                     if current_draft != snapshot.draft_ref.revision:
                         raise records.ModelConflict("REVISION_CONFLICT")
+                    if await self.settings.selection(db) != snapshot.selection_snapshot:
+                        raise records.ModelConflict("REVISION_CONFLICT")
+                    for config in (snapshot.brain, snapshot.recon):
+                        await self.settings.require_registered(db, config.choice)
                     await self.revalidate(db, snapshot)
                     run = RunView(
                         instance_id=self.instance,

@@ -3,6 +3,21 @@ import { api } from './client';
 import { decodeError } from './errors';
 import { decodeEvents, decodePublications } from './runs';
 import type { RunCommand } from './runs';
+import { syntheticSummary, emptyUsage, inspection, partialUsage, observedDispatch } from '../../../tests/run-fixtures';
+
+it('SOURCE normal attempt inspection retains exact result, consumption and original dispatch observations', async () => {
+  const value = { ...inspection(), usage: partialUsage('ATTEMPT'), dispatches: [observedDispatch()], dispatches_has_more: true };
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async () => new Response(JSON.stringify(value))));
+  expect(await api.runAttempt(value.run_id, value.attempt_id)).toEqual(value);
+});
+
+it('SOURCE decodes the normal summary required accounting without rounding decimal strings or expanding the roster', async () => {
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => new Response(JSON.stringify(syntheticSummary)));
+  vi.stubGlobal('fetch', fetcher);
+  expect(await api.runSummary(syntheticSummary.run.run_id)).toEqual(syntheticSummary);
+  fetcher.mockImplementation(async () => new Response(JSON.stringify({ ...syntheticSummary, usage: emptyUsage() })));
+  expect((await api.runSummary(syntheticSummary.run.run_id)).usage.totals.cost_observed.value).toBeNull();
+});
 
 const run = '00000000-0000-4000-8000-000000000001';
 const command = '00000000-0000-4000-8000-000000000002';

@@ -9,6 +9,7 @@ import { App } from './App';
 import type { components } from '../shared/api/generated';
 import { isRecord } from '../shared/api/errors';
 import { sessionScope } from '../features/engagement/SettingsModels';
+import { emptyUsage, partialUsage, inspection, syntheticAttempt, observedDispatch, consumingBrain } from '../../tests/run-fixtures';
 
 it.each(['unchanged', 'selection', 'draft', 'context', 'generation', 'lost-preflight', 'lost-start'] as const)('SOURCE normal preflight/Start pins and invalidates %s without implicit writes', async change => {
   const publication = { kind: 'catalog-publication', id: '00000000-0000-4000-8000-000000000030', revision: 1, digest: 'c'.repeat(64) };
@@ -59,7 +60,7 @@ it.each(['unchanged', 'selection', 'draft', 'context', 'generation', 'lost-prefl
     else if (path === '/api/v1/runs/publications') value = [publication];
     else if (path === '/api/v1/settings/providers') value = { schema_version: 2, command_id: null, vault_status: 'UNLOCKED', reachable: 'NOT_VERIFIED', connections: [{ connection_id: choice.connection_id, provider: 'openrouter', revision: 1, enabled: true, credential_present: true }], selection: { schema_version: 2, selection_id: choice.connection_id, revision: selectionRevision, default: choice, brain: null, recon: { ...choice, model: 'fixture/recon-override' }, investigator: null, validator: null } };
     else if (path === `/api/v1/engagements/${id}/run` || path === '/api/v1/runs/active') value = hasRun ? run() : null;
-    else if (path === `/api/v1/runs/${runId}/summary`) value = { run: run(), owner_live: true, phase_active: false, attempts: [], has_more: false, as_of: '2026-11-04T12:00:00Z', question: { question_id: questionId, run_id: runId, task_id: instance.instance_id, revision: 2, kind: 'CLARIFICATION', cause: 'Clarification needed', text: 'Which synthetic part?', refs: [], state: questionState, answer_ref: questionState === 'PENDING' ? null : answerRef, command_id: answerCommand } };
+    else if (path === `/api/v1/runs/${runId}/summary`) value = { run: run(), usage: emptyUsage(), owner_live: true, phase_active: false, attempts: [], has_more: false, as_of: '2026-11-04T12:00:00Z', question: { question_id: questionId, run_id: runId, task_id: instance.instance_id, revision: 2, kind: 'CLARIFICATION', cause: 'Clarification needed', text: 'Which synthetic part?', refs: [], state: questionState, answer_ref: questionState === 'PENDING' ? null : answerRef, command_id: answerCommand } };
     else if (path.startsWith('/api/v1/runs/commands/')) value = receipts.get(path.split('/').at(-1) ?? '');
     return new Response(JSON.stringify(value));
   }));
@@ -170,7 +171,7 @@ it('SOURCE global Stop binds the observed run, survives a lost reply and reload 
 function mountedRun(surface = 'overview') {
   sessionStorage.clear();
   const state: { run: components['schemas']['RunView']; summary: components['schemas']['RunSummary'] } = {
-    run: observedRun(), summary: { run: observedRun(), owner_live: true, phase_active: false, question: null, attempts: [], has_more: false, as_of: '2026-11-04T12:00:00Z' },
+    run: observedRun(), summary: { run: observedRun(), usage: emptyUsage(), owner_live: true, phase_active: false, question: null, attempts: [], has_more: false, as_of: '2026-11-04T12:00:00Z' },
   };
   const writes: Record<string, unknown>[] = [];
   const fetcher = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
@@ -558,7 +559,7 @@ it('SOURCE binds clarification to the displayed question revision and bounds com
 
 it('SOURCE pages actual spawn events, inspects only selected attempts and resets identity on a new run', async () => {
   const { state, writes, fetcher, view, client } = mountedRun('stream');
-  const attempt: components['schemas']['Attempt'] = { instance_id: instance.instance_id, run_id: runId, task_id: id, attempt_id: id, role: 'RECON', parent_task_id: instance.instance_id, state: 'SUCCEEDED', brief: 'Actual delegated task', input_refs: [], input_text: 'Allowed synthetic input', instructions: 'Pinned composed instructions', configured_model: 'fixture/recon-override', observed_model: 'fixture/observed', skill_refs: [], result_summary: 'Bounded result', result_ref: { ...setup, revision: 1 }, read_receipt_ref: null, call_id: 'call-1', tool_arguments: 'read_context', tool_output: 'Persisted synthetic output', correction_count: 0 };
+  const attempt: components['schemas']['Attempt'] = { instance_id: instance.instance_id, run_id: runId, task_id: id, attempt_id: id, role: 'RECON', parent_task_id: instance.instance_id, state: 'SUCCEEDED', brief: 'Actual delegated task', input_refs: [], input_text: 'Allowed synthetic input', instructions: 'Pinned composed instructions', configured_model: 'fixture/recon-override', observed_model: 'fixture/observed', skill_refs: [], result_summary: 'Bounded result', result_ref: { ...setup, kind: 'run-result-v1', revision: 1 }, read_receipt_ref: null, call_id: 'call-1', tool_arguments: 'read_context', tool_output: 'Persisted synthetic output', correction_count: 0 };
   const brain: components['schemas']['Attempt'] = { ...attempt, role: 'BRAIN', task_id: instance.instance_id, attempt_id: instance.instance_id, parent_task_id: null };
   state.summary = { ...state.summary, attempts: [attempt, brain], has_more: true };
   const original = fetcher.getMockImplementation()!;
@@ -569,7 +570,7 @@ it('SOURCE pages actual spawn events, inspects only selected attempts and resets
       const next = cursor + 1;
       return new Response(JSON.stringify({ run_id: state.run.run_id, through_cursor: next, has_more: cursor === 0, as_of: state.summary.as_of, events: [{ event_id: next === 1 ? id : instance.instance_id, run_id: state.run.run_id, task_id: id, attempt_id: id, sequence: next, kind: 'result', summary: `Persisted event ${next}`, refs: [], call_id: 'call-1', created_at: state.summary.as_of }] }));
     }
-    if (path.includes('/attempts/')) return new Response(JSON.stringify(attempt));
+    if (path.includes('/attempts/')) return new Response(JSON.stringify(inspection(attempt)));
     return original(input, init);
   });
   await screen.findByRole('button', { name: /RECON/ });
@@ -608,7 +609,7 @@ it('SOURCE event filters show UTC and exact actors from the loaded page and pres
   const original = fetcher.getMockImplementation()!;
   fetcher.mockImplementation(async (input, init) => {
     const path = String(input);
-    if (path === `/api/v1/runs/${runId}/attempts/${attempt.attempt_id}`) return new Response(JSON.stringify(attempt));
+    if (path === `/api/v1/runs/${runId}/attempts/${attempt.attempt_id}`) return new Response(JSON.stringify(inspection(attempt)));
     if (path.includes('/events?')) {
       const after = Number(path.split(':').at(-1));
       const events = after === 0 ? [event, { ...event, event_id: instance.instance_id, task_id: instance.instance_id, attempt_id: instance.instance_id, sequence: 2, kind: 'decision', summary: 'Actual Brain decision', created_at: '2026-11-04T10:12:13Z' }, { ...event, event_id: setup.id, task_id: null, attempt_id: null, sequence: 3, kind: 'control', summary: 'Control without actor' }] : [{ ...event, sequence: after === 3 ? 7 : 10, task_id: instance.instance_id, attempt_id: instance.instance_id, summary: `Later page after ${after}` }];
@@ -738,6 +739,120 @@ it('SOURCE expires the run reader on a private 401 without repopulating its cach
   expect(screen.queryByRole('region', { name: 'Inert run' })).not.toBeInTheDocument();
   expect(screen.queryByRole('region', { name: 'Global run control' })).not.toBeInTheDocument();
   expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
+  view.unmount(); client.clear();
+});
+
+it('SOURCE selected inspection shows exact final, gaps, pending/held/consumed linkage and bounded usage without writes', async () => {
+  const { state, writes, view, client, fetcher } = mountedRun('stream');
+  state.summary = { ...state.summary, attempts: [syntheticAttempt] };
+  let detail = { ...inspection(), usage: partialUsage('ATTEMPT'), dispatches: [observedDispatch()], dispatches_has_more: true };
+  const brain = consumingBrain();
+  const decisionRef = brain.result_ref!;
+  const original = fetcher.getMockImplementation()!;
+  fetcher.mockImplementation(async (input, init) => {
+    if (String(input) === `/api/v1/runs/${runId}/attempts/${syntheticAttempt.attempt_id}`) return new Response(JSON.stringify(detail));
+    if (String(input) === `/api/v1/runs/${runId}/attempts/${instance.instance_id}`) return new Response(JSON.stringify(brain));
+    return original(input, init);
+  });
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('button', { name: /^RECON/ }));
+  let inspector = await screen.findByRole('region', { name: 'Agent inspector' });
+  expect(inspector).toHaveTextContent('INCONCLUSIVE');
+  expect(inspector).toHaveTextContent('Completion kind: finish');
+  expect(inspector).toHaveTextContent('INERT_READ_PROOF_INCOMPLETE');
+  expect(inspector).toHaveTextContent('Synthetic gap');
+  expect(inspector).toHaveTextContent('Consumption: PENDING');
+  expect(inspector).toHaveTextContent('Read receipt alone is not consumption');
+  expect(inspector).toHaveTextContent('0.000000000000000000123');
+  expect(inspector).toHaveTextContent('SETTLED');
+  expect(inspector).toHaveTextContent('Original validated usage');
+  expect(inspector).toHaveTextContent('More dispatch details omitted');
+  expect(inspector).toHaveTextContent('9007199254740991');
+  detail = { ...detail, consumption: { held: true, decision_ref: null, consumer_attempt_id: null } };
+  await user.click(screen.getByRole('button', { name: 'Refresh run' }));
+  await within(inspector).findByText(/Consumption: HELD/);
+  detail = { ...detail, consumption: { held: false, decision_ref: decisionRef, consumer_attempt_id: instance.instance_id } };
+  await user.click(screen.getByRole('button', { name: 'Refresh run' }));
+  const consume = await within(inspector).findByRole('button', { name: /Inspect consuming Brain/ });
+  consume.focus(); await user.keyboard('{Enter}');
+  inspector = await screen.findByRole('region', { name: 'Agent inspector' });
+  await within(inspector).findByText('Synthetic exact decision');
+  expect(inspector).toHaveTextContent('Decision action: finish');
+  expect(inspector).toHaveTextContent('<b>inert decision detail</b>');
+  expect(inspector.querySelector('b')).toBeNull();
+  expect(within(inspector).getByRole('heading', { level: 3 })).toHaveFocus();
+  expect(inspector).toHaveTextContent(syntheticAttempt.result_ref?.digest ?? 'missing');
+  expect(fetcher.mock.calls.filter(([path]) => String(path).includes('/attempts/')).every(([path]) => String(path).startsWith(`/api/v1/runs/${runId}/attempts/`))).toBe(true);
+  expect(writes).toHaveLength(0);
+  view.unmount(); client.clear();
+});
+
+it.each(['digest', 'consumed-ref', 'instance', 'role'] as const)('SOURCE consumption navigation rejects independent %s mismatch without commands', async fault => {
+  const { state, writes, view, client, fetcher } = mountedRun('stream');
+  const brain = consumingBrain();
+  const worker = { ...inspection(), consumption: { held: false, decision_ref: brain.result_ref, consumer_attempt_id: brain.attempt_id } };
+  state.summary = { ...state.summary, attempts: [syntheticAttempt] };
+  if (fault === 'digest') brain.result_ref = { ...brain.result_ref!, digest: 'e'.repeat(64) };
+  if (fault === 'consumed-ref') brain.decision = { ...brain.decision!, consumed_refs: [{ ...syntheticAttempt.result_ref!, digest: 'e'.repeat(64) }] };
+  if (fault === 'instance') brain.instance_id = id;
+  if (fault === 'role') brain.role = 'RECON';
+  const original = fetcher.getMockImplementation()!;
+  fetcher.mockImplementation(async (input, init) => String(input) === `/api/v1/runs/${runId}/attempts/${worker.attempt_id}` ? new Response(JSON.stringify(worker)) : String(input) === `/api/v1/runs/${runId}/attempts/${brain.attempt_id}` ? new Response(JSON.stringify(brain)) : original(input, init));
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('button', { name: /^RECON/ }));
+  await user.click(await screen.findByRole('button', { name: /Inspect consuming Brain/ }));
+  await waitFor(() => expect(client.getQueryCache().findAll({ queryKey: ['private', 'run-attempt', runId, brain.attempt_id] })[0]?.state.status).toBe('error'));
+  expect(screen.queryByRole('region', { name: 'Agent inspector' })).not.toBeInTheDocument();
+  expect(screen.getByText('Run readback unavailable or stale; no state or effects are inferred.')).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Stop run' })).toBeEnabled();
+  expect(writes).toHaveLength(0);
+  view.unmount(); client.clear();
+});
+
+it('SOURCE inspection reload retains legacy UNKNOWN completion and lost-response usage with no inferred charge or resend', async () => {
+  const { state, writes, view, client, fetcher } = mountedRun('stream');
+  state.summary = { ...state.summary, attempts: [syntheticAttempt] };
+  const worker = inspection(); worker.result = { ...worker.result!, completion_kind: null };
+  const totals = { ...emptyUsage().totals, dispatches: 1, unobserved_dispatches: 1 };
+  worker.usage = { scope: 'ATTEMPT', accounting_policy: 'MONITOR', totals, roles: [{ role: 'RECON', configured_model: worker.configured_model, connection_id: id, connection_revision: 1, totals }] };
+  worker.dispatches = [{ dispatch_id: setup.id, state: 'UNKNOWN', usage_ref: null, usage: null, reserved_at: null, sent_at: null, settled_at: null }];
+  const original = fetcher.getMockImplementation()!;
+  fetcher.mockImplementation(async (input, init) => String(input).includes('/attempts/') ? new Response(JSON.stringify(worker)) : original(input, init));
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('button', { name: /^RECON/ }));
+  await screen.findByText('No observation receipt; usage UNKNOWN, not zero.');
+  expect(screen.getByRole('region', { name: 'Agent inspector' })).toHaveTextContent('Completion kind: UNKNOWN');
+  view.unmount(); client.clear();
+  const reads = fetcher.mock.calls.filter(([path]) => String(path).includes('/attempts/')).length;
+  const reloaded = render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${id}/stream`]}><App /></MemoryRouter></QueryClientProvider>);
+  await screen.findByRole('button', { name: /^RECON/ });
+  expect(fetcher.mock.calls.filter(([path]) => String(path).includes('/attempts/'))).toHaveLength(reads);
+  await user.click(screen.getByRole('button', { name: /^RECON/ }));
+  expect(await screen.findByRole('region', { name: 'Agent inspector' })).toHaveTextContent('Completion kind: UNKNOWN');
+  expect(screen.getByText('No observation receipt; usage UNKNOWN, not zero.')).toBeVisible();
+  expect(writes).toHaveLength(0);
+  reloaded.unmount(); client.clear();
+});
+
+it('SOURCE accounting displays exact whole-run partial subtotals, role attribution and unknown empty usage', async () => {
+  const { state, writes, view, client } = mountedRun();
+  state.summary = { ...state.summary, usage: partialUsage(), has_more: true };
+  const accounting = await screen.findByRole('region', { name: 'Run accounting' });
+  expect(accounting).toHaveTextContent('MONITOR');
+  expect(accounting).toHaveTextContent('18014398509481982');
+  expect(accounting).toHaveTextContent('0.000000000000000000123');
+  expect(accounting).toHaveTextContent('PARTIAL · 2/3');
+  expect(accounting).toHaveTextContent('UNKNOWN · 0/3');
+  expect(accounting).toHaveTextContent('RECON · fixture/recon');
+  expect(accounting).toHaveTextContent(`connection ${id} · revision 2`);
+  expect(accounting).toHaveTextContent('Allocations: 3 · without observation: 1');
+  expect(accounting).toHaveTextContent('not a paid-call count');
+  expect(accounting).not.toHaveTextContent('$');
+  state.summary = { ...state.summary, usage: emptyUsage() };
+  await userEvent.setup().click(screen.getByRole('button', { name: 'Refresh run' }));
+  await waitFor(() => expect(accounting).toHaveTextContent('UNKNOWN · 0/0'));
+  expect(accounting).not.toHaveTextContent('fixture/recon');
+  expect(writes).toHaveLength(0);
   view.unmount(); client.clear();
 });
 

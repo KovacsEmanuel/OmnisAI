@@ -14,7 +14,7 @@ import type { SearchCatalog, RefreshCatalog, CancelCatalog } from './providerCat
 import { decodeKeySettings } from './providerKeys';
 import type { KeyCommand } from './providerKeys';
 import { decodeProviderModels } from './providerModels';
-import { runCommandFits, decodeReceipt, decodeOptionalRun, decodeRunSummary, decodeEvents, decodeAttempt, decodePublications } from './runs';
+import { runCommandFits, decodeReceipt, decodeOptionalRun, decodeRunSummary, decodeEvents, decodeAttemptInspection, decodePublications } from './runs';
 import type { Preflight, StartRun, RunCommand } from './runs';
 import type { RemoveModel, SaveModels } from './providerModels';
 
@@ -105,9 +105,7 @@ export const api = {
     if (!isUuid(runId) || !isUuid(attemptId)) throw new ApiError('INVALID_INPUT');
     const response = await request(`/api/v1/runs/${runId}/attempts/${attemptId}`, {}, signal);
     const value = await body(response); if (!response.ok) throw decodeError(value);
-    const result = decodeAttempt(value);
-    if (result.run_id !== runId || result.attempt_id !== attemptId) throw new ApiError('INVALID_RESPONSE');
-    return result;
+    return decodeAttemptInspection(value, runId, attemptId);
   },
   async providerCatalog(payload: SearchCatalog, csrf: string, signal?: AbortSignal) {
     if (!isUuid(payload.connection_id) || (payload.catalog_command_id != null && !isUuid(payload.catalog_command_id)) || Array.from(payload.query ?? '').length > 256) throw new ApiError('INVALID_INPUT');

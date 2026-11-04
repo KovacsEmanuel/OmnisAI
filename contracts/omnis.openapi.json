@@ -235,6 +235,263 @@
         "title": "Attempt",
         "type": "object"
       },
+      "AttemptInspection": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "attempt_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "brief": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Brief",
+            "type": "string"
+          },
+          "call_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call Id"
+          },
+          "configured_model": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Configured Model",
+            "type": "string"
+          },
+          "consumption": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InboxConsumption"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "correction_count": {
+            "default": 0,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Correction Count",
+            "type": "integer"
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BrainDecision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_completion_kind": {
+            "anyOf": [
+              {
+                "const": "direct",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Completion Kind"
+          },
+          "dispatches": {
+            "items": {
+              "$ref": "#/components/schemas/DispatchUsage"
+            },
+            "maxItems": 20,
+            "title": "Dispatches",
+            "type": "array"
+          },
+          "dispatches_has_more": {
+            "default": false,
+            "title": "Dispatches Has More",
+            "type": "boolean"
+          },
+          "input_refs": {
+            "items": {
+              "$ref": "#/components/schemas/RunRef"
+            },
+            "maxItems": 32,
+            "title": "Input Refs",
+            "type": "array"
+          },
+          "input_text": {
+            "title": "Input Text",
+            "type": "string"
+          },
+          "instance_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "instructions": {
+            "title": "Instructions",
+            "type": "string"
+          },
+          "observed_model": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Model"
+          },
+          "parent_task_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "read_receipt_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResultRecord"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_summary": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Summary"
+          },
+          "role": {
+            "enum": [
+              "BRAIN",
+              "RECON"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "run_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "skill_refs": {
+            "items": {
+              "$ref": "#/components/schemas/ExactRef"
+            },
+            "maxItems": 32,
+            "title": "Skill Refs",
+            "type": "array"
+          },
+          "state": {
+            "enum": [
+              "RUNNING",
+              "SUCCEEDED",
+              "INCONCLUSIVE",
+              "FAILED",
+              "CANCELLED",
+              "NEEDS_RECONCILIATION"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "task_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "tool_arguments": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Arguments"
+          },
+          "tool_output": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Output"
+          },
+          "usage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UsageSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "instance_id",
+          "run_id",
+          "task_id",
+          "attempt_id",
+          "role",
+          "parent_task_id",
+          "state",
+          "brief",
+          "input_refs",
+          "input_text",
+          "instructions",
+          "configured_model",
+          "skill_refs",
+          "as_of"
+        ],
+        "title": "AttemptInspection",
+        "type": "object"
+      },
       "Authorization": {
         "additionalProperties": false,
         "properties": {
@@ -268,6 +525,48 @@
           "valid_until"
         ],
         "title": "Authorization",
+        "type": "object"
+      },
+      "BrainDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "delegate",
+              "ask",
+              "finish"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "consumed_refs": {
+            "items": {
+              "$ref": "#/components/schemas/RunRef"
+            },
+            "maxItems": 32,
+            "title": "Consumed Refs",
+            "type": "array"
+          },
+          "detail": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Detail",
+            "type": "string"
+          },
+          "summary": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "summary",
+          "consumed_refs",
+          "detail"
+        ],
+        "title": "BrainDecision",
         "type": "object"
       },
       "BusinessMatrixEntry": {
@@ -1225,6 +1524,92 @@
         "pattern": "^[0-9a-f]{64}$",
         "type": "string"
       },
+      "DispatchUsage": {
+        "additionalProperties": false,
+        "properties": {
+          "dispatch_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "reserved_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reserved At"
+          },
+          "sent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sent At"
+          },
+          "settled_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settled At"
+          },
+          "state": {
+            "enum": [
+              "RESERVED",
+              "SENT",
+              "SETTLED",
+              "RELEASED",
+              "UNKNOWN"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "usage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UsageRecord"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "usage_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "dispatch_id",
+          "state",
+          "usage_ref",
+          "usage",
+          "reserved_at",
+          "sent_at",
+          "settled_at"
+        ],
+        "title": "DispatchUsage",
+        "type": "object"
+      },
       "DraftBudgets": {
         "additionalProperties": false,
         "properties": {
@@ -2154,6 +2539,59 @@
         "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
         "type": "string"
       },
+      "InboxConsumption": {
+        "additionalProperties": false,
+        "properties": {
+          "consumer_attempt_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "held": {
+            "title": "Held",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "held",
+          "decision_ref",
+          "consumer_attempt_id"
+        ],
+        "title": "InboxConsumption",
+        "type": "object"
+      },
+      "InputTokenDetails": {
+        "additionalProperties": false,
+        "properties": {
+          "cached_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "InputTokenDetails",
+        "type": "object"
+      },
       "InstanceView": {
         "properties": {
           "admission_open": {
@@ -2832,6 +3270,23 @@
         "title": "ObjectiveConstraint",
         "type": "object"
       },
+      "OutputTokenDetails": {
+        "additionalProperties": false,
+        "properties": {
+          "reasoning_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "OutputTokenDetails",
+        "type": "object"
+      },
       "PairingBody": {
         "additionalProperties": false,
         "properties": {
@@ -3396,6 +3851,220 @@
         "title": "RemoveModel",
         "type": "object"
       },
+      "ReportedUsage": {
+        "additionalProperties": false,
+        "properties": {
+          "cache_creation_input_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cache_read_input_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cached_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "completion_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "completion_tokens_details": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OutputTokenDetails"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cost": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost"
+          },
+          "input_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "output_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "prompt_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "prompt_tokens_details": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InputTokenDetails"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reasoning_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "total_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "ReportedUsage",
+        "type": "object"
+      },
+      "ResultRecord": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "completion_kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "direct",
+                  "finish",
+                  "error",
+                  "cancel"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completion Kind"
+          },
+          "consumed_refs": {
+            "items": {
+              "$ref": "#/components/schemas/RunRef"
+            },
+            "maxItems": 32,
+            "title": "Consumed Refs",
+            "type": "array"
+          },
+          "gaps": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 17,
+            "title": "Gaps",
+            "type": "array"
+          },
+          "run_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "state": {
+            "enum": [
+              "SUCCEEDED",
+              "INCONCLUSIVE",
+              "FAILED",
+              "CANCELLED"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "task_id": {
+            "$ref": "#/components/schemas/Identity"
+          }
+        },
+        "required": [
+          "run_id",
+          "task_id",
+          "attempt_id",
+          "state",
+          "summary",
+          "consumed_refs",
+          "gaps"
+        ],
+        "title": "ResultRecord",
+        "type": "object"
+      },
       "ResultState": {
         "enum": [
           "NOT_SENT",
@@ -3470,6 +4139,43 @@
           "expected_revision"
         ],
         "title": "RevokeConnection",
+        "type": "object"
+      },
+      "RoleUsage": {
+        "additionalProperties": false,
+        "properties": {
+          "configured_model": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Configured Model",
+            "type": "string"
+          },
+          "connection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "role": {
+            "enum": [
+              "BRAIN",
+              "RECON"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/UsageTotals"
+          }
+        },
+        "required": [
+          "role",
+          "configured_model",
+          "connection_id",
+          "connection_revision",
+          "totals"
+        ],
+        "title": "RoleUsage",
         "type": "object"
       },
       "RunCommand": {
@@ -3689,9 +4395,13 @@
           },
           "run": {
             "$ref": "#/components/schemas/RunView"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/UsageSummary"
           }
         },
         "required": [
+          "usage",
           "run",
           "owner_live",
           "phase_active",
@@ -4333,6 +5043,289 @@
           "NEEDS_RECONCILIATION"
         ],
         "type": "string"
+      },
+      "TokenCount": {
+        "maximum": 9007199254740991.0,
+        "minimum": 0.0,
+        "type": "integer"
+      },
+      "UsageMeasures": {
+        "additionalProperties": false,
+        "properties": {
+          "cache_creation_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cached_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cost_observed": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Observed"
+          },
+          "input_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "output_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reasoning_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "total_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenCount"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "UsageMeasures",
+        "type": "object"
+      },
+      "UsageRecord": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "configured_model": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Configured Model",
+            "type": "string"
+          },
+          "connection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "connection_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "dispatch_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "instance_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "measures": {
+            "$ref": "#/components/schemas/UsageMeasures"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          },
+          "observed_model": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "pattern": "^[!-~]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Model"
+          },
+          "reported": {
+            "$ref": "#/components/schemas/ReportedUsage"
+          },
+          "role": {
+            "enum": [
+              "BRAIN",
+              "RECON"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "run_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "task_id": {
+            "$ref": "#/components/schemas/Identity"
+          }
+        },
+        "required": [
+          "reported",
+          "measures",
+          "instance_id",
+          "run_id",
+          "task_id",
+          "attempt_id",
+          "dispatch_id",
+          "role",
+          "configured_model",
+          "connection_id",
+          "connection_revision",
+          "observed_at"
+        ],
+        "title": "UsageRecord",
+        "type": "object"
+      },
+      "UsageSubtotal": {
+        "additionalProperties": false,
+        "properties": {
+          "observed_dispatches": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "state": {
+            "enum": [
+              "OBSERVED",
+              "PARTIAL",
+              "UNKNOWN"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "value",
+          "observed_dispatches",
+          "state"
+        ],
+        "title": "UsageSubtotal",
+        "type": "object"
+      },
+      "UsageSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "accounting_policy": {
+            "const": "MONITOR",
+            "default": "MONITOR",
+            "title": "Accounting Policy",
+            "type": "string"
+          },
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/RoleUsage"
+            },
+            "maxItems": 2,
+            "title": "Roles",
+            "type": "array"
+          },
+          "scope": {
+            "enum": [
+              "RUN",
+              "ATTEMPT"
+            ],
+            "title": "Scope",
+            "type": "string"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/UsageTotals"
+          }
+        },
+        "required": [
+          "scope",
+          "totals",
+          "roles"
+        ],
+        "title": "UsageSummary",
+        "type": "object"
+      },
+      "UsageTotals": {
+        "additionalProperties": false,
+        "properties": {
+          "cache_creation_tokens": {
+            "$ref": "#/components/schemas/UsageSubtotal"
+          },
+          "cached_tokens": {
+            "$ref": "#/components/schemas/UsageSubtotal"
+          },
+          "cost_observed": {
+            "$ref": "#/components/schemas/UsageSubtotal"
+          },
+          "dispatches": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "input_tokens": {
+            "$ref": "#/components/schemas/UsageSubtotal"
+          },
+          "output_tokens": {
+            "$ref": "#/components/schemas/UsageSubtotal"
+          },
+          "reasoning_tokens": {
+            "$ref": "#/components/schemas/UsageSubtotal"
+          },
+          "total_tokens": {
+            "$ref": "#/components/schemas/UsageSubtotal"
+          },
+          "unobserved_dispatches": {
+            "$ref": "#/components/schemas/Revision"
+          }
+        },
+        "required": [
+          "dispatches",
+          "unobserved_dispatches",
+          "input_tokens",
+          "output_tokens",
+          "total_tokens",
+          "cached_tokens",
+          "reasoning_tokens",
+          "cache_creation_tokens",
+          "cost_observed"
+        ],
+        "title": "UsageTotals",
+        "type": "object"
       },
       "ValidationError": {
         "properties": {
@@ -6880,7 +7873,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Attempt"
+                  "$ref": "#/components/schemas/AttemptInspection"
                 }
               }
             },

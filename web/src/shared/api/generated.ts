@@ -783,6 +783,71 @@ export interface components {
             /** Tool Output */
             tool_output?: string | null;
         };
+        /** AttemptInspection */
+        AttemptInspection: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            attempt_id: components["schemas"]["Identity"];
+            /** Brief */
+            brief: string;
+            /** Call Id */
+            call_id?: string | null;
+            /** Configured Model */
+            configured_model: string;
+            consumption?: components["schemas"]["InboxConsumption"] | null;
+            /**
+             * Correction Count
+             * @default 0
+             */
+            correction_count: number;
+            decision?: components["schemas"]["BrainDecision"] | null;
+            /** Decision Completion Kind */
+            decision_completion_kind?: "direct" | null;
+            /** Dispatches */
+            dispatches?: components["schemas"]["DispatchUsage"][];
+            /**
+             * Dispatches Has More
+             * @default false
+             */
+            dispatches_has_more: boolean;
+            /** Input Refs */
+            input_refs: components["schemas"]["RunRef"][];
+            /** Input Text */
+            input_text: string;
+            instance_id: components["schemas"]["Identity"];
+            /** Instructions */
+            instructions: string;
+            /** Observed Model */
+            observed_model?: string | null;
+            parent_task_id: components["schemas"]["Identity"] | null;
+            read_receipt_ref?: components["schemas"]["RunRef"] | null;
+            result?: components["schemas"]["ResultRecord"] | null;
+            result_ref?: components["schemas"]["RunRef"] | null;
+            /** Result Summary */
+            result_summary?: string | null;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "BRAIN" | "RECON";
+            run_id: components["schemas"]["Identity"];
+            /** Skill Refs */
+            skill_refs: components["schemas"]["ExactRef"][];
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "RUNNING" | "SUCCEEDED" | "INCONCLUSIVE" | "FAILED" | "CANCELLED" | "NEEDS_RECONCILIATION";
+            task_id: components["schemas"]["Identity"];
+            /** Tool Arguments */
+            tool_arguments?: string | null;
+            /** Tool Output */
+            tool_output?: string | null;
+            usage?: components["schemas"]["UsageSummary"] | null;
+        };
         /** Authorization */
         Authorization: {
             /** Owner */
@@ -793,6 +858,20 @@ export interface components {
             valid_from: string;
             /** Valid Until */
             valid_until: string;
+        };
+        /** BrainDecision */
+        BrainDecision: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "delegate" | "ask" | "finish";
+            /** Consumed Refs */
+            consumed_refs: components["schemas"]["RunRef"][];
+            /** Detail */
+            detail: string;
+            /** Summary */
+            summary: string;
         };
         /** BusinessMatrixEntry */
         BusinessMatrixEntry: {
@@ -1118,6 +1197,23 @@ export interface components {
         /** @enum {string} */
         DeclaredDecision: "ALLOW" | "DENY" | "UNKNOWN";
         Digest: string;
+        /** DispatchUsage */
+        DispatchUsage: {
+            dispatch_id: components["schemas"]["Identity"];
+            /** Reserved At */
+            reserved_at: string | null;
+            /** Sent At */
+            sent_at: string | null;
+            /** Settled At */
+            settled_at: string | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "RESERVED" | "SENT" | "SETTLED" | "RELEASED" | "UNKNOWN";
+            usage: components["schemas"]["UsageRecord"] | null;
+            usage_ref: components["schemas"]["RunRef"] | null;
+        };
         /** DraftBudgets */
         DraftBudgets: {
             /** Max Duration Seconds */
@@ -1422,6 +1518,17 @@ export interface components {
             reason: components["schemas"]["ReadinessReason"] | null;
         };
         Identity: string;
+        /** InboxConsumption */
+        InboxConsumption: {
+            consumer_attempt_id: components["schemas"]["Identity"] | null;
+            decision_ref: components["schemas"]["RunRef"] | null;
+            /** Held */
+            held: boolean;
+        };
+        /** InputTokenDetails */
+        InputTokenDetails: {
+            cached_tokens?: components["schemas"]["TokenCount"] | null;
+        };
         /** InstanceView */
         InstanceView: {
             /** Admission Open */
@@ -1636,6 +1743,10 @@ export interface components {
             operation_refs: unknown[];
             /** Text */
             text: string;
+        };
+        /** OutputTokenDetails */
+        OutputTokenDetails: {
+            reasoning_tokens?: components["schemas"]["TokenCount"] | null;
         };
         /** PairingBody */
         PairingBody: {
@@ -1856,6 +1967,41 @@ export interface components {
             expected_registry_revision: components["schemas"]["Revision"];
             expected_revision: components["schemas"]["PositiveRevision"];
         };
+        /** ReportedUsage */
+        ReportedUsage: {
+            cache_creation_input_tokens?: components["schemas"]["TokenCount"] | null;
+            cache_read_input_tokens?: components["schemas"]["TokenCount"] | null;
+            cached_tokens?: components["schemas"]["TokenCount"] | null;
+            completion_tokens?: components["schemas"]["TokenCount"] | null;
+            completion_tokens_details?: components["schemas"]["OutputTokenDetails"] | null;
+            /** Cost */
+            cost?: number | string | null;
+            input_tokens?: components["schemas"]["TokenCount"] | null;
+            output_tokens?: components["schemas"]["TokenCount"] | null;
+            prompt_tokens?: components["schemas"]["TokenCount"] | null;
+            prompt_tokens_details?: components["schemas"]["InputTokenDetails"] | null;
+            reasoning_tokens?: components["schemas"]["TokenCount"] | null;
+            total_tokens?: components["schemas"]["TokenCount"] | null;
+        };
+        /** ResultRecord */
+        ResultRecord: {
+            attempt_id: components["schemas"]["Identity"];
+            /** Completion Kind */
+            completion_kind?: ("direct" | "finish" | "error" | "cancel") | null;
+            /** Consumed Refs */
+            consumed_refs: components["schemas"]["RunRef"][];
+            /** Gaps */
+            gaps: string[];
+            run_id: components["schemas"]["Identity"];
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "SUCCEEDED" | "INCONCLUSIVE" | "FAILED" | "CANCELLED";
+            /** Summary */
+            summary: string | null;
+            task_id: components["schemas"]["Identity"];
+        };
         /** @enum {string} */
         ResultState: "NOT_SENT" | "COMPLETED" | "INCOMPLETE" | "FAILED" | "UNKNOWN";
         Revision: number;
@@ -1878,6 +2024,19 @@ export interface components {
             command_id: components["schemas"]["Identity"];
             connection_id: components["schemas"]["Identity"];
             expected_revision: components["schemas"]["PositiveRevision"];
+        };
+        /** RoleUsage */
+        RoleUsage: {
+            /** Configured Model */
+            configured_model: string;
+            connection_id: components["schemas"]["Identity"];
+            connection_revision: components["schemas"]["PositiveRevision"];
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "BRAIN" | "RECON";
+            totals: components["schemas"]["UsageTotals"];
         };
         /** RunCommand */
         RunCommand: {
@@ -1953,6 +2112,7 @@ export interface components {
             phase_active: boolean;
             question: components["schemas"]["Question"] | null;
             run: components["schemas"]["RunView"];
+            usage: components["schemas"]["UsageSummary"];
         };
         /** RunView */
         RunView: {
@@ -2139,6 +2299,84 @@ export interface components {
         };
         /** @enum {string} */
         State: "PENDING" | "RUNNING" | "STOPPING" | "FINISHED" | "NEEDS_RECONCILIATION";
+        TokenCount: number;
+        /** UsageMeasures */
+        UsageMeasures: {
+            cache_creation_tokens?: components["schemas"]["TokenCount"] | null;
+            cached_tokens?: components["schemas"]["TokenCount"] | null;
+            /** Cost Observed */
+            cost_observed?: string | null;
+            input_tokens?: components["schemas"]["TokenCount"] | null;
+            output_tokens?: components["schemas"]["TokenCount"] | null;
+            reasoning_tokens?: components["schemas"]["TokenCount"] | null;
+            total_tokens?: components["schemas"]["TokenCount"] | null;
+        };
+        /** UsageRecord */
+        UsageRecord: {
+            attempt_id: components["schemas"]["Identity"];
+            /** Configured Model */
+            configured_model: string;
+            connection_id: components["schemas"]["Identity"];
+            connection_revision: components["schemas"]["PositiveRevision"];
+            dispatch_id: components["schemas"]["Identity"];
+            instance_id: components["schemas"]["Identity"];
+            measures: components["schemas"]["UsageMeasures"];
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /** Observed Model */
+            observed_model?: string | null;
+            reported: components["schemas"]["ReportedUsage"];
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "BRAIN" | "RECON";
+            run_id: components["schemas"]["Identity"];
+            task_id: components["schemas"]["Identity"];
+        };
+        /** UsageSubtotal */
+        UsageSubtotal: {
+            observed_dispatches: components["schemas"]["Revision"];
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "OBSERVED" | "PARTIAL" | "UNKNOWN";
+            /** Value */
+            value: string | null;
+        };
+        /** UsageSummary */
+        UsageSummary: {
+            /**
+             * Accounting Policy
+             * @default MONITOR
+             * @constant
+             */
+            accounting_policy: "MONITOR";
+            /** Roles */
+            roles: components["schemas"]["RoleUsage"][];
+            /**
+             * Scope
+             * @enum {string}
+             */
+            scope: "RUN" | "ATTEMPT";
+            totals: components["schemas"]["UsageTotals"];
+        };
+        /** UsageTotals */
+        UsageTotals: {
+            cache_creation_tokens: components["schemas"]["UsageSubtotal"];
+            cached_tokens: components["schemas"]["UsageSubtotal"];
+            cost_observed: components["schemas"]["UsageSubtotal"];
+            dispatches: components["schemas"]["Revision"];
+            input_tokens: components["schemas"]["UsageSubtotal"];
+            output_tokens: components["schemas"]["UsageSubtotal"];
+            reasoning_tokens: components["schemas"]["UsageSubtotal"];
+            total_tokens: components["schemas"]["UsageSubtotal"];
+            unobserved_dispatches: components["schemas"]["Revision"];
+        };
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -4242,7 +4480,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Attempt"];
+                    "application/json": components["schemas"]["AttemptInspection"];
                 };
             };
             /** @description Bad Request */

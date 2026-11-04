@@ -2,13 +2,22 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../shared/api/client';
 import type { SelectedDraft } from '../../shared/api/projections';
-import type { Receipt, RunCommand, StartRun, RunView, RunSummary, EventPage, Attempt } from '../../shared/api/runs';
-import { runCommandFits, runPolling as polling, checkRunProgress, runTerminal } from '../../shared/api/runs';
+import type { Receipt, RunCommand, StartRun, RunView, RunSummary, EventPage, Attempt, UsageSummary, UsageTotals, Ref } from '../../shared/api/runs';
+import { runCommandFits, runPolling as polling, checkRunProgress, runTerminal, usageFields, sameRef } from '../../shared/api/runs';
 import { RunStop } from './GlobalStop';
 import { ApiError, isUuid } from '../../shared/api/errors';
 import { useSession } from '../bootstrap/BrowserSession';
 import { remembered, remember, sessionScope } from './SettingsModels';
 import styles from './Engagement.module.css';
+
+function UsageAmounts({ totals }: { totals: UsageTotals }) {
+  return <><p>Allocations: {totals.dispatches} · without observation: {totals.unobserved_dispatches}</p><dl>{usageFields.map(key => <div key={key}><dt>{key}</dt><dd>{totals[key].value ?? 'UNKNOWN'} · {totals[key].state} · {totals[key].observed_dispatches}/{totals.dispatches} observed</dd></div>)}</dl></>;
+}
+function UsageReadback({ usage }: { usage: UsageSummary }) {
+  return <><p>{usage.accounting_policy} · full {usage.scope} aggregate, independent of bounded detail. Allocations are not a paid-call count. Unknown is not zero; partial values cover only observed dispatches. Cost is observed only, without an inferred currency or estimate. Cache and reasoning are components, not extra total tokens.</p><UsageAmounts totals={usage.totals} />{usage.roles.map(role => <section key={role.role} aria-label={`${role.role} usage`}><h4>{role.role} · {role.configured_model}</h4><p>connection {role.connection_id} · revision {role.connection_revision}</p><UsageAmounts totals={role.totals} /></section>)}</>;
+}
+
+function refLabel(ref: Ref) { return `${ref.kind} · ${ref.id} · revision ${ref.revision} · ${ref.digest} · instance ${ref.instance_id}`; }
 
 export function RunPanel({ draft, stream }: { draft: SelectedDraft; stream: boolean }) {
   const { session, transition, readPrivate } = useSession();
@@ -27,7 +36,7 @@ export function RunPanel({ draft, stream }: { draft: SelectedDraft; stream: bool
   const lifetime = useRef(new AbortController());
   const busy = useRef(false);
   useEffect(() => { const controller = new AbortController(); lifetime.current = controller; return () => controller.abort(); }, []);
-  const [inspected, setInspected] = useState<{ run: string | undefined; attempt: string | null } | null>(null);
+  const [inspected, setInspected] = useState<{ run: string | undefined; attempt: string | null; consumption: { decision: Ref; result: Ref } | undefined } | null>(null);
   const [page, setPage] = useState<{ run: string | undefined; cursors: number[] } | null>(null);
   const [eventFilter, setEventFilter] = useState<{ run: string | undefined; kind: string; actor: string }>({ run: undefined, kind: '', actor: '' });
   const pointer = `omnis-run-command-${draft.engagement_id}`;
@@ -50,14 +59,27 @@ export function RunPanel({ draft, stream }: { draft: SelectedDraft; stream: bool
   const currentRun = useQuery({ queryKey: currentKey, queryFn: ({ signal }) => readPrivate(async () => checkRunProgress(await api.engagementRun(draft.engagement_id, signal), client.getQueryData<RunView | null>(currentKey)), signal), enabled, ...polling });
   const runId = currentRun.data?.run_id;
   const selected = inspected?.run === runId ? inspected?.attempt : null;
+  const consumptionLink = inspected?.run === runId ? inspected?.consumption : undefined;
   const cursors = page?.run === runId ? page?.cursors ?? [] : [];
   const after = cursors.at(-1) ?? 0;
   const filter = eventFilter.run === runId ? eventFilter : { run: runId, kind: '', actor: '' };
-  const setSelected = (attempt: string | null) => setInspected({ run: runId, attempt });
+  const setSelected = (attempt: string | null, consumption?: { decision: Ref; result: Ref }) => setInspected({ run: runId, attempt, consumption });
   const setAfter = (after: number) => setPage({ run: runId, cursors: after === 0 ? [] : [...cursors, after] });
   const summary = useQuery({ queryKey: ['private', 'run-summary', runId], queryFn: ({ signal }) => { if (!runId) throw new ApiError('INVALID_INPUT'); return readPrivate(async () => { const result = await api.runSummary(runId, signal); checkRunProgress(result.run, client.getQueryData<RunSummary>(['private', 'run-summary', runId])?.run); checkRunProgress(result.run, client.getQueryData<RunView | null>(currentKey)); return result; }, signal); }, enabled: enabled && !!runId, ...polling });
   const events = useQuery({ queryKey: ['private', 'run-events', runId, after], queryFn: ({ signal }) => { if (!runId) throw new ApiError('INVALID_INPUT'); return readPrivate(async () => { const result = await api.runEvents(runId, after, signal); const previous = client.getQueryData<EventPage>(['private', 'run-events', runId, after]); if (previous && result.through_cursor < previous.through_cursor) throw new ApiError('INVALID_RESPONSE'); return result; }, signal); }, enabled: enabled && !!runId && stream, ...polling });
-  const inspector = useQuery({ queryKey: ['private', 'run-attempt', runId, selected], queryFn: ({ signal }) => { if (!runId || !selected) throw new ApiError('INVALID_INPUT'); return readPrivate(() => api.runAttempt(runId, selected, signal), signal); }, enabled: enabled && !!runId && !!selected && stream, ...polling });
+  const inspector = useQuery({ queryKey: ['private', 'run-attempt', runId, selected, consumptionLink], queryFn: ({ signal }) => {
+    if (!runId || !selected) throw new ApiError('INVALID_INPUT');
+    return readPrivate(async () => {
+      const result = await api.runAttempt(runId, selected, signal);
+      const roster = summary.data?.attempts.find(item => item.attempt_id === selected);
+      if (result.instance_id !== currentRun.data?.instance_id || (roster && (result.task_id !== roster.task_id || result.role !== roster.role || result.configured_model !== roster.configured_model))) throw new ApiError('INVALID_RESPONSE');
+      if (consumptionLink && (!result.decision || !result.result_ref || !sameRef(result.result_ref, consumptionLink.decision) || !result.decision.consumed_refs.some(ref => sameRef(ref, consumptionLink.result)))) throw new ApiError('INVALID_RESPONSE');
+      return result;
+    }, signal);
+  }, enabled: enabled && !!runId && !!selected && stream, ...polling });
+  const detail = selected ? inspector.data : undefined;
+  const inspectorHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { if (consumptionLink && detail?.attempt_id) inspectorHeading.current?.focus(); }, [consumptionLink, detail?.attempt_id]);
   const run = summary.data && summary.data.run.revision >= (currentRun.data?.revision ?? 0) ? summary.data.run : currentRun.data;
   const active = !!run && !runTerminal(run);
   const csrf = session.data?.csrf_token;
@@ -129,6 +151,7 @@ export function RunPanel({ draft, stream }: { draft: SelectedDraft; stream: bool
       <button disabled={sending || !!pending || !run || !['PAUSED', 'HOLD'].includes(run.state)} onClick={() => { void command('resume'); }}>Resume run</button>
       <RunStop run={run} />
     </div>}
+    {summary.data && <section aria-label="Run accounting"><h3>Run accounting</h3><p>Snapshot {summary.data.as_of} · run revision {summary.data.run.revision}{summary.isError || !coherent ? ' · stale or unverified' : ''}</p><UsageReadback usage={summary.data.usage} /></section>}
     {!active && !stream && <>
       <label>Qualified core publication<select value={publication} onChange={event => { setPublication(event.target.value); setReview(null); setConsent(false); }}><option value="">Choose an exact published core</option>{publications.data?.map(item => <option key={item.id} value={item.id}>{item.id} · {item.digest}</option>)}</select></label>
       <label>Selected synthetic inert context<textarea value={context} maxLength={1024} onChange={event => { setContext(event.target.value); setReview(null); setConsent(false); }} /></label>
@@ -155,11 +178,32 @@ export function RunPanel({ draft, stream }: { draft: SelectedDraft; stream: bool
       {after > 0 && <button onClick={() => { setPage({ run: runId, cursors: cursors.slice(0, -1) }); }}>Previous events</button>}
       {events.data?.has_more && <button disabled={events.isFetching || events.data.through_cursor <= after} onClick={() => { setAfter(events.data?.through_cursor ?? after); }}>Next events</button>}
       {selected && inspector.isPending && <p>Loading selected agent…</p>}
-      {selected && inspector.data && <section aria-label="Agent inspector"><h3>{inspector.data.role} · {inspector.data.attempt_id}</h3><p>Run {inspector.data.run_id} · task {inspector.data.task_id} · parent {inspector.data.parent_task_id ?? 'none'} · {inspector.data.state}</p><p>{inspector.data.brief}</p><ul>{inspector.data.input_refs.map(ref => <li key={ref.id}>Input {ref.kind} · {ref.id} · revision {ref.revision} · {ref.digest}</li>)}</ul><p>Configured model: {inspector.data.configured_model} · Observed model: {inspector.data.observed_model ?? 'UNKNOWN'}</p><ul>{inspector.data.skill_refs.map(ref => <li key={ref.id}>Skill {ref.id} · {ref.digest}</li>)}</ul><p>{inspector.data.result_summary}</p><h4>Allowed input actually sent</h4><pre>{inspector.data.input_text}</pre><h4>Composed instructions and pinned skills</h4><pre>{inspector.data.instructions}</pre><p>Call {inspector.data.call_id ?? 'none'} · tool {inspector.data.tool_arguments ?? 'none'}</p><h4>Persisted tool result</h4><pre>{inspector.data.tool_output ?? 'No tool result'}</pre><p>Read receipt: {inspector.data.read_receipt_ref ? `${inspector.data.read_receipt_ref.id} · ${inspector.data.read_receipt_ref.digest}` : 'Not observed'}</p><p>Final result: {inspector.data.result_ref ? `${inspector.data.result_ref.id} · ${inspector.data.result_ref.digest}` : 'Not finalized'}</p></section>}
+      {detail && <section aria-label="Agent inspector">
+        <h3 ref={inspectorHeading} tabIndex={-1}>{detail.role} · {detail.attempt_id}</h3><p>Run {detail.run_id} · task {detail.task_id} · parent {detail.parent_task_id ?? 'none'} · {detail.state}</p>
+        <p>Snapshot {detail.as_of}{inspector.isError ? ' · stale or unavailable' : ''}</p><p>{detail.brief}</p>
+        <ul>{detail.input_refs.map(ref => <li key={ref.id}>Input {refLabel(ref)}</li>)}</ul>
+        <p>Configured model: {detail.configured_model} · Observed model: {detail.observed_model ?? 'UNKNOWN'}</p>
+        <ul>{detail.skill_refs.map(ref => <li key={ref.id}>Skill {ref.kind} · {ref.id} · revision {ref.revision} · {ref.digest}</li>)}</ul>
+        <h4>Exact persisted completion</h4><p>Final result: {detail.result_ref ? refLabel(detail.result_ref) : 'Not finalized'}</p>
+        {detail.result && <><p>Result status: {detail.result.state} · Completion kind: {detail.result.completion_kind ?? 'UNKNOWN'}</p><pre>{detail.result.summary ?? 'UNKNOWN'}</pre><h4>Retained gaps</h4>{detail.result.gaps.length ? <ul>{detail.result.gaps.map((gap, index) => <li key={index}>{gap}</li>)}</ul> : <p>No retained gaps</p>}<ul>{detail.result.consumed_refs.map(ref => <li key={ref.id}>Consumed input {refLabel(ref)}</li>)}</ul></>}
+        {detail.decision && <><p>Decision action: {detail.decision.action} · Completion kind: {detail.decision_completion_kind ?? 'UNKNOWN'}</p><pre>{detail.decision.summary}</pre><pre>{detail.decision.detail}</pre><ul>{detail.decision.consumed_refs.map(ref => <li key={ref.id}>Consumed result {refLabel(ref)}</li>)}</ul></>}
+        {!detail.result && !detail.decision && <p>No completion observed</p>}
+        <p>Consumption: {detail.consumption ? detail.consumption.decision_ref ? 'CONSUMED' : detail.consumption.held ? 'HELD' : 'PENDING' : 'UNKNOWN / not applicable'}. Read receipt alone is not consumption.</p>
+        {detail.consumption?.decision_ref && <p>Consuming decision {refLabel(detail.consumption.decision_ref)}</p>}
+        {detail.consumption?.consumer_attempt_id && detail.consumption.decision_ref && detail.result_ref && <button onClick={() => { if (detail.consumption?.consumer_attempt_id && detail.consumption.decision_ref && detail.result_ref) setSelected(detail.consumption.consumer_attempt_id, { decision: detail.consumption.decision_ref, result: detail.result_ref }); }}>Inspect consuming Brain · {detail.consumption.consumer_attempt_id}</button>}
+        <section aria-label="Attempt accounting"><h4>Attempt accounting</h4>{detail.usage ? <UsageReadback usage={detail.usage} /> : <p>Usage UNKNOWN</p>}</section>
+        <h4>Bounded dispatch observations</h4><p>{detail.dispatches_has_more ? 'More dispatch details omitted; no next-page endpoint. Full aggregate above is not truncated.' : 'All dispatch details in this snapshot.'} Maximum 20 details.</p>
+        <ul aria-label="Dispatch observations">{detail.dispatches?.map(dispatch => <li key={dispatch.dispatch_id}>
+          <p>{dispatch.dispatch_id} · {dispatch.state}</p><p>Reserved {dispatch.reserved_at ?? 'UNKNOWN'} · sent {dispatch.sent_at ?? 'UNKNOWN'} · settled {dispatch.settled_at ?? 'UNKNOWN'}</p>
+          <p>Usage receipt: {dispatch.usage_ref ? refLabel(dispatch.usage_ref) : 'UNKNOWN / not observed'}</p>
+          {dispatch.usage ? <><p>{dispatch.usage.role} · configured {dispatch.usage.configured_model} · observed {dispatch.usage.observed_model ?? 'UNKNOWN'} · connection {dispatch.usage.connection_id} · revision {dispatch.usage.connection_revision} · observed at {dispatch.usage.observed_at}</p><h4>Validated measures</h4><pre>{JSON.stringify(dispatch.usage.measures, null, 2)}</pre><h4>Original validated usage</h4><pre>{JSON.stringify(dispatch.usage.reported, null, 2)}</pre></> : <p>No observation receipt; usage UNKNOWN, not zero.</p>}
+        </li>)}</ul>
+        <h4>Allowed input actually sent</h4><pre>{detail.input_text}</pre><h4>Composed instructions and pinned skills</h4><pre>{detail.instructions}</pre><p>Call {detail.call_id ?? 'none'} · tool {detail.tool_arguments ?? 'none'}</p><h4>Persisted tool result</h4><pre>{detail.tool_output ?? 'No tool result'}</pre><p>Read receipt: {detail.read_receipt_ref ? refLabel(detail.read_receipt_ref) : 'Not observed'}</p>
+      </section>}
     </>}
     <output aria-live="polite">{message}</output>
     {pending && <button disabled={sending} onClick={() => { void readReceipt(); }}>Read command receipt</button>}
-    <button onClick={() => { void client.invalidateQueries({ queryKey: ['private', 'engagement-run', draft.engagement_id] }); if (runId) { void summary.refetch(); if (stream) void events.refetch(); } }}>Refresh run</button>
+    <button onClick={() => { void client.invalidateQueries({ queryKey: ['private', 'engagement-run', draft.engagement_id] }); if (runId) { void summary.refetch(); if (stream) { void events.refetch(); if (selected) void inspector.refetch(); } } }}>Refresh run</button>
     {(currentRun.isError || summary.isError || events.isError || inspector.isError) && <p>Run readback unavailable or stale; no state or effects are inferred.</p>}
   </div></section>;
 }

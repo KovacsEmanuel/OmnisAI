@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "verdict": "PASS_LOCAL_RECORDED_S0_ISOLATED_INTEGRATION",
+  "product_commit": "a8462197a010bd1c9d6955e457c438ccc5872f68",
+  "process": "proc_b285e2f0f6c1",
+  "command": "env -i PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin:/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin HOME=/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/home TMPDIR=/home/kali/.hermes/cache/scratch/s0g-wnyxj_1x api/.venv/bin/python -I -B ops/run_test_db_gate.py --check --target check-components --uv /home/kali/.local/share/omnis-toolchains/bin/uv --timeout-seconds 4800",
+  "cwd": "/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/checkout",
+  "exit_code": 0,
+  "family_drained": true,
+  "complete_existing_canonical_target": true,
+  "stage_results": {
+    "documentation": {"passed": 87},
+    "development": {"passed": 75},
+    "api_audit": {"packages": 67, "vulnerabilities": 0, "adverse_statuses": 0},
+    "api": {"passed": 3218, "skipped": 70, "deselected": 7, "seconds": 3106.25},
+    "migrations": {"passed": 23, "seconds": 66.92},
+    "api_wheel_build_import_factory": "PASS",
+    "contracts_lint_typecheck_build": "PASS",
+    "web": {"passed": 354, "test_files": 20},
+    "web_audit_vulnerabilities": 0,
+    "models_browser_api_pg": {"passed": 1, "seconds": 86.77},
+    "remove_browser_api_pg": {"passed": 1, "seconds": 67.85},
+    "other_browser_api_e2e": {"passed": 10, "seconds": 133.46},
+    "cli_source": {"passed": 444, "seconds": 112.989},
+    "cli_wheel": {"passed": 444, "seconds": 112.315},
+    "cli_pg_status": {"passed": 1, "seconds": 3.48},
+    "release": {"run": 83, "failures": 0, "skipped": 3, "seconds": 18.835}
+  },
+  "readback": {
+    "tracked_files_checked": 2345,
+    "tracked_drift": [],
+    "operator_public_assets_checked": 7,
+    "operator_public_asset_drift": [],
+    "container_id": "6e0e1acf908ba06aaa47f05248a31d4df6ca06e9175bb79b237d5b2bc5403de1",
+    "project": "omnis-p01-0c54aabd768148fc8c9731d46b40e09e",
+    "container_absent": true,
+    "project_networks_absent": true,
+    "socket_absent": true,
+    "synthetic_data_retained": true,
+    "fixture_root": "/home/kali/.hermes/cache/scratch/s0g-wnyxj_1x/db-358f4ead01c0436d"
+  },
+  "reviews_and_scope": {
+    "contract": "7ace4f0; doc-review-r1.json and doc-review-r2.json, APPROVED_SCOPED",
+    "sdk": "9ec3587; sdk-review-r1.json and sdk-review-r2.json, APPROVED_SCOPED, unchanged",
+    "source_pin_fix": "79151f1; source-pin-review.json, APPROVED_SOURCE_SCOPED, unchanged",
+    "remove_canary_fix": "22eaecd; remove-oracle-review.json plus remove-target.json, APPROVED_SCOPED, unchanged",
+    "production_release_fix": "a846219; release-review-r1-v2.json and release-review-r2-v2.json, APPROVED_SCOPED with PARENT-RELEASE-F01 closed; real release QA and complete canonical now PASS",
+    "adjudication": "Parent accepts S0 only in the isolated dependency/serialization/release/integration scope. No S1 runtime functionality or operator deployment is inferred."
+  },
+  "originals": {
+    "archive": "canonical-pass-originals.tar.gz",
+    "sha256": "63773b5172789047e27fd16d01fc8196f0066b3d8402dd69e6741b544c51de64",
+    "log_sha256": "f18005a9589fc3b330b57eaa2ddf7a06c3b9033fe3418623251e1d459d0224bc",
+    "files": ["gate.log", "gate.log.result.json"],
+    "verification": "Both selected archive members read back byte-identical; no credential/data/cache directories included."
+  },
+  "limits": [
+    "Previous full-gate and preparation FAILs remain at their original revisions. This new PASS does not rewrite them.",
+    "The three historical web failures remain UNKNOWN/NOT_REPRODUCED after bounded diagnosis; no frontend, timeout, worker or assertion change was made, and absence of every possible rare defect is not claimed.",
+    "The two harness-only repairs and their counter remain recorded; the later release fix is a separately demonstrated production compatibility defect, not a budget reset.",
+    "SDK replies in serializer admission are scripted fixtures, not live inference, persisted SENT/Brain consumption, future Needs-you or owner300s proof.",
+    "New dependencies were installed only in isolated environments. Main API environment/operator installation were not synchronized; same-version changed-bundle installation remains refused.",
+    "No S1, provider/target inference, operator DB/data change, remote CI, deployment or push is authorized or claimed.",
+    "Synthetic PGDATA retained in scratch is not certified backup or indefinite retention; original nonsecret evidence is versioned."
+  ]
+}

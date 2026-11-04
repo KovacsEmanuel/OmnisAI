@@ -202,6 +202,39 @@ class Attempt(KeyDTO):
     correction_count: int = Field(default=0, ge=0, le=1)
 
 
+class ResultRecord(KeyDTO):
+    run_id: Identity
+    task_id: Identity
+    attempt_id: Identity
+    state: Literal["SUCCEEDED", "INCONCLUSIVE", "FAILED", "CANCELLED"]
+    completion_kind: Literal["direct", "finish", "error", "cancel"] | None = None
+    summary: str | None = Field(max_length=256)
+    consumed_refs: list[RunRef] = Field(max_length=32)
+    gaps: list[str] = Field(max_length=17)
+
+
+class DecisionRecord(KeyDTO):
+    run_id: Identity
+    task_id: Identity
+    attempt_id: Identity
+    completion_kind: Literal["direct"]
+    decision: BrainDecision
+
+
+class InboxConsumption(KeyDTO):
+    held: bool
+    decision_ref: RunRef | None
+    consumer_attempt_id: Identity | None
+
+
+class AttemptInspection(Attempt):
+    result: ResultRecord | None = None
+    decision: BrainDecision | None = None
+    decision_completion_kind: Literal["direct"] | None = None
+    consumption: InboxConsumption | None = None
+    as_of: datetime
+
+
 class Question(KeyDTO):
     question_id: Identity
     run_id: Identity

@@ -11,8 +11,13 @@ from omnis.modules.runs import model_test_store as records
 from omnis.modules.runs.model_test_contract import Ref
 from omnis.modules.runs.run_contract import (
     Attempt,
+    AttemptInspection,
+    BrainDecision,
     CommandReceipt,
+    DecisionRecord,
+    InboxConsumption,
     Question,
+    ResultRecord,
     RunEvent,
     RunView,
     Setup,
@@ -82,7 +87,145 @@ async def attempt(db: AsyncConnection, value: RunView, identity: str) -> Attempt
     )
     if raw is None:
         raise records.ModelConflict("NOT_FOUND")
-    return Attempt.model_validate_json(json.dumps(raw))
+    item = Attempt.model_validate_json(json.dumps(raw))
+    if (item.instance_id, item.run_id, item.attempt_id) != (
+        value.instance_id,
+        value.run_id,
+        identity,
+    ):
+        raise records.ModelConflict("REF_UNAVAILABLE")
+    return item
+
+
+async def decision_read(
+    db: AsyncConnection, actor: Attempt, reference: Ref
+) -> tuple[BrainDecision, str | None]:
+    if actor.role != "BRAIN" or actor.state != "SUCCEEDED" or reference.revision != 1:
+        raise records.ModelConflict("REF_UNAVAILABLE")
+    if reference.kind == "run-decision-v2":
+        raw = await records.resolve(db, actor.instance_id, reference, "run-decision-v2")
+        value = DecisionRecord.model_validate(raw)
+        if (value.run_id, value.task_id, value.attempt_id) != (
+            actor.run_id,
+            actor.task_id,
+            actor.attempt_id,
+        ):
+            raise records.ModelConflict("REF_UNAVAILABLE")
+        decision, completion = value.decision, value.completion_kind
+    elif reference.kind == "run-decision-v1":
+        decision = BrainDecision.model_validate(
+            await records.resolve(db, actor.instance_id, reference, "run-decision-v1")
+        )
+        # Historical decisions have no embedded lineage; their immutable event binds it.
+        if not await db.scalar(
+            text(
+                "SELECT 1 FROM run_event WHERE instance_id=:instance AND run_id=:run "
+                "AND payload->>'task_id'=:task AND payload->>'attempt_id'=:attempt "
+                "AND payload->>'kind'='decision' AND payload->'refs' @> CAST(:refs AS jsonb)"
+            ),
+            {
+                "instance": actor.instance_id,
+                "run": actor.run_id,
+                "task": actor.task_id,
+                "attempt": actor.attempt_id,
+                "refs": json.dumps([reference.model_dump()]),
+            },
+        ):
+            raise records.ModelConflict("REF_UNAVAILABLE")
+        completion = None
+    else:
+        raise records.ModelConflict("REF_UNAVAILABLE")
+    rows = (
+        (
+            await db.execute(
+                text(
+                    "SELECT r.instance_id::text,r.id::text,r.kind,r.revision,r.digest FROM run_inbox i "
+                    "JOIN model_record_v2 r ON r.instance_id=i.instance_id AND r.id=i.result_id "
+                    "WHERE i.instance_id=:instance AND i.run_id=:run AND i.consumed_decision_id=:id "
+                    "AND NOT i.held LIMIT 33"
+                ),
+                {"instance": actor.instance_id, "run": actor.run_id, "id": reference.id},
+            )
+        )
+        .mappings()
+        .all()
+    )
+    consumed = [Ref.model_validate(dict(row)) for row in rows]
+    if len(consumed) != len(decision.consumed_refs) or sorted(
+        r.model_dump_json() for r in consumed
+    ) != sorted(r.model_dump_json() for r in decision.consumed_refs):
+        raise records.ModelConflict("REF_UNAVAILABLE")
+    return decision, completion
+
+
+async def inspect_completion(db: AsyncConnection, actor: Attempt) -> AttemptInspection:
+    reference = actor.result_ref
+    if reference is not None and reference.revision != 1:
+        raise records.ModelConflict("REF_UNAVAILABLE")
+    result = AttemptInspection(**actor.model_dump(), as_of=datetime.now(UTC))
+    if reference is None:
+        return result
+    if reference.kind in {"run-decision-v1", "run-decision-v2"}:
+        decision, completion = await decision_read(db, actor, reference)
+        return AttemptInspection.model_validate(
+            {**result.model_dump(), "decision": decision, "decision_completion_kind": completion}
+        )
+    payload = await records.resolve(db, actor.instance_id, reference, "run-result-v1")
+    value = ResultRecord.model_validate(payload)
+    if (value.run_id, value.task_id, value.attempt_id, value.state) != (
+        actor.run_id,
+        actor.task_id,
+        actor.attempt_id,
+        actor.state,
+    ):
+        raise records.ModelConflict("REF_UNAVAILABLE")
+    row = (
+        await db.execute(
+            text(
+                "SELECT held,consumed_decision_id::text FROM run_inbox "
+                "WHERE instance_id=:instance AND run_id=:run AND result_id=:id"
+            ),
+            {"instance": actor.instance_id, "run": actor.run_id, "id": reference.id},
+        )
+    ).one_or_none()
+    if row is None:
+        raise records.ModelConflict("REF_UNAVAILABLE")
+    consumed_ref, consumer_id = None, None
+    if row[1] is not None:
+        consumers = (
+            (
+                await db.execute(
+                    text(
+                        "SELECT payload FROM run_attempt WHERE instance_id=:instance AND run_id=:run "
+                        "AND payload#>>'{result_ref,id}'=:id LIMIT 2"
+                    ),
+                    {"instance": actor.instance_id, "run": actor.run_id, "id": row[1]},
+                )
+            )
+            .scalars()
+            .all()
+        )
+        if len(consumers) != 1 or row[0]:
+            raise records.ModelConflict("REF_UNAVAILABLE")
+        consumer = Attempt.model_validate(consumers[0])
+        consumed_ref, consumer_id = consumer.result_ref, consumer.attempt_id
+        if (
+            consumer.instance_id != actor.instance_id
+            or consumer.run_id != actor.run_id
+            or consumed_ref is None
+        ):
+            raise records.ModelConflict("REF_UNAVAILABLE")
+        decision, _ = await decision_read(db, consumer, consumed_ref)
+        if reference not in decision.consumed_refs:
+            raise records.ModelConflict("REF_UNAVAILABLE")
+    return result.model_copy(
+        update={
+            "result": value,
+            "consumption": InboxConsumption(
+                held=row[0], decision_ref=consumed_ref, consumer_attempt_id=consumer_id
+            ),
+        }
+    )
 
 
 async def save_attempt(db: AsyncConnection, value: Attempt, *, initial: bool = False) -> None:

@@ -13,7 +13,7 @@ from omnis.modules.runs import run_store as store
 from omnis.modules.runs.model_test_routes import control_exchange
 from omnis.modules.runs.model_test_store import ModelConflict
 from omnis.modules.runs.run_contract import (
-    Attempt,
+    AttemptInspection,
     CommandReceipt,
     EventPage,
     Preflight,
@@ -157,10 +157,10 @@ async def events(
         return error_response(error.code, 404 if error.code == "NOT_FOUND" else 422)
 
 
-@router.get("/runs/{run_id}/attempts/{attempt_id}", response_model=Attempt)
+@router.get("/runs/{run_id}/attempts/{attempt_id}", response_model=AttemptInspection)
 async def attempt(
     run_id: Identity, attempt_id: Identity, request: Request
-) -> Attempt | JSONResponse:
+) -> AttemptInspection | JSONResponse:
     try:
         async with request.app.state.db_engine.connect() as connection:
             db = await connection.execution_options(
@@ -168,9 +168,13 @@ async def attempt(
             )
             async with db.begin():
                 run = await projections.read_run(db, run_id)
-                result = await store.attempt(db, run, attempt_id)
+                result = await store.inspect_completion(
+                    db, await store.attempt(db, run, attempt_id)
+                )
                 if len(result.model_dump_json().encode()) > 65536:
                     raise ModelConflict("PROJECTION_LIMIT")
                 return result
     except ModelConflict as error:
         return error_response(error.code, 404 if error.code == "NOT_FOUND" else 422)
+    except ValueError:
+        return error_response("REF_UNAVAILABLE", 422)

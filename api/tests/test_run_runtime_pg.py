@@ -212,7 +212,7 @@ async def test_run_api_pg_three_causal_tasks_and_receive_only_replay(
                 "run-usage-v1": expected_calls,
                 "run-tool-result-v1": 3,
                 "run-result-v1": 3,
-                "run-decision-v1": expected_decisions,
+                "run-decision-v2": expected_decisions,
                 "run-answer-v1": int(needs_you),
                 "run-late-response-v1": 0,
             }.items():

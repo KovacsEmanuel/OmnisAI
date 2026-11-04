@@ -1044,7 +1044,16 @@ class AgentRunOwner:
             } != {ref.model_dump_json() for ref in attempt.input_refs}:
                 raise records.ModelConflict("CONSUMPTION_CONTEXT_DENIED")
             reference = await records.put(
-                db, self.instance, "run-decision-v1", decision.model_dump(mode="json")
+                db,
+                self.instance,
+                "run-decision-v2",
+                {
+                    "run_id": run.run_id,
+                    "task_id": attempt.task_id,
+                    "attempt_id": attempt.attempt_id,
+                    "completion_kind": "direct",
+                    "decision": decision.model_dump(mode="json"),
+                },
             )
             await store.consume(db, run, decision.consumed_refs, reference)
             question = await store.question(db, run)

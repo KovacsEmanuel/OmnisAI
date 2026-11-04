@@ -1,6 +1,7 @@
 """Actual owner commands with a transaction seam, not SQL or physical drain proof."""
 
 import asyncio
+import json
 from collections.abc import AsyncIterator
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from dataclasses import dataclass
@@ -326,8 +327,14 @@ async def test_actual_owner_finalization_persists_before_continuation(
     assert len(saved) == 1 and saved[0].state == expected
     assert "new_attempt" not in owned.writes and "spawn" not in owned.writes
     if exit_kind == "brain_finish":
+        assert payloads[0]["run_id"] == actor.run_id
+        assert payloads[0]["task_id"] == actor.task_id
+        assert payloads[0]["attempt_id"] == actor.attempt_id
+        assert payloads[0]["decision"] == json.loads(output or "null")
+        assert saved[0].result_ref is not None
+        assert saved[0].result_ref.kind == "run-decision-v2"
         assert owned.writes == [
-            "persist:run-decision-v1",
+            "persist:run-decision-v2",
             "consume",
             "attempt",
             "event",

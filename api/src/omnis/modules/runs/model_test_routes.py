@@ -12,7 +12,10 @@ from fastapi import APIRouter, Request
 from starlette.responses import JSONResponse
 
 from omnis.core.errors import error_responses
-from omnis.modules.instance.schemas import MODEL_TEST_PREPARE_WAIT_SECONDS, ControlRequest
+from omnis.modules.instance.schemas import (
+    MODEL_TEST_PREPARE_WAIT_SECONDS,
+    ControlRequest,
+)
 from omnis.modules.runs.model_test_contract import EntryTestView, ModelTestView
 from omnis.modules.runs.model_test_models import (
     CancelTestRequest,
@@ -22,6 +25,7 @@ from omnis.modules.runs.model_test_models import (
     RefreshRequest,
 )
 from omnis.modules.runs.model_test_store import ModelConflict
+from omnis.modules.runs.run_contract import CommandReceipt, RunControl
 from omnis.modules.settings.provider_catalog_models import CatalogControl, CatalogView
 from omnis.modules.settings.provider_key_models import Identity
 from omnis.security.host_origin import error_response, reject_json_constant, unique_json_object
@@ -30,7 +34,9 @@ from omnis.transport.control_probe import _read_capability
 router = APIRouter(prefix="/api/v1/model-test")
 
 
-async def control_exchange(command: ModelTestControl | CatalogControl) -> dict[str, object]:
+async def control_exchange(
+    command: ModelTestControl | CatalogControl | RunControl,
+) -> dict[str, object]:
     raw = os.environ.get("OMNIS_CONTROL_DIR")
     if not raw:
         raise ValueError("Control unavailable")
@@ -79,10 +85,19 @@ async def control_exchange(command: ModelTestControl | CatalogControl) -> dict[s
                     "NOT_FOUND",
                     "OPERATION_FINISHED",
                     "CONNECTION_UNAVAILABLE",
+                    "AUTHORITY_DENIED",
+                    "ANSWER_DENIED",
+                    "REF_UNAVAILABLE",
+                    "GENERATION_CONFLICT",
                 }
                 if isinstance(code, str) and code in allowed:
                     raise ModelConflict(code)
                 raise ValueError("Control unavailable")
+            if isinstance(command, RunControl):
+                run_receipt = CommandReceipt.model_validate(response.get("agent_run"))
+                if run_receipt.command_id != command.request.command_id:
+                    raise ValueError("Command mismatch")
+                return run_receipt.model_dump(mode="json")
             if isinstance(command, CatalogControl):
                 return CatalogView.model_validate(response.get("provider_catalog")).model_dump(
                     mode="json"

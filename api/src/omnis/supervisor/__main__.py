@@ -69,6 +69,7 @@ async def run() -> None:
     task_owner = None
     provider_owner = None
     model_owner = None
+    run_owner = None
     model_sender = None
     startup_generation = None
     stop = asyncio.Event()
@@ -114,6 +115,34 @@ async def run() -> None:
             if model_sender is not None:
                 model_owner = ApiKeyModelTest(provider_owner, model_sender)
                 service.runtime_drain = model_owner.drain
+                run_catalog = os.environ.get("OMNIS_RUN_CATALOG_ROOT")
+                if run_catalog is not None:
+                    from omnis.modules.runs.run_runtime import AgentRunOwner
+                    from omnis.modules.settings.catalog_publication import PublicationCatalog
+
+                    run_owner = AgentRunOwner(
+                        model_owner, PublicationCatalog(engine, Path(run_catalog))
+                    )
+
+                    async def drain_all_models() -> bool:
+                        assert run_owner is not None and model_owner is not None
+                        run_drained = await run_owner.drain_models()
+                        test_drained = await model_owner.drain_models()
+                        return run_drained and test_drained
+
+                    async def drain_api_runtime() -> bool:
+                        assert (
+                            provider_owner is not None
+                            and run_owner is not None
+                            and model_owner is not None
+                        )
+                        run_drained = await run_owner.drain()
+                        test_drained = await model_owner.drain_models()
+                        settings_drained = await provider_owner.drain()
+                        return run_drained and test_drained and settings_drained
+
+                    provider_owner.model_drain = drain_all_models
+                    service.runtime_drain = drain_api_runtime
         if raw_runtime is not None:
             status = await service.owned_status(owner, epoch)
             startup_generation = status.generation
@@ -160,9 +189,13 @@ async def run() -> None:
         # Drain inherited shutdown before exposing this fresh process owner.
         if model_owner is not None:
             await model_owner.reconcile()
+        if run_owner is not None:
+            await run_owner.recover()
         await service.quiesce(owner, epoch)
         if model_owner is not None:
             model_owner.closing = False  # Fresh process only, before exposing control/admission.
+        if run_owner is not None:
+            run_owner.closing = False
         if task_owner is not None and runtime is not None:
 
             async def drain_model_test() -> bool:
@@ -193,6 +226,8 @@ async def run() -> None:
             if model_owner is not None:
                 control.model_test = model_owner.handle
                 control.provider_catalog = model_owner.catalog_handle
+            if run_owner is not None:
+                control.agent_run = run_owner.handle
             if task_owner is not None:
                 control.model_test = task_owner.model_test
             if runtime is not None and probe is None:
@@ -279,6 +314,8 @@ async def run() -> None:
             nominal_close = True
     finally:
         try:
+            if run_owner is not None and not await run_owner.drain():
+                raise ValueError("Run drain uncertain")
             if model_owner is not None and not await model_owner.drain():
                 raise ValueError("Model operation drain uncertain")
             if model_sender is not None:

@@ -12,8 +12,14 @@ it('rejects consumed fields outside declared bounds, while preserving Unicode at
   expect((await api.engagement(id)).payload.objective_text).toBe('𝔸'.repeat(8192));
 });
 
+it('accepts the public S1 v2 envelope without inventing a run', async () => {
+  const value = { ...projection, schema_version: 2 };
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValue(Response.json(value)));
+  expect(await api.dashboard(null)).toEqual(value);
+});
+
 it.each([
-  null, { ...projection, schema_version: 2 }, { ...projection, context: 'ENGAGEMENT' },
+  null, { ...projection, schema_version: 3 }, { ...projection, context: 'ENGAGEMENT' },
   { ...projection, as_of: 'not-a-date' }, { ...projection, run_id: summary.id },
   { ...projection, data: { ...projection.data, total_engagements: '1' } },
   { ...projection, data: { ...projection.data, items: [{ ...summary, revision: '2' }] } },

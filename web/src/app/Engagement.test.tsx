@@ -30,7 +30,8 @@ it('selects a persisted draft, preserves identity and scope, and navigates edita
   expect(screen.getByRole('heading', { name: summary.name })).toBeVisible();
   expect(screen.getByRole('button', { name: 'Save draft' })).toBeDisabled();
   await user.click(screen.getByRole('link', { name: 'Brain stream' }));
-  expect(await screen.findByText(/not implemented for this draft/)).toBeVisible();
+  expect(await screen.findByRole('heading', { name: 'Brain stream' })).toBeVisible();
+  expect(screen.getByRole('region', { name: 'Inert run' })).toBeVisible();
   expect(screen.queryByText(draft.payload.objective_text)).not.toBeInTheDocument();
   await user.click(screen.getByRole('link', { name: 'Home' }));
   await user.click((await screen.findAllByRole('link', { name: /New engagement/ }))[0]!);

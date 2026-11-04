@@ -11,9 +11,10 @@ from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import ArgumentError, DBAPIError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 
+from omnis.core.run_schema import run_schema_matches
 from omnis.core.schema import authority_schema_matches, schema0016_matches
 
-SCHEMA_REVISION = "0018_model_relay_authority"
+SCHEMA_REVISION = "0019_agent_runs"
 
 
 class ReadinessReason(StrEnum):
@@ -119,6 +120,8 @@ async def _schema_reason_on(
         if not await (
             schema0016_matches(connection) if previous else authority_schema_matches(connection)
         ):
+            return ReadinessReason.SCHEMA_INCOMPATIBLE
+        if not previous and not await run_schema_matches(connection):
             return ReadinessReason.SCHEMA_INCOMPATIBLE
         columns = (
             await connection.execute(

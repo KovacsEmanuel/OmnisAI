@@ -14,11 +14,13 @@ import type { SearchCatalog, RefreshCatalog, CancelCatalog } from './providerCat
 import { decodeKeySettings } from './providerKeys';
 import type { KeyCommand } from './providerKeys';
 import { decodeProviderModels } from './providerModels';
+import { runCommandFits, decodeReceipt, decodeOptionalRun, decodeRunSummary, decodeEvents, decodeAttempt, decodePublications } from './runs';
+import type { Preflight, StartRun, RunCommand } from './runs';
 import type { RemoveModel, SaveModels } from './providerModels';
 
 type Session = components['schemas']['SessionView'];
 type ApiPath = keyof paths;
-type RequestPath = `/api/v1/settings/models/${string}` | `/api/v1/model-test/${string}` | `/api/v1/settings/providers/commands/${string}` | `/api/v1/settings/catalog/${string}` | `/api/v1/settings/provider/operations/${string}` | ApiPath | `/api/v1/dashboard?${string}` | `/api/v1/engagements/${string}`;
+type RequestPath = `/api/v1/runs/${string}` | `/api/v1/settings/models/${string}` | `/api/v1/model-test/${string}` | `/api/v1/settings/providers/commands/${string}` | `/api/v1/settings/catalog/${string}` | `/api/v1/settings/provider/operations/${string}` | ApiPath | `/api/v1/dashboard?${string}` | `/api/v1/engagements/${string}`;
 
 async function request(path: RequestPath, init: RequestInit = {}, signal?: AbortSignal): Promise<Response> {
   try {
@@ -49,7 +51,64 @@ async function sessionResponse(response: Response): Promise<Session> {
   return { authenticated: true, csrf_token: value.csrf_token };
 }
 
+async function runMutation(path: RequestPath, payload: Preflight | StartRun | RunCommand, csrf: string) {
+  const encoded = JSON.stringify(payload);
+  if (!isUuid(payload.command_id) || new TextEncoder().encode(encoded).length > 3600) throw new ApiError('INVALID_INPUT');
+  const response = await request(path, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: encoded });
+  const value = await body(response); if (!response.ok) throw decodeError(value);
+  const receipt = decodeReceipt(value, payload.command_id);
+  if (('action' in payload && receipt.run_id !== payload.run_id) || receipt.state !== ('synthetic_context' in payload ? 'READY' : 'ADMITTED') || (receipt.setup_ref && receipt.setup_ref.kind !== 'run-setup-v1')) throw new ApiError('INVALID_RESPONSE');
+  return receipt;
+}
+
 export const api = {
+  preflightRun(payload: Preflight, csrf: string) { return runMutation(`/api/v1/engagements/${payload.engagement_id}/run-preflight`, payload, csrf); },
+  startRun(payload: StartRun, csrf: string) { return runMutation('/api/v1/runs', payload, csrf); },
+  runCommand(payload: RunCommand, csrf: string) { if (!runCommandFits(payload)) return Promise.reject(new ApiError('INVALID_INPUT')); return runMutation(`/api/v1/runs/${payload.run_id}/commands`, payload, csrf); },
+  async runCommandReceipt(commandId: string, signal?: AbortSignal) {
+    if (!isUuid(commandId)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/runs/commands/${commandId}`, {}, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    return decodeReceipt(value, commandId);
+  },
+  async runPublications(signal?: AbortSignal) {
+    const response = await request('/api/v1/runs/publications', {}, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    return decodePublications(value);
+  },
+  async activeRun(signal?: AbortSignal) {
+    const response = await request('/api/v1/runs/active', {}, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    return decodeOptionalRun(value);
+  },
+  async engagementRun(engagementId: string, signal?: AbortSignal) {
+    if (!isUuid(engagementId)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/engagements/${engagementId}/run`, {}, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    const result = decodeOptionalRun(value);
+    if (result && result.engagement_id !== engagementId) throw new ApiError('INVALID_RESPONSE');
+    return result;
+  },
+  async runSummary(runId: string, signal?: AbortSignal) {
+    if (!isUuid(runId)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/runs/${runId}/summary`, {}, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    return decodeRunSummary(value, runId);
+  },
+  async runEvents(runId: string, after = 0, signal?: AbortSignal) {
+    if (!isUuid(runId) || !Number.isSafeInteger(after) || after < 0) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/runs/${runId}/events?after=${runId}:${after}`, {}, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    return decodeEvents(value, runId, after);
+  },
+  async runAttempt(runId: string, attemptId: string, signal?: AbortSignal) {
+    if (!isUuid(runId) || !isUuid(attemptId)) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/runs/${runId}/attempts/${attemptId}`, {}, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    const result = decodeAttempt(value);
+    if (result.run_id !== runId || result.attempt_id !== attemptId) throw new ApiError('INVALID_RESPONSE');
+    return result;
+  },
   async providerCatalog(payload: SearchCatalog, csrf: string, signal?: AbortSignal) {
     if (!isUuid(payload.connection_id) || (payload.catalog_command_id != null && !isUuid(payload.catalog_command_id)) || Array.from(payload.query ?? '').length > 256) throw new ApiError('INVALID_INPUT');
     const response = await request('/api/v1/settings/provider-catalog/search', { method: 'POST', headers: {

@@ -259,6 +259,13 @@ class ApiKeyModelTest:
         return await handle(self, command)
 
     async def require_idle(self, db: AsyncConnection) -> None:
+        if await db.scalar(
+            text(
+                "SELECT 1 FROM agent_run WHERE instance_id=:instance AND state NOT IN ('STOPPED','COMPLETED','LIMITED')"
+            ),
+            {"instance": self.instance},
+        ):
+            raise store.ModelConflict("OPERATION_ACTIVE")
         prefix, pending = await store.relay_pending(db, self.instance)
         self.sender.transport.backend.relay.retired_through = max(
             self.sender.transport.backend.relay.retired_through, prefix

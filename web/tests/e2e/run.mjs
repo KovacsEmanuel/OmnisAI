@@ -12,6 +12,7 @@ import { runB03 } from './b03.mjs';
 import { runB04 } from './b04.mjs';
 import { runCatalog } from './catalog.mjs';
 import { runSettingsModels, runSettingsRemove } from './settings-models.mjs';
+import { runS1 } from './s1-run.mjs';
 
 const check = expect.configure({ timeout: 15000 });
 const origin = process.env.OMNIS_E2E_ORIGIN;
@@ -151,7 +152,7 @@ try {
     // Open the inert admission barrier only after API/dashboard readiness;
     // this is fixture setup, not proof of installed CLI lifecycle.
     const initial = (await control({ op: 'status' })).status;
-    if (['settings-models', 'settings-remove', 'settings-stop-read', 'settings-cancel-probe', 'settings-cancel-current'].includes(scenario) || (scenario === 'b04' && process.env.OMNIS_E2E_STAGE === 'after')) {
+    if (['s1-run', 'settings-models', 'settings-remove', 'settings-stop-read', 'settings-cancel-probe', 'settings-cancel-current'].includes(scenario) || (scenario === 'b04' && process.env.OMNIS_E2E_STAGE === 'after')) {
       assert.equal(initial.admission_open, true, 'Backend restart must preserve the same admitted instance');
       assert.equal(initial.generation, 1);
     } else {
@@ -180,6 +181,8 @@ try {
     await runB04({ page, context, check, paired, fault, output, origin, screenshot, secretChecks });
   } else if (scenario === 'catalog') {
     catalogEvidence = await runCatalog({ page, check, paired, output, origin, screenshot, secretChecks });
+  } else if (scenario === 's1-run') {
+    catalogEvidence = await runS1({ page, check, paired, origin, output, screenshot, secretChecks, remember });
   } else if (scenario === 'settings-remove') {
     catalogEvidence = await runSettingsRemove({ page, check, paired, origin, output, screenshot, secretChecks, remember });
   } else if (['settings-models', 'settings-stop-read', 'settings-cancel-probe', 'settings-cancel-current'].includes(scenario)) {

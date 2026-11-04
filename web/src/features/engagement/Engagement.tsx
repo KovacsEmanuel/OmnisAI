@@ -9,6 +9,7 @@ import { useSession } from '../bootstrap/BrowserSession';
 import { engagementCopy as copy } from './copy';
 import { Wizard } from './Wizard';
 import { ModelTest } from './ModelTest';
+import { RunPanel } from './RunPanel';
 import styles from './Engagement.module.css';
 
 export function NewEngagement() {
@@ -38,18 +39,19 @@ export function Engagement() {
     {query.isError && <div role="alert"><p>{query.error instanceof ApiError ? query.error.message : copy.unavailable}</p><button onClick={() => { void query.refetch(); }}>{copy.retry}</button></div>}
     {stale && <output>{copy.stale}</output>}
     {draft && <>
-      <div className={styles.heading}><div><p>{surface === 'setup' ? 'Persisted draft · Setup' : copy.readOnly}</p><h1>{draft.payload.name}</h1><p>{draft.payload.assessment_mode} · {copy.notRun}</p></div>{surface !== 'setup' && <button disabled aria-describedby="run-reason">{copy.start}</button>}</div>
+      <div className={styles.heading}><div><p>{surface === 'setup' ? 'Persisted draft · Setup' : copy.readOnly}</p><h1>{draft.payload.name}</h1><p>{draft.payload.assessment_mode} · saved revision {draft.revision}</p></div>{surface !== 'setup' && <button disabled aria-describedby="run-reason">{copy.start}</button>}</div>
       <button disabled={query.isFetching} onClick={() => {
         void query.refetch();
         if (surface === 'setup') void client.invalidateQueries({ queryKey: ['private', 'draft', id], exact: true });
       }}>{copy.refresh}</button>
-      {surface !== 'setup' && <p id="run-reason">{copy.runReason}</p>}
+      {surface !== 'setup' && <p id="run-reason">Target assessment is unavailable. The inert S1 run has separate preflight and consent in Overview.</p>}
       <nav aria-label="Engagement navigation" className={styles.tabs}>
         {[[copy.overview, 'overview'], [copy.stream, 'stream'], [copy.findings, 'findings'], [copy.coverage, 'coverage'], [copy.reports, 'reports'], [copy.setup, 'setup']].map(([label, path]) => <NavLink key={path} to={`/engagements/${id}/${path}`}>{label}</NavLink>)}
       </nav>
       {surface === 'setup' && <Wizard key={id} id={id} />}
+      {(full || surface === 'stream') && <RunPanel key={id} draft={draft} stream={surface === 'stream'} />}
       {full && <ModelTest />}
-      {!full && surface !== 'setup' && <p>{copy.unavailable} — {copy.future}</p>}
+      {!full && surface !== 'setup' && surface !== 'stream' && <p>{copy.unavailable} — {copy.future}</p>}
       {full && <section className={styles.panel}><div className={styles.core}>
         <dl className={styles.details}>
           {[[copy.identity, draft.engagement_id], [copy.revisionId, draft.id], [copy.revision, draft.revision], [copy.digest, draft.digest], [copy.mode, draft.payload.assessment_mode]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}

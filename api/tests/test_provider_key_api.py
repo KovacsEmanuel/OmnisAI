@@ -986,7 +986,7 @@ async def test_registry_schema_empty_upgrade_backfill_and_constraints(
     migrate("head")
     with connect_test_database(empty_database_url) as db:
         assert db.execute("SELECT version_num FROM alembic_version").fetchone() == (
-            "0018_model_relay_authority",
+            "0019_agent_runs",
         )
         identity_row = db.execute("SELECT instance_id FROM instance_control").fetchone()
         assert identity_row is not None

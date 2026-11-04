@@ -29,6 +29,7 @@ export function settingsBackend(initial: KeySettings = configured, entries: Mode
     const body: Record<string, unknown> = init?.body ? JSON.parse(String(init.body)) : {};
     if (path === '/api/session') return Response.json(session);
     if (path === '/health/ready') return Response.json(health);
+    if (path === '/api/v1/runs/active') return Response.json(null);
     const write = method === 'PUT' || /\/(refresh|cancel)$/.test(path);
     if (write) state.writes.push({ path, body }); else state.reads.push(path);
     if (path === '/api/instance') { const intercepted = await hook.intercept?.(path, body, method); return intercepted ?? Response.json(state.instance); }

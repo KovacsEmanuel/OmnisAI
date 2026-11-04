@@ -1,0 +1,47 @@
+import { expect, it, vi } from 'vitest';
+import { api } from './client';
+import { decodeError } from './errors';
+import { decodeEvents, decodePublications } from './runs';
+import type { RunCommand } from './runs';
+
+const run = '00000000-0000-4000-8000-000000000001';
+const command = '00000000-0000-4000-8000-000000000002';
+const event = { event_id: command, run_id: run, task_id: null, attempt_id: null, sequence: 2, kind: 'control', summary: 'Persisted control', refs: [], call_id: null, created_at: '2026-11-04T00:00:00Z' };
+const page = { run_id: run, events: [event], through_cursor: 2, has_more: false, as_of: '2026-11-04T00:00:00Z' };
+it.each(['AUTHORITY_DENIED', 'ANSWER_DENIED', 'REF_UNAVAILABLE', 'GENERATION_CONFLICT', 'CURSOR_DENIED', 'PROJECTION_LIMIT', 'CATALOG_LIST_LIMIT'])('SOURCE recognizes public run refusal %s without accepting an unknown response', code => {
+  expect(decodeError({ error: { code, correlation_id: run } }).code).toBe(code);
+});
+it('SOURCE binds event pages to the requested cursor and never accepts incoherent cursor claims', async () => {
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => new Response(JSON.stringify(page)));
+  vi.stubGlobal('fetch', fetcher);
+  expect(await api.runEvents(run, 1)).toEqual(page);
+  await expect(api.runEvents(run, 2)).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+  expect(() => decodeEvents({ ...page, through_cursor: 3 }, run)).toThrow();
+  expect(() => decodeEvents({ ...page, run_id: command }, run)).toThrow();
+  expect(() => decodeEvents({ ...page, events: [event, event] }, run)).toThrow();
+});
+it('SOURCE rejects foreign command receipts without reporting admission', async () => {
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async () => new Response(JSON.stringify({ command_id: command, run_id: command, setup_ref: null, revision: 2, state: 'ADMITTED' }))));
+  await expect(api.runCommand({ action: 'stop', command_id: command, run_id: run, expected_generation: 0, expected_revision: 1, answer: null, question_id: null }, 'synthetic')).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+});
+it('SOURCE admits only exact catalog publication refs for preflight selection', () => {
+  const publication = { kind: 'catalog-publication', id: run, revision: 1, digest: 'a'.repeat(64) };
+  expect(decodePublications([publication])).toEqual([publication]);
+  expect(() => decodePublications([{ ...publication, kind: 'unqualified-candidate' }])).toThrow();
+  expect(() => decodePublications([publication, publication])).toThrow();
+});
+it('SOURCE limits the complete answer command including UTF-8 and JSON escaping before fetch', async () => {
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => new Response(JSON.stringify({ command_id: command, run_id: run, setup_ref: null, revision: 2, state: 'ADMITTED' })));
+  vi.stubGlobal('fetch', fetcher);
+  const payload: RunCommand = { action: 'answer', command_id: command, run_id: run, question_id: run, expected_generation: 0, expected_revision: 1, answer: '' };
+  const overhead = new TextEncoder().encode(JSON.stringify(payload)).length;
+  const exact = { ...payload, answer: 'a'.repeat(3600 - overhead) };
+  // Text's 2048-character bound and the wire bound are independent.
+  await expect(api.runCommand(exact, 'synthetic')).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+  const escaped = { ...payload, answer: '\\'.repeat(Math.floor((3600 - overhead) / 2)) + 'a'.repeat((3600 - overhead) % 2) };
+  expect(new TextEncoder().encode(JSON.stringify(escaped)).length).toBe(3600);
+  await api.runCommand(escaped, 'synthetic');
+  await expect(api.runCommand({ ...escaped, answer: escaped.answer + 'a' }, 'synthetic')).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+  await expect(api.runCommand({ ...payload, answer: '🧪'.repeat(900) }, 'synthetic')).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+  expect(fetcher).toHaveBeenCalledTimes(1);
+});

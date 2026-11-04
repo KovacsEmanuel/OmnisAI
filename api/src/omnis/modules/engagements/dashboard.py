@@ -1,5 +1,6 @@
 """B03 global draft projection; no run tables, effects or synthetic counters."""
 
+import json
 import re
 from datetime import datetime
 from typing import Literal
@@ -11,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from omnis.core.persistence import DatabaseRecord, read_record
 from omnis.modules.engagements.schemas import DraftRecord, EngagementSummary
+from omnis.modules.runs.run_contract import RunView
 
 # One fixed query/sort, bound to page size. This is pagination, not authority or SSE.
 PAGE_PATTERN = (
@@ -32,23 +34,36 @@ class DashboardMetrics(DraftRecord):
 
 class DashboardEngagement(EngagementSummary):
     scope_revision_id: UUID
-    run_id: Literal[None] = None
-    through_cursor: Literal[None] = None
-    run_state: Literal["NOT_RUN"] = "NOT_RUN"
-    stage: Literal["NOT_RUN"] = "NOT_RUN"
+    run_id: UUID | None = None
+    through_cursor: int | None = None
+    run_state: Literal[
+        "NOT_RUN",
+        "RUNNING",
+        "PAUSING",
+        "PAUSED",
+        "HOLD",
+        "STOPPING",
+        "STOPPED",
+        "COMPLETED",
+        "LIMITED",
+        "NEEDS_RECONCILIATION",
+    ] = "NOT_RUN"
+    stage: Literal["NOT_RUN", "INERT"] = "NOT_RUN"
 
 
 class DashboardData(DraftRecord):
     total_engagements: int = Field(ge=0)
     items: list[DashboardEngagement] = Field(max_length=50)
-    active_run: Literal[None] = None
-    run_state: Literal["NOT_RUN"] = "NOT_RUN"
+    active_run: RunView | None = None
+    run_state: Literal[
+        "NOT_RUN", "RUNNING", "PAUSING", "PAUSED", "HOLD", "STOPPING", "NEEDS_RECONCILIATION"
+    ] = "NOT_RUN"
     attention_state: Literal["UNAVAILABLE"] = "UNAVAILABLE"
     metrics: DashboardMetrics = Field(default_factory=DashboardMetrics)
 
 
 class ProjectionEnvelope(DraftRecord):
-    schema_version: Literal[1] = 1
+    schema_version: Literal[1, 2] = 1
     context: Literal["GLOBAL"] = "GLOBAL"
     engagement_id: Literal[None] = None
     run_id: Literal[None] = None
@@ -116,13 +131,55 @@ async def dashboard_projection(
                 .mappings()
                 .all()
             )
+            active_payload = await connection.scalar(
+                text(
+                    "SELECT payload FROM agent_run WHERE instance_id=(SELECT instance_id FROM instance_control WHERE id=1) AND state NOT IN ('STOPPED','COMPLETED','LIMITED')"
+                )
+            )
+            run_rows = (
+                (
+                    await connection.execute(
+                        text(
+                            "SELECT DISTINCT ON (r.engagement_id) r.payload FROM agent_run r WHERE r.instance_id=(SELECT instance_id FROM instance_control WHERE id=1) AND r.engagement_id=ANY(CAST(:ids AS uuid[])) ORDER BY r.engagement_id,(SELECT max(e.sequence) FROM run_event e WHERE e.instance_id=r.instance_id AND e.run_id=r.run_id) DESC"
+                        ),
+                        {"ids": [row["engagement_id"] for row in rows[:limit]]},
+                    )
+                )
+                .scalars()
+                .all()
+            )
     # Materialize and close the transaction/connection before decoding or HTTP I/O.
     snapshot = read_record(DashboardSnapshot, snapshot_row)
     items = [read_record(DashboardEngagement, row) for row in rows[:limit]]
+    active = (
+        RunView.model_validate_json(json.dumps(active_payload))
+        if active_payload is not None
+        else None
+    )
+    runs = [RunView.model_validate_json(json.dumps(row)) for row in run_rows]
+    for index, item in enumerate(items):
+        latest = next((run for run in runs if run.engagement_id == str(item.engagement_id)), None)
+        if latest is not None:
+            items[index] = item.model_copy(
+                update={
+                    "run_id": UUID(latest.run_id),
+                    "through_cursor": latest.through_cursor,
+                    "run_state": latest.state,
+                    "stage": "INERT",
+                }
+            )
     more = len(rows) > limit
     return ProjectionEnvelope(
+        schema_version=2 if runs or active else 1,
         as_of=snapshot.as_of,
-        data=DashboardData(total_engagements=snapshot.total_engagements, items=items),
+        data=DashboardData.model_validate(
+            {
+                "total_engagements": snapshot.total_engagements,
+                "items": items,
+                "active_run": active,
+                "run_state": active.state if active else "NOT_RUN",
+            }
+        ),
         limit=limit,
         has_more=more,
         next_page=f"d1.{limit}.{items[-1].engagement_id}" if more else None,

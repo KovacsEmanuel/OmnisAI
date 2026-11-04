@@ -1,5 +1,6 @@
 import type { components } from './generated';
 import { ApiError, isRecord, isUuid } from './errors';
+import { decodeOptionalRun } from './runs';
 export type Projection = components['schemas']['ProjectionEnvelope'];
 type Summary = components['schemas']['DashboardEngagement'];
 function invalid(): never { throw new ApiError('INVALID_RESPONSE'); }
@@ -18,14 +19,19 @@ function mode(value: unknown): value is components['schemas']['AssessmentMode'] 
 export function isDashboardCursor(value: unknown): value is string {
   return typeof value === 'string' && value.startsWith('d1.20.') && isUuid(value.slice(6));
 }
-function summary(value: unknown): Summary {
+function summary(value: unknown, version: 1 | 2): Summary {
+  const runState = ['NOT_RUN', 'RUNNING', 'PAUSING', 'PAUSED', 'HOLD', 'STOPPING', 'STOPPED', 'COMPLETED', 'LIMITED', 'NEEDS_RECONCILIATION'] as const;
+  if (!isRecord(value)) return invalid();
+  const state = runState.find(state => state === value.run_state);
   if (!isRecord(value) || !isUuid(value.id) || !isUuid(value.engagement_id) || value.scope_revision_id !== value.id ||
     !text(value.name, 128) || !mode(value.assessment_mode) || !integer(value.revision, 1) ||
     typeof value.digest !== 'string' || !/^[0-9a-f]{64}$/.test(value.digest) || !date(value.created_at) ||
-    value.run_id !== null || value.through_cursor !== null || value.run_state !== 'NOT_RUN' || value.stage !== 'NOT_RUN') return invalid();
+    !state || (value.run_id !== null && !isUuid(value.run_id)) || (value.through_cursor !== null && !integer(value.through_cursor)) ||
+    (value.stage !== 'NOT_RUN' && value.stage !== 'INERT') ||
+    (version === 1 && (value.run_id !== null || value.through_cursor !== null || state !== 'NOT_RUN' || value.stage !== 'NOT_RUN'))) return invalid();
   return { id: value.id, engagement_id: value.engagement_id, scope_revision_id: value.id, name: value.name,
     assessment_mode: value.assessment_mode, revision: value.revision, digest: value.digest, created_at: value.created_at,
-    run_id: null, through_cursor: null, run_state: value.run_state, stage: value.stage };
+    run_id: value.run_id, through_cursor: value.through_cursor, run_state: state, stage: value.stage };
 }
 function metric(value: unknown): components['schemas']['RunMetric'] {
   if (!isRecord(value) || value.state !== 'UNAVAILABLE' || value.reason !== 'NOT_RUN' || value.value !== null) return invalid();
@@ -56,21 +62,26 @@ export function decodeSelectedDraft(value: unknown, engagementId: string): Selec
       scope: payload.scope.map(scope) } };
 }
 export function decodeProjection(value: unknown): Projection {
-  if (!isRecord(value) || value.schema_version !== 1 || value.context !== 'GLOBAL' || value.data_state !== 'AVAILABLE' ||
+  if (!isRecord(value) || (value.schema_version !== 1 && value.schema_version !== 2) || value.context !== 'GLOBAL' || value.data_state !== 'AVAILABLE' ||
     value.engagement_id !== null || value.run_id !== null || value.scope_revision_id !== null || value.through_cursor !== null ||
     !date(value.as_of) || value.limit !== 20 || typeof value.has_more !== 'boolean' ||
     !(value.next_page === null || isDashboardCursor(value.next_page)) || value.has_more !== (value.next_page !== null) ||
     !isRecord(value.data)) return invalid();
   const data = value.data;
   if (!integer(data.total_engagements) || !Array.isArray(data.items) || data.items.length > value.limit ||
-    data.total_engagements < data.items.length || data.active_run !== null || data.run_state !== 'NOT_RUN' ||
+    data.total_engagements < data.items.length ||
+    (value.schema_version === 1 && (data.active_run !== null || data.run_state !== 'NOT_RUN')) ||
     data.attention_state !== 'UNAVAILABLE' || !isRecord(data.metrics)) return invalid();
-  const items = data.items.map(summary);
+  const version = value.schema_version;
+  const items = data.items.map(item => summary(item, version));
+  const active = decodeOptionalRun(data.active_run);
+  const globalState = (['NOT_RUN', 'RUNNING', 'PAUSING', 'PAUSED', 'HOLD', 'STOPPING', 'NEEDS_RECONCILIATION'] as const).find(state => state === data.run_state);
+  if (!globalState || globalState !== (active?.state ?? 'NOT_RUN')) return invalid();
   if (new Set(items.map(item => item.engagement_id)).size !== items.length) return invalid();
-  return { schema_version: 1, context: value.context, data_state: value.data_state, engagement_id: null,
+  return { schema_version: version, context: value.context, data_state: value.data_state, engagement_id: null,
     run_id: null, scope_revision_id: null, through_cursor: null, as_of: value.as_of, limit: value.limit,
     next_page: value.next_page, has_more: value.has_more,
-    data: { total_engagements: data.total_engagements, items, active_run: null, run_state: data.run_state,
+    data: { total_engagements: data.total_engagements, items, active_run: active, run_state: globalState,
       attention_state: data.attention_state, metrics: { confirmed: metric(data.metrics.confirmed),
         coverage: metric(data.metrics.coverage), cost: metric(data.metrics.cost) } } };
 }

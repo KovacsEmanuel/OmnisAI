@@ -49,6 +49,192 @@
         ],
         "type": "string"
       },
+      "Attempt": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "brief": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Brief",
+            "type": "string"
+          },
+          "call_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call Id"
+          },
+          "configured_model": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Configured Model",
+            "type": "string"
+          },
+          "correction_count": {
+            "default": 0,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Correction Count",
+            "type": "integer"
+          },
+          "input_refs": {
+            "items": {
+              "$ref": "#/components/schemas/RunRef"
+            },
+            "maxItems": 32,
+            "title": "Input Refs",
+            "type": "array"
+          },
+          "input_text": {
+            "title": "Input Text",
+            "type": "string"
+          },
+          "instance_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "instructions": {
+            "title": "Instructions",
+            "type": "string"
+          },
+          "observed_model": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Model"
+          },
+          "parent_task_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "read_receipt_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_summary": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Summary"
+          },
+          "role": {
+            "enum": [
+              "BRAIN",
+              "RECON"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "run_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "skill_refs": {
+            "items": {
+              "$ref": "#/components/schemas/ExactRef"
+            },
+            "maxItems": 32,
+            "title": "Skill Refs",
+            "type": "array"
+          },
+          "state": {
+            "enum": [
+              "RUNNING",
+              "SUCCEEDED",
+              "INCONCLUSIVE",
+              "FAILED",
+              "CANCELLED",
+              "NEEDS_RECONCILIATION"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "task_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "tool_arguments": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Arguments"
+          },
+          "tool_output": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Output"
+          }
+        },
+        "required": [
+          "instance_id",
+          "run_id",
+          "task_id",
+          "attempt_id",
+          "role",
+          "parent_task_id",
+          "state",
+          "brief",
+          "input_refs",
+          "input_text",
+          "instructions",
+          "configured_model",
+          "skill_refs"
+        ],
+        "title": "Attempt",
+        "type": "object"
+      },
       "Authorization": {
         "additionalProperties": false,
         "properties": {
@@ -756,6 +942,52 @@
         "title": "CatalogView",
         "type": "object"
       },
+      "CommandReceipt": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "setup_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "enum": [
+              "READY",
+              "ADMITTED"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "command_id",
+          "revision",
+          "state"
+        ],
+        "title": "CommandReceipt",
+        "type": "object"
+      },
       "ConnectionView": {
         "additionalProperties": false,
         "properties": {
@@ -799,8 +1031,14 @@
         "additionalProperties": false,
         "properties": {
           "active_run": {
-            "title": "Active Run",
-            "type": "null"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunView"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "attention_state": {
             "const": "UNAVAILABLE",
@@ -820,8 +1058,16 @@
             "$ref": "#/components/schemas/DashboardMetrics"
           },
           "run_state": {
-            "const": "NOT_RUN",
             "default": "NOT_RUN",
+            "enum": [
+              "NOT_RUN",
+              "RUNNING",
+              "PAUSING",
+              "PAUSED",
+              "HOLD",
+              "STOPPING",
+              "NEEDS_RECONCILIATION"
+            ],
             "title": "Run State",
             "type": "string"
           },
@@ -876,12 +1122,31 @@
             "type": "integer"
           },
           "run_id": {
-            "title": "Run Id",
-            "type": "null"
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
           },
           "run_state": {
-            "const": "NOT_RUN",
             "default": "NOT_RUN",
+            "enum": [
+              "NOT_RUN",
+              "RUNNING",
+              "PAUSING",
+              "PAUSED",
+              "HOLD",
+              "STOPPING",
+              "STOPPED",
+              "COMPLETED",
+              "LIMITED",
+              "NEEDS_RECONCILIATION"
+            ],
             "title": "Run State",
             "type": "string"
           },
@@ -891,14 +1156,24 @@
             "type": "string"
           },
           "stage": {
-            "const": "NOT_RUN",
             "default": "NOT_RUN",
+            "enum": [
+              "NOT_RUN",
+              "INERT"
+            ],
             "title": "Stage",
             "type": "string"
           },
           "through_cursor": {
-            "title": "Through Cursor",
-            "type": "null"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Through Cursor"
           }
         },
         "required": [
@@ -944,6 +1219,10 @@
           "DENY",
           "UNKNOWN"
         ],
+        "type": "string"
+      },
+      "Digest": {
+        "pattern": "^[0-9a-f]{64}$",
         "type": "string"
       },
       "DraftBudgets": {
@@ -1659,6 +1938,13 @@
           "CAPABILITIES_REQUIRED",
           "OPERATION_ACTIVE",
           "OPERATION_FINISHED",
+          "AUTHORITY_DENIED",
+          "ANSWER_DENIED",
+          "REF_UNAVAILABLE",
+          "GENERATION_CONFLICT",
+          "CURSOR_DENIED",
+          "PROJECTION_LIMIT",
+          "CATALOG_LIST_LIMIT",
           "NOT_FOUND",
           "METHOD_NOT_ALLOWED",
           "HTTP_ERROR",
@@ -1705,6 +1991,76 @@
         "title": "ErrorEnvelope",
         "type": "object"
       },
+      "EventPage": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/RunEvent"
+            },
+            "maxItems": 50,
+            "title": "Events",
+            "type": "array"
+          },
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "run_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "through_cursor": {
+            "$ref": "#/components/schemas/Revision"
+          }
+        },
+        "required": [
+          "run_id",
+          "through_cursor",
+          "events",
+          "has_more",
+          "as_of"
+        ],
+        "title": "EventPage",
+        "type": "object"
+      },
+      "ExactRef": {
+        "additionalProperties": false,
+        "properties": {
+          "digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[0-9a-f-]{36}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+            "title": "Kind",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "revision",
+          "digest"
+        ],
+        "title": "ExactRef",
+        "type": "object"
+      },
       "FieldError": {
         "properties": {
           "code": {
@@ -1729,6 +2085,19 @@
           "code"
         ],
         "title": "FieldError",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
         "type": "object"
       },
       "HealthReady": {
@@ -2537,6 +2906,52 @@
         "title": "Preference",
         "type": "object"
       },
+      "Preflight": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "data_consent": {
+            "const": true,
+            "title": "Data Consent",
+            "type": "boolean"
+          },
+          "draft_ref": {
+            "$ref": "#/components/schemas/ExactRef"
+          },
+          "engagement_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "expected_generation": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "publication_ref": {
+            "$ref": "#/components/schemas/ExactRef"
+          },
+          "selection_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "synthetic_context": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Synthetic Context",
+            "type": "string"
+          }
+        },
+        "required": [
+          "command_id",
+          "expected_generation",
+          "engagement_id",
+          "draft_ref",
+          "selection_revision",
+          "publication_ref",
+          "synthetic_context",
+          "data_consent"
+        ],
+        "title": "Preflight",
+        "type": "object"
+      },
       "ProjectionEnvelope": {
         "additionalProperties": false,
         "properties": {
@@ -2592,8 +3007,11 @@
             "type": "null"
           },
           "schema_version": {
-            "const": 1,
             "default": 1,
+            "enum": [
+              1,
+              2
+            ],
             "title": "Schema Version",
             "type": "integer"
           },
@@ -2778,6 +3196,90 @@
         "title": "ProviderView",
         "type": "object"
       },
+      "Question": {
+        "additionalProperties": false,
+        "properties": {
+          "answer_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cause": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Cause",
+            "type": "string"
+          },
+          "command_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "const": "CLARIFICATION",
+            "default": "CLARIFICATION",
+            "title": "Kind",
+            "type": "string"
+          },
+          "question_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "refs": {
+            "items": {
+              "$ref": "#/components/schemas/RunRef"
+            },
+            "maxItems": 32,
+            "title": "Refs",
+            "type": "array"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "run_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "state": {
+            "enum": [
+              "PENDING",
+              "ANSWER_ADMITTED",
+              "CONSUMED"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "task_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "text": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question_id",
+          "run_id",
+          "task_id",
+          "revision",
+          "cause",
+          "text",
+          "refs",
+          "state"
+        ],
+        "title": "Question",
+        "type": "object"
+      },
       "ReadinessReason": {
         "enum": [
           "DATABASE_UNAVAILABLE",
@@ -2785,6 +3287,38 @@
         ],
         "title": "ReadinessReason",
         "type": "string"
+      },
+      "Ref": {
+        "additionalProperties": false,
+        "properties": {
+          "digest": {
+            "$ref": "#/components/schemas/Digest"
+          },
+          "id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "instance_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "revision": {
+            "const": 1,
+            "default": 1,
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "instance_id",
+          "kind",
+          "id",
+          "digest"
+        ],
+        "title": "Ref",
+        "type": "object"
       },
       "RefreshCatalog": {
         "additionalProperties": false,
@@ -2937,6 +3471,157 @@
         "title": "RevokeConnection",
         "type": "object"
       },
+      "RunCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "pause",
+              "stop",
+              "resume",
+              "answer"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "answer": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer"
+          },
+          "command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "expected_generation": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "expected_revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "question_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_id": {
+            "$ref": "#/components/schemas/Identity"
+          }
+        },
+        "required": [
+          "action",
+          "command_id",
+          "expected_generation",
+          "expected_revision",
+          "run_id"
+        ],
+        "title": "RunCommand",
+        "type": "object"
+      },
+      "RunEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "call_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call Id"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "event_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "kind": {
+            "enum": [
+              "started",
+              "decision",
+              "tool_called",
+              "tool_result",
+              "result",
+              "control",
+              "question",
+              "answer"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "refs": {
+            "items": {
+              "$ref": "#/components/schemas/RunRef"
+            },
+            "maxItems": 32,
+            "title": "Refs",
+            "type": "array"
+          },
+          "run_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "sequence": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "summary": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Summary",
+            "type": "string"
+          },
+          "task_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "event_id",
+          "run_id",
+          "task_id",
+          "attempt_id",
+          "sequence",
+          "kind",
+          "summary",
+          "refs",
+          "call_id",
+          "created_at"
+        ],
+        "title": "RunEvent",
+        "type": "object"
+      },
       "RunMetric": {
         "additionalProperties": false,
         "properties": {
@@ -2958,6 +3643,173 @@
           }
         },
         "title": "RunMetric",
+        "type": "object"
+      },
+      "RunRef": {
+        "$ref": "#/components/schemas/Ref"
+      },
+      "RunSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "attempts": {
+            "items": {
+              "$ref": "#/components/schemas/Attempt"
+            },
+            "maxItems": 50,
+            "title": "Attempts",
+            "type": "array"
+          },
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "owner_live": {
+            "title": "Owner Live",
+            "type": "boolean"
+          },
+          "phase_active": {
+            "title": "Phase Active",
+            "type": "boolean"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Question"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run": {
+            "$ref": "#/components/schemas/RunView"
+          }
+        },
+        "required": [
+          "run",
+          "owner_live",
+          "phase_active",
+          "question",
+          "attempts",
+          "has_more",
+          "as_of"
+        ],
+        "title": "RunSummary",
+        "type": "object"
+      },
+      "RunView": {
+        "additionalProperties": false,
+        "properties": {
+          "active_attempt_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "engagement_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "fence": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "generation": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "instance_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "owner_epoch": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "owner_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "question_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "run_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "schema_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "setup_ref": {
+            "$ref": "#/components/schemas/RunRef"
+          },
+          "stagnation": {
+            "default": 0,
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "title": "Stagnation",
+            "type": "integer"
+          },
+          "state": {
+            "enum": [
+              "RUNNING",
+              "PAUSING",
+              "PAUSED",
+              "HOLD",
+              "STOPPING",
+              "STOPPED",
+              "COMPLETED",
+              "LIMITED",
+              "NEEDS_RECONCILIATION"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "through_cursor": {
+            "$ref": "#/components/schemas/Revision",
+            "default": 0
+          }
+        },
+        "required": [
+          "instance_id",
+          "engagement_id",
+          "run_id",
+          "setup_ref",
+          "revision",
+          "generation",
+          "owner_id",
+          "owner_epoch",
+          "fence",
+          "state"
+        ],
+        "title": "RunView",
         "type": "object"
       },
       "SaveConnection": {
@@ -3444,6 +4296,33 @@
         "title": "SessionView",
         "type": "object"
       },
+      "StartRun": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "expected_generation": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "expected_revision": {
+            "const": 1,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "setup_ref": {
+            "$ref": "#/components/schemas/RunRef"
+          }
+        },
+        "required": [
+          "command_id",
+          "expected_generation",
+          "expected_revision",
+          "setup_ref"
+        ],
+        "title": "StartRun",
+        "type": "object"
+      },
       "State": {
         "enum": [
           "PENDING",
@@ -3453,6 +4332,46 @@
           "NEEDS_RECONCILIATION"
         ],
         "type": "string"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
       }
     }
   },
@@ -4474,6 +5393,164 @@
           }
         },
         "summary": "List Revisions"
+      }
+    },
+    "/api/v1/engagements/{engagement_id}/run": {
+      "get": {
+        "operationId": "engagement_run_api_v1_engagements__engagement_id__run_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "engagement_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Engagement Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/RunView"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Engagement Run Api V1 Engagements  Engagement Id  Run Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Engagement Run"
+      }
+    },
+    "/api/v1/engagements/{engagement_id}/run-preflight": {
+      "post": {
+        "operationId": "preflight_api_v1_engagements__engagement_id__run_preflight_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "engagement_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Engagement Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Preflight"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandReceipt"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Preflight"
       }
     },
     "/api/v1/model-test": {
@@ -5524,6 +6601,593 @@
           }
         },
         "summary": "Cancel Operation"
+      }
+    },
+    "/api/v1/runs": {
+      "post": {
+        "operationId": "start_api_v1_runs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartRun"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandReceipt"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Start"
+      }
+    },
+    "/api/v1/runs/active": {
+      "get": {
+        "operationId": "active_api_v1_runs_active_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/RunView"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Active Api V1 Runs Active Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Active"
+      }
+    },
+    "/api/v1/runs/commands/{command_id}": {
+      "get": {
+        "operationId": "command_read_api_v1_runs_commands__command_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "command_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Command Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandReceipt"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Command Read"
+      }
+    },
+    "/api/v1/runs/publications": {
+      "get": {
+        "operationId": "publications_api_v1_runs_publications_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ExactRef"
+                  },
+                  "title": "Response Publications Api V1 Runs Publications Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Publications"
+      }
+    },
+    "/api/v1/runs/{run_id}/attempts/{attempt_id}": {
+      "get": {
+        "operationId": "attempt_api_v1_runs__run_id__attempts__attempt_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Attempt Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Attempt"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Attempt"
+      }
+    },
+    "/api/v1/runs/{run_id}/commands": {
+      "post": {
+        "operationId": "command_api_v1_runs__run_id__commands_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandReceipt"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Command"
+      }
+    },
+    "/api/v1/runs/{run_id}/events": {
+      "get": {
+        "operationId": "events_api_v1_runs__run_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 64,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Events"
+      }
+    },
+    "/api/v1/runs/{run_id}/summary": {
+      "get": {
+        "operationId": "summary_api_v1_runs__run_id__summary_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunSummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Summary"
       }
     },
     "/api/v1/settings/catalog": {

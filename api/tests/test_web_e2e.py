@@ -32,6 +32,7 @@ from fixtures.b06b_publication.consumer import (
 )
 from fixtures.c03_records import PACKAGE, qualify_records
 from omnis.core.db import database_engine
+from omnis.core.run_schema import RUN_COLUMNS
 from omnis.modules.settings.catalog_inspection import inspect_publication, published_page
 from omnis.modules.settings.catalog_inspection_models import CatalogInspection, CatalogPage
 from test_local_control import request as control_request
@@ -311,7 +312,17 @@ async def settings_models_browser(
                         )
                     ).scalars()
                 )
-                for table in tables
+                for table in (
+                    (
+                        *tables,
+                        *RUN_COLUMNS,
+                        "engagement",
+                        "engagement_revision",
+                        "model_relay_authority",
+                    )
+                    if scenario == "s1-run"
+                    else tables
+                )
             }
 
     with owned_children() as family, socket.socket() as listener:

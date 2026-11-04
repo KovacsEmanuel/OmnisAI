@@ -112,7 +112,7 @@ it('creates an inert draft and confirms exact saved data with GET before reporti
   await waitFor(() => expect(requests).toContain(`GET /api/v1/engagements/${engagementId}`));
   await waitFor(() => expect(screen.getByText(/Saved · revision 1/)).toBeVisible());
   await waitFor(() => expect(screen.getByRole('button', { name: 'Start assessment' })).toBeDisabled());
-  expect(screen.getAllByText(/CATALOG_UNAVAILABLE.*NOT_SELECTED/).length).toBeGreaterThan(0);
+  await waitFor(() => expect(screen.getAllByText(/CATALOG_UNAVAILABLE.*NOT_SELECTED/).length).toBeGreaterThan(0));
 });
 
 it('keeps cached Setup controls unavailable until the first readback hydrates the form', async () => {

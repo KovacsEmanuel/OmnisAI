@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from omnis.modules.instance.stop_contract import ArmStopCommand, VersionOne
 from omnis.modules.runs.model_test_models import ModelTestControl
+from omnis.modules.runs.run_contract import RunControl
 from omnis.modules.settings.provider_catalog_models import CatalogControl
 from omnis.modules.settings.provider_key_models import KeySettingsControl
 from omnis.modules.settings.provider_model_models import ModelRegistryControl
@@ -253,6 +254,7 @@ class ControlRequest(StrictBody):
         | NativePrepareCommand
         | NativeTaskCommand
         | ModelTestControl
+        | RunControl
         | KeySettingsControl
         | ModelRegistryControl
         | CatalogControl

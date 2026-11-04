@@ -41,6 +41,7 @@ from omnis.modules.instance.service import InstanceService
 from omnis.modules.instance.stop_contract import ArmStopCommand
 from omnis.modules.runs.model_test_models import ModelTestControl
 from omnis.modules.runs.model_test_store import ModelConflict
+from omnis.modules.runs.run_contract import RunControl
 from omnis.modules.settings.catalog_models import CatalogError
 from omnis.modules.settings.provider_catalog_models import CatalogControl
 from omnis.modules.settings.provider_key_models import KeySettingsControl
@@ -108,6 +109,7 @@ class LocalControl:
             | None
         ) = None
         self.model_test: Callable[[ModelTestControl], Awaitable[dict[str, object]]] | None = None
+        self.agent_run: Callable[[RunControl], Awaitable[dict[str, object]]] | None = None
         self.provider_catalog: Callable[[CatalogControl], Awaitable[dict[str, object]]] | None = (
             None
         )
@@ -188,6 +190,7 @@ class LocalControl:
         | NativePrepareCommand
         | NativeTaskCommand
         | ModelTestControl
+        | RunControl
         | KeySettingsControl
         | ModelRegistryControl
         | CatalogControl
@@ -230,6 +233,15 @@ class LocalControl:
                     if error.reason == "COMMAND_CONFLICT"
                     else "TASK_UNAVAILABLE",
                 }
+        if isinstance(command, RunControl):
+            if self.agent_run is None:
+                return {"ok": False, "error": "CONTROL_UNAVAILABLE"}
+            try:
+                return {"ok": True, "agent_run": await self.agent_run(command)}
+            except (ModelConflict, SettingsConflict) as error:
+                return {"ok": False, "error": error.code}
+            except CatalogError:
+                return {"ok": False, "error": "REF_UNAVAILABLE"}
         if isinstance(command, SettingsControl):
             if self.settings is None:
                 return {"ok": False, "error": "CONTROL_UNAVAILABLE"}

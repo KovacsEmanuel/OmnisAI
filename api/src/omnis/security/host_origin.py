@@ -127,9 +127,16 @@ class LocalBoundary:
                 and scope["path"].endswith("/revisions")
                 and len(scope["path"].split("/")) == 6
             )
+            run_query = (
+                scope["path"].startswith("/api/v1/runs/")
+                and len(scope["path"].split("/")) == 6
+                and scope["path"].split("/")[-1] in {"summary", "events"}
+            )
             if (
                 not (
-                    scope["path"] in {"/api/v1/engagements", "/api/v1/dashboard"} or revisions_query
+                    scope["path"] in {"/api/v1/engagements", "/api/v1/dashboard"}
+                    or revisions_query
+                    or run_query
                 )
                 or scope["method"] != "GET"
                 or len(query) > 256

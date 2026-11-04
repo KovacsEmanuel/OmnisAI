@@ -163,7 +163,7 @@ class Transport(httpx.AsyncBaseTransport):
             http2=False,
         )
 
-    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+    async def validate_request(self, request: httpx.Request) -> bytes:
         permit = CURRENT.get()
         body = await request.aread()
         if (
@@ -180,6 +180,11 @@ class Transport(httpx.AsyncBaseTransport):
             )
         ):
             raise SendDenied("FINAL_DATA_DENIED")
+        return body
+
+    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        permit = CURRENT.get()
+        body = await self.validate_request(request)
         response = await self.pool.handle_async_request(
             httpcore.Request(
                 method=request.method,

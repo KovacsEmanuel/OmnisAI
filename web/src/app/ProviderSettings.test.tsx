@@ -225,6 +225,7 @@ it('hides reload challenge on failed GET and recovers current without Connect re
     if (String(input) === '/api/session') return Response.json({ authenticated: true, csrf_token: 'a'.repeat(64) });
     if (init?.method === 'PUT') { writes++; throw new Error('Unexpected write'); }
     reads.push(String(input));
+    if (String(input) === '/api/v1/runs/active') return Response.json(null);
     if (fail) return Response.json({ error: { code: 'CONTROL_UNAVAILABLE' } }, { status: 503 });
     return Response.json({ operation_id: id, status: terminal ? 'CONFIRMED' : 'PENDING',
       selection: null, configured: false, authenticated: 'NOT_VERIFIED', reachable: 'NOT_VERIFIED',
@@ -246,7 +247,7 @@ it('hides reload challenge on failed GET and recovers current without Connect re
   await client.refetchQueries({ queryKey: ['private', 'provider-operation'] });
   await waitFor(() => expect(screen.queryByText('TEST-CODE')).not.toBeInTheDocument());
   expect(writes).toBe(0);
-  expect(new Set(reads)).toEqual(new Set(['/health/ready', '/api/v1/settings/provider/operations/current', `/api/v1/settings/provider/operations/${id}`]));
+  expect(new Set(reads)).toEqual(new Set(['/health/ready', '/api/v1/runs/active', '/api/v1/settings/provider/operations/current', `/api/v1/settings/provider/operations/${id}`]));
 });
 
 it('hides reload challenge at the finite UI validity limit even without a refetch', async () => {
@@ -483,18 +484,19 @@ it('keeps cancellation intent above cached and late challenges until exact recov
   const writes: unknown[] = [];
   const reads: string[] = [];
   let cancelReply: ((value: Response) => void) | undefined;
-  let oldRead: ((value: Response) => void) | undefined;
+  const oldReads: ((value: Response) => void)[] = [];
   let hold = false;
   let cancelled = false;
   vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
     if (String(input) === '/api/session') return Response.json({ authenticated: true, csrf_token: 'a'.repeat(64) });
     if (String(input) === '/health/ready') throw new Error('No health fixture needed');
+    if (String(input) === '/api/v1/runs/active') return Response.json(null);
     if (init?.method === 'PUT') {
       writes.push(JSON.parse(String(init.body)));
       return new Promise<Response>(resolve => { cancelReply = resolve; });
     }
     reads.push(String(input));
-    if (hold) return new Promise<Response>(resolve => { oldRead = resolve; });
+    if (hold) return new Promise<Response>(resolve => { oldReads.push(resolve); });
     return Response.json(cancelled ? { ...challenge, status: 'CONFIRMED', oauth: 'CANCELLED', challenge: null } : challenge);
   }));
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -503,10 +505,11 @@ it('keeps cancellation intent above cached and late challenges until exact recov
     await screen.findByText('CANCEL-CODE');
     hold = true;
     const reading = client.refetchQueries({ queryKey: ['private', 'provider-operation'] });
-    await waitFor(() => expect(oldRead).toBeDefined());
+    await waitFor(() => expect(oldReads.length).toBeGreaterThan(0));
     fireEvent.click(screen.getByRole('button', { name: 'Cancel connection' }));
     expect(screen.queryByText('CANCEL-CODE')).not.toBeInTheDocument();
-    await act(async () => { oldRead!(Response.json(challenge)); await reading; });
+    // Current and exact-ID readers can overlap; settle both without erasing cancellation.
+    await act(async () => { for (const resolve of oldReads) resolve(Response.json(challenge)); await reading; });
     expect(screen.queryByText('CANCEL-CODE')).not.toBeInTheDocument();
     hold = false;
     await act(async () => { cancelReply!(Response.json({ ...challenge, oauth: 'CANCELLING', challenge: null })); });

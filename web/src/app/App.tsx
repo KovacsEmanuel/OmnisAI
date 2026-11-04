@@ -3,6 +3,7 @@ import { Link, Route, Routes, useLocation } from 'react-router';
 import { Engagement, NewEngagement } from '../features/engagement/Engagement';
 import { Settings } from '../features/engagement/Settings';
 import { engagementCopy } from '../features/engagement/copy';
+import { GlobalStop } from '../features/engagement/GlobalStop';
 import { Dashboard } from '../features/dashboard/Dashboard';
 import { Bootstrap } from '../features/bootstrap/Bootstrap';
 import { BrowserSessionProvider, useSession } from '../features/bootstrap/BrowserSession';
@@ -13,7 +14,7 @@ function Shell() {
   const location = useLocation();
   const main = useRef<HTMLElement>(null);
   const previousPath = useRef(location.pathname);
-  const { session } = useSession();
+  const { session, transition } = useSession();
   useEffect(() => {
     // Initial entry starts at the native tab order; client navigation resets scroll/focus.
     if (previousPath.current === location.pathname) return;
@@ -31,7 +32,7 @@ function Shell() {
       <Link to="/" aria-current={scope === 'home' ? 'page' : undefined}>{copy.home}</Link>
       <Link to={selected ? `/engagements/${selected}/overview` : '/engagements'} aria-current={scope === 'engagement' ? 'page' : undefined}>{copy.engagement}</Link>
       <Link to="/settings/runtime" aria-current={scope === 'settings' ? 'page' : undefined}>{copy.settings}</Link>
-    </nav></header>
+    </nav>{session.data && !session.isError && transition === 'idle' && <GlobalStop key={session.data.csrf_token} />}</header>
     <main ref={main} id="content" tabIndex={-1} className={styles.main}>
       {!session.data || session.isError ? <Bootstrap /> : <Routes>
         <Route path="/settings" element={<Settings />} />

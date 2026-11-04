@@ -130,7 +130,8 @@ async def require_removable(
         await db.execute(
             text(
                 "SELECT 1 FROM public.system_operation WHERE instance_id=:instance "
-                "AND state <> 'FINISHED' LIMIT 1"
+                "AND state <> 'FINISHED' UNION ALL SELECT 1 FROM public.agent_run "
+                "WHERE instance_id=:instance AND state NOT IN ('STOPPED','COMPLETED','LIMITED') LIMIT 1"
             ),
             {"instance": owner.vault.instance_id},
         )

@@ -91,7 +91,7 @@ async def control_exchange(
                     "GENERATION_CONFLICT",
                 }
                 if isinstance(command, RunControl):
-                    allowed.add("MODEL_NOT_REGISTERED")
+                    allowed.update({"MODEL_NOT_REGISTERED", "DATA_DENIED"})
                 if isinstance(code, str) and code in allowed:
                     raise ModelConflict(code)
                 raise ValueError("Control unavailable")

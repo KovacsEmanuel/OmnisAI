@@ -993,6 +993,36 @@ class AgentRunOwner:
                 and current.owner_id == str(self.settings.owner)
                 and current.owner_epoch == self.settings.epoch
             )
+        if owned.state != "RUNNING" and result is None:
+            # TxA is immutable; a missing SDK return needs its own recovery checkpoint.
+            if (
+                settled
+                and reason is not None
+                and owned.result_ref is not None
+                and current.state == "RUNNING"
+                and current.reason == "RESULT_READY"
+                and current.active_attempt_id is None
+                and current.generation == scope.generation
+                and current.fence == scope.cancel_epoch
+                and current.owner_id == str(self.settings.owner)
+                and current.owner_epoch == self.settings.epoch
+            ):
+                cursor = await store.event(
+                    db, current, "control", reason, actor=owned, refs=[owned.result_ref]
+                )
+                await store.save_run(
+                    db,
+                    current.model_copy(
+                        update={
+                            "state": "NEEDS_RECONCILIATION",
+                            "reason": reason,
+                            "fence": current.fence + 1,
+                            "revision": current.revision + 1,
+                            "through_cursor": cursor,
+                        }
+                    ),
+                )
+            return False
         if not authorized:
             if result is not None:
                 await records.put(

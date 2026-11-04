@@ -1,5 +1,6 @@
 """Real SDK finish FunctionTool -> owner gate -> committed synthetic receipt."""
 
+import asyncio
 import json
 import ssl
 from collections.abc import AsyncIterator
@@ -20,12 +21,35 @@ from omnis.supervisor.agent_runner import AgentStep, Exchange, StepInput
 from omnis.supervisor.model_relay_protocol import Authority, Scope
 from omnis.supervisor.model_sender import CURRENT, SendDenied, Transport
 from test_run_controls_source import Owned
+from test_run_controls_source import command as control_command
 from test_run_controls_source import owned as owned
 from test_run_owner_source import fixture_setup_payload
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mode", ["valid", "missing", "foreign", "gaps", "stopped"])
+@pytest.mark.parametrize(
+    "mode",
+    [
+        "valid",
+        "missing",
+        "foreign",
+        "gaps",
+        "stopped",
+        "post_timeout",
+        "post_data",
+        "post_cancel",
+        "post_owner_lost",
+        "post_stop",
+        "post_pause",
+        "post_hold",
+        "post_fence",
+        "post_generation",
+        "post_new_owner",
+        "post_new_epoch",
+        "post_new_attempt",
+        "post_settled",
+    ],
+)
 async def test_finish_sdk_waits_for_owner_receipt_and_settlement_never_duplicates(
     owned: Owned, monkeypatch: pytest.MonkeyPatch, mode: str
 ) -> None:
@@ -80,7 +104,13 @@ async def test_finish_sdk_waits_for_owner_receipt_and_settlement_never_duplicate
         )
 
     async def event(*args: object, **kwargs: object) -> int:
-        assert kwargs["call_id"] == "finish-1"
+        if args[2] == "control":
+            assert args[3] in {"MODEL_RESPONSE_UNKNOWN", "CANCELLED", "pause", "stop"}
+            if args[3] not in {"pause", "stop"}:
+                assert kwargs["actor"] == actor and kwargs["refs"] == [actor.result_ref]
+                assert kwargs.get("call_id") is None
+        else:
+            assert kwargs["call_id"] == "finish-1"
         events.append(str(args[2]))
         return len(events)
 
@@ -90,6 +120,8 @@ async def test_finish_sdk_waits_for_owner_receipt_and_settlement_never_duplicate
     monkeypatch.setattr(store, "event", event)
     inbox = AsyncMock()
     monkeypatch.setattr(store, "add_inbox", inbox)
+    consume = AsyncMock()
+    monkeypatch.setattr(store, "consume", consume)
     monkeypatch.setattr(records, "put", put)
     supplied = ref if mode != "foreign" else ref.model_copy(update={"id": str(uuid4())})
     final = WorkerFinal(
@@ -153,6 +185,20 @@ async def test_finish_sdk_waits_for_owner_receipt_and_settlement_never_duplicate
         assert inbox.await_count == 1 and events == ["tool_called", "result"]
         return result
 
+    caller = asyncio.current_task()
+
+    async def feedback_fault(value: object) -> None:
+        if isinstance(value, str) and "result_ref" in value:
+            assert owned.writes[-1] == "commit" and actor.state == "SUCCEEDED"
+            if mode == "post_cancel":
+                assert caller is not None
+                caller.cancel()
+                await asyncio.sleep(0)
+                return
+            if mode == "post_data":
+                raise SendDenied("SECRET_ECHO_DENIED")
+            raise TimeoutError("Synthetic post-TxA feedback fault, not elapsed 300s")
+
     def guard() -> AbstractAsyncContextManager[Authority]:
         raise AssertionError("No relay in SOURCE")
 
@@ -173,6 +219,103 @@ async def test_finish_sdk_waits_for_owner_receipt_and_settlement_never_duplicate
                     step, "synthetic-unused-key", guard, callback, AsyncMock(), AsyncMock()
                 )
             assert not payloads and not inbox.called
+        elif mode.startswith("post_"):
+            expected_error = asyncio.CancelledError if mode == "post_cancel" else SendDenied
+            with pytest.raises(expected_error) as error:
+                await AgentStep(transport).run(
+                    step,
+                    "synthetic-unused-key",
+                    guard,
+                    callback,
+                    AsyncMock(),
+                    AsyncMock(),
+                    check_data=feedback_fault,
+                )
+            if mode != "post_cancel":
+                assert str(error.value) == "MODEL_OUTPUT_DENIED"
+            assert actor.state == "SUCCEEDED" and actor.result_ref is not None
+            assert owned.run.state == "RUNNING" and owned.run.reason == "RESULT_READY"
+            assert owned.run.active_attempt_id is None
+            if mode in {"post_stop", "post_pause"}:
+                await owned.owner.handle(control_command(owned, mode.removeprefix("post_")))
+            elif mode == "post_hold":
+                owned.run = owned.run.model_copy(
+                    update={"state": "HOLD", "reason": "PROVIDER_DENIED"}
+                )
+            elif mode == "post_fence":
+                owned.run = owned.run.model_copy(update={"fence": owned.run.fence + 1})
+            elif mode == "post_generation":
+                owned.run = owned.run.model_copy(update={"generation": owned.run.generation + 1})
+            elif mode == "post_new_owner":
+                owned.run = owned.run.model_copy(update={"owner_id": str(uuid4())})
+            elif mode == "post_new_epoch":
+                owned.run = owned.run.model_copy(update={"owner_epoch": owned.run.owner_epoch + 1})
+            elif mode == "post_new_attempt":
+                owned.run = owned.run.model_copy(
+                    update={"active_attempt_id": str(uuid4()), "reason": None}
+                )
+            before = owned.run
+            terminal = actor.model_dump_json()
+            retained = json.dumps(payloads)
+            event_count = len(events)
+            reason = "CANCELLED" if mode == "post_cancel" else "MODEL_RESPONSE_UNKNOWN"
+            settlement = None if mode == "post_settled" else "UNKNOWN"
+            monkeypatch.setattr(
+                AsyncConnection, "scalar", AsyncMock(side_effect=[settlement, None, None])
+            )
+            dispatch = AsyncMock()
+            monkeypatch.setattr(store, "dispatch_event", dispatch)
+            assert not await owned.owner.finish_step(
+                object.__new__(AsyncConnection),
+                owned.run.run_id,
+                actor.attempt_id,
+                scope,
+                None,
+                reason,
+                admitted=mode != "post_owner_lost",
+            )
+            if mode in {"post_timeout", "post_data", "post_cancel", "post_owner_lost"}:
+                assert owned.run == before.model_copy(
+                    update={
+                        "state": "NEEDS_RECONCILIATION",
+                        "reason": reason,
+                        "fence": before.fence + 1,
+                        "revision": before.revision + 1,
+                        "through_cursor": event_count + 1,
+                    }
+                )
+                assert events[event_count:] == ["control"]
+            else:
+                assert owned.run == before and len(events) == event_count
+            for later_brain in (False, True):
+                if later_brain:
+                    owned.run = owned.run.model_copy(
+                        update={
+                            "state": "RUNNING",
+                            "reason": None,
+                            "active_attempt_id": str(uuid4()),
+                        }
+                    )
+                settled_run = owned.run
+                writes = list(owned.writes)
+                settled_events = list(events)
+                assert not await owned.owner.finish_step(
+                    object.__new__(AsyncConnection),
+                    owned.run.run_id,
+                    actor.attempt_id,
+                    scope,
+                    None,
+                    reason,
+                    admitted=True,
+                )
+                assert (
+                    owned.run == settled_run and owned.writes == writes and events == settled_events
+                )
+            assert actor.model_dump_json() == terminal and json.dumps(payloads) == retained
+            assert len(payloads) == inbox.await_count == 1
+            assert not consume.called
+            assert payloads[0]["completion_kind"] == "finish"
+            assert dispatch.await_count == int(settlement is not None)
         else:
             result = await AgentStep(transport).run(
                 step, "synthetic-unused-key", guard, callback, AsyncMock(), AsyncMock()
@@ -180,6 +323,7 @@ async def test_finish_sdk_waits_for_owner_receipt_and_settlement_never_duplicate
             assert result.kind == "finish"
             assert actor.state == ("SUCCEEDED" if mode == "valid" else "INCONCLUSIVE")
             assert len(payloads) == 1 and payloads[0]["completion_kind"] == "finish"
+            checkpoint = owned.run
             monkeypatch.setattr(AsyncConnection, "scalar", AsyncMock(side_effect=["SETTLED", None]))
             dispatch = AsyncMock()
             monkeypatch.setattr(store, "dispatch_event", dispatch)
@@ -197,6 +341,7 @@ async def test_finish_sdk_waits_for_owner_receipt_and_settlement_never_duplicate
                     is expected
                 )
             assert len(payloads) == 1 and inbox.await_count == dispatch.await_count == 1
+            assert owned.run == checkpoint and events == ["tool_called", "result"]
         assert calls == 1 and CURRENT.get(None) is None
     finally:
         await transport.aclose()

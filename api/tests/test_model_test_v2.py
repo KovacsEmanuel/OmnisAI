@@ -24,12 +24,13 @@ from cryptography.x509.oid import NameOID
 from pydantic import ValidationError
 from sqlalchemy import text
 from sqlalchemy.engine import URL
-from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from omnis.api import create_app
 from omnis.core.db import database_engine
 from omnis.modules.instance.service import InstanceService
 from omnis.modules.runs import model_test_operation
+from omnis.modules.runs import model_test_store as model_store
 from omnis.modules.runs.model_test_models import ModelTestControl
 from omnis.modules.settings.provider_catalog_models import CatalogControl
 from omnis.modules.settings.provider_key_models import KeySettingsControl
@@ -38,6 +39,20 @@ from omnis.modules.settings.provider_model_models import ModelRegistryControl
 from omnis.modules.settings.provider_vault import ProviderVault
 from omnis.security.sessions import SessionStore, code_digest
 from omnis.transport.local_control import LocalControl
+
+
+async def relay_census(engine: AsyncEngine) -> list[dict[str, object]]:
+    async with engine.connect() as db:
+        return [
+            json.loads(raw)
+            for raw in (
+                await db.execute(
+                    text(
+                        "SELECT row_to_json(t)::text FROM model_relay_authority t ORDER BY operation_serial"
+                    )
+                )
+            ).scalars()
+        ]
 
 
 def test_production_consumer_exists() -> None:
@@ -605,6 +620,59 @@ async def test_api_pg_sdk_protocol_and_replay(
 
     monkeypatch.setattr(sender.transport.backend.relay, "rpc", model_rpc)
     owner = ApiKeyModelTest(settings, sender)
+
+    async def metadata_scope(identity: str, request_kind: str, serial: int) -> Scope:
+        async with engine.connect() as db:
+            request = await owner.latest(db, request_kind, identity)
+        assert request is not None
+        deadline = request["deadline"]
+        assert isinstance(deadline, str)
+        assert request["execution_owner_id"] == str(process)
+        assert request["owner_epoch"] == epoch and request["generation"] == generation
+        return Scope(
+            str(initial.instance_id),
+            "METADATA_COMMAND",
+            identity,
+            str(process),
+            generation,
+            epoch,
+            1,
+            datetime.fromisoformat(deadline).isoformat(),
+            "openrouter",
+            serial,
+        )
+
+    async def dispatch_scope(identity: str, serial: int) -> Scope:
+        from omnis.modules.runs.model_test_contract import Operation
+
+        async with engine.connect() as db:
+            dispatch = await model_store.dispatch(db, str(initial.instance_id), identity)
+            op = Operation.model_validate_json(
+                json.dumps(
+                    await model_store.resolve(
+                        db, str(initial.instance_id), dispatch.scope_ref, "system-operation"
+                    )
+                )
+            )
+        assert (
+            dispatch.instance_generation,
+            dispatch.owner_epoch,
+            dispatch.cancel_epoch,
+            dispatch.deadline,
+        ) == (op.generation, op.owner_epoch, op.cancel_epoch, op.deadline)
+        return Scope(
+            op.instance_id,
+            "MODEL_DISPATCH",
+            dispatch.dispatch_attempt_id,
+            op.execution_owner_id,
+            dispatch.instance_generation,
+            dispatch.owner_epoch,
+            dispatch.cancel_epoch,
+            dispatch.deadline.isoformat(),
+            "openrouter",
+            serial,
+        )
+
     service.runtime_drain = owner.drain
     monkeypatch.setenv("OMNIS_CONTROL_DIR", str(control_dir))
     monkeypatch.setenv("OMNIS_HTTP_PORT", "8765")
@@ -1083,6 +1151,13 @@ async def test_api_pg_sdk_protocol_and_replay(
                         x["model"] for x in second.json()["entries"]
                     ] == ["fixture/selected"]
                     assert second.json()["next_offset"] is None
+                    catalog_authorities = [
+                        {
+                            **(await metadata_scope(catalog_id, "catalog-request", 1)).wire(),
+                            "state": "DRAINED",
+                        }
+                    ]
+                    assert await relay_census(engine) == catalog_authorities
                     if scenario in {"entry_remove", "entry_remove_ui"}:
                         models = "/api/v1/settings/models"
                         tests = "/api/v1/model-test/entries"
@@ -1101,6 +1176,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                             "system_operation_event",
                             "model_dispatch_v2",
                             "model_dispatch_event_v2",
+                            "model_relay_authority",
                         )
 
                         async def census_remove() -> dict[str, list[str]]:
@@ -1136,6 +1212,15 @@ async def test_api_pg_sdk_protocol_and_replay(
                         latest_path = tests + "/latest/" + ids[0]
                         exact = (await http.get(exact_path)).json()
                         assert exact["state"] == "FINISHED" and exact["result_state"] == "COMPLETED"
+                        catalog_authorities.append(
+                            {
+                                **(
+                                    await dispatch_scope(str(entry_intent["operation_id"]), 2)
+                                ).wire(),
+                                "state": "DRAINED",
+                            }
+                        )
+                        assert await relay_census(engine) == catalog_authorities
                         assert (
                             exact["usage_state"] == "KNOWN"
                             and exact["input_tokens"] == 9
@@ -1227,6 +1312,26 @@ async def test_api_pg_sdk_protocol_and_replay(
                                 generation
                             ] * 3
                             after_browser = await census_remove()
+                            browser_authorities = await relay_census(engine)
+                            assert (
+                                browser_authorities[: len(catalog_authorities)]
+                                == catalog_authorities
+                            )
+                            assert [
+                                row["kind"]
+                                for row in browser_authorities[len(catalog_authorities) :]
+                            ] == [
+                                "METADATA_COMMAND",
+                                "METADATA_COMMAND",
+                                "METADATA_COMMAND",
+                                "MODEL_DISPATCH",
+                                "MODEL_DISPATCH",
+                                "METADATA_COMMAND",
+                            ]
+                            assert [row["operation_serial"] for row in browser_authorities] == list(
+                                range(1, len(browser_authorities) + 1)
+                            )
+                            assert all(row["state"] == "DRAINED" for row in browser_authorities)
                             deltas = {
                                 "provider_connection_revision": 2,
                                 "provider_settings_command": 3,
@@ -1240,6 +1345,8 @@ async def test_api_pg_sdk_protocol_and_replay(
                                 "system_operation_event": 6,
                                 "model_dispatch_v2": 2,
                                 "model_dispatch_event_v2": 6,
+                                # Four explicit catalog refreshes, two new entry tests.
+                                "model_relay_authority": 4 + len(starts[1:]),
                             }
                             for table in tables:
                                 if table in deltas:
@@ -1397,6 +1504,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                             instance = str(initial.instance_id)
                             records: set[tuple[str, str, str, int, str]] = set()
                             dispatches: set[str] = set()
+                            relay_bindings: dict[str, dict[str, object]] = {}
                             for snapshot in (before, after):
                                 roots = [json.loads(raw) for raw in snapshot["system_operation"]]
                                 op = Operation.model_validate_json(
@@ -1426,6 +1534,17 @@ async def test_api_pg_sdk_protocol_and_replay(
                                             == row["dispatch_attempt_id"]
                                         )
                                         dispatches.add(dispatch.dispatch_attempt_id)
+                                        relay_bindings[dispatch.dispatch_attempt_id] = {
+                                            "instance_id": instance,
+                                            "kind": "MODEL_DISPATCH",
+                                            "id": dispatch.dispatch_attempt_id,
+                                            "execution_owner_id": op.execution_owner_id,
+                                            "generation": dispatch.instance_generation,
+                                            "owner_epoch": dispatch.owner_epoch,
+                                            "cancel_epoch": dispatch.cancel_epoch,
+                                            "deadline": dispatch.deadline.isoformat(),
+                                            "provider": "openrouter",
+                                        }
                                         refs.extend(
                                             [
                                                 dispatch.scope_ref,
@@ -1492,6 +1611,21 @@ async def test_api_pg_sdk_protocol_and_replay(
                                     )
 
                             for table in tables:
+                                if table == "model_relay_authority":
+                                    prior = [json.loads(raw) for raw in before[table]]
+                                    current = [json.loads(raw) for raw in after[table]]
+                                    assert len(prior) == len(current), table
+                                    assert all(
+                                        row in current or {**row, "state": "DRAINED"} in current
+                                        for row in prior
+                                    ), table
+                                    for rows in (prior, current):
+                                        assert {
+                                            row["id"]
+                                            for row in rows
+                                            if row["kind"] == "MODEL_DISPATCH"
+                                            and row["id"] in dispatches
+                                        } == dispatches, table
                                 if table in {
                                     "model_record_v2",
                                     "model_command_v2",
@@ -1531,6 +1665,24 @@ async def test_api_pg_sdk_protocol_and_replay(
                                                     row["revision"],
                                                     row["digest"],
                                                 ) in records
+                                            elif table == "model_relay_authority":
+                                                scope = Scope.parse(
+                                                    {
+                                                        key: value
+                                                        for key, value in row.items()
+                                                        if key != "state"
+                                                    }
+                                                )
+                                                assert row["state"] in {"ACTIVE", "DRAINED"}, table
+                                                owned = (
+                                                    scope.kind == "MODEL_DISPATCH"
+                                                    and scope.id in dispatches
+                                                )
+                                                if owned:
+                                                    assert scope.wire() == {
+                                                        **relay_bindings[scope.id],
+                                                        "operation_serial": scope.operation_serial,
+                                                    }, table
                                         if not owned:
                                             rows.append(raw)
                                     foreign.append(rows)
@@ -1711,6 +1863,15 @@ async def test_api_pg_sdk_protocol_and_replay(
                         cancelled = (await http.get(active_path)).json()
                         assert cancelled["state"] == "FINISHED"
                         settled = await census_remove()
+                        catalog_authorities.append(
+                            {
+                                **(
+                                    await dispatch_scope(str(start_intent["operation_id"]), 3)
+                                ).wire(),
+                                "state": "DRAINED",
+                            }
+                        )
+                        assert await relay_census(engine) == catalog_authorities
                         dispatch_rows = [json.loads(raw) for raw in settled["model_dispatch_v2"]]
                         dispatch_id = next(
                             row["dispatch_attempt_id"]
@@ -1906,6 +2067,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                                         "system_operation_event",
                                         "model_dispatch_v2",
                                         "model_dispatch_event_v2",
+                                        "model_relay_authority",
                                     )
                                 }
 
@@ -1928,6 +2090,18 @@ async def test_api_pg_sdk_protocol_and_replay(
                                 read.json()["state"] == "FINISHED"
                                 and read.json()["current"] is True
                             )
+                            catalog_authorities.append(
+                                {
+                                    **(
+                                        await dispatch_scope(
+                                            str(intent["operation_id"]),
+                                            len(catalog_authorities) + 1,
+                                        )
+                                    ).wire(),
+                                    "state": "DRAINED",
+                                }
+                            )
+                            assert await relay_census(engine) == catalog_authorities
 
                         if scenario != "entry_generation_before_first":
                             await complete_entry(http, owner, intents[0])
@@ -2097,6 +2271,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                         )
                     ).status_code == 202
                     assert len(received) == 2
+                    assert await relay_census(engine) == catalog_authorities
                     assert (
                         await http.post(
                             catalog_path + "/search",
@@ -2137,6 +2312,17 @@ async def test_api_pg_sdk_protocol_and_replay(
                         )
                         assert partial_read.json()["entries"][0]["max_output_tokens"] == 128
                         assert len(received) == before_traffic + 1
+                        catalog_authorities.append(
+                            {
+                                **(
+                                    await metadata_scope(
+                                        command_id, "catalog-request", len(catalog_authorities) + 1
+                                    )
+                                ).wire(),
+                                "state": "DRAINED",
+                            }
+                        )
+                        assert await relay_census(engine) == catalog_authorities
                     catalog_mode = "complete"
                     await settings.handle(
                         ModelRegistryControl.model_validate(
@@ -2195,7 +2381,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                         before_denials = (
                             await db.execute(
                                 text(
-                                    "SELECT (SELECT count(*) FROM model_record_v2),(SELECT count(*) FROM model_command_v2),(SELECT count(*) FROM system_operation),(SELECT count(*) FROM model_dispatch_v2),(SELECT count(*) FROM model_dispatch_event_v2),(SELECT count(*) FROM system_operation_event)"
+                                    "SELECT (SELECT count(*) FROM model_record_v2),(SELECT count(*) FROM model_command_v2),(SELECT count(*) FROM system_operation),(SELECT count(*) FROM model_dispatch_v2),(SELECT count(*) FROM model_dispatch_event_v2),(SELECT count(*) FROM system_operation_event),(SELECT count(*) FROM model_relay_authority)"
                                 )
                             )
                         ).one()
@@ -2215,7 +2401,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                         assert (
                             await db.execute(
                                 text(
-                                    "SELECT (SELECT count(*) FROM model_record_v2),(SELECT count(*) FROM model_command_v2),(SELECT count(*) FROM system_operation),(SELECT count(*) FROM model_dispatch_v2),(SELECT count(*) FROM model_dispatch_event_v2),(SELECT count(*) FROM system_operation_event)"
+                                    "SELECT (SELECT count(*) FROM model_record_v2),(SELECT count(*) FROM model_command_v2),(SELECT count(*) FROM system_operation),(SELECT count(*) FROM model_dispatch_v2),(SELECT count(*) FROM model_dispatch_event_v2),(SELECT count(*) FROM system_operation_event),(SELECT count(*) FROM model_relay_authority)"
                                 )
                             )
                         ).one() == before_denials
@@ -2243,6 +2429,15 @@ async def test_api_pg_sdk_protocol_and_replay(
                         and exact["selection_revision"] is None
                     )
                     assert len(received) == before_test + 1
+                    catalog_authorities.append(
+                        {
+                            **(
+                                await dispatch_scope(operation_id, len(catalog_authorities) + 1)
+                            ).wire(),
+                            "state": "DRAINED",
+                        }
+                    )
+                    assert await relay_census(engine) == catalog_authorities
                     assert (
                         await http.put(
                             "/api/v1/model-test/entries", json=entry_intent, headers=headers
@@ -2258,6 +2453,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                     assert (
                         absent.status_code == 404 and absent.json()["error"]["code"] == "NOT_FOUND"
                     )
+                    assert await relay_census(engine) == catalog_authorities
                     async with engine.connect() as db:
                         operation_row = (
                             await db.execute(
@@ -2310,6 +2506,17 @@ async def test_api_pg_sdk_protocol_and_replay(
                     assert cancelled.json()["reason"] == "CANCELLED_OR_STOPPED"
                     assert not owner.tasks
                     catalog_release.set()
+                    catalog_authorities.append(
+                        {
+                            **(
+                                await metadata_scope(
+                                    waiting_id, "catalog-request", len(catalog_authorities) + 1
+                                )
+                            ).wire(),
+                            "state": "DRAINED",
+                        }
+                    )
+                    assert await relay_census(engine) == catalog_authorities
                     catalog_mode = "complete"
                     before_rotation = len(received)
                     rotated = await http.put(
@@ -2406,6 +2613,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                                     and inert.json()["state"] == "NOT_REQUESTED"
                                 )
                                 assert len(received) == before_rotation
+                                assert await relay_census(engine) == catalog_authorities
                     finally:
                         heartbeat_stop.set()
                         try:
@@ -2433,7 +2641,8 @@ async def test_api_pg_sdk_protocol_and_replay(
                                     "(SELECT count(*) FROM model_command_v2), "
                                     "(SELECT count(*) FROM system_operation), "
                                     "(SELECT count(*) FROM model_dispatch_v2), "
-                                    "(SELECT count(*) FROM model_dispatch_event_v2)"
+                                    "(SELECT count(*) FROM model_dispatch_event_v2), "
+                                    "(SELECT count(*) FROM model_relay_authority)"
                                 )
                             )
                         ).one()
@@ -2472,12 +2681,15 @@ async def test_api_pg_sdk_protocol_and_replay(
                                     "(SELECT count(*) FROM model_command_v2), "
                                     "(SELECT count(*) FROM system_operation), "
                                     "(SELECT count(*) FROM model_dispatch_v2), "
-                                    "(SELECT count(*) FROM model_dispatch_event_v2)"
+                                    "(SELECT count(*) FROM model_dispatch_event_v2), "
+                                    "(SELECT count(*) FROM model_relay_authority)"
                                 )
                             )
                         ).one() == before_rows
+                refresh_ids: list[str] = []
                 if metadata_outage:
                     failed_command = str(uuid4())
+                    refresh_ids.append(failed_command)
                     failed = await http.post(
                         "/api/v1/model-test/capabilities",
                         json={"command_id": failed_command, "expected_selection_revision": 1},
@@ -2500,6 +2712,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                             serve, "127.0.0.1", address[1], ssl=server_context
                         )
                 refresh_a = str(uuid4())
+                refresh_ids.append(refresh_a)
                 refresh_intent = {"command_id": refresh_a, "expected_selection_revision": 1}
                 refresh = await http.post(
                     "/api/v1/model-test/capabilities",
@@ -2519,9 +2732,11 @@ async def test_api_pg_sdk_protocol_and_replay(
                         await http.get("/api/v1/model-test/capabilities/" + failed_command)
                     ).json() == failed_receipt
                 if scenario == "complete":
+                    refresh_b_id = str(uuid4())
+                    refresh_ids.append(refresh_b_id)
                     refresh_b = await http.post(
                         "/api/v1/model-test/capabilities",
-                        json={"command_id": str(uuid4()), "expected_selection_revision": 1},
+                        json={"command_id": refresh_b_id, "expected_selection_revision": 1},
                         headers=headers,
                     )
                     assert refresh_b.status_code == 202
@@ -2544,6 +2759,14 @@ async def test_api_pg_sdk_protocol_and_replay(
                     )
                     assert changed.status_code == 409 and len(received) == 2
                     traffic = 3
+                expected_authorities = [
+                    {
+                        **(await metadata_scope(identity, "metadata-request", serial)).wire(),
+                        "state": "DRAINED",
+                    }
+                    for serial, identity in enumerate(refresh_ids, 1)
+                ]
+                assert await relay_census(engine) == expected_authorities
                 admitted = await http.put("/api/v1/model-test", json=intent, headers=headers)
                 assert admitted.status_code == 202, admitted.text
                 async with asyncio.timeout(5):
@@ -2592,6 +2815,11 @@ async def test_api_pg_sdk_protocol_and_replay(
                 assert value["cost_observed"] is None  # Unknown is not zero.
                 assert value["reasoning_tokens"] is None
                 assert not owner.settlement_failed and not owner.tasks
+                original_scope = await dispatch_scope(operation, len(expected_authorities) + 1)
+                expected_authorities.append({**original_scope.wire(), "state": "DRAINED"})
+                assert await relay_census(engine) == expected_authorities
+                assert model_opens and all(scope == original_scope for scope, _ in model_opens)
+                assert all(scope == original_scope for scope, _, _, _ in model_writes)
                 if scenario in {
                     "negative_usage",
                     "unsafe_usage",
@@ -2620,6 +2848,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                     headers=headers,
                 )
                 assert conflict.status_code == 409 and len(received) == traffic
+                assert await relay_census(engine) == expected_authorities
                 if scenario == "complete":
                     await settings.handle(
                         KeySettingsControl.model_validate(
@@ -2656,6 +2885,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                         and value["metadata_state"] == "NOT_REQUESTED"
                     )
                     assert len(received) == traffic
+                second_id: str | None = None
                 if scenario.startswith("relay_"):
                     await (
                         sender.transport.aclose()
@@ -2888,6 +3118,17 @@ async def test_api_pg_sdk_protocol_and_replay(
                 await service.quiesce(process, epoch)
                 assert (await http.get("/api/v1/model-test/" + operation)).json() == value
                 assert len(received) == traffic
+                if scenario.endswith("at_body") or scenario.startswith("relay_"):
+                    assert second_id is not None
+                    expected_authorities.append(
+                        {
+                            **(
+                                await dispatch_scope(second_id, len(expected_authorities) + 1)
+                            ).wire(),
+                            "state": "DRAINED",
+                        }
+                    )
+                assert await relay_census(engine) == expected_authorities
                 async with engine.connect() as db:
                     assert (
                         await db.execute(
@@ -2964,6 +3205,7 @@ asyncio.run(main())
                     )
                     assert child.returncode == 0
                     assert json.loads(child.stdout) == value
+                    assert await relay_census(engine) == expected_authorities
                     assert (
                         len(received) == traffic
                     )  # A new OS process and fencing owner read/replay only.
@@ -3017,6 +3259,7 @@ async def test_installed_sent_crash_reconciles_without_resend(
     import signal
 
     from installed_sent_probe import PROBE, install_probe_wheel
+    from omnis.supervisor.model_relay_protocol import Scope
 
     python = await asyncio.to_thread(install_probe_wheel, tmp_path)
     api = Path(__file__).resolve().parents[1]
@@ -3097,11 +3340,13 @@ async def test_installed_sent_crash_reconciles_without_resend(
     host = importlib.import_module("omnis_cli.model_relay")
     original_validate = host.validate
     actions: list[str] = []
+    relay_scopes: list[Scope] = []
 
     def receive_only(frame: dict[str, object]) -> object:
         actions.append(str(frame["action"]))
         if frame["action"] not in {"FENCE", "DRAIN"}:
             raise ValueError("test forbids provider IO")
+        relay_scopes.append(Scope.parse(frame["scope"]))
         return original_validate(frame)
 
     monkeypatch.setattr(host, "validate", receive_only)
@@ -3132,6 +3377,7 @@ async def test_installed_sent_crash_reconciles_without_resend(
             "system_operation_event",
             "model_dispatch_v2",
             "model_dispatch_event_v2",
+            "model_relay_authority",
         }
         (operation,) = cut["system_operation"]
         assert isinstance(operation, dict)
@@ -3148,7 +3394,60 @@ async def test_installed_sent_crash_reconciles_without_resend(
             for row in cut["model_record_v2"]
             if isinstance(row, dict)
         )
-        assert not actions
+        async with engine.connect() as db:
+            op = await model_store.operation(
+                db, str(operation["instance_id"]), str(config["operation"])
+            )
+            dispatch = await model_store.dispatch(
+                db, str(operation["instance_id"]), str(config["operation"])
+            )
+        assert op is not None
+        request_row = next(
+            row
+            for row in cut["model_record_v2"]
+            if isinstance(row, dict) and row["kind"] == "metadata-request"
+        )
+        assert isinstance(request_row, dict) and isinstance(request_row["payload"], dict)
+        request = request_row["payload"]
+        metadata_scope = Scope.parse(
+            {
+                "instance_id": op.instance_id,
+                "kind": "METADATA_COMMAND",
+                "id": config["refresh"],
+                "execution_owner_id": request["execution_owner_id"],
+                "generation": request["generation"],
+                "owner_epoch": request["owner_epoch"],
+                "cancel_epoch": 1,
+                "deadline": request["deadline"],
+                "provider": "openrouter",
+                "operation_serial": 1,
+            }
+        )
+        original_scope = Scope(
+            op.instance_id,
+            "MODEL_DISPATCH",
+            dispatch.dispatch_attempt_id,
+            op.execution_owner_id,
+            dispatch.instance_generation,
+            dispatch.owner_epoch,
+            dispatch.cancel_epoch,
+            dispatch.deadline.isoformat(),
+            "openrouter",
+            2,
+        )
+        assert (
+            metadata_scope.execution_owner_id
+            == original_scope.execution_owner_id
+            == produced[1]["owner"]
+        )
+        assert metadata_scope.owner_epoch == original_scope.owner_epoch == produced[1]["epoch"]
+        cut_authorities = [
+            {**metadata_scope.wire(), "state": "DRAINED"},
+            {**original_scope.wire(), "state": "ACTIVE"},
+        ]
+        assert await relay_census(engine) == cut_authorities
+        # Synthetic metadata still uses the real producer's acknowledged retirement.
+        assert actions == ["FENCE", "DRAIN"] and relay_scopes == [metadata_scope] * 2
         # Let the crashed owner's real five-second lease expire; no DB mutation/release shim.
         async with asyncio.timeout(8):
             while True:
@@ -3167,7 +3466,10 @@ async def test_installed_sent_crash_reconciles_without_resend(
         assert recovered[-1]["epoch"] == int(str(produced[1]["epoch"])) + 1
         assert recovered[-1]["owner"] != produced[1]["owner"]
         after = await census()
-        assert actions == ["FENCE", "DRAIN"]
+        assert actions == ["FENCE", "DRAIN", "FENCE", "DRAIN"]
+        assert relay_scopes == [metadata_scope] * 2 + [original_scope] * 2
+        retired_authorities = [{**row, "state": "DRAINED"} for row in cut_authorities]
+        assert await relay_census(engine) == retired_authorities
         assert {name for name in cut if after[name] != cut[name]} == {
             "instance_control",
             "supervisor_lease",
@@ -3175,6 +3477,7 @@ async def test_installed_sent_crash_reconciles_without_resend(
             "system_operation_event",
             "model_record_v2",
             "model_dispatch_event_v2",
+            "model_relay_authority",
         }
         for table in ("model_record_v2", "system_operation_event", "model_dispatch_event_v2"):
             assert all(row in after[table] for row in cut[table])
@@ -3188,7 +3491,9 @@ async def test_installed_sent_crash_reconciles_without_resend(
         assert reread[-1]["view"] == recovered[-1]["view"]
         final = await census()
         assert {name for name in after if final[name] != after[name]} == {"supervisor_lease"}
-        assert actions == ["FENCE", "DRAIN"]
+        assert await relay_census(engine) == retired_authorities
+        assert actions == ["FENCE", "DRAIN", "FENCE", "DRAIN"]
+        assert relay_scopes == [metadata_scope] * 2 + [original_scope] * 2
         assert len(set(children)) == len(children)
     finally:
         relay.close()

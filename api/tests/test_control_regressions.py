@@ -19,7 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 
 from conftest import connect_test_database
 from omnis.api import create_app
-from omnis.core.db import ReadinessReason, database_engine, readiness_reason
+from omnis.core.db import SCHEMA_REVISION, ReadinessReason, database_engine, readiness_reason
 from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.records import CommandKind, LeaseRecord
 from omnis.modules.instance.service import InstanceService
@@ -101,7 +101,7 @@ async def test_finalized_stop_readback_refuses_committed_current_lease_takeover(
                 assert row is not None and len(row) == 1
                 return str(row[0])
 
-            runtime = SimpleNamespace(psql=psql)
+            runtime = SimpleNamespace(psql=psql, schema=SCHEMA_REVISION)
             stop_source._finalized_db_readback(runtime, record, db_alias, instance_id)
 
             await service.release(owner, epoch)

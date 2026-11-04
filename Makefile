@@ -48,7 +48,7 @@ test-settings-models-ui-pg: build-web
 
 test-model-test-v2-pg:
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
-	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py api/tests/test_model_relay_protocol.py api/tests/test_model_relay_scopes.py -q --tb=short
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests/test_model_test_v2.py api/tests/test_model_test_v2_contract.py api/tests/test_model_test_v2_migration.py api/tests/test_model_relay_protocol.py api/tests/test_model_relay_scopes.py api/tests/test_model_relay_authority_pg.py -q --tb=short
 
 .PHONY: test-provider-settings-pg
 .PHONY: test-settings-remove-pg

@@ -323,7 +323,7 @@ async def test_run_api_pg_three_causal_tasks_and_receive_only_replay(
             }
             workers = [actor for actor in actors.values() if actor.role == "RECON"]
             events = [
-                RunEvent.model_validate(raw)
+                RunEvent.model_validate_json(json.dumps(raw))
                 for raw in (await db.execute(text("SELECT payload FROM run_event"))).scalars()
             ]
             assert {

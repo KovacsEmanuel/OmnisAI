@@ -23,6 +23,8 @@ class ReleaseError(ValueError):
 
 _RELEASE = "0.1.0"
 T1_RELEASE = "0.1.1"
+S1_RELEASE = "0.1.2"
+S1_SCHEMA = "0019_agent_runs"
 _SCHEMA = "0017_model_removal"
 PROVIDER_SETTINGS_PROFILE = "t1-provider-settings"
 _BASE_FILES = {
@@ -76,8 +78,9 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
             (_RELEASE, _SCHEMA),
             (_RELEASE, "0016_provider_models"),
             (T1_RELEASE, _SCHEMA),
+            (S1_RELEASE, S1_SCHEMA),
         )
-        or raw["release"] == T1_RELEASE
+        or raw["release"] in (T1_RELEASE, S1_RELEASE)
         and not provider_settings
         or raw["schema"] == "0016_provider_models"
         and not provider_settings
@@ -159,8 +162,20 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
         }
         if raw["schema"] == "0016_provider_models":
             required.remove("omnis/migrations/versions/0017_model_removal.py")
-        if version == T1_RELEASE:
+        if version in (T1_RELEASE, S1_RELEASE):
             required |= {"omnis/migrate.py", "omnis/stop_reconcile.py"}
+        if version == S1_RELEASE:
+            required |= {
+                "omnis/migrations/versions/0018_model_relay_authority.py",
+                "omnis/migrations/versions/0019_agent_runs.py",
+                "omnis/core/run_schema.py",
+                "omnis/modules/runs/run_contract.py",
+                "omnis/modules/runs/run_routes.py",
+                "omnis/modules/runs/run_runtime.py",
+                "omnis/modules/runs/run_store.py",
+                "omnis/modules/runs/projections.py",
+                "omnis/supervisor/agent_runner.py",
+            }
         try:
             with ZipFile(io.BytesIO(result[f"api/omnis_api-{version}-py3-none-any.whl"])) as wheel:
                 metadata_name = f"omnis_api-{version}.dist-info/METADATA"
@@ -187,8 +202,8 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
                     }:
                         core.append(dependency)
                 common = {"cryptography==50.0.1", "httpx==0.28.1", "httpcore==1.0.9"}
-                supported = [common | {"openai==2.24.0"}]
-                if version == T1_RELEASE:
+                supported = [] if version == S1_RELEASE else [common | {"openai==2.24.0"}]
+                if version in (T1_RELEASE, S1_RELEASE):
                     supported.append(common | {"openai==2.45.0", "openai-agents==0.19.0"})
                 if (
                     not required <= set(wheel.namelist())
@@ -199,7 +214,7 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
                     raise ReleaseError("Provider Settings production closure required")
         except (BadZipFile, KeyError):
             raise ReleaseError("Provider Settings wheel required") from None
-        if version == T1_RELEASE:
+        if version in (T1_RELEASE, S1_RELEASE):
             try:
                 with ZipFile(
                     io.BytesIO(result[f"cli/omnis_cli-{version}-py3-none-any.whl"])
@@ -207,7 +222,7 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
                     metadata = wheel.read(f"omnis_cli-{version}.dist-info/METADATA")
                     if (
                         "omnis_cli/upgrade.py" not in wheel.namelist()
-                        or b"Version: 0.1.1\n" not in metadata
+                        or f"Version: {version}\n".encode() not in metadata
                         or b"Requires-Dist:" in metadata
                     ):
                         raise ReleaseError("Standalone upgrade CLI required")
@@ -335,7 +350,7 @@ def _installed_pointer(path: Path) -> bool:
         or set(value) != {"format", "release"}
         or type(value["format"]) is not int
         or value["format"] != 1
-        or value["release"] not in (_RELEASE, T1_RELEASE)
+        or value["release"] not in (_RELEASE, T1_RELEASE, S1_RELEASE)
     ):
         raise ReleaseError("Another release is installed")
     return True

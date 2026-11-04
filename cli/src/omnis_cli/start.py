@@ -46,7 +46,7 @@ from .lifecycle import (
     socket_identity,
     write_record,
 )
-from .release import _RELEASE, _put
+from .release import _RELEASE, S1_RELEASE, S1_SCHEMA, _put
 from .start_runtime import (
     POSTGRES,
     SAFE_PATH,
@@ -122,6 +122,7 @@ def native_fields(record: dict[str, object]) -> set[str]:
 def vault_fields(record: dict[str, object]) -> set[str]:
     return (
         {"vault_identity", "vault_key_identity"}
+        | ({"catalog_identity"} if "catalog_identity" in record else set())
         if type(record.get("format")) is int and record["format"] == 5
         else set()
     )
@@ -368,6 +369,15 @@ def validate_config(runtime: ControlRuntime, env: dict[str, str]) -> None:
                 }
                 for name in ("vault", "vault-key")
             )
+            if getattr(runtime, "run_catalog", False) is True:
+                expected_environment["OMNIS_RUN_CATALOG_ROOT"] = "/catalog"
+                expected_mounts.append(
+                    {
+                        "type": "bind",
+                        "source": f"{env['OMNIS_STATE_ROOT']}/catalog",
+                        "target": "/catalog",
+                    }
+                )
         if role == "supervisor" and runtime.native is True:
             expected_environment["OMNIS_RUNTIME_DIR"] = "/runtime"
             expected_mounts.append(
@@ -1007,7 +1017,8 @@ def _bound_instance(
         or bool(native_fields(record)) != (runtime.native is True)
         or bool(vault_fields(record)) != (getattr(runtime, "provider_settings", False) is True)
         or type(getattr(runtime, "model_test", None)) is not bool
-        or ("catalog_identity" in record) != runtime.model_test
+        or ("catalog_identity" in record)
+        != (runtime.model_test or getattr(runtime, "run_catalog", False) is True)
         or (runtime.model_test and record.get("format") != 4)
         or (
             native_fields(record) and record["runtime_image_id"] != runtime.receipt.runtime_image_id
@@ -1187,7 +1198,10 @@ def start_instance(
             if _upgrade is not None
             else ControlRuntime(data_home, deadline)
         )
-        if isinstance(getattr(runtime, "schema", None), str) and runtime.schema != EXPECTED_SCHEMA:
+        if isinstance(getattr(runtime, "schema", None), str) and (
+            getattr(runtime.receipt, "release", _RELEASE),
+            runtime.schema,
+        ) not in (("0.1.0", EXPECTED_SCHEMA), ("0.1.1", EXPECTED_SCHEMA), (S1_RELEASE, S1_SCHEMA)):
             raise StartError("UPGRADE_REQUIRED", 2)
     except StartError:
         raise
@@ -1323,6 +1337,10 @@ def start_instance(
                 vault_identity=private_identity(root / "vault"),
                 vault_key_identity=private_identity(root / "vault-key"),
             )
+            if getattr(runtime, "run_catalog", False) is True:
+                if restarting is None:
+                    ensure_private(root / "catalog")
+                record["catalog_identity"] = private_identity(root / "catalog")
             if config.development_workspace is not None:
                 record["development_workspace"] = config.development_workspace
         if runtime.native is True:
@@ -1603,7 +1621,9 @@ def start_instance(
                 runtime.receipt.release
                 if isinstance(getattr(runtime.receipt, "release", None), str)
                 else _RELEASE,
-                EXPECTED_SCHEMA,
+                runtime.schema
+                if isinstance(getattr(runtime, "schema", None), str)
+                else EXPECTED_SCHEMA,
                 runtime.receipt.project,
                 f"http://127.0.0.1:{selected}",
             )

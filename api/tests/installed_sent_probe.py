@@ -30,14 +30,25 @@ def install_probe_wheel(root: Path) -> Path:
             str(requirements),
         ],
         ["venv", "--no-python-downloads", "--python", "3.13.15", str(root / "venv")],
-        ["pip", "sync", "--python", str(python), "--require-hashes", str(requirements)],
+        [
+            "pip",
+            "sync",
+            "--python",
+            str(python),
+            "--link-mode",
+            "copy",
+            "--require-hashes",
+            str(requirements),
+        ],
         [
             "pip",
             "install",
             "--python",
             str(python),
             "--no-deps",
-            str(wheels / "omnis_api-0.1.1-py3-none-any.whl"),
+            "--link-mode",
+            "copy",
+            str(wheels / "omnis_api-0.1.2-py3-none-any.whl"),
         ],
         ["pip", "check", "--python", str(python)],
     )
@@ -50,7 +61,7 @@ def install_probe_wheel(root: Path) -> Path:
             timeout=120,
         )
         assert result.returncode == 0, f"Offline wheel {command[0]} failed: {result.returncode}"
-    with ZipFile(wheels / "omnis_api-0.1.1-py3-none-any.whl") as wheel:
+    with ZipFile(wheels / "omnis_api-0.1.2-py3-none-any.whl") as wheel:
         modules = {
             name for name in wheel.namelist() if name.startswith("omnis/") and name.endswith(".py")
         }

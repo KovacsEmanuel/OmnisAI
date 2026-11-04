@@ -218,7 +218,7 @@ class StopTest(unittest.TestCase):
         start_module = importlib.import_module("omnis_cli.start")
         stop_module = importlib.import_module("omnis_cli.stop")
         status_module = importlib.import_module("omnis_cli.status")
-        for field, foreign in (("project", "omnis-foreign"), ("release", "0.2.0")):
+        for field, foreign in (("project", "omnis-foreign"), ("release", "0.1.1")):
             with (
                 self.subTest(field=field),
                 private_stop_fixture() as (base, root, _foreign, _control, record, runtime),
@@ -389,7 +389,7 @@ class StopTest(unittest.TestCase):
                             runtime.receipt.project = original_project
                             instance_path = root / "instance.json"
                             instance = read_record(instance_path)
-                            instance["release"] = "0.2.0"
+                            instance["release"] = "0.1.1"
                             write_record(instance_path, instance, replace=True)
                         before = journal.read_bytes()
                         for command in (["status", "--json"], ["stop", "--json"]):

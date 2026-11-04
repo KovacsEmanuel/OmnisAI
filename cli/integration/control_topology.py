@@ -20,8 +20,8 @@ from pathlib import Path
 
 from omnis_cli.compose import _docker_id, _one_image, _preflight, _record, _validate_image
 from omnis_cli.instance import private_dir
+from omnis_cli.release import S1_SCHEMA as EXPECTED_SCHEMA
 from omnis_cli.release import _installed_pointer, _manifest
-from omnis_cli.start import EXPECTED_SCHEMA
 
 _POSTGRES = (
     "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650"

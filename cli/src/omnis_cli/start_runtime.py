@@ -27,7 +27,14 @@ from . import development
 from .compose import ImageReceipt, _checked_socket, _one_image, _record
 from .instance import private_dir, private_file
 from .lifecycle import StartError, mapping, read_record, remaining
-from .release import PROVIDER_SETTINGS_PROFILE, _installed_pointer, _manifest, installed_version
+from .release import (
+    PROVIDER_SETTINGS_PROFILE,
+    S1_RELEASE,
+    S1_SCHEMA,
+    _installed_pointer,
+    _manifest,
+    installed_version,
+)
 
 POSTGRES = (
     "postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650"
@@ -78,7 +85,9 @@ def check_native_paths(root: Path, record: dict[str, object] | None = None) -> N
         raise StartError("NATIVE_PATH_IDENTITY_MISMATCH", 4)
 
 
-def check_vault_paths(root: Path, record: dict[str, object] | None = None) -> None:
+def check_vault_paths(
+    root: Path, record: dict[str, object] | None = None, *, catalog: bool | None = None
+) -> None:
     if record is None:
         record = read_record(root / "startup.json")
     if (
@@ -86,6 +95,12 @@ def check_vault_paths(root: Path, record: dict[str, object] | None = None) -> No
         or record["format"] != 5
         or private_identity(root / "vault") != record.get("vault_identity")
         or private_identity(root / "vault-key") != record.get("vault_key_identity")
+        or catalog is not None
+        and ("catalog_identity" in record) != catalog
+        or (
+            "catalog_identity" in record
+            and private_identity(root / "catalog") != record["catalog_identity"]
+        )
     ):
         raise StartError("VAULT_PATH_IDENTITY_MISMATCH", 4)
 
@@ -94,7 +109,7 @@ def provider_settings_overlay(runtime: "ControlRuntime", env: dict[str, str]) ->
     if not runtime.provider_settings or runtime.native or runtime.model_test:
         raise StartError("IMAGE_PROFILE_MISMATCH", 4)
     root = Path(env["OMNIS_STATE_ROOT"])
-    check_vault_paths(root)
+    check_vault_paths(root, catalog=runtime.run_catalog)
     return {
         "services": {
             "supervisor": {
@@ -102,11 +117,16 @@ def provider_settings_overlay(runtime: "ControlRuntime", env: dict[str, str]) ->
                     "OMNIS_VAULT_DIR": "/vault",
                     "OMNIS_VAULT_KEY_DIR": "/vault-key",
                     "OMNIS_MODEL_EGRESS_DIR": "/vault",
+                    **({"OMNIS_RUN_CATALOG_ROOT": "/catalog"} if runtime.run_catalog else {}),
                 },
                 "volumes": [
                     *(
                         {"type": "bind", "source": str(root / name), "target": "/" + name}
-                        for name in ("vault", "vault-key")
+                        for name in (
+                            "vault",
+                            "vault-key",
+                            *(("catalog",) if runtime.run_catalog else ()),
+                        )
                     ),
                     *development.mounts(runtime.development_workspace, "supervisor"),
                 ],
@@ -512,6 +532,13 @@ class ControlRuntime:
         return getattr(self.receipt, "profile", None) == PROVIDER_SETTINGS_PROFILE
 
     @property
+    def run_catalog(self) -> bool:
+        return self.provider_settings and (
+            getattr(self.receipt, "release", None),
+            getattr(self, "schema", None),
+        ) == (S1_RELEASE, S1_SCHEMA)
+
+    @property
     def native(self) -> bool:
         return getattr(self.receipt, "profile", None) in {"p4a-settings-offline", "p4a-codex-auth"}
 
@@ -568,7 +595,7 @@ class ControlRuntime:
         if self.native:
             check_native_paths(root)
         if self.provider_settings:
-            check_vault_paths(root)
+            check_vault_paths(root, catalog=self.run_catalog)
         if not isinstance(mounts, list):
             raise StartError("CONTAINER_MOUNTS_INVALID", 3)
         actual: set[tuple[object, object, object, object]] = set()
@@ -597,6 +624,8 @@ class ControlRuntime:
                 expected.update(
                     ("bind", str(root / name), "/" + name, True) for name in ("vault", "vault-key")
                 )
+                if self.run_catalog:
+                    expected.add(("bind", str(root / "catalog"), "/catalog", True))
             elif self.native:
                 expected.add(("bind", str(root / "native-ipc"), "/runtime", True))
                 if self.model_test:
@@ -794,6 +823,8 @@ class ControlRuntime:
                 OMNIS_VAULT_KEY_DIR="/vault-key",
                 OMNIS_MODEL_EGRESS_DIR="/vault",
             )
+            if self.run_catalog:
+                expected_env["OMNIS_RUN_CATALOG_ROOT"] = "/catalog"
         if role == "supervisor" and self.native:
             expected_env["OMNIS_RUNTIME_DIR"] = "/runtime"
             if self.model_test:

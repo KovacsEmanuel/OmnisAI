@@ -15,7 +15,7 @@ from uuid import UUID
 from installed_pair_open import command, opener_outcome, prove, tty_default, tty_pair
 from omnis_cli.control import request
 from omnis_cli.lifecycle import process_identity, write_record
-from omnis_cli.start import EXPECTED_SCHEMA
+from omnis_cli.release import S1_SCHEMA as EXPECTED_SCHEMA
 from omnis_cli.start_runtime import ControlRuntime
 
 

@@ -70,6 +70,8 @@ def completed_fixture(root, control, record, runtime):
         "daemon_id": record["docker_id"],
         "inventory": inventory,
     }
+    if "catalog_identity" in record:
+        inventory["catalog"] = record["catalog_identity"]
     stamp = {"pid": 999, "start_ticks": "1", "boot_id": str(uuid4())}
     write_record(
         receipt_path(root, record),

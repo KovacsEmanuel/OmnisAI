@@ -12,6 +12,7 @@ from uuid import uuid4
 
 from omnis_cli.instance import InvalidInstance, load_instance
 from omnis_cli.lifecycle import StartError
+from omnis_cli.release import S1_SCHEMA
 
 start = importlib.import_module("omnis_cli.start")
 
@@ -27,7 +28,7 @@ class SchemaCompatibilityTest(unittest.TestCase):
                         revisions.add(ast.literal_eval(node.value))
                     elif node.targets[0].id == "down_revision":
                         parents.add(ast.literal_eval(node.value))
-        self.assertEqual(revisions - parents, {start.EXPECTED_SCHEMA})
+        self.assertEqual(revisions - parents, {S1_SCHEMA})
         tree = ast.parse((root / "cli/integration/control_topology.py").read_bytes())
         checks: list[ast.stmt] = [
             node
@@ -44,16 +45,16 @@ class SchemaCompatibilityTest(unittest.TestCase):
         env: dict[str, object] = {
             key: None for key in ("host", "release", "project", "empty_env", "env")
         }
-        env["EXPECTED_SCHEMA"] = start.EXPECTED_SCHEMA
+        env["EXPECTED_SCHEMA"] = S1_SCHEMA
         for revision in (
             "0015_model_test_v2",
-            start.EXPECTED_SCHEMA,
+            S1_SCHEMA,
             "0014_provider_settings",
             "0013_mission_revisions",
             "synthetic_incompatible",
         ):
             env["_psql"] = lambda *args, revision=revision: revision
-            if revision == start.EXPECTED_SCHEMA:
+            if revision == S1_SCHEMA:
                 exec(code, env)
             else:
                 with self.assertRaisesRegex(
@@ -81,7 +82,7 @@ class SchemaCompatibilityTest(unittest.TestCase):
         )
 
         def exercise(fail):
-            schema = start.EXPECTED_SCHEMA
+            schema = S1_SCHEMA
             queries = []
 
             def psql(db, query):
@@ -104,14 +105,14 @@ class SchemaCompatibilityTest(unittest.TestCase):
                 "runtime": SimpleNamespace(psql=psql),
                 "record": {"containers": {"db": "private-db"}},
                 "invoke": invoke,
-                "EXPECTED_SCHEMA": start.EXPECTED_SCHEMA,
+                "EXPECTED_SCHEMA": S1_SCHEMA,
             }
             if fail:
                 with self.assertRaisesRegex(RuntimeError, "synthetic negative interrupted"):
                     exec(code, env)
             else:
                 exec(code, env)
-            self.assertEqual(schema, start.EXPECTED_SCHEMA)
+            self.assertEqual(schema, S1_SCHEMA)
             self.assertGreaterEqual(queries.count("SELECT version_num FROM alembic_version"), 2)
 
         exercise(False)

@@ -1524,7 +1524,9 @@ class ReleaseBundleTest(unittest.TestCase):
                 ]
             )
             manifest = json.loads((bundle / "release.json").read_text())
-            self.assertEqual(manifest["release"], "0.1.1")
+            self.assertEqual(
+                (manifest["release"], manifest["schema"]), ("0.1.2", "0019_agent_runs")
+            )
             self.assertEqual(
                 set(manifest["files"]),
                 {
@@ -1543,7 +1545,7 @@ class ReleaseBundleTest(unittest.TestCase):
             }
             installed = run([cli, "install", "--bundle", str(bundle)], env=env)
             self.assertNotIn(str(ROOT), installed.stdout + installed.stderr)
-            installed_root = data / "omnis/releases/0.1.1"
+            installed_root = data / "omnis/releases/0.1.2"
             self.assertEqual(
                 (installed_root / "web/index.html").read_bytes(),
                 (ROOT / "web/dist/index.html").read_bytes(),

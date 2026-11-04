@@ -97,9 +97,26 @@ class ProviderSettingsProfileTest(unittest.TestCase):
             source.provider_settings_overlay(self.runtime, {"OMNIS_STATE_ROOT": str(self.root)})
 
     def test_explicit_start_persists_private_paths_before_first_create_without_key(self):
+        self.explicit_start()
+
+    def test_s1_explicit_start_pins_empty_catalog_before_first_create(self):
+        self.runtime.receipt.release = "0.1.2"
+        self.runtime.schema = "0019_agent_runs"
+        self.explicit_start(catalog=True)
+
+    def test_s1_start_refuses_preexisting_foreign_catalog(self):
+        self.runtime.receipt.release = "0.1.2"
+        self.runtime.schema = "0019_agent_runs"
+        self.explicit_start(catalog=True, foreign=True)
+
+    def explicit_start(self, *, catalog=False, foreign=False):
         start = importlib.import_module("omnis_cli.start")
         (self.root / "d/omnis").mkdir(parents=True, mode=0o700)
         root = self.root / "s/omnis"
+        if foreign:
+            root.mkdir(parents=True, mode=0o700)
+            (root / "catalog").mkdir(mode=0o700)
+            (root / "catalog/foreign").write_bytes(b"not owned by startup")
         self.runtime.receipt.docker_id = "fixture-daemon"
         self.runtime.digest = "c" * 64
         self.runtime.host = "unix:///run/docker.sock"
@@ -115,6 +132,10 @@ class ProviderSettingsProfileTest(unittest.TestCase):
             self.assertEqual(list((root / "vault-key").iterdir()), [])
             self.assertFalse((root / "native-ipc").exists())
             self.assertFalse((root / "provider").exists())
+            self.assertEqual((root / "catalog").exists(), catalog)
+            if catalog:
+                self.assertEqual(record["catalog_identity"], private_identity(root / "catalog"))
+                self.assertEqual(list((root / "catalog").iterdir()), [])
             observed.append(record)
             raise StartError("SOURCE_CUT_BEFORE_FIRST_CREATE", 3)
 
@@ -134,8 +155,16 @@ class ProviderSettingsProfileTest(unittest.TestCase):
             patch.object(start, "cleanup_attempt", return_value=[]),
         ):
             code, result = start.start_result(48765)
-        self.assertEqual((code, result["reason"]), (3, "SOURCE_CUT_BEFORE_FIRST_CREATE"))
-        self.assertEqual(len(observed), 1)
+        self.assertEqual(
+            (code, result["reason"]),
+            (4, "UNOWNED_STATE_RECOVERY_REQUIRED")
+            if foreign
+            else (3, "SOURCE_CUT_BEFORE_FIRST_CREATE"),
+        )
+        self.assertEqual(len(observed), 0 if foreign else 1)
+        if foreign:
+            self.assertEqual((root / "catalog/foreign").read_bytes(), b"not owned by startup")
+            self.assertFalse((root / "startup.json").exists())
         self.runtime.run.assert_not_called()
 
     def test_paths_are_bound_to_journal_and_pending_lock_survives_checks(self):
@@ -184,6 +213,17 @@ class ProviderSettingsProfileTest(unittest.TestCase):
         fixture.runtime.run.assert_not_called()
 
     def test_runtime_attestor_accepts_owner_and_denies_key_on_api_or_missing_mount(self):
+        self.runtime_attestor()
+
+    def test_s1_attestor_accepts_catalog_owner_and_denies_wrong_role_mount_or_native_env(self):
+        self.runtime.receipt.release = "0.1.2"
+        self.runtime.schema = "0019_agent_runs"
+        (self.root / "catalog").mkdir(mode=0o700)
+        self.record["catalog_identity"] = private_identity(self.root / "catalog")
+        write_record(self.root / "startup.json", self.record, replace=True)
+        self.runtime_attestor(catalog=True)
+
+    def runtime_attestor(self, *, catalog=False):
         cid = "f" * 64
         control = self.root / "control"
         candidate = container_item(self.runtime, "supervisor", cid, self.root, control, 48765)
@@ -201,7 +241,9 @@ class ProviderSettingsProfileTest(unittest.TestCase):
             "OMNIS_VAULT_KEY_DIR=/vault-key",
             "OMNIS_MODEL_EGRESS_DIR=/vault",
         ]
-        for name in ("vault", "vault-key"):
+        if catalog:
+            candidate["Config"]["Env"].append("OMNIS_RUN_CATALOG_ROOT=/catalog")
+        for name in ("vault", "vault-key", *(("catalog",) if catalog else ())):
             candidate["Mounts"].append(
                 {
                     "Type": "bind",
@@ -222,6 +264,20 @@ class ProviderSettingsProfileTest(unittest.TestCase):
         self.assertEqual(
             self.runtime.attest(cid, "supervisor", self.root, control, 48765), candidate
         )
+        if catalog:
+            for value in (
+                "OMNIS_RUNTIME_DIR=/runtime",
+                "OMNIS_NATIVE_PREPARATION_CATALOG_ROOT=/catalog",
+                "OMNIS_MANAGED_TASKS=1",
+            ):
+                candidate["Config"]["Env"].append(value)
+                with self.assertRaises(StartError):
+                    self.runtime.attest(cid, "supervisor", self.root, control, 48765)
+                candidate["Config"]["Env"].pop()
+            candidate["Mounts"][-1]["RW"] = False
+            with self.assertRaises(StartError):
+                self.runtime.attest(cid, "supervisor", self.root, control, 48765)
+            candidate["Mounts"][-1]["RW"] = True
         candidate["Mounts"].pop()
         with self.assertRaises(StartError):
             self.runtime.attest(cid, "supervisor", self.root, control, 48765)
@@ -282,7 +338,9 @@ class ProviderSettingsBundleTest(unittest.TestCase):
     LEGACY = (*COMMON, "openai==2.24.0")
     S0 = (*COMMON, "openai==2.45.0", "openai-agents==0.19.0")
 
-    def bundle(self, *, version="0.1.0", schema="0017_model_removal", dependencies=LEGACY):
+    def bundle(
+        self, *, version="0.1.0", schema="0017_model_removal", dependencies=LEGACY, omit=None
+    ):
         import hashlib
 
         fixture = InstallTest()
@@ -308,7 +366,24 @@ class ProviderSettingsBundleTest(unittest.TestCase):
                 "omnis/supervisor/model_sender.py",
                 "omnis/migrate.py",
                 "omnis/stop_reconcile.py",
+                *(
+                    (
+                        "omnis/migrations/versions/0018_model_relay_authority.py",
+                        "omnis/migrations/versions/0019_agent_runs.py",
+                        "omnis/core/run_schema.py",
+                        "omnis/modules/runs/run_contract.py",
+                        "omnis/modules/runs/run_routes.py",
+                        "omnis/modules/runs/run_runtime.py",
+                        "omnis/modules/runs/run_store.py",
+                        "omnis/modules/runs/projections.py",
+                        "omnis/supervisor/agent_runner.py",
+                    )
+                    if version == "0.1.2"
+                    else ()
+                ),
             ):
+                if name == omit:
+                    continue
                 if schema == "0016_provider_models" and "0017_model_removal" in name:
                     continue
                 wheel.writestr(name, "# SOURCE synthetic closure\n")
@@ -322,7 +397,7 @@ class ProviderSettingsBundleTest(unittest.TestCase):
                 renamed = name.replace("0.1.0", version)
                 (fixture.bundle / name).rename(fixture.bundle / renamed)
                 fixture.manifest["files"][renamed] = fixture.manifest["files"].pop(name)
-        if version == "0.1.1":
+        if version in ("0.1.1", "0.1.2"):
             cli_name = f"cli/omnis_cli-{version}-py3-none-any.whl"
             with ZipFile(fixture.bundle / cli_name, "w") as wheel:
                 wheel.writestr("omnis_cli/upgrade.py", "# SOURCE synthetic closure\n")
@@ -341,6 +416,52 @@ class ProviderSettingsBundleTest(unittest.TestCase):
         source, payloads = _manifest(fixture.bundle)
         self.assertEqual(source, (fixture.bundle / "release.json").read_bytes())
         self.assertEqual(set(payloads), set(fixture.manifest["files"]))
+
+    def test_s1_requires_exact_pair_sdk_and_run_closure(self):
+        fixture = self.bundle(version="0.1.2", schema="0019_agent_runs", dependencies=self.S0)
+        self.assertEqual(
+            _manifest(fixture.bundle)[0], (fixture.bundle / "release.json").read_bytes()
+        )
+        for module in (
+            "omnis/migrations/versions/0018_model_relay_authority.py",
+            "omnis/migrations/versions/0019_agent_runs.py",
+            "omnis/core/run_schema.py",
+            "omnis/modules/runs/run_contract.py",
+            "omnis/modules/runs/run_routes.py",
+            "omnis/modules/runs/run_runtime.py",
+            "omnis/modules/runs/run_store.py",
+            "omnis/modules/runs/projections.py",
+            "omnis/supervisor/agent_runner.py",
+        ):
+            with self.subTest(missing=module):
+                fixture = self.bundle(
+                    version="0.1.2", schema="0019_agent_runs", dependencies=self.S0, omit=module
+                )
+                with self.assertRaisesRegex(ReleaseError, "production closure required"):
+                    _manifest(fixture.bundle)
+        for dependencies in (self.LEGACY, (*self.S0, "openai==2.24.0"), (*self.S0, self.S0[-1])):
+            with self.subTest(dependencies=dependencies):
+                fixture = self.bundle(
+                    version="0.1.2", schema="0019_agent_runs", dependencies=dependencies
+                )
+                with self.assertRaisesRegex(ReleaseError, "production closure required"):
+                    _manifest(fixture.bundle)
+        for version, schema in (("0.1.1", "0019_agent_runs"), ("0.1.2", "0017_model_removal")):
+            fixture = self.bundle(version=version, schema=schema, dependencies=self.S0)
+            with self.assertRaisesRegex(ReleaseError, "Incompatible release"):
+                _manifest(fixture.bundle)
+
+    def test_s1_fresh_install_is_idempotent_but_not_an_implicit_upgrade(self):
+        fixture = self.bundle(version="0.1.2", schema="0019_agent_runs", dependencies=self.S0)
+        installed = install_release(fixture.bundle, fixture.data_home)
+        self.assertEqual(installed.name, "0.1.2")
+        self.assertEqual(install_release(fixture.bundle, fixture.data_home), installed)
+        old = self.bundle(version="0.1.1", dependencies=self.S0)
+        install_release(old.bundle, old.data_home)
+        pointer = (old.data_home / "omnis/installed.json").read_bytes()
+        with self.assertRaises(ReleaseError):
+            install_release(fixture.bundle, old.data_home)
+        self.assertEqual((old.data_home / "omnis/installed.json").read_bytes(), pointer)
 
     def test_legacy_closure_remains_readable_at_all_supported_t1_versions(self):
         for version, schema in (

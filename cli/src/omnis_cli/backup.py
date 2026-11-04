@@ -220,6 +220,9 @@ def validate_tar(path: Path, deadline: float) -> None:
 
 
 def backup(runtime: ControlRuntime, root: Path, output: Path) -> None:
+    # shortcut: T1 snapshots omit catalog bytes; admit S1 only with a complete backup contract.
+    if getattr(runtime, "run_catalog", False) is True:
+        raise StartError("COLD_CATALOG_UNSUPPORTED", 4)
     private_dir(output.parent)
     if not output.is_absolute() or output.resolve() != output or os.path.lexists(output):
         raise StartError("COLD_DESTINATION_EXISTS", 4)
@@ -597,6 +600,8 @@ def cold_command(command: str, path: Path, key: Path | None = None) -> int:
         data = os.environ.get("XDG_DATA_HOME")
         data_home = Path(data) if data else Path.home() / ".local/share"
         runtime = ControlRuntime(data_home, time.monotonic() + 180)
+        if command == "backup" and getattr(runtime, "run_catalog", False) is True:
+            raise StartError("COLD_CATALOG_UNSUPPORTED", 4)
         with lifecycle_lock(data_home / "omnis", runtime.deadline):
             from .start_runtime import refuse_upgrade
 

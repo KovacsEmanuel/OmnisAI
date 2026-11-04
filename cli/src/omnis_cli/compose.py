@@ -177,7 +177,9 @@ def _record(path: Path, manifest_sha: str, *, complete: bool) -> ImageReceipt | 
     if (
         type(raw["format"]) is not int
         or raw["format"] not in (1, 2, 3)
-        or raw["release"] not in ("0.1.0", "0.1.1")
+        or raw["release"] not in ("0.1.0", "0.1.1", "0.1.2")
+        or raw["release"] == "0.1.2"
+        and not provider_settings
         or not isinstance(project, str)
         or not _PROJECT.fullmatch(project)
         or tag != f"omnis-control-{project.removeprefix('omnis-local-')}:{raw['release']}"

@@ -5,8 +5,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 OMNIS_WEB_ROOT=/opt/omnis/web
 WORKDIR /opt/omnis
 COPY api/requirements.txt /opt/omnis/requirements.txt
 RUN python -m pip install --no-cache-dir --require-hashes -r /opt/omnis/requirements.txt
-COPY api/omnis_api-0.1.1-py3-none-any.whl /opt/omnis/omnis_api-0.1.1-py3-none-any.whl
-RUN python -m pip install --no-deps /opt/omnis/omnis_api-0.1.1-py3-none-any.whl
+COPY api/omnis_api-0.1.2-py3-none-any.whl /opt/omnis/omnis_api-0.1.2-py3-none-any.whl
+RUN python -m pip install --no-deps /opt/omnis/omnis_api-0.1.2-py3-none-any.whl
 COPY web/ /opt/omnis/web/
 # Public UI assets must remain readable with the operator UID mapping at runtime.
 RUN chmod -R a+rX /opt/omnis/web/

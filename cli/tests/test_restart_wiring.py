@@ -48,6 +48,9 @@ class RestartWiringTest(unittest.TestCase):
     def test_provider_settings_restart_retains_ciphertext_key_and_pending_lock(self):
         self.restart(provider_settings=True)
 
+    def test_s1_restart_keeps_exact_pair_catalog_identity_and_bytes(self):
+        self.restart(provider_settings=True, catalog=True)
+
     def test_lost_mixed_wrong_ack_nonzero_oom_and_cancel_retain_db_no_retry(self):
         for fault in (
             "lost",
@@ -90,6 +93,7 @@ class RestartWiringTest(unittest.TestCase):
         restored=False,
         development_direction=None,
         upgrading=False,
+        catalog=False,
     ):
         with private_stop_fixture() as (base, root, _foreign, control, old, runtime):
             retained = {}
@@ -102,6 +106,7 @@ class RestartWiringTest(unittest.TestCase):
                 for name, field in (
                     ("vault", "vault_identity"),
                     ("vault-key", "vault_key_identity"),
+                    *((("catalog", "catalog_identity"),) if catalog else ()),
                 ):
                     (root / name).mkdir(mode=0o700)
                     old[field] = private_identity(root / name)
@@ -109,6 +114,16 @@ class RestartWiringTest(unittest.TestCase):
                     path = root / name
                     path.write_bytes(b"SOURCE retained synthetic bytes")
                     path.chmod(0o600)
+                    retained[path] = (path.stat().st_ino, path.read_bytes())
+                if catalog:
+                    runtime.run_catalog = True
+                    runtime.receipt.release = "0.1.2"
+                    runtime.schema = "0019_agent_runs"
+                    value = read_record(root / "instance.json")
+                    value.update(release="0.1.2", schema="0019_agent_runs")
+                    write_record(root / "instance.json", value, replace=True)
+                    path = root / "catalog/retained"
+                    path.write_bytes(b"SOURCE retained catalog bytes")
                     retained[path] = (path.stat().st_ino, path.read_bytes())
             if development_direction is not None:
                 from test_development import build_fixture
@@ -421,6 +436,12 @@ class RestartWiringTest(unittest.TestCase):
                 return opened
 
             def final_verify(_runtime, _root, _control, candidate, _port):
+                if catalog:
+                    self.assertEqual(candidate["catalog_identity"], old["catalog_identity"])
+                    instance = load_instance(root)
+                    self.assertEqual(
+                        (instance.release, instance.schema), ("0.1.2", "0019_agent_runs")
+                    )
                 start._ready_record(candidate)
                 start._bound_instance(runtime, root, control, candidate)
                 return start.projection(

@@ -100,9 +100,12 @@ def load_instance(root: Path) -> Instance:
         or str(UUID(identity)) != identity
         or not isinstance(raw["release"], str)
         or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", raw["release"])
-        or not (
-            raw["schema"] == "0017_model_removal"
-            or (raw["release"], raw["schema"]) == ("0.1.0", "0016_provider_models")
+        or (raw["release"], raw["schema"])
+        not in (
+            ("0.1.0", "0016_provider_models"),
+            ("0.1.0", "0017_model_removal"),
+            ("0.1.1", "0017_model_removal"),
+            ("0.1.2", "0019_agent_runs"),
         )
         or not isinstance(raw["project"], str)
         or not re.fullmatch(r"omnis-[a-z0-9-]{1,42}", raw["project"])

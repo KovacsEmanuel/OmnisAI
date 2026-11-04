@@ -14,7 +14,15 @@ from pathlib import Path
 from zipfile import is_zipfile
 
 from omnis_cli.instance import private_dir, unique_pairs
-from omnis_cli.release import PROVIDER_SETTINGS_PROFILE, _bytes, _manifest, _put, publish_directory
+from omnis_cli.release import (
+    PROVIDER_SETTINGS_PROFILE,
+    S1_RELEASE,
+    S1_SCHEMA,
+    _bytes,
+    _manifest,
+    _put,
+    publish_directory,
+)
 
 
 class BundleError(ValueError):
@@ -51,7 +59,7 @@ def build_bundle(
     root_info = web_root.lstat()
     if not stat.S_ISDIR(root_info.st_mode):
         raise BundleError("Missing web build")
-    release_version = "0.1.1" if profile == PROVIDER_SETTINGS_PROFILE else "0.1.0"
+    release_version = S1_RELEASE if profile == PROVIDER_SETTINGS_PROFILE else "0.1.0"
     expected_api = f"omnis_api-{release_version}-py3-none-any.whl"
     expected_cli = f"omnis_cli-{release_version}-py3-none-any.whl"
     if api_wheel.name != expected_api or cli_wheel.name != expected_cli:
@@ -172,7 +180,7 @@ def build_bundle(
     manifest = {
         "format": 1,
         "release": release_version,
-        "schema": "0017_model_removal",
+        "schema": S1_SCHEMA if profile == PROVIDER_SETTINGS_PROFILE else "0017_model_removal",
         "platform": "linux/amd64",
         "files": {name: hashlib.sha256(content).hexdigest() for name, content in payloads.items()},
     }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router';
 import { api } from '../../shared/api/client';
 import { ApiError, isRecord, isUuid } from '../../shared/api/errors';
@@ -31,7 +31,7 @@ export function RunStop({ run, label = 'Stop run' }: { run: RunView | null | und
   const client = useQueryClient();
   const [scope, setScope] = useState<string | null>(null);
   const key = ['private', 'run-stops', scope];
-  const recovery = useQuery<PendingStop[]>({ queryKey: key, enabled: false });
+  const recovery = useQuery<PendingStop[]>({ queryKey: key, queryFn: skipToken, enabled: false });
   const pending = recovery.data ?? [];
   const [sending, setSending] = useState<string[]>([]);
   const [storageFailed, setStorageFailed] = useState(false);

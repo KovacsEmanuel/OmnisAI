@@ -989,10 +989,17 @@ def test_model_prepare_committed_task_identity(encoding: str, fault: str | None)
 async def test_actual_v5_producer_serializers(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, padding: str
 ) -> None:
+    from omnis.modules.settings.catalog_publication import PublicationCatalog
+
     owner, consumer, conn, manifest, authority = await prepared_source(
         tmp_path, monkeypatch, padding, 'ă雪😀"\\' if padding else ""
     )
+    lookup = PublicationCatalog.load_probe
+    assert isinstance(lookup, AsyncMock)
+    lookup.reset_mock()
     payload = await produce(owner, consumer, conn, manifest, authority)
+    assert len(lookup.await_args_list) == 2
+    assert all(call.kwargs.get("read_only") is False for call in lookup.await_args_list)
     validate_initialization = import_module(
         "omnis_hermes.managed_admission_contract"
     ).validate_initialization

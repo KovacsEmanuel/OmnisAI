@@ -240,7 +240,7 @@ class ModelTest:
             raise CatalogError("CATALOG_REQUIRED")
         probe = PureProbe(self.domain.engine, self.domain.root)
         _, snapshot, _, compiled = await probe.publications.load_probe(
-            connection, owner, ref(selected["snapshot_ref"], "run-snapshot")
+            connection, owner, ref(selected["snapshot_ref"], "run-snapshot"), read_only=False
         )
         material = mapping(snapshot["payload"])
         ref(material["profile_ref"], "profile")

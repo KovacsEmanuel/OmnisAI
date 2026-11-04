@@ -169,10 +169,12 @@ class ManagedAdmission:
             raise CatalogError("CATALOG_REQUIRED")
         probe = PureProbe(self.engine, self.root)
         group, selection, compiled = await probe._selection(
-            connection, owner, ref(request["selection_ref"])
+            connection, owner, ref(request["selection_ref"]), read_only=False
         )
         snapshot_ref = ref(mapping(selection["payload"])["snapshot_ref"])
-        _, _, profile, _ = await probe.publications.load_probe(connection, owner, snapshot_ref)
+        _, _, profile, _ = await probe.publications.load_probe(
+            connection, owner, snapshot_ref, read_only=False
+        )
         if compiled.dependency_artifact_refs or compiled.dependency_closure_refs:
             raise CatalogError("UNSUPPORTED_DEPENDENCY")
         if preparation_ref is None:

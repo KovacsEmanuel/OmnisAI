@@ -35,6 +35,13 @@ class Rows:
     def all(self) -> list[dict[str, object]]:
         return self.rows
 
+    def mappings(self) -> Self:
+        return self
+
+    def one_or_none(self) -> dict[str, object] | None:
+        assert len(self.rows) <= 1
+        return self.rows[0] if self.rows else None
+
 
 @pytest.fixture
 def storage_seam(monkeypatch: pytest.MonkeyPatch) -> AsyncEngine:
@@ -128,6 +135,24 @@ def storage_seam(monkeypatch: pytest.MonkeyPatch) -> AsyncEngine:
         parameters: dict[str, object],
     ) -> Rows:
         sql = str(statement)
+        if sql == "SELECT owner_id, group_id, envelope FROM catalog_record WHERE id=:id":
+            found = rows.get(str(parameters["id"]))
+            return Rows(
+                []
+                if found is None
+                else [{"owner_id": found[0], "group_id": found[1], "envelope": found[2]}]
+            )
+        if (
+            sql
+            == "SELECT operation, result FROM catalog_command WHERE owner_id=:owner AND command_id=:command"
+        ):
+            return Rows(
+                [
+                    {"operation": operation, "result": result}
+                    for (owner, command, operation), (_, result) in commands.items()
+                    if (owner, command) == (parameters["owner"], parameters["command"])
+                ]
+            )
         kind = next(
             k
             for k in ("source-draft", "candidate-snapshot", "evaluation-receipt")
@@ -530,7 +555,9 @@ async def test_retained_v1_publication_readback_preserves_original_revisions(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("operation", ["snapshot", "select", "execute"])
+@pytest.mark.parametrize(
+    "operation", ["snapshot", "select", "execute", "native-build", "managed-source"]
+)
 @pytest.mark.parametrize("legacy", [False, True])
 async def test_probe_legacy_is_read_only_at_each_new_admission(
     storage_seam: AsyncEngine,
@@ -539,8 +566,12 @@ async def test_probe_legacy_is_read_only_at_each_new_admission(
     operation: str,
     legacy: bool,
 ) -> None:
-    from omnis.modules.runs import pure_probe
+    from omnis.modules.instance.schemas import NativePrepareCommand
+    from omnis.modules.runs import native_preparation, pure_probe
+    from omnis.modules.runs.managed_admission import ManagedAdmission
     from omnis.modules.settings import catalog_publication as publication
+    from test_native_preparation import command as native_command
+    from test_native_preparation import worker_fixture
 
     source = Path(__file__).parent / "fixtures/b06b_publication/source"
     with monkeypatch.context() as revisions:
@@ -582,6 +613,47 @@ async def test_probe_legacy_is_read_only_at_each_new_admission(
         before = await catalog.dispatch(
             "readback", {"schema_version": 1, "owner_id": owner, "publication_ref": ref}
         )
+        builder = object.__new__(native_preparation.NativePreparation)
+        builder.engine, builder.root, builder.publications = storage_seam, catalog.root, catalog
+        native_request = NativePrepareCommand.model_validate(
+            {**native_command(), "owner_id": owner, "selection_ref": selected["selection_ref"]}
+        )
+        async with storage_seam.connect() as connection:
+            group, bundle = await builder.build(connection, native_request)
+            # Synthetic retained worker receipt, not native execution or historical PG data.
+            receipt = store.envelope(
+                "native-preparation-receipt",
+                {
+                    "bundle_ref": store.reference(bundle),
+                    "selection_ref": selected["selection_ref"],
+                    "status": "PREPARED",
+                    "loader_result": worker_fixture(bundle),
+                    "authority": {
+                        "instance_id": native_request.instance_id,
+                        "supervisor_owner": str(uuid4()),
+                        "epoch": 1,
+                        "generation": 0,
+                        "runtime_boot": str(uuid4()),
+                    },
+                },
+            )
+            receipt["id"] = native_preparation.receipt_id(bundle)
+            receipt["digest"] = digest(
+                canonical({k: v for k, v in receipt.items() if k != "digest"})
+            )
+            await store.put(connection, owner, group, bundle)
+            await store.put(connection, owner, group, receipt)
+            await store.complete(
+                connection,
+                owner,
+                native_request.command_id,
+                native_preparation.OPERATION,
+                native_request.model_dump(mode="json", exclude={"op"}),
+                {"bundle_ref": store.reference(bundle)},
+            )
+            prepared = await native_preparation.read_receipt(
+                connection, owner, store.reference(bundle)
+            )
     before_bytes = canonical(before)
     files_before = {str(p): p.read_bytes() for p in catalog.root.rglob("*") if p.is_file()}
 
@@ -597,11 +669,11 @@ async def test_probe_legacy_is_read_only_at_each_new_admission(
         assert await catalog.dispatch("snapshot", snapshot_request) == snapshot
         assert await probe.dispatch("select", select_request) == selected
         assert await probe.dispatch("execute", execute_request) == executed
-        receipt = await probe.dispatch(
+        probe_back = await probe.dispatch(
             "readback",
             {"schema_version": 1, "owner_id": owner, "receipt_ref": executed["receipt_ref"]},
         )
-        assert receipt["receipt"] == executed["receipt"]
+        assert probe_back["receipt"] == executed["receipt"]
         after = await catalog.dispatch(
             "readback", {"schema_version": 1, "owner_id": owner, "publication_ref": ref}
         )
@@ -622,6 +694,54 @@ async def test_probe_legacy_is_read_only_at_each_new_admission(
                 command(**selection(candidates.payload(published))),
                 {"confirmation_ref": confirmation_ref, "confirmation": confirmation},
             )
+        native_back = await native_preparation.readback(
+            storage_seam,
+            {"schema_version": 1, "owner_id": owner, "command_id": native_request.command_id},
+        )
+        assert canonical(native_back) == canonical(prepared)
+        # Replay has no service/runtime object to fall back to.
+        assert await builder.prepare(native_request) == native_preparation.success(prepared)
+        if operation in {"native-build", "managed-source"}:
+            managed = ManagedAdmission(storage_seam, catalog.root)
+            async with storage_seam.connect() as connection:
+                if legacy:
+                    with pytest.raises(CatalogError, match="^LEGACY_READ_ONLY$"):
+                        if operation == "native-build":
+                            await builder.build(
+                                connection,
+                                native_request.model_copy(update={"command_id": str(uuid4())}),
+                            )
+                        else:
+                            await managed._source(
+                                connection,
+                                owner,
+                                {"selection_ref": selected["selection_ref"]},
+                                preparation_ref=store.reference(receipt),
+                            )
+                elif operation == "native-build":
+                    _, fresh_bundle = await builder.build(
+                        connection, native_request.model_copy(update={"command_id": str(uuid4())})
+                    )
+                    assert fresh_bundle["kind"] == "native-preparation-bundle"
+                    assert (
+                        candidates.payload(fresh_bundle)["selection_ref"]
+                        == selected["selection_ref"]
+                    )
+                    packages = candidates.payload(fresh_bundle)["packages"]
+                    assert isinstance(packages, list) and len(packages) == 1
+                else:
+                    build_source = await managed._source(
+                        connection,
+                        owner,
+                        {"selection_ref": selected["selection_ref"]},
+                        preparation_ref=store.reference(receipt),
+                    )
+                    assert build_source.selection == selected["selection"]
+                    assert build_source.preparation_bundle == bundle
+            assert files_before == {
+                str(p): p.read_bytes() for p in catalog.root.rglob("*") if p.is_file()
+            }
+            return
         request = {
             "snapshot": snapshot_request,
             "select": select_request,

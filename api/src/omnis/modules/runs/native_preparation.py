@@ -249,7 +249,7 @@ class NativePreparation:
         selected = payload(selection)
         snapshot_ref = valid_ref(selected.get("snapshot_ref"))
         source_group, snapshot, profile, compiled = await self.publications.load_probe(
-            connection, command.owner_id, snapshot_ref
+            connection, command.owner_id, snapshot_ref, read_only=False
         )
         expected = selection_payload(
             snapshot_ref, text(selected.get("recipe_key")), profile, compiled

@@ -9,7 +9,7 @@ CLI_PY = cli/.venv/bin/python
 .DEFAULT_GOAL := check
 .PHONY: check-components test-db-contract test-sl04-pg
 # Dry-run/touch/ignore-errors must not produce a successful verification receipt.
-ifneq ($(filter check test check-components test-t1-upgrade-pg test-db-contract test-instance-drain-pg test-provider-settings-pg test-settings-remove-pg test-settings-remove-ui-pg test-settings-stop-read-ui-pg test-model-test-v2-pg test-settings-models-ui-pg test-sl04-pg test-b06b-publish-pg test-b06b-pure-probe-pg test-native-preparation-pg test-managed-admission-pg test-contract-method-pg test-contract-method-native-pg test-owned-initialization-native-pg test-model-test-prepare-native-pg test-model-test-execute-native-pg test-managed-composition-pg test-c03-pg test-model-projection-pg test-model-budget-pg test-model-admission-pg test-catalog-settings-e2e check-installed-start check-installed-pair-open check-installed-stop,$(or $(MAKECMDGOALS),check)),)
+ifneq ($(filter check test check-components test-s1-run-pg test-s1-run-ui-pg test-t1-upgrade-pg test-db-contract test-instance-drain-pg test-provider-settings-pg test-settings-remove-pg test-settings-remove-ui-pg test-settings-stop-read-ui-pg test-model-test-v2-pg test-settings-models-ui-pg test-sl04-pg test-b06b-publish-pg test-b06b-pure-probe-pg test-native-preparation-pg test-managed-admission-pg test-contract-method-pg test-contract-method-native-pg test-owned-initialization-native-pg test-model-test-prepare-native-pg test-model-test-execute-native-pg test-managed-composition-pg test-c03-pg test-model-projection-pg test-model-budget-pg test-model-admission-pg test-catalog-settings-e2e check-installed-start check-installed-pair-open check-installed-stop,$(or $(MAKECMDGOALS),check)),)
 _verification_short_flags := $(filter-out --%,$(firstword $(MAKEFLAGS)))
 ifneq ($(findstring n,$(_verification_short_flags))$(findstring t,$(_verification_short_flags))$(findstring q,$(_verification_short_flags))$(findstring i,$(_verification_short_flags)),)
 $(error Unsafe Make flags for verification; execute the real gate)
@@ -33,6 +33,15 @@ test-instance-drain-pg:
 
 .PHONY: test-dashboard
 .PHONY: test-model-test-v2-pg
+.PHONY: test-s1-run-pg test-s1-run-ui-pg
+test-s1-run-pg:
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -B -m pytest -c api/pyproject.toml api/tests/test_run_runtime_pg.py -q -s --tb=short
+
+test-s1-run-ui-pg: build-web
+	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
+	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS OMNIS_S1_RUN_UI=1 $(API_PY) -I -B -m pytest -c api/pyproject.toml 'api/tests/test_run_runtime_pg.py::test_run_api_pg_three_causal_tasks_and_receive_only_replay[True]' -q -s --tb=short
+
 .PHONY: test-settings-models-ui-pg test-settings-remove-ui-pg test-settings-stop-read-ui-pg
 test-settings-stop-read-ui-pg: build-web
 	@test -n "$$OMNIS_TEST_FIXTURE" || { printf 'Dedicated PostgreSQL fixture required\n' >&2; exit 2; }
@@ -281,7 +290,7 @@ test-b04-e2e: build-web
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_web_e2e.py -q -s -k b04
 
 .PHONY: test-e2e
-test-e2e: build-web test-settings-models-ui-pg test-settings-remove-ui-pg
+test-e2e: build-web test-settings-models-ui-pg test-settings-remove-ui-pg test-s1-run-ui-pg
 	env -u PYTHONPATH -u MYPYPATH -u PYTEST_ADDOPTS -u PYTEST_PLUGINS $(API_PY) -I -m pytest api/tests/test_web_e2e.py -q -s
 
 # The existing PG/browser family owns this one authentic records-v3 journey.

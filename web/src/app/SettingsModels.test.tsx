@@ -355,19 +355,19 @@ it('keeps the completed check Connected during an assignment-only save receipt',
     await screen.findByText('Connected');
     fireEvent.click(within(screen.getByRole('region', { name: 'Model assignments' })).getByRole('button', { name: 'Save assignments' }));
     await waitFor(() => expect(held).toBe(true));
-    expect(state.writes.map(write => write.body.action)).toEqual(['save_selection']);
+    expect(state.writes.map(write => write.body.action)).toEqual(['save_selection_v2']);
     const row = within(screen.getByRole('listitem', { name: 'Model Exact/Model via OpenRouter' }));
     expect(row.queryByText('Connecting', { exact: true })).not.toBeInTheDocument();
     expect(row.getByText('Connected', { exact: true })).toBeVisible();
     await act(async () => { release(); await gate; });
     await screen.findByText('Assignments saved.');
     expect(row.getByText('Connected', { exact: true })).toBeVisible();
-    expect(state.writes.map(write => write.body.action)).toEqual(['save_selection']);
+    expect(state.writes.map(write => write.body.action)).toEqual(['save_selection_v2']);
   } finally { release(); mounted.unmount(); }
 });
 it('keeps assignment drafts quiet and lost-save recovery beside assignments without a success claim', async () => {
   const { state, hook } = settingsBackend();
-  hook.intercept = (_path, body, method) => { if (method === 'PUT' && body.action === 'save_selection') throw new TypeError('SOURCE lost save'); return undefined; };
+  hook.intercept = (_path, body, method) => { if (method === 'PUT' && body.action === 'save_selection_v2') throw new TypeError('SOURCE lost save'); return undefined; };
   mount(); const panel = await screen.findByRole('region', { name: 'Model assignments' });
   fireEvent.click(within(panel).getByText('Output controls'));
   fireEvent.change(screen.getByLabelText('Default output tokens'), { target: { value: '128' } });

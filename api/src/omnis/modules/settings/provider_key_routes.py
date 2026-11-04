@@ -20,6 +20,7 @@ from omnis.modules.settings.provider_key_models import (
     RevokeConnection,
     SaveConnection,
     SaveSelection,
+    SaveSelectionV2,
 )
 from omnis.modules.settings.provider_key_service import SettingsConflict
 from omnis.modules.settings.provider_model_models import ModelRegistryControl, ModelRegistryView
@@ -147,7 +148,8 @@ async def read_command(command_id: str) -> KeySettingsView | JSONResponse:
 )
 async def save_settings(
     body: Annotated[
-        SaveConnection | RevokeConnection | SaveSelection, Body(discriminator="action")
+        SaveConnection | RevokeConnection | SaveSelection | SaveSelectionV2,
+        Body(discriminator="action"),
     ],
     request: Request,
 ) -> KeySettingsView | JSONResponse:

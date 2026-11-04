@@ -1897,9 +1897,13 @@
                 "$ref": "#/components/schemas/SelectionView"
               },
               {
+                "$ref": "#/components/schemas/SelectionViewV2"
+              },
+              {
                 "type": "null"
               }
-            ]
+            ],
+            "title": "Selection"
           },
           "vault_status": {
             "enum": [
@@ -3127,6 +3131,77 @@
         "title": "SaveSelection",
         "type": "object"
       },
+      "SaveSelectionV2": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "save_selection_v2",
+            "title": "Action",
+            "type": "string"
+          },
+          "brain": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "command_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "default": {
+            "$ref": "#/components/schemas/ModelSelection"
+          },
+          "expected_revision": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "investigator": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recon": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "validator": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "command_id",
+          "expected_revision",
+          "default",
+          "brain",
+          "investigator",
+          "validator",
+          "recon"
+        ],
+        "title": "SaveSelectionV2",
+        "type": "object"
+      },
       "ScopeAccess": {
         "enum": [
           "ATTACKABLE",
@@ -3278,6 +3353,77 @@
           "validator"
         ],
         "title": "SelectionView",
+        "type": "object"
+      },
+      "SelectionViewV2": {
+        "additionalProperties": false,
+        "properties": {
+          "brain": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "default": {
+            "$ref": "#/components/schemas/ModelSelection"
+          },
+          "investigator": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recon": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "schema_version": {
+            "const": 2,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "selection_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "validator": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "selection_id",
+          "revision",
+          "default",
+          "brain",
+          "investigator",
+          "validator",
+          "schema_version",
+          "recon"
+        ],
+        "title": "SelectionViewV2",
         "type": "object"
       },
       "SessionView": {
@@ -6632,7 +6778,8 @@
                   "mapping": {
                     "revoke_connection": "#/components/schemas/RevokeConnection",
                     "save_connection": "#/components/schemas/SaveConnection",
-                    "save_selection": "#/components/schemas/SaveSelection"
+                    "save_selection": "#/components/schemas/SaveSelection",
+                    "save_selection_v2": "#/components/schemas/SaveSelectionV2"
                   },
                   "propertyName": "action"
                 },
@@ -6645,6 +6792,9 @@
                   },
                   {
                     "$ref": "#/components/schemas/SaveSelection"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SaveSelectionV2"
                   }
                 ],
                 "title": "Body"

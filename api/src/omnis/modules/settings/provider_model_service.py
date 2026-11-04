@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from omnis.modules.settings.provider_key_models import ModelSelection
+from omnis.modules.settings.provider_key_models import ModelSelection, SelectionViewV2
 from omnis.modules.settings.provider_key_service import SettingsConflict
 from omnis.modules.settings.provider_model_models import (
     ModelEntry,
@@ -117,7 +117,13 @@ async def require_removable(
     if selected is not None and any(
         choice is not None
         and (choice.connection_id, choice.model) == (entry.connection_id, entry.model)
-        for choice in (selected.default, selected.brain, selected.investigator, selected.validator)
+        for choice in (
+            selected.default,
+            selected.brain,
+            selected.investigator,
+            selected.validator,
+            selected.recon if isinstance(selected, SelectionViewV2) else None,
+        )
     ):
         raise SettingsConflict("MODEL_IN_USE")
     if (

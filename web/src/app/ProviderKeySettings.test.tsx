@@ -9,26 +9,27 @@ beforeEach(() => { sessionStorage.clear(); });
 it.each([
   ['default', 'Default model', 'Default', 131],
   ['brain', 'Brain', 'Brain', 137],
+  ['recon', 'Recon', 'Recon', 151],
   ['investigator', 'Investigator', 'Investigator', 139],
   ['validator', 'Validator', 'Validator', 149],
 ] as const)('saves only the explicitly edited %s picker and cap, with exact readback and independent peers', async (role, picker, label, cap) => {
-  const choices = { default: selected, brain: { ...selected, output_tokens: 37 }, investigator: { ...selected, output_tokens: 53 }, validator: { ...selected, output_tokens: 89 } };
+  const choices = { default: selected, brain: { ...selected, output_tokens: 37 }, recon: { ...selected, output_tokens: 41 }, investigator: { ...selected, output_tokens: 53 }, validator: { ...selected, output_tokens: 89 } };
   const other = { ...entry, entry_id: '44444444-4444-4444-8444-444444444444', model: 'Other/Model' };
-  const { state } = settingsBackend({ ...configured, selection: { selection_id: entryId, revision: 1, ...choices } }, [entry, other], [entry, other].map(item => ({ model: item.model, max_output_tokens: 4096, supports_max_tokens: true })));
+  const { state } = settingsBackend({ ...configured, selection: { selection_id: entryId, revision: 1, schema_version: 2, ...choices } }, [entry, other], [entry, other].map(item => ({ model: item.model, max_output_tokens: 4096, supports_max_tokens: true })));
   const mounted = mount(); await screen.findByLabelText(picker, { exact: true });
   fireEvent.click(screen.getByText('Output controls'));
   fireEvent.change(screen.getByLabelText(`${label} output tokens`), { target: { value: String(cap) } });
   fireEvent.change(screen.getByLabelText(picker, { exact: true }), { target: { value: other.entry_id } });
   const expected = { ...choices, [role]: { ...selected, model: other.model, output_tokens: cap } };
   fireEvent.click(screen.getByRole('button', { name: 'Save assignments' }));
-  await waitFor(() => expect(state.keys.selection).toEqual({ selection_id: state.writes[0]!.body.command_id, revision: 2, ...expected }));
+  await waitFor(() => expect(state.keys.selection).toEqual({ selection_id: state.writes[0]!.body.command_id, revision: 2, schema_version: 2, ...expected }));
   await screen.findByText('Assignments saved.');
-  expect(state.writes).toEqual([{ path: '/api/v1/settings/providers', body: { action: 'save_selection', command_id: expect.any(String), expected_revision: 1, ...expected } }]);
+  expect(state.writes).toEqual([{ path: '/api/v1/settings/providers', body: { action: 'save_selection_v2', command_id: expect.any(String), expected_revision: 1, ...expected } }]);
   expect(state.reads).toContain('/api/v1/settings/providers/commands/' + String(state.writes[0]!.body.command_id));
   mounted.unmount(); mount();
   await waitFor(() => expect(screen.getByLabelText(picker, { exact: true })).toHaveValue(other.entry_id));
   expect(screen.getByLabelText(`${label} output tokens`)).toHaveValue(cap);
-  for (const [peer, title] of [['default', 'Default'], ['brain', 'Brain'], ['investigator', 'Investigator'], ['validator', 'Validator']] as const) {
+  for (const [peer, title] of [['default', 'Default'], ['brain', 'Brain'], ['recon', 'Recon'], ['investigator', 'Investigator'], ['validator', 'Validator']] as const) {
     if (peer !== role) expect(screen.getByLabelText(`${title} output tokens`)).toHaveValue(choices[peer].output_tokens);
   }
   if (role !== 'default') {
@@ -38,9 +39,25 @@ it.each([
     expect(state.writes[1]!.body).toMatchObject({ expected_revision: 2, ...choices, [role]: null });
     await waitFor(() => expect(screen.getByLabelText(picker, { exact: true })).toHaveValue(''));
   }
-  expect(state.writes.every(write => write.body.action === 'save_selection')).toBe(true);
+  expect(state.writes.every(write => write.body.action === 'save_selection_v2')).toBe(true);
 });
 function mount(client = new QueryClient({ defaultOptions: { queries: { retry: false } } })) { return render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/providers']}><App /></MemoryRouter></QueryClientProvider>); }
+it.each([1, 77])('keeps Recon revision %s explicit and blocks Remove without replacing it', async revision => {
+  const other = { ...entry, entry_id: '44444444-4444-4444-8444-444444444444', model: 'Other/Model' };
+  const { state } = settingsBackend({ ...configured, selection: { selection_id: entryId, revision: 1, schema_version: 2, default: { ...selected, model: other.model }, brain: null, investigator: null, validator: null, recon: { ...selected, connection_revision: revision } } }, [entry, other], [entry, other].map(item => ({ model: item.model, max_output_tokens: 4096, supports_max_tokens: true })));
+  mount(); const recon = await screen.findByLabelText('Recon', { exact: true });
+  if (revision === 77) {
+    expect(recon).toHaveDisplayValue(/revision 77.*Unavailable/);
+    expect(screen.getByRole('button', { name: 'Save assignments' })).toBeDisabled();
+    expect(screen.queryByText(/All roles use/)).not.toBeInTheDocument();
+  } else expect(recon).toHaveValue(entryId);
+  fireEvent.click(screen.getByRole('button', { name: 'Details for Exact/Model via OpenRouter' }));
+  const remove = screen.getByRole('button', { name: 'Remove Exact/Model via OpenRouter' });
+  expect(remove).toBeDisabled();
+  const hint = screen.getByText('Used by Recon. Reassign explicitly in Model assignments before removing this model.');
+  expect(hint).toBeVisible(); expect(remove).toHaveAttribute('aria-describedby', hint.id);
+  fireEvent.click(remove); expect(state.writes).toEqual([]);
+});
 function rotatedSession() {
   const delegate = globalThis.fetch;
   let rotated = false;
@@ -183,7 +200,7 @@ it.each([false, true])('assignment save preserves focused action or moved focus=
   await screen.findByText(/Assignments saved/); expect(moved ? elsewhere : save).toHaveFocus(); expect(screen.getByRole('button', { name: 'Save assignments' })).toBe(save);
   expect(screen.getByRole('complementary', { name: 'Settings notification' })).toHaveTextContent('Assignments saved.');
   expect(screen.getAllByText('Assignments saved.', { exact: true })).toHaveLength(1);
-  expect(state.writes[0]!.body).toMatchObject({ action: 'save_selection', default: { ...selected, model: 'Other/Model' }, brain: { ...selected, output_tokens: 37 }, validator: { ...selected, output_tokens: 89 }, investigator: null });
+  expect(state.writes[0]!.body).toMatchObject({ action: 'save_selection_v2', default: { ...selected, model: 'Other/Model' }, brain: { ...selected, output_tokens: 37 }, validator: { ...selected, output_tokens: 89 }, investigator: null, recon: null });
 });
 it('disabling an open connection invalidates its wizard and keeps saved identities/history', async () => {
   const { state } = settingsBackend(); mount(); await open(); fireEvent.click(screen.getByText('Connection options')); await disable();
@@ -235,7 +252,7 @@ it('first single-model assignment needs one explicit save and authoritative read
   try {
     save.focus(); fireEvent.click(save);
     await waitFor(() => expect(state.writes).toHaveLength(1));
-    expect(state.writes[0]).toEqual({ path: '/api/v1/settings/providers', body: { action: 'save_selection', command_id: expect.any(String), expected_revision: 0, default: selected, brain: null, investigator: null, validator: null } });
+    expect(state.writes[0]).toEqual({ path: '/api/v1/settings/providers', body: { action: 'save_selection_v2', command_id: expect.any(String), expected_revision: 0, default: selected, brain: null, investigator: null, validator: null, recon: null } });
     await waitFor(() => expect(state.reads).toContain('/api/v1/settings/providers/commands/' + String(state.writes[0]!.body.command_id)));
     expect(within(panel).queryByText(/All roles use/)).not.toBeInTheDocument();
     expect(screen.queryByRole('complementary', { name: 'Settings notification' })).not.toBeInTheDocument();

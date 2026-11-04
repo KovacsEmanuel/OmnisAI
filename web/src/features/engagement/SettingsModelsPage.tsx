@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../shared/api/client';
 import { ApiError, isUuid } from '../../shared/api/errors';
 import type { KeyCommand, KeySettings } from '../../shared/api/providerKeys';
+import { assignedChoice, roles } from '../../shared/api/providerKeys';
 import type { CatalogView } from '../../shared/api/providerCatalog';
 import type { SaveModels } from '../../shared/api/providerModels';
 import type { EntryTestView } from '../../shared/api/modelTest';
@@ -218,8 +219,8 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   }
   async function saveKeys(command: KeyCommand) {
     continuation.current?.abort();
-    const result = await mutate('keys', command.command_id, () => api.saveProviderKeys(command, session.data!.csrf_token, lifetime.current.signal), command.action === 'save_selection' ? 'assignments' : command.connection_id);
-    if (result) setNotice(command.action === 'save_selection' ? 'Assignments saved.' : command.action === 'revoke_connection' ? 'Connection disabled.' : 'Key saved.');
+    const result = await mutate('keys', command.command_id, () => api.saveProviderKeys(command, session.data!.csrf_token, lifetime.current.signal), 'connection_id' in command ? command.connection_id : 'assignments');
+    if (result) setNotice(command.action === 'save_connection' ? 'Key saved.' : command.action === 'revoke_connection' ? 'Connection disabled.' : 'Assignments saved.');
     return result;
   }
   async function refresh(connection: Connection): Promise<CatalogView | undefined> {
@@ -349,8 +350,8 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   }
   function removeDependencies(entry: ModelEntry) {
     const selected = data?.settings.selection;
-    return selected ? (['default', 'brain', 'investigator', 'validator'] as const).filter(role => {
-      const choice = selected[role];
+    return selected ? roles.filter(role => {
+      const choice = assignedChoice(selected, role);
       return choice && choice.connection_id === entry.connection_id && choice.model === entry.model;
     }) : [];
   }

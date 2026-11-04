@@ -12,6 +12,7 @@ from omnis.modules.settings.provider_key_models import (
     PositiveRevision,
     Provider,
     SelectionView,
+    SelectionViewV2,
 )
 from omnis.modules.settings.provider_key_service import ConnectionRevision
 from omnis.modules.settings.provider_model_models import ModelEntry
@@ -50,7 +51,7 @@ class Capabilities(KeyDTO):
 
 class Snapshot(KeyDTO):
     schema_version: Literal[2] = 2
-    selection: SelectionView
+    selection: SelectionView | SelectionViewV2
     connection: ConnectionRevision
     capabilities_ref: Ref
     data_policy: Literal["FIXED_SYNTHETIC_ONLY"] = "FIXED_SYNTHETIC_ONLY"

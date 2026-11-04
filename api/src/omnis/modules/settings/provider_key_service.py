@@ -8,16 +8,19 @@ from hashlib import sha256
 from typing import Literal, overload
 from uuid import UUID, uuid4
 
+from pydantic import TypeAdapter
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from omnis.modules.instance.service import InstanceService
 from omnis.modules.settings.provider_key_models import (
+    MODEL_ROLES,
     ConnectionView,
     Identity,
     KeyDTO,
     KeySettingsControl,
     KeySettingsView,
+    ModelRole,
     ModelSelection,
     PositiveRevision,
     Provider,
@@ -25,7 +28,9 @@ from omnis.modules.settings.provider_key_models import (
     RevokeConnection,
     SaveConnection,
     SaveSelection,
+    SaveSelectionV2,
     SelectionView,
+    SelectionViewV2,
 )
 from omnis.modules.settings.provider_model_models import ModelRegistryControl, ModelRegistryView
 from omnis.modules.settings.provider_vault import CredentialRef, ProviderVault
@@ -125,7 +130,7 @@ class ProviderSettingsOwner:
         )
         return [ConnectionRevision.model_validate(dict(row)) for row in rows]
 
-    async def selection(self, db: AsyncConnection) -> SelectionView | None:
+    async def selection(self, db: AsyncConnection) -> SelectionView | SelectionViewV2 | None:
         row = (
             (
                 await db.execute(
@@ -141,11 +146,21 @@ class ProviderSettingsOwner:
         )
         if row is None:
             return None
-        selected = SaveSelection.model_validate(row["payload"])
+        selected: SaveSelection | SaveSelectionV2 = TypeAdapter(
+            SaveSelection | SaveSelectionV2
+        ).validate_python(row["payload"])
+        fields = selected.model_dump(exclude={"action", "command_id", "expected_revision"})
+        if isinstance(selected, SaveSelectionV2):
+            return SelectionViewV2(
+                selection_id=str(row["selection_id"]),
+                revision=row["revision"],
+                schema_version=2,
+                **fields,
+            )
         return SelectionView(
             selection_id=str(row["selection_id"]),
             revision=row["revision"],
-            **selected.model_dump(exclude={"action", "command_id", "expected_revision"}),
+            **fields,
         )
 
     async def view(self, db: AsyncConnection, command_id: str | None) -> KeySettingsView:
@@ -200,6 +215,27 @@ class ProviderSettingsOwner:
         self, db: AsyncConnection, choice: ModelSelection
     ) -> ConnectionRevision:
         return await self.require_connection(db, choice.connection_id, choice.connection_revision)
+
+    async def resolve_role(
+        self,
+        db: AsyncConnection,
+        selection: SaveSelection | SaveSelectionV2 | SelectionView,
+        role: ModelRole,
+    ) -> ModelSelection:
+        choice = {
+            "default": selection.default,
+            "brain": selection.brain,
+            "recon": selection.recon
+            if isinstance(selection, (SaveSelectionV2, SelectionViewV2))
+            else None,
+            "investigator": selection.investigator,
+            "validator": selection.validator,
+        }[role]
+        if choice is None:
+            choice = selection.default
+        await self.require_selection(db, choice)
+        await self.require_registered(db, choice)
+        return choice
 
     async def require_connection(
         self, db: AsyncConnection, identity: str, revision: int
@@ -336,15 +372,8 @@ class ProviderSettingsOwner:
                         current_selection.revision if current_selection is not None else 0
                     ) != request.expected_revision:
                         raise SettingsConflict("REVISION_CONFLICT")
-                    for choice in (
-                        request.default,
-                        request.brain,
-                        request.investigator,
-                        request.validator,
-                    ):
-                        if choice is not None:
-                            await self.require_selection(db, choice)
-                            await self.require_registered(db, choice)
+                    for role in MODEL_ROLES:
+                        await self.resolve_role(db, request, role)
                     await db.execute(
                         text(
                             "INSERT INTO public.provider_selection_revision (instance_id,selection_id,revision,payload) "

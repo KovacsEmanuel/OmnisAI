@@ -916,12 +916,12 @@ async def test_api_pg_sdk_protocol_and_replay(
                 assert ui_writes == [
                     ("save_connection", 0),
                     ("save_models", 2),
+                    ("save_selection_v2", 2),
                     ("save_selection", 2),
-                    ("save_selection", 2),
-                    ("save_selection", 2),
+                    ("save_selection_v2", 2),
                     ("save_models", 4),
                     ("save_models", 6),
-                    ("save_selection", 8),
+                    ("save_selection_v2", 8),
                     ("revoke_connection", 8),
                 ]
                 async with engine.connect() as db:

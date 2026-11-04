@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import type { KeyCommand, KeySelection, KeySettings } from '../../shared/api/providerKeys';
-import { roles } from '../../shared/api/providerKeys';
+import { assignedChoice, roles } from '../../shared/api/providerKeys';
 import { availabilityIssue, matches, providerName, supports, usable } from './SettingsModels';
 import type { CatalogRead, Evidence, Library, ModelEntry } from './SettingsModels';
 import styles from './SettingsModels.module.css';
@@ -13,14 +13,14 @@ export function SettingsAssignments({ settings, library, evidence, catalogs, blo
   feedback: ReactNode;
 }) {
   const eligible = library.entries.filter(entry => usable(entry, settings, evidence));
-  const initial = (role: Role) => settings.selection?.[role] ?? (role === 'default' && eligible[0] ? { connection_id: eligible[0].connection_id, connection_revision: eligible[0].connection_revision, model: eligible[0].model, output_tokens: eligible[0].output_tokens } : null);
-  const [draft, setDraft] = useState<Record<Role, KeySelection | null>>(() => ({ default: initial('default'), brain: initial('brain'), investigator: initial('investigator'), validator: initial('validator') }));
+  const initial = (role: Role) => assignedChoice(settings.selection, role) ?? (role === 'default' && eligible[0] ? { connection_id: eligible[0].connection_id, connection_revision: eligible[0].connection_revision, model: eligible[0].model, output_tokens: eligible[0].output_tokens } : null);
+  const [draft, setDraft] = useState<Record<Role, KeySelection | null>>(() => ({ default: initial('default'), brain: initial('brain'), recon: initial('recon'), investigator: initial('investigator'), validator: initial('validator') }));
   const [notice, setNotice] = useState('');
   const version = `${settings.selection?.revision ?? 0}:${library.revision}:${settings.connections.map(item => item.revision).join(',')}`;
   const [loadedVersion, setLoadedVersion] = useState(version);
   if (loadedVersion !== version) {
     setLoadedVersion(version);
-    setDraft({ default: initial('default'), brain: initial('brain'), investigator: initial('investigator'), validator: initial('validator') });
+    setDraft({ default: initial('default'), brain: initial('brain'), recon: initial('recon'), investigator: initial('investigator'), validator: initial('validator') });
   }
   const selectedEntry = (choice: KeySelection | null) => library.entries.find(entry => matches(entry, choice));
   const available = (choice: KeySelection | null) => {
@@ -29,7 +29,7 @@ export function SettingsAssignments({ settings, library, evidence, catalogs, blo
   };
   const valid = available(draft.default) && roles.slice(1).every(role => draft[role] === null || available(draft[role]));
   const simple = eligible.length === 1 && (!settings.selection || (available(settings.selection.default) && matches(eligible[0]!, settings.selection.default) && roles.slice(1).every(role => {
-    const choice = settings.selection?.[role];
+    const choice = assignedChoice(settings.selection, role);
     return choice === null || (!!choice && available(choice) && matches(eligible[0]!, choice));
   })));
   function label(entry: ModelEntry) {
@@ -46,7 +46,7 @@ export function SettingsAssignments({ settings, library, evidence, catalogs, blo
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (blocked || working || !valid || !draft.default) return;
-    if (await save({ action: 'save_selection', command_id: crypto.randomUUID(), expected_revision: settings.selection?.revision ?? 0, default: draft.default, brain: draft.brain, investigator: draft.investigator, validator: draft.validator })) setNotice('');
+    if (await save({ action: 'save_selection_v2', command_id: crypto.randomUUID(), expected_revision: settings.selection?.revision ?? 0, default: draft.default, brain: draft.brain, investigator: draft.investigator, validator: draft.validator, recon: draft.recon })) setNotice('');
   }
   return <section className={styles.panel} aria-labelledby="assignments-heading"><div className={styles.core}>
     <h2 id="assignments-heading">Model assignments</h2><p className={styles.hint}>For future runs. Existing runs keep their pinned settings.</p>

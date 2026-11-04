@@ -16,6 +16,8 @@ type Revision = Annotated[int, Field(strict=True, ge=0, le=9223372036854775807)]
 type PositiveRevision = Annotated[int, Field(strict=True, ge=1, le=9223372036854775807)]
 type Identity = Annotated[str, Field(pattern=r"^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$")]
 type Provider = Literal["openrouter", "orcarouter"]
+type ModelRole = Literal["default", "brain", "recon", "investigator", "validator"]
+MODEL_ROLES: tuple[ModelRole, ...] = ("default", "brain", "recon", "investigator", "validator")
 
 
 class KeyDTO(BaseModel):
@@ -67,8 +69,19 @@ class ReadSettings(KeyDTO):
     command_id: Identity | None = None
 
 
+class SaveSelectionV2(KeyDTO):
+    action: Literal["save_selection_v2"]
+    command_id: Identity
+    expected_revision: Revision
+    default: ModelSelection
+    brain: ModelSelection | None
+    investigator: ModelSelection | None
+    validator: ModelSelection | None
+    recon: ModelSelection | None
+
+
 type SettingsRequest = Annotated[
-    SaveConnection | RevokeConnection | SaveSelection | ReadSettings,
+    SaveConnection | RevokeConnection | SaveSelection | SaveSelectionV2 | ReadSettings,
     Field(discriminator="action"),
 ]
 
@@ -110,12 +123,17 @@ class SelectionView(KeyDTO):
     validator: ModelSelection | None
 
 
+class SelectionViewV2(SelectionView):
+    schema_version: Literal[2]
+    recon: ModelSelection | None
+
+
 class KeySettingsView(KeyDTO):
     schema_version: Literal[2] = 2
     command_id: Identity | None
     vault_status: Literal["LOCKED", "UNLOCKED", "UNCONFIGURED"]
     connections: list[ConnectionView] = Field(max_length=2)
-    selection: SelectionView | None
+    selection: SelectionView | SelectionViewV2 | None
     reachable: Literal["NOT_VERIFIED"] = "NOT_VERIFIED"
 
     @model_validator(mode="after")

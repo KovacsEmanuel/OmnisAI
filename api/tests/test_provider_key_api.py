@@ -26,11 +26,13 @@ from omnis.transport.local_control import LocalControl
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("recon", [False, True])
 async def test_paired_api_save_receipt_conflict_reload_and_stop(
     migrated_database_url: URL,
     ipc_directory: Path,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    recon: bool,
 ) -> None:
     engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
     service = InstanceService(engine)
@@ -133,13 +135,14 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                     "output_tokens": 64,
                 }
                 assignments = {
-                    "action": "save_selection",
+                    "action": "save_selection_v2" if recon else "save_selection",
                     "command_id": str(uuid4()),
                     "expected_revision": 0,
                     "default": choice,
                     "brain": {**choice, "output_tokens": 32},
                     "investigator": None,
                     "validator": None,
+                    **({"recon": {**choice, "model": "fixture/2"}} if recon else {}),
                 }
                 # Guided assignments must register the exact model before selection.
                 assigned = await http.put(path, json=assignments, headers=headers)
@@ -175,6 +178,20 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                 assert assigned.status_code == 200
                 selected = assigned.json()["selection"]
                 assert (
+                    await http.get(path + "/commands/" + str(assignments["command_id"]))
+                ).json() == assigned.json()
+                assert (
+                    await http.put(path, json=assignments, headers=headers)
+                ).json() == assigned.json()
+                async with engine.connect() as db:
+                    pinned = await owner.selection(db)
+                    assert pinned is not None
+                    resolved = await owner.resolve_role(db, pinned, "recon")
+                    assert resolved.model == ("fixture/2" if recon else "fixture/0")
+                    assert (
+                        await owner.resolve_role(db, pinned, "investigator")
+                    ).model == "fixture/0"
+                assert (
                     selected["brain"]["output_tokens"] == 32
                     and selected["default"]["output_tokens"] == 64
                 )
@@ -190,7 +207,7 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                             **assignments,
                             "command_id": str(uuid4()),
                             "expected_revision": 1,
-                            "default": invalid_choice,
+                            "recon" if recon else "default": invalid_choice,
                         },
                         headers=headers,
                     )
@@ -380,6 +397,16 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                     "entry_id": model_rows[1]["entry_id"],
                     "expected_revision": 1,
                 }
+                if recon:
+                    denied = await http.put(
+                        models_path,
+                        json={**remove, "entry_id": model_rows[2]["entry_id"]},
+                        headers=headers,
+                    )
+                    assert (
+                        denied.status_code == 409
+                        and denied.json()["error"]["code"] == "MODEL_IN_USE"
+                    )
                 for changes, code in (
                     (
                         {"entry_id": model_rows[0]["entry_id"], "expected_revision": 2},
@@ -503,6 +530,24 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                     headers=headers,
                 )
                 assert revoked.status_code == 200
+                if recon:
+                    denied = await http.put(
+                        models_path,
+                        json={
+                            **remove,
+                            "command_id": str(uuid4()),
+                            "expected_registry_revision": 5,
+                            "entry_id": model_rows[2]["entry_id"],
+                        },
+                        headers=headers,
+                    )
+                    assert (
+                        denied.status_code == 409
+                        and denied.json()["error"]["code"] == "MODEL_IN_USE"
+                    )
+                    assert (
+                        await http.get(path + "/commands/" + str(assignments["command_id"]))
+                    ).json() == assigned.json()
                 stale_model = {
                     **competing,
                     "command_id": str(uuid4()),

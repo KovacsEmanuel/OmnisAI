@@ -40,8 +40,8 @@ await test('Assignments SOURCE: held receipt in the long mobile form confirms wi
           if (path === '/health/ready' && method === 'GET') return route.fulfill({ json: { api_ready: true, dashboard_ready: true, assessment_ready: false, reason: null, dashboard_reason: null } });
           if (path === '/api/v1/settings/providers') {
             if (method === 'PUT') {
-              const body = request.postDataJSON(); assert.equal(body.action, 'save_selection'); assert.equal(body.expected_revision, 1); writes.push(body);
-              current = { ...current, selection: { selection_id: body.command_id, revision: 2, default: body.default, brain: body.brain, investigator: body.investigator, validator: body.validator } };
+              const body = request.postDataJSON(); assert.equal(body.action, 'save_selection_v2'); assert.equal(body.expected_revision, 1); writes.push(body);
+              current = { ...current, selection: { selection_id: body.command_id, revision: 2, schema_version: 2, default: body.default, brain: body.brain, investigator: body.investigator, validator: body.validator, recon: body.recon } };
               receipt = { ...current, command_id: body.command_id }; return route.fulfill({ json: receipt });
             }
             if (method === 'GET') return route.fulfill({ json: current });
@@ -69,7 +69,7 @@ await test('Assignments SOURCE: held receipt in the long mobile form confirms wi
         const configured = page.getByRole('region', { name: 'Configured models', exact: true });
         await check(configured.getByRole('listitem')).toHaveCount(19); await check(configured.getByText('Connected', { exact: true })).toHaveCount(2);
         const assignments = page.getByRole('region', { name: 'Model assignments', exact: true });
-        for (const role of ['Brain', 'Investigator', 'Validator']) {
+        for (const role of ['Brain', 'Recon', 'Investigator', 'Validator']) {
           await assignments.getByLabel(role, { exact: true }).selectOption(entries[2].entry_id); await assignments.getByLabel(role, { exact: true }).selectOption('');
         }
         await assignments.getByText('Output controls', { exact: true }).click();
@@ -95,6 +95,7 @@ await test('Assignments SOURCE: held receipt in the long mobile form confirms wi
         assert.equal(reads.filter(path => path.startsWith('GET /api/v1/settings/providers/commands/')).length, 1);
         assert.equal(reads.filter(path => path === 'GET /api/v1/settings/providers').length, 2);
         for (const role of ['default', 'brain', 'investigator', 'validator']) assert.deepEqual(current.selection[role], keys.selection[role]);
+        assert.equal(current.selection.recon, null);
         await check(save).toBeFocused(); await check(cap).toHaveValue('64');
         await check(configured.getByText('Connected', { exact: true })).toHaveCount(2);
         await check(page.getByRole('complementary', { name: 'Settings notification', exact: true })).toContainText('Assignments saved.');
@@ -147,7 +148,7 @@ await test('Settings C SOURCE: painted focus, shared 900px axis, mobile and long
             if (request.method() === 'PUT') {
               const body = request.postDataJSON(); writes.push(body); await put.promise;
               if (scenario === 'stale') return route.fulfill({ status: 409, json: { error: { code: 'REVISION_CONFLICT', correlation_id: id } } });
-              current = { ...current, selection: { selection_id: body.command_id, revision: 2, default: body.default, brain: body.brain, investigator: body.investigator, validator: body.validator } };
+              current = { ...current, selection: { selection_id: body.command_id, revision: 2, schema_version: 2, default: body.default, brain: body.brain, investigator: body.investigator, validator: body.validator, recon: body.recon } };
               receipts.set(body.command_id, { ...current, command_id: body.command_id });
               return route.fulfill({ json: receipts.get(body.command_id) });
             }

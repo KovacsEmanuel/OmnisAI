@@ -248,7 +248,7 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
   }
   assert.deepEqual(results.map(result => result.requested_model), ['fixture/01', 'fixture/selected']);
   const assignments = page.getByRole('region', { name: 'Model assignments', exact: true });
-  for (const role of ['Brain', 'Investigator', 'Validator']) {
+  for (const role of ['Brain', 'Recon', 'Investigator', 'Validator']) {
     const picker = assignments.getByLabel(role, { exact: true }); await picker.selectOption(newEntry); await picker.selectOption('');
   }
   await assignments.getByText('Output controls', { exact: true }).click();
@@ -278,6 +278,8 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
     assert.deepEqual(current.selection, assignment.selection);
     assert.equal(current.selection.revision, baseline.selection.revision + 1);
     for (const role of ['default', 'brain', 'investigator', 'validator']) assert.deepEqual(current.selection[role], baseline.selection[role]);
+    assert.equal(current.selection.schema_version, 2);
+    assert.equal(current.selection.recon, null);
     await screenshot('settings-save-local-confirmed', { fullPage: false });
   } finally { gate.resolve(); await page.unrouteAll({ behavior: 'wait' }); }
   assert.equal(writes.filter(write => write.path === providers).length, 1);
@@ -311,7 +313,7 @@ export async function runSettingsRemove({ page, check, paired, origin, output, s
   assert.deepEqual(finalSettings.selection, assignment.selection);
   await check(row('fixture/selected')).toContainText('Unavailable — stale or disabled connection');
   await check(configured.getByText('Connected', { exact: true })).toHaveCount(0);
-  assert.deepEqual(writes.map(write => write.body.action ?? (write.path === tests ? 'entry_test_start' : null)), ['remove_model', 'refresh', 'refresh', 'save_models', 'refresh', 'save_models', 'entry_test_start', 'entry_test_start', 'save_selection', 'revoke_connection', 'save_connection', 'refresh']);
+  assert.deepEqual(writes.map(write => write.body.action ?? (write.path === tests ? 'entry_test_start' : null)), ['remove_model', 'refresh', 'refresh', 'save_models', 'refresh', 'save_models', 'entry_test_start', 'entry_test_start', 'save_selection_v2', 'revoke_connection', 'save_connection', 'refresh']);
   assert.equal((await read(models)).body.total, 19);
   await secretChecks();
   return { command, receipt, history, newEntry, assignment, results, finalSettings, lostReplyRecovered: true, entries: 19, readdEntries: 18 };
@@ -708,7 +710,7 @@ export async function runSettingsModels({ page, check, paired, origin, output, s
   assert.equal(firstSelection.revision, 1);
   assert.equal(firstSelection.default.model, 'fixture/00');
   assert.equal(firstSelection.default.output_tokens, 64);
-  for (const role of ['brain', 'investigator', 'validator']) assert.equal(firstSelection[role], null);
+  for (const role of ['brain', 'recon', 'investigator', 'validator']) assert.equal(firstSelection[role], null);
 
   // A legitimate competing paired HTTP writer advances CAS, not a fabricated 409.
   const override = { ...firstSelection.default, output_tokens: 37 };

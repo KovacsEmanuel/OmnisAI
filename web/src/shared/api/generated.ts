@@ -1206,7 +1206,8 @@ export interface components {
              * @constant
              */
             schema_version: 2;
-            selection: components["schemas"]["SelectionView"] | null;
+            /** Selection */
+            selection: components["schemas"]["SelectionView"] | components["schemas"]["SelectionViewV2"] | null;
             /**
              * Vault Status
              * @enum {string}
@@ -1634,6 +1635,21 @@ export interface components {
             investigator: components["schemas"]["ModelSelection"] | null;
             validator: components["schemas"]["ModelSelection"] | null;
         };
+        /** SaveSelectionV2 */
+        SaveSelectionV2: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "save_selection_v2";
+            brain: components["schemas"]["ModelSelection"] | null;
+            command_id: components["schemas"]["Identity"];
+            default: components["schemas"]["ModelSelection"];
+            expected_revision: components["schemas"]["Revision"];
+            investigator: components["schemas"]["ModelSelection"] | null;
+            recon: components["schemas"]["ModelSelection"] | null;
+            validator: components["schemas"]["ModelSelection"] | null;
+        };
         /** @enum {string} */
         ScopeAccess: "ATTACKABLE" | "VISIT_ONLY" | "BLOCKED";
         /** ScopeEntry */
@@ -1675,6 +1691,21 @@ export interface components {
             default: components["schemas"]["ModelSelection"];
             investigator: components["schemas"]["ModelSelection"] | null;
             revision: components["schemas"]["PositiveRevision"];
+            selection_id: components["schemas"]["Identity"];
+            validator: components["schemas"]["ModelSelection"] | null;
+        };
+        /** SelectionViewV2 */
+        SelectionViewV2: {
+            brain: components["schemas"]["ModelSelection"] | null;
+            default: components["schemas"]["ModelSelection"];
+            investigator: components["schemas"]["ModelSelection"] | null;
+            recon: components["schemas"]["ModelSelection"] | null;
+            revision: components["schemas"]["PositiveRevision"];
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: 2;
             selection_id: components["schemas"]["Identity"];
             validator: components["schemas"]["ModelSelection"] | null;
         };
@@ -4514,7 +4545,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SaveConnection"] | components["schemas"]["RevokeConnection"] | components["schemas"]["SaveSelection"];
+                "application/json": components["schemas"]["SaveConnection"] | components["schemas"]["RevokeConnection"] | components["schemas"]["SaveSelection"] | components["schemas"]["SaveSelectionV2"];
             };
         };
         responses: {

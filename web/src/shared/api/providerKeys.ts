@@ -3,8 +3,11 @@ import { ApiError, isRecord, isUuid } from './errors';
 
 export type KeySettings = components['schemas']['KeySettingsView'];
 export type KeySelection = components['schemas']['ModelSelection'];
-export type KeyCommand = components['schemas']['SaveConnection'] | components['schemas']['RevokeConnection'] | components['schemas']['SaveSelection'];
-export const roles = ['default', 'brain', 'investigator', 'validator'] as const;
+export type KeyCommand = components['schemas']['SaveConnection'] | components['schemas']['RevokeConnection'] | components['schemas']['SaveSelection'] | components['schemas']['SaveSelectionV2'];
+export const roles = ['default', 'brain', 'recon', 'investigator', 'validator'] as const;
+export function assignedChoice(selected: KeySettings['selection'], role: typeof roles[number]): KeySelection | null {
+  return role === 'recon' ? selected && 'recon' in selected ? selected.recon : null : selected?.[role] ?? null;
+}
 export const printable = (value: string, maximum: number) => value.length >= 1 && value.length <= maximum && /^[!-~]+$/.test(value);
 const revision = (value: unknown, minimum = 1): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= minimum;
 const keys = (value: Record<string, unknown>, names: string[]) => Object.keys(value).length === names.length && names.every(name => Object.hasOwn(value, name));
@@ -29,9 +32,12 @@ export function decodeKeySettings(value: unknown, command: string | null): KeySe
   let selected: KeySettings['selection'] = null;
   if (value.selection !== null) {
     const item = value.selection;
-    if (!isRecord(item) || !keys(item, ['selection_id', 'revision', ...roles]) || !isUuid(item.selection_id) || !revision(item.revision)) throw new ApiError('INVALID_RESPONSE');
+    if (!isRecord(item) || !isUuid(item.selection_id) || !revision(item.revision)) throw new ApiError('INVALID_RESPONSE');
+    const versioned = Object.hasOwn(item, 'schema_version');
+    if ((versioned && item.schema_version !== 2) || !keys(item, ['selection_id', 'revision', 'default', 'brain', 'investigator', 'validator', ...(versioned ? ['schema_version', 'recon'] : [])])) throw new ApiError('INVALID_RESPONSE');
     selected = { selection_id: item.selection_id, revision: item.revision, default: selection(item.default),
       brain: item.brain === null ? null : selection(item.brain), investigator: item.investigator === null ? null : selection(item.investigator), validator: item.validator === null ? null : selection(item.validator) };
+    if (versioned) selected = { ...selected, schema_version: 2, recon: item.recon === null ? null : selection(item.recon) };
   }
   return { schema_version: 2, command_id: command, vault_status: value.vault_status, reachable: 'NOT_VERIFIED', connections, selection: selected };
 }

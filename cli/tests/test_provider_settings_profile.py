@@ -337,6 +337,26 @@ class ProviderSettingsBundleTest(unittest.TestCase):
     COMMON = ("cryptography==50.0.1", "httpx==0.28.1", "httpcore==1.0.9")
     LEGACY = (*COMMON, "openai==2.24.0")
     S0 = (*COMMON, "openai==2.45.0", "openai-agents==0.19.0")
+    S1_CATALOG_CLOSURE = (
+        "omnis/modules/settings/catalog_publication.py",
+        "omnis/modules/settings/publication_store.py",
+        "omnis/modules/runs/plan_snapshot.py",
+        "omnis/modules/tasks/agent_composition.py",
+        "omnis/modules/settings/candidate_catalog.py",
+        "omnis/modules/settings/candidate_index.py",
+        "omnis/modules/settings/candidate_material.py",
+        "omnis/modules/settings/candidate_store.py",
+        "omnis/modules/settings/candidate_resolution.py",
+        "omnis/modules/settings/catalog_models.py",
+        "omnis/modules/settings/catalog_schema.py",
+        "omnis/modules/settings/skill_catalog.py",
+        "omnis/modules/settings/publication_models.py",
+        "omnis/modules/tasks/module_registry.py",
+        "omnis/modules/tasks/contract_case_input.py",
+        "omnis/modules/tasks/managed_contract.py",
+        "omnis/supervisor/model_relay.py",
+        "omnis/supervisor/model_relay_protocol.py",
+    )
 
     def bundle(
         self, *, version="0.1.0", schema="0017_model_removal", dependencies=LEGACY, omit=None
@@ -377,6 +397,7 @@ class ProviderSettingsBundleTest(unittest.TestCase):
                         "omnis/modules/runs/run_store.py",
                         "omnis/modules/runs/projections.py",
                         "omnis/supervisor/agent_runner.py",
+                        *self.S1_CATALOG_CLOSURE,
                     )
                     if version == "0.1.2"
                     else ()
@@ -451,6 +472,19 @@ class ProviderSettingsBundleTest(unittest.TestCase):
             with self.assertRaisesRegex(ReleaseError, "Incompatible release"):
                 _manifest(fixture.bundle)
 
+    def test_s1_requires_catalog_composer_behavior_and_relay_closure(self):
+        complete = self.bundle(version="0.1.2", schema="0019_agent_runs", dependencies=self.S0)
+        self.assertEqual(
+            _manifest(complete.bundle)[0], (complete.bundle / "release.json").read_bytes()
+        )
+        for module in self.S1_CATALOG_CLOSURE:
+            with self.subTest(missing=module):
+                fixture = self.bundle(
+                    version="0.1.2", schema="0019_agent_runs", dependencies=self.S0, omit=module
+                )
+                with self.assertRaisesRegex(ReleaseError, "production closure required"):
+                    _manifest(fixture.bundle)
+
     def test_s1_fresh_install_is_idempotent_but_not_an_implicit_upgrade(self):
         fixture = self.bundle(version="0.1.2", schema="0019_agent_runs", dependencies=self.S0)
         installed = install_release(fixture.bundle, fixture.data_home)
@@ -471,6 +505,8 @@ class ProviderSettingsBundleTest(unittest.TestCase):
         ):
             with self.subTest(version=version, schema=schema):
                 fixture = self.bundle(version=version, schema=schema)
+                with ZipFile(fixture.bundle / f"api/omnis_api-{version}-py3-none-any.whl") as wheel:
+                    self.assertTrue(set(self.S1_CATALOG_CLOSURE).isdisjoint(wheel.namelist()))
                 self.assertEqual(
                     _manifest(fixture.bundle)[0], (fixture.bundle / "release.json").read_bytes()
                 )

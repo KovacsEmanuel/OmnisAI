@@ -175,6 +175,25 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
                 "omnis/modules/runs/run_store.py",
                 "omnis/modules/runs/projections.py",
                 "omnis/supervisor/agent_runner.py",
+                "omnis/supervisor/model_relay.py",
+                "omnis/supervisor/model_relay_protocol.py",
+                "omnis/modules/tasks/agent_composition.py",
+                "omnis/modules/settings/catalog_publication.py",
+                "omnis/modules/settings/publication_store.py",
+                "omnis/modules/runs/plan_snapshot.py",
+                # CandidateCatalog hashes these physical sources at import, beyond imports.
+                "omnis/modules/settings/candidate_catalog.py",
+                "omnis/modules/settings/candidate_index.py",
+                "omnis/modules/settings/candidate_material.py",
+                "omnis/modules/settings/candidate_store.py",
+                "omnis/modules/settings/candidate_resolution.py",
+                "omnis/modules/settings/catalog_models.py",
+                "omnis/modules/settings/catalog_schema.py",
+                "omnis/modules/settings/skill_catalog.py",
+                "omnis/modules/settings/publication_models.py",
+                "omnis/modules/tasks/module_registry.py",
+                "omnis/modules/tasks/contract_case_input.py",
+                "omnis/modules/tasks/managed_contract.py",
             }
         try:
             with ZipFile(io.BytesIO(result[f"api/omnis_api-{version}-py3-none-any.whl"])) as wheel:

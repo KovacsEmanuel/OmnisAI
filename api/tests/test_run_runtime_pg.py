@@ -30,6 +30,7 @@ from omnis.modules.runs.model_test_runtime import ApiKeyModelTest
 from omnis.modules.runs.run_contract import (
     Attempt,
     AttemptInspection,
+    RunEvent,
     RunSummary,
     Setup,
     UsageSummary,
@@ -85,6 +86,7 @@ async def test_run_api_pg_three_causal_tasks_and_receive_only_replay(
     ui = os.environ.get("OMNIS_S1_RUN_UI") == "1"
     expected_decisions = 5 if needs_you else 4
     expected_calls = expected_decisions + 6
+    expected_result_activations = expected_decisions - 1 - int(needs_you)
 
     async def drain_scripted(*, recovery: bool = False) -> None:
         # Only this test bypasses physical ACK. Never used by installed startup.
@@ -255,7 +257,7 @@ async def test_run_api_pg_three_causal_tasks_and_receive_only_replay(
             "run_inbox": 3 + int(needs_you),
             "run_question": int(needs_you),
             "run_event_counter": 1,
-            "run_event": 11 + expected_decisions + int(needs_you),
+            "run_event": 11 + expected_decisions + int(needs_you) + expected_result_activations,
             "run_command": 2 + int(needs_you),
         }
         assert set(counts) == set(RUN_COLUMNS)
@@ -320,6 +322,38 @@ async def test_run_api_pg_three_causal_tasks_and_receive_only_replay(
                 for actor in [Attempt.model_validate(raw)]
             }
             workers = [actor for actor in actors.values() if actor.role == "RECON"]
+            events = [
+                RunEvent.model_validate(raw)
+                for raw in (await db.execute(text("SELECT payload FROM run_event"))).scalars()
+            ]
+            assert {
+                kind: sum(event.kind == kind for event in events)
+                for kind in {e.kind for e in events}
+            } == {
+                "started": 1,
+                "decision": expected_decisions,
+                "tool_called": 4,
+                "tool_result": 3,
+                "result": 3,
+                "control": int(needs_you) + expected_result_activations,
+            }
+            activations = [
+                event
+                for event in events
+                if event.summary == "Brain activated from retained results"
+            ]
+            assert len(activations) == expected_result_activations
+            assert {event.attempt_id for event in activations} == {
+                actor.attempt_id
+                for actor in actors.values()
+                if actor.role == "BRAIN"
+                and any(ref.kind == "run-result-v1" for ref in actor.input_refs)
+            }
+            for event in activations:
+                assert event.kind == "control" and event.attempt_id is not None
+                brain = actors[event.attempt_id]
+                assert event.task_id == brain.task_id and event.run_id == brain.run_id
+                assert event.refs == brain.input_refs and event.call_id is None
             assert len(workers) == len({actor.task_id for actor in workers}) == 3
             assert len({actor.attempt_id for actor in workers}) == 3
             identity = str(await db.scalar(text("SELECT run_id FROM agent_run")))

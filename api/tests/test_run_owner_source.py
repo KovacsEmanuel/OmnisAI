@@ -291,6 +291,136 @@ def fixture_setup_payload() -> dict[str, object]:
     return value
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("start", ["RESULT_READY", "idle", "active"])
+async def test_brain_activation_checkpoint_commits_before_sdk(
+    monkeypatch: pytest.MonkeyPatch, start: str
+) -> None:
+    from collections.abc import AsyncIterator
+    from contextlib import asynccontextmanager
+    from unittest.mock import AsyncMock
+
+    from sqlalchemy.ext.asyncio import AsyncEngine
+
+    from omnis.modules.instance.domain import InstanceStatus
+    from omnis.modules.instance.service import InstanceService
+    from omnis.modules.runs import model_test_store as records
+    from omnis.modules.runs.model_test_runtime import ApiKeyModelTest
+    from omnis.modules.runs.run_contract import Attempt, Setup
+    from omnis.modules.settings.provider_vault import ProviderVault
+    from omnis.supervisor.agent_runner import AgentStep
+    from omnis.supervisor.model_relay_protocol import Scope
+
+    run = fixture_run().model_copy(
+        update={
+            "revision": 7,
+            "through_cursor": 5,
+            "reason": "RESULT_READY" if start != "idle" else None,
+        }
+    )
+    snapshot = Setup.model_validate(fixture_setup_payload())
+    owner = object.__new__(AgentRunOwner)
+    owner.instance, owner.closing, owner.draining = run.instance_id, False, False
+    owner.settings = object.__new__(ProviderSettingsOwner)
+    owner.settings.owner, owner.settings.epoch = UUID(run.owner_id), run.owner_epoch
+    owner.settings.lock = asyncio.Lock()
+    owner.settings.vault = object.__new__(ProviderVault)
+    owner.service = InstanceService(object.__new__(AsyncEngine))
+    owner.model_owner = object.__new__(ApiKeyModelTest)
+    owner.runner = object.__new__(AgentStep)
+    db = object.__new__(AsyncConnection)
+    actors: dict[str, Attempt] = {}
+    commits: list[RunView] = []
+    result_ref = run.setup_ref.model_copy(update={"kind": "run-result-v1"})
+
+    async def save_attempt(db: AsyncConnection, value: Attempt, *, initial: bool = False) -> None:
+        assert initial
+        actors[value.attempt_id] = value
+
+    async def save_run(db: AsyncConnection, value: RunView, *, initial: bool = False) -> None:
+        nonlocal run
+        run = value
+
+    async def relay_scope(
+        db: AsyncConnection, fields: dict[str, object], *, allocate: bool = False
+    ) -> Scope:
+        assert allocate
+        return Scope.parse({**fields, "operation_serial": 1})
+
+    @asynccontextmanager
+    async def admission(*args: object) -> AsyncIterator[AsyncConnection]:
+        yield db
+        commits.append(run)
+
+    class BeforeSDK(BaseException):
+        pass
+
+    async def before_sdk(*args: object, **kwargs: object) -> None:
+        assert commits and commits[-1] == run
+        raise BeforeSDK
+
+    event = AsyncMock(return_value=6)
+    reserve = AsyncMock()
+    sdk = AsyncMock(side_effect=before_sdk)
+    monkeypatch.setattr(ProviderVault, "get", lambda *args: "synthetic-unused-key")
+    monkeypatch.setattr(InstanceService, "admission", admission)
+    monkeypatch.setattr(
+        InstanceService,
+        "owned_status",
+        AsyncMock(
+            return_value=InstanceStatus(UUID(run.instance_id), 0, True, None, None, 1, True, False)
+        ),
+    )
+    monkeypatch.setattr(AsyncConnection, "execute", reserve)
+    monkeypatch.setattr(store, "run", AsyncMock(side_effect=lambda *args: run))
+    monkeypatch.setattr(store, "save_run", save_run)
+    monkeypatch.setattr(store, "setup", AsyncMock(return_value=snapshot))
+    monkeypatch.setattr(store, "save_attempt", save_attempt)
+    monkeypatch.setattr(
+        store, "attempt", AsyncMock(side_effect=lambda db, run, identity: actors[identity])
+    )
+    monkeypatch.setattr(
+        store, "inbox", AsyncMock(return_value=[(result_ref, {"summary": "Inert"})])
+    )
+    monkeypatch.setattr(store, "event", event)
+    monkeypatch.setattr(store, "dispatch_event", AsyncMock())
+    monkeypatch.setattr(records, "resolve", AsyncMock(return_value={"skill_refs": []}))
+    monkeypatch.setattr(records, "put", AsyncMock(return_value=run.setup_ref))
+    monkeypatch.setattr(records, "relay_scope", relay_scope)
+    monkeypatch.setattr(AgentRunOwner, "data_connections", AsyncMock(return_value=()))
+    monkeypatch.setattr(ApiKeyModelTest, "retire_relay", AsyncMock())
+    monkeypatch.setattr(AgentStep, "run", sdk)
+    if start == "active":
+        run = await owner.new_attempt(
+            db, run, snapshot, role="BRAIN", brief="Already active", parent=None
+        )
+    before = run
+    if start == "idle":
+        await owner.work(run.run_id)
+        assert not actors and not reserve.called and not sdk.called
+    else:
+        with pytest.raises(BeforeSDK):
+            await owner.work(run.run_id)
+        assert len(actors) == 1 and reserve.await_count == sdk.await_count == 1
+        assert "INSERT INTO run_dispatch" in str(reserve.call_args.args[0])
+    if start == "RESULT_READY":
+        assert (run.revision, run.through_cursor, run.reason) == (8, 6, None)
+        assert run.active_attempt_id is not None
+        brain = actors[run.active_attempt_id]
+        assert brain.role == "BRAIN" and brain.input_refs == [result_ref]
+        event.assert_awaited_once_with(
+            db,
+            run.model_copy(update={"revision": 7, "through_cursor": 5, "reason": "RESULT_READY"}),
+            "control",
+            "Brain activated from retained results",
+            actor=brain,
+            refs=[result_ref],
+        )
+    else:
+        assert run == before and not event.called
+    assert commits == [run]
+
+
 def test_setup_retains_exact_complete_selection_without_enabling_other_roles() -> None:
     from omnis.modules.runs.run_contract import Setup
 

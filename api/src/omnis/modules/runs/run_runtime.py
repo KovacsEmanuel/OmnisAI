@@ -608,7 +608,8 @@ class AgentRunOwner:
                     snapshot = await store.setup(db, self.instance, run.setup_ref)
                     if run.generation != status.generation:
                         raise records.ModelConflict("GENERATION_CONFLICT")
-                    if run.active_attempt_id is None:
+                    activate_brain = run.active_attempt_id is None
+                    if activate_brain:
                         if run.reason != "RESULT_READY":
                             return
                         run = await self.new_attempt(
@@ -619,10 +620,25 @@ class AgentRunOwner:
                             brief="Consume every retained result ref and decide the next step.",
                             parent=None,
                         )
-                        run = run.model_copy(update={"reason": None})
-                        await store.save_run(db, run)
                     assert run.active_attempt_id is not None
                     attempt = await store.attempt(db, run, run.active_attempt_id)
+                    if activate_brain:
+                        cursor = await store.event(
+                            db,
+                            run,
+                            "control",
+                            "Brain activated from retained results",
+                            actor=attempt,
+                            refs=attempt.input_refs,
+                        )
+                        run = run.model_copy(
+                            update={
+                                "reason": None,
+                                "revision": run.revision + 1,
+                                "through_cursor": cursor,
+                            }
+                        )
+                        await store.save_run(db, run)
                     config = snapshot.brain if attempt.role == "BRAIN" else snapshot.recon
                     connections = await self.data_connections(db, snapshot)
                     step = StepInput(

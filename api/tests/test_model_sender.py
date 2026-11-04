@@ -181,7 +181,7 @@ async def test_tls_handshake_cut_allows_explicit_healthy_metadata_attempt(
             relay = sender.transport.backend.relay
             assert not relay.failed
             assert await relay.rpc("DRAIN", scope) == ("OK", b"")
-            scope = replace(scope, id=str(uuid4()))
+            scope = replace(scope, id=str(uuid4()), operation_serial=scope.operation_serial + 1)
             assert (
                 await sender.metadata(ENDPOINTS["openrouter"], "fixture-secret", current_guard)
                 == {}

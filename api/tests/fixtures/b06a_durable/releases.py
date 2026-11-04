@@ -30,6 +30,7 @@ import yaml
 from psycopg.types.json import Jsonb
 from sqlalchemy.engine import URL
 
+from omnis.core.db import SCHEMA_REVISION
 from omnis.modules.settings import candidate_catalog, skill_catalog
 from omnis.modules.settings.candidate_index import index_source, resolved_index
 from omnis.modules.settings.candidate_material import capture, finalize
@@ -345,7 +346,7 @@ def fixture_connection(database_url: URL) -> Iterator[psycopg.Connection[tuple[o
             ).fetchone()
             assert identity is not None and str(identity[0]) == receipt["system_identifier"]
             assert connection.execute("SELECT version_num FROM alembic_version").fetchall() == [
-                ("0017_model_removal",)
+                (SCHEMA_REVISION,)
             ]
             yield connection
     except psycopg.Error:

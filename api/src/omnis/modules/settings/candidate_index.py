@@ -36,6 +36,8 @@ def resolved_index(compiled: CompiledCatalog) -> dict[str, object]:
         "dependency_artifact_refs": list(compiled.dependency_artifact_refs),
         "catalog_bindings": list(compiled.catalog_bindings),
     }
+    if compiled.core_text:
+        index["catalog_schema_version"] = 2
     if digest(canonical(index)) != compiled.resolved_index_digest:
         raise CatalogError("RESOLVED_INDEX_MISMATCH")
     return index

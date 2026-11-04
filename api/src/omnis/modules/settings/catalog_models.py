@@ -266,6 +266,44 @@ class Profile(StrictDTO):
     agent_recipes: tuple[Recipe, ...]
 
 
+class ApiKeyCompatibility(StrictDTO):
+    runtime: Literal["API_KEY"]
+    sdk: Literal["openai-agents==0.19.0"]
+    brief_schema: Literal[1]
+    result_schema: Literal[1]
+
+
+class ExcerptProvenance(Provenance):
+    upstream_path: Text
+    upstream_file_digest: Digest
+    upstream_lines: tuple[Annotated[int, Field(ge=1)], ...]
+
+
+class CoreManifest(StrictDTO):
+    """V2 is an inert prompt core, not a SECURITY procedure or native package."""
+
+    schema_version: Literal[2]
+    package_key: Literal["omnis-agent-core"]
+    version: Literal["0.1.0"]
+    execution_preference: Preference | None
+    skill_path: Literal["SKILL.md"]
+    techniques: tuple[()]
+    procedures: tuple[()]
+    support_files: tuple[Text, ...]
+    file_bindings: tuple[FileBinding, ...]
+    input_schema_ref: LocalRef
+    output_schema_ref: LocalRef
+    compatibility: ApiKeyCompatibility
+    provenance: tuple[ExcerptProvenance, ...]
+
+
+class CoreProfile(StrictDTO):
+    schema_version: Literal[2]
+    key: Key
+    execution_preference: Preference | None
+    agent_recipes: tuple[Recipe, ...]
+
+
 @dataclass(frozen=True, slots=True)
 class QualifiedRef:
     package_key: str
@@ -299,6 +337,8 @@ class CompiledCatalog:
     dependency_closure_refs: tuple[dict[str, object], ...] = ()
     dependency_artifact_refs: tuple[dict[str, object], ...] = ()
     catalog_bindings: tuple[dict[str, object], ...] = ()
+    core_text: tuple[tuple[str, str], ...] = ()
+    core_provenance: tuple[ExcerptProvenance, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

@@ -1,0 +1,103 @@
+{
+  "schema_version": 2,
+  "key": "omnis-agent-core",
+  "execution_preference": null,
+  "agent_recipes": [
+    {
+      "key": "brain",
+      "role": "BRAIN",
+      "package_refs": [
+        {
+          "kind": "CANDIDATE",
+          "package_key": "omnis-agent-core",
+          "entity_kind": "package",
+          "key": "omnis-agent-core"
+        }
+      ],
+      "technique_refs": [],
+      "procedure_refs": [],
+      "overlay_refs": [],
+      "execution_preference": null,
+      "requested_capabilities": [],
+      "limits": {
+        "max_attempts": 1,
+        "max_actions": 1,
+        "deadline_seconds": 300,
+        "max_output_bytes": 8192,
+        "max_fanout": 1
+      }
+    },
+    {
+      "key": "recon",
+      "role": "RECON",
+      "package_refs": [
+        {
+          "kind": "CANDIDATE",
+          "package_key": "omnis-agent-core",
+          "entity_kind": "package",
+          "key": "omnis-agent-core"
+        }
+      ],
+      "technique_refs": [],
+      "procedure_refs": [],
+      "overlay_refs": [],
+      "execution_preference": null,
+      "requested_capabilities": [],
+      "limits": {
+        "max_attempts": 1,
+        "max_actions": 1,
+        "deadline_seconds": 300,
+        "max_output_bytes": 8192,
+        "max_fanout": 1
+      }
+    },
+    {
+      "key": "investigator",
+      "role": "INVESTIGATOR",
+      "package_refs": [
+        {
+          "kind": "CANDIDATE",
+          "package_key": "omnis-agent-core",
+          "entity_kind": "package",
+          "key": "omnis-agent-core"
+        }
+      ],
+      "technique_refs": [],
+      "procedure_refs": [],
+      "overlay_refs": [],
+      "execution_preference": null,
+      "requested_capabilities": [],
+      "limits": {
+        "max_attempts": 1,
+        "max_actions": 1,
+        "deadline_seconds": 300,
+        "max_output_bytes": 8192,
+        "max_fanout": 1
+      }
+    },
+    {
+      "key": "validator",
+      "role": "VALIDATOR",
+      "package_refs": [
+        {
+          "kind": "CANDIDATE",
+          "package_key": "omnis-agent-core",
+          "entity_kind": "package",
+          "key": "omnis-agent-core"
+        }
+      ],
+      "technique_refs": [],
+      "procedure_refs": [],
+      "overlay_refs": [],
+      "execution_preference": null,
+      "requested_capabilities": [],
+      "limits": {
+        "max_attempts": 1,
+        "max_actions": 1,
+        "deadline_seconds": 300,
+        "max_output_bytes": 8192,
+        "max_fanout": 1
+      }
+    }
+  ]
+}

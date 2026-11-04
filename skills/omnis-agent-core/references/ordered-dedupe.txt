@@ -1,0 +1,7 @@
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for skill in ordered:
+        if skill and skill not in seen:
+            deduped.append(skill)
+            seen.add(skill)
+    return deduped

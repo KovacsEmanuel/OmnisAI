@@ -7,8 +7,8 @@ import stat
 from pathlib import Path
 from uuid import uuid4
 
-from .catalog_models import CatalogError, Manifest, Procedure, Profile
-from .catalog_schema import canonical, dto
+from .catalog_models import CatalogError, Procedure
+from .catalog_schema import canonical, dto, manifest_dto, profile_dto
 from .skill_catalog import read_file, safe_path
 
 MAX_MATERIAL_BYTES = 8 * 1048576
@@ -71,7 +71,7 @@ def capture(
     for number, path in enumerate(packages):
         root = Path(path)
         raw = read_file(root / "omnis.yaml", 262144)
-        manifest = dto(raw, Manifest)
+        manifest = manifest_dto(raw)
         if manifest.package_key in seen:
             raise CatalogError("PACKAGE_SHADOW")
         seen.add(manifest.package_key)
@@ -105,7 +105,7 @@ def capture(
             }
         )
     raw = read_file(Path(profile), 262144)
-    parsed = dto(raw, Profile)
+    parsed = profile_dto(raw)
     material["profile.yaml"] = raw
     sources.append(
         {

@@ -72,6 +72,28 @@ def behavior_revision(domain: str) -> str:
 COMPILER_REVISION = behavior_revision("omnis-candidate-compiler-v1")
 EVALUATOR_REVISION = behavior_revision("omnis-candidate-evaluator-v1")
 
+# Exact bf6d197 V1 reader compatibility, never stamped onto new artifacts.
+LEGACY_COMPILER_REVISION = "sha256:7958c3676989ca829d80ceac99284118ad6b08af7994f0e43211a8b06ad8733b"
+LEGACY_EVALUATOR_REVISION = (
+    "sha256:47fddea827616d5fe1779e653c71e487d072b9c11ccde3d4598bc2ec8715b6d9"
+)
+
+
+_COMPILER_ONLY = object()
+
+
+def readable_revisions(
+    compiler: object, evaluator: object = _COMPILER_ONLY, *, legacy: bool = False
+) -> bool:
+    return (
+        compiler == COMPILER_REVISION
+        and (evaluator is _COMPILER_ONLY or evaluator == EVALUATOR_REVISION)
+    ) or (
+        legacy
+        and compiler == LEGACY_COMPILER_REVISION
+        and (evaluator is _COMPILER_ONLY or evaluator == LEGACY_EVALUATOR_REVISION)
+    )
+
 
 def uuid_string(value: object) -> str:
     if type(value) is not str:
@@ -445,8 +467,12 @@ class CandidateCatalog:
                             "resolution": "NO_MODEL",
                             "effective": None,
                             "compiler_revision": COMPILER_REVISION,
-                            "checker": "omnis-static-v1",
-                            "protocol": "b06a-static-v1",
+                            "checker": "omnis-api-key-core-v2"
+                            if index is not None and index.get("catalog_schema_version") == 2
+                            else "omnis-static-v1",
+                            "protocol": "s1-api-key-core-static-v2"
+                            if index is not None and index.get("catalog_schema_version") == 2
+                            else "b06a-static-v1",
                             "author_kind": sources[0]["author_kind"],
                             "created_by": owner,
                             "status": status,
@@ -505,11 +531,15 @@ class CandidateCatalog:
         group: str,
         value: dict[str, object],
         sources: list[dict[str, object]],
+        *,
+        read_only: bool = False,
     ) -> dict[str, object]:
         review_group, review = await store.get(
             connection, owner, valid_ref(value["technical_review_ref"])
         )
         body = payload(review)
+        index = body.get("resolved_index")
+        core = isinstance(index, dict) and index.get("catalog_schema_version") == 2
         if (
             review_group != group
             or review["kind"] != "technical-review"
@@ -518,9 +548,9 @@ class CandidateCatalog:
             or body.get("draft_ref") != value["draft_ref"]
             or body.get("source_draft_refs") != value["source_draft_refs"]
             or body.get("material_digest") != sources[0]["material_digest"]
-            or body.get("compiler_revision") != COMPILER_REVISION
-            or body.get("protocol") != "b06a-static-v1"
-            or body.get("checker") != "omnis-static-v1"
+            or not readable_revisions(body.get("compiler_revision"), legacy=read_only and not core)
+            or body.get("protocol") != ("s1-api-key-core-static-v2" if core else "b06a-static-v1")
+            or body.get("checker") != ("omnis-api-key-core-v2" if core else "omnis-static-v1")
             or not isinstance(body.get("dependency_closure_refs"), list)
             or body.get("dependency_closure_digest")
             != digest(canonical(body.get("dependency_closure_refs")))
@@ -653,11 +683,11 @@ class CandidateCatalog:
         if (
             source_group != group
             or body["created_by"] != owner
-            or body["compiler_revision"] != COMPILER_REVISION
+            or not readable_revisions(body["compiler_revision"], legacy=True)
         ):
             raise CatalogError("SNAPSHOT_MISMATCH")
         sources = [payload(r) for r in records]
-        review = await self.review_record(connection, owner, group, body, sources)
+        review = await self.review_record(connection, owner, group, body, sources, read_only=True)
         index = payload(review).get("resolved_index")
         if not isinstance(index, dict):
             raise CatalogError("RESOLVED_INDEX_MISMATCH")
@@ -677,6 +707,7 @@ class CandidateCatalog:
             resolved_index(compiled) != index
             or body["material_digest"] != compiled.material_digest
             or body["resolved_index_digest"] != compiled.resolved_index_digest
+            or body["compiler_revision"] != payload(review)["compiler_revision"]
             or body["candidate_refs"] != payload(review)["candidate_refs"]
             or body["profile_ref"] not in candidate_refs
             or body["dependency_closure_refs"] != payload(review)["dependency_closure_refs"]
@@ -698,9 +729,10 @@ class CandidateCatalog:
         for row in rows:
             record = store.checked(row)
             receipt = payload(record)
-            if (
-                receipt["snapshot_ref"] != ref
-                or receipt.get("evaluator_revision") != EVALUATOR_REVISION
+            if receipt["snapshot_ref"] != ref or not readable_revisions(
+                body["compiler_revision"],
+                receipt.get("evaluator_revision"),
+                legacy=not compiled.core_text,
             ):
                 raise CatalogError("SNAPSHOT_MISMATCH")
             files = {"receipt.json": canonical(record)}
@@ -717,8 +749,10 @@ class CandidateCatalog:
                 )
                 files["input.json"] = canonical(material["input"])
             elif (
-                receipt.get("protocol") != "b06a-static-pure-v1"
-                or receipt.get("evaluator") != "omnis-static-pure-v1"
+                receipt.get("protocol")
+                != ("s1-api-key-core-v2" if compiled.core_text else "b06a-static-pure-v1")
+                or receipt.get("evaluator")
+                != ("omnis-api-key-core-v2" if compiled.core_text else "omnis-static-pure-v1")
                 or (compiled.slots and receipt.get("status") == "PURE_PASS")
             ):
                 raise CatalogError("EVALUATION_MISMATCH")
@@ -858,7 +892,7 @@ class CandidateCatalog:
             "schema_ref": schema_ref,
             "material_digest": body["material_digest"],
             "resolved_index_digest": body["resolved_index_digest"],
-            "compiler_revision": COMPILER_REVISION,
+            "compiler_revision": body["compiler_revision"],
         }
 
     async def capture_material(
@@ -1025,6 +1059,8 @@ class CandidateCatalog:
         back = await self.snapshot_readback(connection, owner, ref)
         group, snapshot = await store.get(connection, owner, ref)
         body = payload(snapshot)
+        if body["compiler_revision"] != COMPILER_REVISION:
+            raise CatalogError("LEGACY_READ_ONLY")
         _, records = await self.sources(connection, owner, body)
         started = datetime.now(UTC).isoformat()
         clock = monotonic_ns()
@@ -1081,18 +1117,26 @@ class CandidateCatalog:
                 "dependency_closure_refs": body["dependency_closure_refs"],
                 "dependency_closure_digest": digest(canonical(body["dependency_closure_refs"])),
                 "compiler_revision": COMPILER_REVISION,
-                "evaluator": "omnis-static-pure-records-v3"
+                "evaluator": "omnis-api-key-core-v2"
+                if compiled.core_text
+                else "omnis-static-pure-records-v3"
                 if records_v3
                 else "omnis-static-pure-capture-v2"
                 if capture_v2
                 else "omnis-static-pure-v1",
                 "evaluator_revision": EVALUATOR_REVISION,
-                "protocol": "c03-static-pure-records-v3"
+                "protocol": "s1-api-key-core-v2"
+                if compiled.core_text
+                else "c03-static-pure-records-v3"
                 if records_v3
                 else "c03-static-pure-capture-v2"
                 if capture_v2
                 else "b06a-static-pure-v1",
-                "tool_versions": {"trusted_handlers": "contract-v1"},
+                "tool_versions": {
+                    "trusted_handlers": "core-read-context-v2"
+                    if compiled.core_text
+                    else "contract-v1"
+                },
                 "corpus_ref": None,
                 "evaluation_kind": value["evaluation_kind"],
                 "input_ref": store.reference(input_record) if input_record is not None else None,

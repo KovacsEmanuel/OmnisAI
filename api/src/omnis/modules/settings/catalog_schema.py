@@ -11,7 +11,7 @@ from pydantic import BaseModel, ValidationError
 from yaml.events import AliasEvent, CollectionEndEvent, CollectionStartEvent, NodeEvent, ScalarEvent
 from yaml.nodes import MappingNode
 
-from .catalog_models import CatalogError
+from .catalog_models import CatalogError, CoreManifest, CoreProfile, Manifest, Profile
 
 MAX_BYTES = 1048576
 T = TypeVar("T", bound=BaseModel)
@@ -110,6 +110,26 @@ def dto(raw: bytes, model: type[T]) -> T:
         return model.model_validate_json(canonical(value), strict=True)
     except ValidationError:
         raise CatalogError("INVALID_DTO") from None
+
+
+def manifest_dto(raw: bytes) -> "Manifest | CoreManifest":
+    from .catalog_models import CoreManifest, Manifest
+
+    value = load_yaml(raw)
+    if isinstance(value, dict) and type(value.get("schema_version")) is int:
+        if value["schema_version"] == 2:
+            return dto(raw, CoreManifest)
+    return dto(raw, Manifest)
+
+
+def profile_dto(raw: bytes) -> "Profile | CoreProfile":
+    from .catalog_models import CoreProfile, Profile
+
+    value = load_yaml(raw)
+    if isinstance(value, dict) and type(value.get("schema_version")) is int:
+        if value["schema_version"] == 2:
+            return dto(raw, CoreProfile)
+    return dto(raw, Profile)
 
 
 def pairs(items: list[tuple[str, object]]) -> dict[str, object]:

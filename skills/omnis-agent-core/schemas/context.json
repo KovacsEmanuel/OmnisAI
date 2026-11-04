@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "context": {
+      "type": "string",
+      "maxLength": 1024
+    }
+  },
+  "required": [
+    "context"
+  ],
+  "additionalProperties": false
+}

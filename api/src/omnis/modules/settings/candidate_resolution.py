@@ -47,7 +47,7 @@ def artifact(dependency: ReleasePackage) -> dict[str, object]:
 
 def verify(dependency: ReleasePackage) -> dict[str, object]:
     # Code identities are imported lazily to avoid a compiler/storage import cycle.
-    from .candidate_catalog import COMPILER_REVISION, EVALUATOR_REVISION
+    from .candidate_catalog import readable_revisions
 
     record = artifact(dependency)
     exact(store.reference(record))
@@ -85,8 +85,9 @@ def verify(dependency: ReleasePackage) -> dict[str, object]:
             "outputs",
             "pure_input",
         }
-        or qualified["compiler_revision"] != COMPILER_REVISION
-        or qualified["evaluator_revision"] != EVALUATOR_REVISION
+        or not readable_revisions(
+            qualified["compiler_revision"], qualified["evaluator_revision"], legacy=True
+        )
         or qualified["static_status"] != "STATIC_PASS"
         or qualified["pure_status"] != "PURE_PASS"
         or qualified["resolution"] != "NO_MODEL"

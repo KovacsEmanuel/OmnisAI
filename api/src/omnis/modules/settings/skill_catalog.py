@@ -17,6 +17,8 @@ from .catalog_models import (
     CatalogError,
     CompiledCatalog,
     CompiledStep,
+    CoreManifest,
+    CoreProfile,
     LocalRef,
     Manifest,
     Preference,
@@ -29,7 +31,16 @@ from .catalog_models import (
     StepOutputRef,
     TemplateRef,
 )
-from .catalog_schema import canonical, dto, load_json, load_yaml, schema, validate
+from .catalog_schema import (
+    canonical,
+    dto,
+    load_json,
+    load_yaml,
+    manifest_dto,
+    profile_dto,
+    schema,
+    validate,
+)
 
 if TYPE_CHECKING:
     from .candidate_resolution import ReleasePackage
@@ -233,7 +244,7 @@ def _compile_catalog(
                 str(release_binding["entity_kind"]),
                 str(release_binding["key"]),
             )
-    manifests: dict[str, Manifest] = {}
+    manifests: dict[str, Manifest | CoreManifest] = {}
     files_by_package: dict[str, dict[str, bytes]] = {}
     entities: dict[tuple[str, str, str], bytes | Procedure | None] = {}
     digests: dict[str, str] = {}
@@ -243,11 +254,12 @@ def _compile_catalog(
         if root.is_symlink() or not root.is_dir():
             raise CatalogError("UNSAFE_PACKAGE")
         manifest_bytes = read_file(root / "omnis.yaml", 262144)
-        manifest = dto(manifest_bytes, Manifest)
+        manifest = manifest_dto(manifest_bytes)
         key = manifest.package_key
-        if key in manifests or manifest.native_name in names:
+        name_key = manifest.native_name if isinstance(manifest, Manifest) else key
+        if key in manifests or name_key in names:
             raise CatalogError("PACKAGE_SHADOW")
-        names.add(manifest.native_name)
+        names.add(name_key)
         require_no_model(manifest.execution_preference)
         declared = (
             "omnis.yaml",
@@ -299,10 +311,7 @@ def _compile_catalog(
             "provenance",
         }:
             raise CatalogError("NATIVE_SKILL_MISMATCH")
-        if (
-            frontmatter.get("name") != manifest.native_name
-            or frontmatter.get("version") != manifest.version
-        ):
+        if frontmatter.get("name") != name_key or frontmatter.get("version") != manifest.version:
             raise CatalogError("NATIVE_SKILL_MISMATCH")
         if any(
             not isinstance(frontmatter[field], str)
@@ -362,15 +371,17 @@ def _compile_catalog(
             if identity in entities:
                 raise CatalogError("DUPLICATE_ENTITY")
             entities[identity] = procedure
-        compatibility = manifest.compatibility
-        if compatibility.hermes_revision != NATIVE_HERMES_REVISION:
+        if (
+            isinstance(manifest, Manifest)
+            and manifest.compatibility.hermes_revision != NATIVE_HERMES_REVISION
+        ):
             raise CatalogError("INCOMPATIBLE_HERMES")
-        if any(
+        if isinstance(manifest, Manifest) and any(
             (
-                compatibility.adapter_refs,
-                compatibility.tool_refs,
-                compatibility.predicate_refs,
-                compatibility.oracle_refs,
+                manifest.compatibility.adapter_refs,
+                manifest.compatibility.tool_refs,
+                manifest.compatibility.predicate_refs,
+                manifest.compatibility.oracle_refs,
             )
         ):
             raise CatalogError("DEPENDENCY_UNAVAILABLE")
@@ -442,7 +453,22 @@ def _compile_catalog(
                 resolve(key, reference, "procedure")
 
     profile_bytes = read_file(profile_path, 262144)
-    profile = dto(profile_bytes, Profile)
+    profile = profile_dto(profile_bytes)
+    if isinstance(profile, CoreProfile):
+        if dependencies or len(manifests) != 1:
+            raise CatalogError("UNSUPPORTED_CORE_DEPENDENCY")
+        core = next(iter(manifests.values()))
+        if not isinstance(core, CoreManifest):
+            raise CatalogError("CATALOG_VERSION_MISMATCH")
+        return compile_core(
+            core,
+            profile,
+            profile_bytes,
+            files_by_package[core.package_key],
+            digests[core.package_key],
+        )
+    if any(isinstance(m, CoreManifest) for m in manifests.values()):
+        raise CatalogError("CATALOG_VERSION_MISMATCH")
     require_no_model(profile.execution_preference)
     if len(profile.agent_recipes) != 1:
         raise CatalogError("UNSUPPORTED_RECIPE_COUNT")
@@ -858,9 +884,138 @@ def _compile_catalog(
     )
 
 
+CORE_ROLES = ("BRAIN", "RECON", "INVESTIGATOR", "VALIDATOR")
+CORE_CONTEXT_SCHEMA = canonical(
+    {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {"context": {"type": "string", "maxLength": 1024}},
+        "required": ["context"],
+        "additionalProperties": False,
+    }
+)
+
+
+def compile_core(
+    manifest: CoreManifest,
+    profile: CoreProfile,
+    profile_bytes: bytes,
+    files: dict[str, bytes],
+    package_digest: str,
+) -> CompiledCatalog:
+    """The S1 branch admits only literal core instructions and synthetic read_context."""
+    from .catalog_models import CandidateRef
+
+    requested = require_no_model(profile.execution_preference)
+    expected = {("prompt", name) for name in ("base", *[r.lower() for r in CORE_ROLES])}
+    expected.add(("schema", "context"))
+    if {(b.entity_kind, b.key) for b in manifest.file_bindings} != expected:
+        raise CatalogError("CORE_BINDING_MISMATCH")
+    schema_ref = LocalRef(kind="LOCAL", entity_kind="schema", key="context")
+    if manifest.input_schema_ref != schema_ref or manifest.output_schema_ref != schema_ref:
+        raise CatalogError("CORE_BINDING_MISMATCH")
+    selected = CandidateRef(
+        kind="CANDIDATE",
+        package_key=manifest.package_key,
+        entity_kind="package",
+        key=manifest.package_key,
+    )
+    if (
+        len(profile.agent_recipes) != len(CORE_ROLES)
+        or {r.role for r in profile.agent_recipes} != set(CORE_ROLES)
+        or len({r.key for r in profile.agent_recipes}) != len(CORE_ROLES)
+    ):
+        raise CatalogError("UNSUPPORTED_CORE_RECIPE")
+    for recipe in profile.agent_recipes:
+        require_no_model(recipe.execution_preference)
+        if (
+            recipe.package_refs != (selected,)
+            or recipe.procedure_refs
+            or recipe.technique_refs
+            or recipe.overlay_refs
+            or recipe.requested_capabilities
+        ):
+            raise CatalogError("UNSUPPORTED_CORE_RECIPE")
+    refs = [QualifiedRef(manifest.package_key, "package", manifest.package_key, package_digest)]
+    core_text = [("skill", files["SKILL.md"].decode("utf-8"))]
+    for binding in manifest.file_bindings:
+        refs.append(
+            QualifiedRef(manifest.package_key, binding.entity_kind, binding.key, package_digest)
+        )
+        raw = files[binding.path]
+        if binding.entity_kind == "schema":
+            if schema(raw) != CORE_CONTEXT_SCHEMA:
+                raise CatalogError("CORE_SCHEMA_MISMATCH")
+        else:
+            core_text.append((binding.key, raw.decode("utf-8")))
+    if any(
+        not text.strip()
+        or len(text.encode()) > 8192
+        or "\x00" in text
+        or any(marker in text for marker in ("{{", "{%", "{#"))
+        for _, text in core_text
+    ):
+        raise CatalogError("CORE_TEXT_INVALID")
+    material_digest = hashlib.sha256(
+        canonical(
+            {
+                "packages": [{"package_key": manifest.package_key, "digest": package_digest}],
+                "profile_sha256": hashlib.sha256(profile_bytes).hexdigest(),
+            }
+        )
+    ).hexdigest()
+    step = CompiledStep(
+        "read-context", "core.read-context", (), CORE_CONTEXT_SCHEMA, CORE_CONTEXT_SCHEMA
+    )
+    index = {
+        "catalog_schema_version": 2,
+        "refs": [
+            asdict(r) for r in sorted(refs, key=lambda r: (r.package_key, r.entity_kind, r.key))
+        ],
+        "steps": [
+            {
+                "id": step.id,
+                "handler": step.handler,
+                "input_schema_sha256": hashlib.sha256(step.input_schema).hexdigest(),
+                "output_schema_sha256": hashlib.sha256(step.output_schema).hexdigest(),
+            }
+        ],
+        "requested": requested.model_dump(mode="json"),
+        "resolution": "NO_MODEL",
+        "dependency_closure_refs": [],
+        "dependency_artifact_refs": [],
+        "catalog_bindings": [],
+    }
+    return CompiledCatalog(
+        material_digest,
+        hashlib.sha256(canonical(index)).hexdigest(),
+        "NO_MODEL",
+        requested,
+        tuple(refs),
+        (step,),
+        CORE_CONTEXT_SCHEMA,
+        CORE_CONTEXT_SCHEMA,
+        "CONTRACT",
+        (),
+        min(r.limits.max_output_bytes for r in profile.agent_recipes),
+        core_text=tuple(core_text),
+        core_provenance=manifest.provenance,
+    )
+
+
 def evaluate_pure(
     candidate: CompiledCatalog, input_object: object, *, capture_material: object | None = None
 ) -> "PureEvaluation":
+    if candidate.core_text:
+        if capture_material is not None:
+            raise CatalogError("UNBOUND_SLOT")
+        validate(CORE_CONTEXT_SCHEMA, input_object)
+        raw = canonical(input_object)
+        if len(raw) > candidate.max_output_bytes:
+            raise CatalogError("OUTPUT_LIMIT")
+        return PureEvaluation(
+            candidate.material_digest, candidate.resolved_index_digest, "NO_MODEL", (raw,)
+        )
     from omnis.modules.tasks.contract_case_input import (
         first_binding,
         input_contract,
@@ -868,8 +1023,6 @@ def evaluate_pure(
         validate_material,
     )
     from omnis.modules.tasks.module_registry import run_handler
-
-    from .catalog_models import PureEvaluation
 
     capture_value: dict[str, object] | None = None
     version = 1

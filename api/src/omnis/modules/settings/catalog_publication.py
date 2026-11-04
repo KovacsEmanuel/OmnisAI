@@ -18,22 +18,27 @@ from . import candidate_store as store
 from . import publication_store as heads
 from .candidate_catalog import (
     COMPILER_REVISION,
-    EVALUATOR_REVISION,
     CandidateCatalog,
     payload,
+    readable_revisions,
     uuid_string,
     valid_ref,
 )
 from .candidate_index import resolved_index
 from .candidate_material import digest
-from .catalog_models import CatalogError, CompiledCatalog, Profile
-from .catalog_schema import canonical, dto
+from .catalog_models import CatalogError, CompiledCatalog, CoreProfile, Profile
+from .catalog_schema import canonical, dto, profile_dto
 from .publication_models import load_request, selection, validate_request
 from .skill_catalog import read_file
 
 
 def check_evaluations(
-    value: dict[str, object], records: list[dict[str, object]], closure: list[object]
+    value: dict[str, object],
+    records: list[dict[str, object]],
+    closure: list[object],
+    *,
+    core: bool = False,
+    read_only: bool = False,
 ) -> None:
     if len(records) != 2:
         raise CatalogError("EVALUATION_MISMATCH")
@@ -48,6 +53,10 @@ def check_evaluations(
             or first_input != second_input
         ):
             raise CatalogError("EVALUATION_MISMATCH")
+    compiler = payload(records[0]).get("compiler_revision")
+    evaluator = payload(records[0]).get("evaluator_revision")
+    if not readable_revisions(compiler, evaluator, legacy=read_only and not core):
+        raise CatalogError("EVALUATION_MISMATCH")
     for kind, record in zip(("STATIC", "PURE"), records, strict=True):
         body = payload(record)
         expected = {
@@ -56,14 +65,18 @@ def check_evaluations(
             "resolved_index_digest": value["resolved_index_digest"],
             "dependency_closure_digest": value["dependency_closure_digest"],
             "dependency_closure_refs": closure,
-            "compiler_revision": COMPILER_REVISION,
-            "evaluator_revision": EVALUATOR_REVISION,
-            "evaluator": "omnis-static-pure-records-v3"
+            "compiler_revision": compiler,
+            "evaluator_revision": evaluator,
+            "evaluator": "omnis-api-key-core-v2"
+            if core
+            else "omnis-static-pure-records-v3"
             if records_v3
             else "omnis-static-pure-capture-v2"
             if capture_v2
             else "omnis-static-pure-v1",
-            "protocol": "c03-static-pure-records-v3"
+            "protocol": "s1-api-key-core-v2"
+            if core
+            else "c03-static-pure-records-v3"
             if records_v3
             else "c03-static-pure-capture-v2"
             if capture_v2
@@ -85,7 +98,7 @@ def check_evaluations(
             raise CatalogError("EVALUATION_MISMATCH")
 
 
-def check_profile(profile: Profile) -> None:
+def check_profile(profile: Profile | CoreProfile) -> None:
     if any(recipe.role == "REVIEWER" for recipe in profile.agent_recipes):
         raise CatalogError("REVIEWER_NOT_SUPPORTED")
 
@@ -96,7 +109,7 @@ def check_profile_bytes(raw: bytes, source: dict[str, object]) -> None:
         raise CatalogError("SOURCE_DRAFT_MISMATCH")
     if files[0] != {"path": "profile.yaml", "sha256": digest(raw), "size": len(raw)}:
         raise CatalogError("FROZEN_MATERIAL_MISMATCH")
-    profile = dto(raw, Profile)
+    profile = profile_dto(raw)
     if profile.key != source.get("key"):
         raise CatalogError("SOURCE_DRAFT_MISMATCH")
     check_profile(profile)
@@ -116,7 +129,12 @@ class PublicationCatalog:
             return await self._dispatch(operation, value)
 
     async def _selected(
-        self, connection: AsyncConnection, owner: str, value: dict[str, object]
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        value: dict[str, object],
+        *,
+        read_only: bool = False,
     ) -> tuple[str, str, dict[str, object]]:
         group, sources = await self.candidates.sources(connection, owner, value)
         draft = next((r for r in sources if store.reference(r) == value["draft_ref"]), None)
@@ -134,6 +152,8 @@ class PublicationCatalog:
             raise CatalogError("STORAGE_INCOMPATIBLE")
         snapshot_group, _ = await store.get(connection, owner, valid_ref(value["snapshot_ref"]))
         body = payload(snapshot)
+        if not read_only and body["compiler_revision"] != COMPILER_REVISION:
+            raise CatalogError("LEGACY_READ_ONLY")
         if snapshot_group != group:
             raise CatalogError("SNAPSHOT_MISMATCH")
         check_profile_bytes(
@@ -172,7 +192,13 @@ class PublicationCatalog:
             if receipt_group != group or receipt not in available:
                 raise CatalogError("EVALUATION_MISMATCH")
             evaluations.append(receipt)
-        check_evaluations(value, evaluations, closure)
+        check_evaluations(
+            value,
+            evaluations,
+            closure,
+            core=index.get("catalog_schema_version") == 2,
+            read_only=read_only,
+        )
         back["evaluations"] = evaluations
         return group, key, back
 
@@ -204,6 +230,14 @@ class PublicationCatalog:
         if not isinstance(snapshot, dict) or not isinstance(index, dict):
             raise CatalogError("STORAGE_INCOMPATIBLE")
         body = payload(snapshot)
+        evaluations = back["evaluations"]
+        if (
+            not isinstance(evaluations, list)
+            or not evaluations
+            or not isinstance(evaluations[0], dict)
+        ):
+            raise CatalogError("EVALUATION_MISMATCH")
+        evaluator_revision = payload(evaluations[0])["evaluator_revision"]
         generation = value["expected_head_generation"]
         if type(generation) is not int or generation >= 2**63 - 1:
             raise CatalogError("INVALID_REQUEST")
@@ -216,8 +250,8 @@ class PublicationCatalog:
             "candidate_refs": body["candidate_refs"],
             "dependency_closure_refs": body["dependency_closure_refs"],
             "dependency_artifact_refs": index["dependency_artifact_refs"],
-            "compiler_revision": COMPILER_REVISION,
-            "evaluator_revision": EVALUATOR_REVISION,
+            "compiler_revision": body["compiler_revision"],
+            "evaluator_revision": evaluator_revision,
             "created_by": owner,
             "state": "PUBLISHED",
             "resolution": "NO_MODEL",
@@ -242,7 +276,7 @@ class PublicationCatalog:
                 "confirmation_ref": body.get("confirmation_ref"),
             },
         )
-        source_group, key, back = await self._selected(connection, owner, value)
+        source_group, key, back = await self._selected(connection, owner, value, read_only=True)
         await self._confirmation(connection, owner, group, value)
         if source_group != group or body != self._publication_payload(owner, key, value, back):
             raise CatalogError("PUBLICATION_MISMATCH")
@@ -255,6 +289,33 @@ class PublicationCatalog:
             "state": "PUBLISHED",
             "assessment_selectable": False,
         }
+
+    async def load_core(
+        self, connection: AsyncConnection, owner: str, ref: dict[str, object]
+    ) -> tuple[CoreProfile, CompiledCatalog]:
+        """Resolve an exact qualified V2 publication, never a candidate or moving head."""
+        owner = uuid_string(owner)
+        if valid_ref(ref)["kind"] != "catalog-publication":
+            raise CatalogError("PUBLICATION_MISMATCH")
+        back = await self._readback(connection, owner, ref)
+        snapshot, index = back["snapshot"], back["resolved_index"]
+        if not isinstance(snapshot, dict) or not isinstance(index, dict):
+            raise CatalogError("STORAGE_INCOMPATIBLE")
+        if index.get("catalog_schema_version") != 2:
+            raise CatalogError("CORE_PUBLICATION_REQUIRED")
+        body = payload(snapshot)
+        _, records = await self.candidates.sources(connection, owner, body)
+        directory = self.root / "candidates" / str(snapshot["id"])
+        profile = profile_dto(read_file(directory / "profile.yaml", 262144))
+        refs = body["candidate_refs"]
+        if not isinstance(profile, CoreProfile) or not isinstance(refs, list):
+            raise CatalogError("CORE_PUBLICATION_REQUIRED")
+        compiled = await self.candidates.compile_pinned(
+            connection, owner, directory, records, [valid_ref(r) for r in refs], index
+        )
+        if resolved_index(compiled) != index or not compiled.core_text:
+            raise CatalogError("SNAPSHOT_MISMATCH")
+        return profile, compiled
 
     async def load_probe(
         self, connection: AsyncConnection, owner: str, ref: dict[str, object]
@@ -368,6 +429,9 @@ class PublicationCatalog:
                 return prior
             if operation == "snapshot":
                 back = await self._readback(connection, owner, valid_ref(value["publication_ref"]))
+                index = back["resolved_index"]
+                if isinstance(index, dict) and index.get("catalog_schema_version") == 2:
+                    raise CatalogError("CORE_SNAPSHOT_OWNER_REQUIRED")
                 publication = back["publication"]
                 if not isinstance(publication, dict):
                     raise CatalogError("STORAGE_INCOMPATIBLE")

@@ -87,7 +87,12 @@ async def test_evaluation_revision_and_stale_readback_storage_seam(
     source_records = [store.envelope("source-draft", s) for s in sources]
     review = store.envelope(
         "technical-review",
-        {"resolved_index": index, "candidate_refs": [profile_ref], "dependency_closure_refs": []},
+        {
+            "resolved_index": index,
+            "candidate_refs": [profile_ref],
+            "dependency_closure_refs": [],
+            "compiler_revision": catalog.COMPILER_REVISION,
+        },
     )
     snapshot = store.envelope(
         "candidate-snapshot",
@@ -137,7 +142,10 @@ async def test_evaluation_revision_and_stale_readback_storage_seam(
         selected_group: str,
         value: dict[str, object],
         selected: list[dict[str, object]],
+        *,
+        read_only: bool = False,
     ) -> dict[str, object]:
+        assert read_only
         return review
 
     async def selected_compile(

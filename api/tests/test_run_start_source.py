@@ -12,7 +12,8 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from omnis.modules.instance.service import InstanceService
 from omnis.modules.runs import model_test_store as records
-from omnis.modules.runs import run_routes, run_store as store
+from omnis.modules.runs import run_routes
+from omnis.modules.runs import run_store as store
 from omnis.modules.runs.model_test_runtime import ApiKeyModelTest
 from omnis.modules.runs.run_contract import CommandReceipt, Setup, StartRun
 from omnis.modules.runs.run_runtime import AgentRunOwner

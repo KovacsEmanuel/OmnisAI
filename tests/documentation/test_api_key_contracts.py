@@ -64,13 +64,17 @@ class ApiKeyContracts(unittest.TestCase):
                       "promptul nu acordă", "Stop", "G-TOOLS"):
             self.assertIn(token, tools)
 
-    def test_product_library_is_candidate_and_legacy_is_not_active(self):
+    def test_product_library_is_admitted_s0_isolated_and_legacy_is_not_active(self):
         baseline = json.loads((DOCS / "Omnis_Stack_Baseline.versions.json").read_text())
         policy = baseline["api_key_runtime"]
         self.assertEqual(policy["providers"], ["OpenRouter", "OrcaRouter"])
         self.assertEqual(policy["agent_library"]["package"], "openai-agents")
-        self.assertEqual(policy["agent_library"]["status"], "CANDIDATE_NOT_ADMITTED")
-        self.assertIsNone(policy["agent_library"]["selected_version"])
+        self.assertEqual(policy["agent_library"]["status"], "ADMITTED_S0_ISOLATED")
+        self.assertEqual(policy["agent_library"]["selected_version"], "0.19.0")
+        self.assertEqual(policy["client_package"], "openai")
+        self.assertEqual(policy["client_selected_version"], "2.45.0")
+        self.assertEqual(policy["operator_environment"], "NOT_SYNCED")
+        self.assertEqual(policy["runtime_s1"], "NOT_IMPLEMENTED_NOT_STARTED_NOT_ADMITTED")
         self.assertEqual(policy["llm_accounting"], "MONITOR")
         self.assertEqual(baseline["runtimes"]["hermes"]["product_scope"], "LEGACY_ONLY")
 

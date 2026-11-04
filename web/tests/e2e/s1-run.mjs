@@ -119,7 +119,18 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   await publication.selectOption({ index: 1 });
   await page.getByLabel(/This text is synthetic and non-secret/).check();
   const preflight = page.getByRole('button', { name: 'Preflight inert run', exact: true });
-  await preflight.focus(); await page.keyboard.press('Enter');
+  await check(preflight).toBeEnabled();
+  await preflight.focus(); await check(preflight).toBeFocused();
+  const preflightPath = `/api/v1/engagements/${engagement}/run-preflight`;
+  const [prepared] = await Promise.all([
+    page.waitForResponse(response => response.request().method() === 'POST' && new URL(response.url()).pathname === preflightPath, { timeout: 15000 }),
+    page.keyboard.press('Enter'),
+  ]);
+  assert.equal(prepared.status(), 200, 'Preflight must return its persisted setup receipt');
+  const preparedReceipt = await prepared.json();
+  assert.equal(preparedReceipt.state, 'READY');
+  assert.ok(preparedReceipt.setup_ref);
+  assert.equal(writes.filter(path => path === preflightPath).length, 1, 'Preflight is not retried');
   const confirmation = page.getByRole('region', { name: 'Run preflight confirmation' });
   await check(confirmation).toContainText(input);
   await check(confirmation).toContainText('fixture/s1');

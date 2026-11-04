@@ -372,6 +372,12 @@ class ProviderSettingsOwner:
                         current_selection.revision if current_selection is not None else 0
                     ) != request.expected_revision:
                         raise SettingsConflict("REVISION_CONFLICT")
+                    if (
+                        isinstance(request, SaveSelection)
+                        and isinstance(current_selection, SelectionViewV2)
+                        and current_selection.recon is not None
+                    ):
+                        raise SettingsConflict("REVISION_CONFLICT")
                     for role in MODEL_ROLES:
                         await self.resolve_role(db, request, role)
                     await db.execute(

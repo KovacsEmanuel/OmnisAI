@@ -225,6 +225,22 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                             "provider_settings_command",
                         )
                     ]
+                legacy_assignments = {
+                    **{key: value for key, value in assignments.items() if key != "recon"},
+                    "action": "save_selection",
+                    "command_id": str(uuid4()),
+                    "expected_revision": 1,
+                }
+                if recon:
+                    refused = await http.put(path, json=legacy_assignments, headers=headers)
+                    assert (
+                        refused.status_code == 409
+                        and refused.json()["error"]["code"] == "REVISION_CONFLICT"
+                    )
+                    assert (await http.get(path)).json()["selection"] == selected
+                    assert (
+                        await http.put(path, json=assignments, headers=headers)
+                    ).json() == assigned.json()
                 invalid_requests = [
                     (
                         {
@@ -531,6 +547,32 @@ async def test_paired_api_save_receipt_conflict_reload_and_stop(
                 )
                 assert revoked.status_code == 200
                 if recon:
+                    selection_census = text(
+                        "SELECT (SELECT count(*) FROM provider_selection_revision), "
+                        "(SELECT count(*) FROM provider_settings_command)"
+                    )
+                    async with engine.connect() as db:
+                        before_legacy = (await db.execute(selection_census)).one()
+                    refused = await http.put(
+                        path,
+                        json={
+                            **legacy_assignments,
+                            "command_id": str(uuid4()),
+                            "default": {**choice, "connection_id": other_connection},
+                            "brain": None,
+                        },
+                        headers=headers,
+                    )
+                    assert (
+                        refused.status_code == 409
+                        and refused.json()["error"]["code"] == "REVISION_CONFLICT"
+                    )
+                    assert (await http.get(path)).json()["selection"] == selected
+                    assert (
+                        await http.put(path, json=assignments, headers=headers)
+                    ).json() == assigned.json()
+                    async with engine.connect() as db:
+                        assert (await db.execute(selection_census)).one() == before_legacy
                     denied = await http.put(
                         models_path,
                         json={

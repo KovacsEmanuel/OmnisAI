@@ -3,10 +3,11 @@
 import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from copy import deepcopy
 from hashlib import sha256
 from pathlib import Path
 from unittest.mock import AsyncMock, Mock
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 
@@ -292,6 +293,160 @@ async def test_save_recon_validates_explicit_choice_without_fallback(
             with pytest.raises(SettingsConflict, match="REVISION_CONFLICT"):
                 await owner.handle(stale_save)
             assert sum("INSERT" in str(call.args[0]) for call in db.execute.call_args_list) == 2
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("current_kind", ["legacy", "unset", "valid", "stale"])
+async def test_legacy_save_preserves_explicit_recon_and_historical_receipts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    current_kind: str,
+) -> None:
+    engine = database_engine("postgresql+psycopg://unused")
+    owner = ProviderSettingsOwner(
+        InstanceService(engine), UUID(ID), 1, ProviderVault(tmp_path / "v", tmp_path / "k", ID)
+    )
+    connection = ConnectionRevision(
+        connection_id=ID,
+        provider="openrouter",
+        revision=1,
+        enabled=True,
+        secret_id=ID,
+        credential_revision=1,
+    )
+    other_id = "22222222-2222-4222-8222-222222222222"
+    connections = AsyncMock(
+        return_value=[
+            connection,
+            connection.model_copy(update={"connection_id": other_id, "provider": "orcarouter"}),
+        ]
+    )
+    monkeypatch.setattr(owner, "connections", connections)
+    monkeypatch.setattr(
+        owner.service, "owned_status", AsyncMock(return_value=Mock(instance_id=ID, generation=1))
+    )
+    rows: list[dict[str, object]] = []
+    receipts: dict[str, dict[str, object]] = {}
+    writes: list[str] = []
+
+    async def execute(statement: object, parameters: dict[str, object]) -> Mock:
+        sql = str(statement)
+        result = Mock()
+        if "SELECT selection_id" in sql:
+            result.mappings.return_value.one_or_none.return_value = rows[-1] if rows else None
+        elif "SELECT request_digest" in sql:
+            result.mappings.return_value.one_or_none.return_value = receipts.get(
+                str(parameters["command"])
+            )
+        elif "SELECT 1 FROM public.provider_model_entry" in sql:
+            result.scalar_one_or_none.return_value = 1
+        elif "INSERT INTO public.provider_selection_revision" in sql:
+            rows.append(
+                {
+                    "selection_id": parameters["id"],
+                    "revision": parameters["revision"],
+                    "payload": json.loads(str(parameters["payload"])),
+                }
+            )
+            writes.append(sql)
+        elif "INSERT INTO public.provider_settings_command" in sql:
+            receipts[str(parameters["command"])] = {
+                "request_digest": parameters["digest"],
+                "result": json.loads(str(parameters["result"])),
+            }
+            writes.append(sql)
+        elif "SELECT 1 FROM public.system_operation" in sql:
+            result.first.return_value = None
+        else:
+            raise AssertionError(sql)
+        return result
+
+    db = Mock(execute=AsyncMock(side_effect=execute))
+
+    @asynccontextmanager
+    async def admitted(*args: object) -> AsyncIterator[Mock]:
+        yield db
+
+    monkeypatch.setattr(type(engine), "connect", admitted)
+    monkeypatch.setattr(owner.service, "admission", admitted)
+    recon = {**CHOICE, "connection_id": other_id, "model": "Recon/Model", "output_tokens": 37}
+    explicit = current_kind in ("valid", "stale")
+    legacy = KeySettingsControl.model_validate({"op": "provider_settings", "request": LEGACY})
+    current = KeySettingsControl.model_validate(
+        {
+            "op": "provider_settings",
+            "request": {
+                **LEGACY,
+                "command_id": str(uuid4()),
+                "expected_revision": 1,
+                **(
+                    {"action": "save_selection_v2", "recon": recon if explicit else None}
+                    if current_kind != "legacy"
+                    else {}
+                ),
+            },
+        }
+    )
+    fresh = KeySettingsControl.model_validate(
+        {
+            "op": "provider_settings",
+            "request": {**LEGACY, "command_id": str(uuid4()), "expected_revision": 2},
+        }
+    )
+    try:
+        legacy_saved = await owner.handle(legacy)
+        saved = await owner.handle(current)
+        assert saved.selection is not None and saved.selection.revision == 2
+        if current_kind == "stale":
+            connections.return_value = [connection]
+        before = deepcopy((rows, receipts, writes))
+        assert (await owner.handle(legacy)).model_dump_json() == legacy_saved.model_dump_json()
+        if explicit:
+            with pytest.raises(SettingsConflict, match="^REVISION_CONFLICT$"):
+                await owner.handle(fresh)
+            assert (rows, receipts, writes) == before
+            assert await owner.selection(db) == saved.selection
+            if current_kind == "stale":
+                with pytest.raises(SettingsConflict, match="^CONNECTION_UNAVAILABLE$"):
+                    await owner.resolve_role(db, saved.selection, "recon")
+            else:
+                assert (
+                    await owner.resolve_role(db, saved.selection, "recon")
+                ).model_dump() == recon
+            entry = ModelEntry.model_validate({**recon, "entry_id": other_id, "revision": 1})
+            with pytest.raises(SettingsConflict, match="^MODEL_IN_USE$"):
+                await require_removable(owner, db, entry)
+            clear = KeySettingsControl.model_validate(
+                {
+                    "op": "provider_settings",
+                    "request": {
+                        **fresh.request.model_dump(),
+                        "action": "save_selection_v2",
+                        "recon": None,
+                    },
+                }
+            )
+            updated = await owner.handle(clear)
+            assert updated.selection is not None and updated.selection.model_dump()["recon"] is None
+            await require_removable(owner, db, entry)
+        else:
+            updated = await owner.handle(fresh)
+            assert updated.selection is not None and "recon" not in updated.selection.model_dump()
+        assert updated.selection.revision == 3
+        assert (await owner.resolve_role(db, updated.selection, "recon")).model_dump() == CHOICE
+        for command, receipt in ((legacy, legacy_saved), (current, saved)):
+            assert (await owner.handle(command)).model_dump_json() == receipt.model_dump_json()
+            assert command.request.command_id is not None
+            historical = await owner.receipt(db, command.request.command_id)
+            assert (
+                historical is not None
+                and historical[1].model_dump_json() == receipt.model_dump_json()
+            )
+        assert rows[0]["payload"] == LEGACY
+        assert rows[1]["payload"] == current.request.model_dump()
+        assert len(rows) == len(receipts) == 3 and len(writes) == 6
     finally:
         await engine.dispose()
 

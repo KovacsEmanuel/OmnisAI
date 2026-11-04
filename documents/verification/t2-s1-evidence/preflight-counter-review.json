@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "review_type": "INDEPENDENT_READ_ONLY_EXACT_BYTE_DELTA",
+  "verdict": "APPROVED_SOURCE_SCOPED_HANDOFF_ONLY",
+  "summary_ro": "Corecția exactă de la linia133 elimină eșecul determinist S1-PREFLIGHT-OBS-01: comparația folosește acum aceeași reprezentare POST + spațiu + pathname ca listenerul real. Eligibilitate SOURCE numai pentru cel mult o observație UI viitoare bounded, condiționată de admiterea separată a părintelui. SAFE CONTEXT HANDOFF: nicio continuare runtime sau reluare automată; S1 nu este închis.",
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/omnis-s1-20261104",
+    "branch": "implementation/t2-s1-20261104",
+    "base": "0d5a8937d54a44b56b2a6b08ed1f944eb26c8e9b",
+    "head": "790041962084aa00982f6a498f73c48c11c593ba",
+    "clean_at_initial_and_final_source_readback": true,
+    "changed_files": ["web/tests/e2e/s1-run.mjs"],
+    "insertions": 1,
+    "deletions": 1,
+    "candidate_blob": "c354ebd3ecba47b12195d5c7f01354d0f51534c5",
+    "candidate_file_sha256": "3c189e3e73d3a5a0f31983d2c71088da48f9a85ead727dc20422c41b4c468cc6",
+    "production_changes": false
+  },
+  "scope": {
+    "requirement": "Remove the guaranteed counterfailure without weakening the one-POST assertion or changing the earlier UI failure claim.",
+    "producer": "web/tests/e2e/s1-run.mjs:9-10; request listener records METHOD + space + pathname.",
+    "consumer": "web/tests/e2e/s1-run.mjs:133, invoked through web/tests/e2e/run.mjs:185.",
+    "risk": "The old comparison rejects every otherwise successful preflight before the unchanged confirmation oracle.",
+    "decision": "Recommend closing only S1-PREFLIGHT-OBS-01 on this exact snapshot; do not close S1-QA-UI-02 or start QA.",
+    "reach": "Only the line133 test assertion changes. Listener, caller, fixtures, config, exports and product code require no change for this representation correction."
+  },
+  "findings": [],
+  "prior_finding_disposition": {
+    "id": "S1-PREFLIGHT-OBS-01",
+    "reviewer_disposition": "RESOLVED_SOURCE_SCOPED_ON_EXACT_BYTES",
+    "acceptance_owner": "Parent adjudication only",
+    "evidence": "The actual old listener plus actual old assertion rejects one POST; the identical listener plus actual corrected assertion accepts one POST and rejects zero requests, GET-only and duplicate POST requests."
+  },
+  "verification": {
+    "syntax": {"command": "node --check web/tests/e2e/s1-run.mjs", "exit_code": 0},
+    "diff_check": {"command": "git diff --check 0d5a8937d54a44b56b2a6b08ed1f944eb26c8e9b 790041962084aa00982f6a498f73c48c11c593ba", "exit_code": 0},
+    "bounded_source_selfcheck": {
+      "command": "node --input-type=module -e; node:vm executes the actual request-listener source and assertion from the working file and git show of the exact base",
+      "invocations": 1,
+      "exit_code": 0,
+      "classification": "SOURCE_ONLY_SYNTHETIC_NO_EXTERNAL_EFFECTS",
+      "single_statement_only_verified": true,
+      "listener_unchanged_verified": true,
+      "cases": {
+        "old_one_post": "ERR_ASSERTION; RED reproduced",
+        "corrected_one_post": "PASS",
+        "corrected_zero_requests": "ERR_ASSERTION; refused",
+        "corrected_get_only": "ERR_ASSERTION; refused",
+        "corrected_duplicate_post": "ERR_ASSERTION; refused"
+      },
+      "method": "Capture the callback installed by the extracted page.on source; feed synthetic request objects without making HTTP requests; run the extracted assert.equal statement in the same VM context. Also assert that replacing only the old assertion with the new assertion reproduces the entire current file. No runner import or browser execution."
+    },
+    "unchanged": [
+      "Enabled and focused keyboard preflight, one Enter and response waiter ordering",
+      "Exact POST/path predicate and timeout15000ms",
+      "HTTP200, READY and setup_ref receipt checks",
+      "Existing confirmation, explicit model-execution consent and Start assertions",
+      "Remaining journey, Stop/accessibility, receive-only and secret assertions",
+      "Production code, guards, fixtures, dependencies and timeouts"
+    ],
+    "fresh_ui_attempts": 0,
+    "pg_reruns": 0
+  },
+  "preserved_evidence": {
+    "original_review": "/home/kali/.hermes/cache/scratch/s1-env-20261104/run-evidence/main-qa/ui-attempt-two/preflight-observation-review.json",
+    "original_review_sha256": "eb5e05fb3f4ad7c17ad65807473d12b242a0461015c833f3d6a649baa187034c",
+    "original_review_verdict_retained": "CHANGES_REQUESTED_NOT_ELIGIBLE_FOR_UI_ATTEMPT on 0d5a8937d54a44b56b2a6b08ed1f944eb26c8e9b; original file not modified",
+    "S1_QA_UI_02": "OPEN_ACCEPTANCE_BLOCKER; original UI FAIL retained; actual preflight cause UNKNOWN_NOT_OBSERVED",
+    "aria_limit": "As recorded in the original review and handoff, failure-time ARIA shows checked consent, a Preflight button without disabled annotation and empty Run status. This is not proof of enabled/focus/request state at the earlier Enter. Raw ARIA was not re-read in this delta review.",
+    "historical_pg": "Prior PG4PASS31.31s retained as historical scoped evidence only, not rerun or promoted to UI acceptance.",
+    "historical_failures": "All original FAILs and counters remain; no evidence rewritten or reset."
+  },
+  "future_observation": {
+    "source_eligible_for_at_most_one_future_bounded_ui_observation": true,
+    "eligibility_is_conditional": true,
+    "launch_authorized_by_this_report": false,
+    "session_mode": "SAFE_CONTEXT_HANDOFF_ONLY",
+    "auto_resume": false,
+    "ui_harness_actions_already_consumed": 2,
+    "counter_correction_additional_and_retained": true,
+    "budget_reset": false,
+    "conditions": "Separate parent admission after recovery; exact reviewed bytes; existing narrowed keyboard-to-receipt consumer and unchanged confirmation/journey; original outer budget, owned fixture and exact cleanup; no automatic retry or new framework. This is not an exception to the harness-cycle limit or authorization for another repair loop.",
+    "on_future_failure": "Preserve FAIL and existing ARIA/error/receipt evidence, state the observed boundary and stop; no blind harness edit/retry.",
+    "s1_closed": false,
+    "causal_product_fix_claim": false
+  },
+  "files_created_or_modified": {
+    "created": ["/home/kali/.hermes/cache/scratch/s1-env-20261104/run-evidence/main-qa/ui-attempt-two/preflight-counter-review.json"],
+    "repository_edits": [],
+    "original_evidence_edits": [],
+    "index_changes": [],
+    "commits": []
+  },
+  "limits": [
+    "The counter proves exactly one matching POST observed at this checkpoint, not absence of all later duplicates.",
+    "SOURCE/synthetic selfcheck is not browser/API/PG or installed/live acceptance; no production causal diagnosis.",
+    "No UI/PG/services/network/model/target/installed/live launch, fixtures, operator or protected-file changes; no SRC532 or broader suite repeated.",
+    "No visual, runtime accessibility or cleanup-inventory certification. Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO; neither executed.",
+    "Main checkout and candidate worktree have distinct CURRENT snapshots; no status document was edited or used to infer S1 closure. Parent owns recovery reconciliation."
+  ]
+}

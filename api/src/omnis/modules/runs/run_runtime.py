@@ -6,6 +6,7 @@ from collections.abc import AsyncIterator
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from dataclasses import asdict
 from datetime import UTC, datetime, timedelta
+from typing import Literal
 from uuid import uuid4
 
 from sqlalchemy import text
@@ -766,73 +767,15 @@ class AgentRunOwner:
                 attempt: Attempt = attempt,
                 snapshot: Setup = snapshot,
             ) -> str:
-                async with self.settings.lock:
-                    async with self.service.admission(
-                        scope.generation, self.settings.owner, self.settings.epoch
-                    ) as db:
-                        current = await store.run(db, self.instance, identity)
-                        self.require_owned(current)
-                        owned = await store.attempt(db, current, attempt.attempt_id)
-                        if (
-                            current.fence != scope.cancel_epoch
-                            or current.active_attempt_id != attempt.attempt_id
-                            or owned.read_receipt_ref is not None
-                            or name != "read_context"
-                            or decode(arguments.encode()) != {}
-                        ):
-                            raise SendDenied("TOOL_AUTHORITY_DENIED")
-                        context = await records.resolve(
-                            db, self.instance, snapshot.context_ref, "run-context-v1"
-                        )
-                        await check_data(context)
-                        await store.event(
-                            db, current, "tool_called", "read_context", actor=owned, call_id=call_id
-                        )
-                        ref = await records.put(
-                            db,
-                            self.instance,
-                            "run-tool-result-v1",
-                            {
-                                "run_id": identity,
-                                "task_id": owned.task_id,
-                                "attempt_id": owned.attempt_id,
-                                "call_id": call_id,
-                                "context_ref": snapshot.context_ref.model_dump(mode="json"),
-                                "context": context,
-                            },
-                        )
-                        output = json.dumps(
-                            {"ref": ref.model_dump(mode="json"), "context": context},
-                            ensure_ascii=False,
-                            separators=(",", ":"),
-                        )
-                        await store.save_attempt(
-                            db,
-                            owned.model_copy(
-                                update={
-                                    "read_receipt_ref": ref,
-                                    "call_id": call_id,
-                                    "tool_arguments": arguments,
-                                    "tool_output": output,
-                                }
-                            ),
-                        )
-                        cursor = await store.event(
-                            db,
-                            current,
-                            "tool_result",
-                            "Selected inert context read",
-                            actor=owned,
-                            refs=[ref],
-                            call_id=call_id,
-                        )
-                        await store.save_run(
-                            db,
-                            current.model_copy(
-                                update={"through_cursor": cursor, "revision": current.revision + 1}
-                            ),
-                        )
-                return output
+                return await self.execute_tool(
+                    identity,
+                    scope,
+                    attempt.attempt_id,
+                    snapshot,
+                    name,
+                    arguments,
+                    call_id,
+                )
 
             reason = None
             result = None
@@ -881,6 +824,109 @@ class AgentRunOwner:
             if cancelled or not again:
                 return
 
+    async def execute_tool(
+        self,
+        identity: str,
+        scope: Scope,
+        attempt_id: str,
+        snapshot: Setup,
+        name: str,
+        arguments: str,
+        call_id: str,
+    ) -> str:
+        async with self.settings.lock:
+            async with self.service.admission(
+                scope.generation, self.settings.owner, self.settings.epoch
+            ) as db:
+                current = await store.run(db, self.instance, identity)
+                self.require_owned(current)
+                owned = await store.attempt(db, current, attempt_id)
+                if (
+                    current.fence != scope.cancel_epoch
+                    or current.active_attempt_id != attempt_id
+                    or owned.state != "RUNNING"
+                    or owned.role != "RECON"
+                    or name not in {"read_context", "finish"}
+                    or datetime.fromisoformat(scope.deadline) <= datetime.now(UTC)
+                ):
+                    raise SendDenied("TOOL_AUTHORITY_DENIED")
+                if name == "finish":
+                    if len(arguments.encode()) > 8192:
+                        raise SendDenied("TOOL_ARGUMENTS_DENIED")
+                    final = WorkerFinal.model_validate(decode(arguments.encode()))
+                    await self.check_data(
+                        final.model_dump(mode="json"), await self.data_connections(db, snapshot)
+                    )
+                    await store.event(
+                        db, current, "tool_called", "finish", actor=owned, call_id=call_id
+                    )
+                    await self.complete(
+                        db, current, owned, arguments, None, completion="finish", call_id=call_id
+                    )
+                    retained = await store.attempt(db, current, attempt_id)
+                    if retained.result_ref is None or retained.state == "RUNNING":
+                        raise SendDenied("FINALIZATION_DENIED")
+                    return json.dumps(
+                        {
+                            "result_ref": retained.result_ref.model_dump(mode="json"),
+                            "state": retained.state,
+                        }
+                    )
+                if owned.read_receipt_ref is not None or decode(arguments.encode()) != {}:
+                    raise SendDenied("TOOL_AUTHORITY_DENIED")
+                context = await records.resolve(
+                    db, self.instance, snapshot.context_ref, "run-context-v1"
+                )
+                await self.check_data(context, await self.data_connections(db, snapshot))
+                await store.event(
+                    db, current, "tool_called", "read_context", actor=owned, call_id=call_id
+                )
+                ref = await records.put(
+                    db,
+                    self.instance,
+                    "run-tool-result-v1",
+                    {
+                        "run_id": identity,
+                        "task_id": owned.task_id,
+                        "attempt_id": owned.attempt_id,
+                        "call_id": call_id,
+                        "context_ref": snapshot.context_ref.model_dump(mode="json"),
+                        "context": context,
+                    },
+                )
+                output = json.dumps(
+                    {"ref": ref.model_dump(mode="json"), "context": context},
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                )
+                await store.save_attempt(
+                    db,
+                    owned.model_copy(
+                        update={
+                            "read_receipt_ref": ref,
+                            "call_id": call_id,
+                            "tool_arguments": arguments,
+                            "tool_output": output,
+                        }
+                    ),
+                )
+                cursor = await store.event(
+                    db,
+                    current,
+                    "tool_result",
+                    "Selected inert context read",
+                    actor=owned,
+                    refs=[ref],
+                    call_id=call_id,
+                )
+                await store.save_run(
+                    db,
+                    current.model_copy(
+                        update={"through_cursor": cursor, "revision": current.revision + 1}
+                    ),
+                )
+        return output
+
     async def finish_step(
         self,
         db: AsyncConnection,
@@ -916,6 +962,28 @@ class AgentRunOwner:
         )
         if isinstance(settled, str):
             await store.dispatch_event(db, self.instance, scope.id, settled)
+        if result is not None and result.kind == "finish":
+            if (
+                owned.result_ref is None
+                or owned.state == "RUNNING"
+                or decode(result.text.encode())
+                != {
+                    "result_ref": owned.result_ref.model_dump(mode="json"),
+                    "state": owned.state,
+                }
+            ):
+                raise SendDenied("FINALIZATION_DENIED")
+            # The tool already committed TxA; settle only the dispatch, never finalize twice.
+            return (
+                bool(settled)
+                and admitted
+                and not self.closing
+                and not self.draining
+                and current.state == "RUNNING"
+                and current.fence == scope.cancel_epoch
+                and current.owner_id == str(self.settings.owner)
+                and current.owner_epoch == self.settings.epoch
+            )
         if not authorized:
             if result is not None:
                 await records.put(
@@ -958,6 +1026,9 @@ class AgentRunOwner:
         attempt: Attempt,
         output: str | None,
         reason: str | None,
+        *,
+        completion: Literal["direct", "finish"] = "direct",
+        call_id: str | None = None,
     ) -> None:
         if attempt.state != "RUNNING":
             return
@@ -1026,7 +1097,7 @@ class AgentRunOwner:
                 db, run, "decision", decision.summary, actor=attempt, refs=[reference]
             )
         else:
-            kind = "cancel" if reason == "CANCELLED" else "error" if reason else "direct"
+            kind = "cancel" if reason == "CANCELLED" else "error" if reason else completion
             final = (
                 WorkerFinal.model_validate_json(output)
                 if output is not None and reason is None
@@ -1063,6 +1134,7 @@ class AgentRunOwner:
                 "task_id": attempt.task_id,
                 "attempt_id": attempt.attempt_id,
                 "state": state,
+                "completion_kind": kind,
                 "summary": final.summary if final else reason,
                 "consumed_refs": [r.model_dump(mode="json") for r in final.consumed_refs]
                 if final
@@ -1105,6 +1177,7 @@ class AgentRunOwner:
                 final.summary if final else reason or "Incomplete",
                 actor=attempt,
                 refs=[reference],
+                call_id=call_id,
             )
         await store.save_run(
             db, run.model_copy(update={"revision": run.revision + 1, "through_cursor": cursor})

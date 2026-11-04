@@ -223,6 +223,8 @@ async def test_stale_revision_cannot_stop_or_write_receipt(owned: Owned) -> None
     "exit_kind, expected",
     [
         ("direct", "SUCCEEDED"),
+        ("finish", "SUCCEEDED"),
+        ("finish_incomplete", "INCONCLUSIVE"),
         ("incomplete", "INCONCLUSIVE"),
         ("error", "FAILED"),
         ("cancel", "CANCELLED"),
@@ -255,7 +257,7 @@ async def test_actual_owner_finalization_persists_before_continuation(
         instructions="Inert",
         configured_model="fixture/recon",
         skill_refs=[],
-        read_receipt_ref=None if exit_kind == "incomplete" else reference,
+        read_receipt_ref=None if exit_kind in {"incomplete", "finish_incomplete"} else reference,
         correction_count=1,
     )
     saved: list[Attempt] = []
@@ -307,7 +309,20 @@ async def test_actual_owner_finalization_persists_before_continuation(
         output = BrainDecision(
             action="finish", summary="Read result", detail="S1 only", consumed_refs=[reference]
         ).model_dump_json()
-    await owned.owner.complete(object.__new__(AsyncConnection), owned.run, actor, output, reason)
+    if exit_kind.startswith("finish"):
+        await owned.owner.complete(
+            object.__new__(AsyncConnection),
+            owned.run,
+            actor,
+            output,
+            reason,
+            completion="finish",
+            call_id="finish-1",
+        )
+    else:
+        await owned.owner.complete(
+            object.__new__(AsyncConnection), owned.run, actor, output, reason
+        )
     assert len(saved) == 1 and saved[0].state == expected
     assert "new_attempt" not in owned.writes and "spawn" not in owned.writes
     if exit_kind == "brain_finish":

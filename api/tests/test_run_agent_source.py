@@ -69,6 +69,7 @@ def test_answer_bounds_the_complete_command() -> None:
     "mode",
     [
         "read",
+        "finish",
         "multiple",
         "foreign_tool",
         "overflow",
@@ -107,7 +108,15 @@ async def test_owned_sdk_step_stops_after_persisted_tool(
         monkeypatch.setenv("OPENAI_CUSTOM_HEADERS", "X-Unadmitted: sentinel")
 
     async def persist(name: str, arguments: str, call_id: str) -> str:
-        assert name == "read_context" and json.loads(arguments) == {} and call_id == "read-1"
+        if mode == "finish":
+            assert name == "finish" and json.loads(arguments) == {
+                "summary": "Inert complete",
+                "consumed_refs": [],
+                "gaps": [],
+            }
+        else:
+            assert name == "read_context" and json.loads(arguments) == {}
+        assert call_id == "read-1"
         receipts.append(call_id)
         return '{"context":"selected synthetic inert input","receipt":"persisted"}'
 
@@ -127,6 +136,17 @@ async def test_owned_sdk_step_stops_after_persisted_tool(
                 "type": "function",
                 "function": {"name": "read_context", "arguments": "{}"},
             }
+            if mode == "finish":
+                tool["function"] = {
+                    "name": "finish",
+                    "arguments": json.dumps(
+                        {
+                            "summary": "Inert complete",
+                            "consumed_refs": [],
+                            "gaps": [],
+                        }
+                    ),
+                }
             if mode == "foreign_tool":
                 tool["function"] = {"name": "shell", "arguments": "{}"}
             if mode == "whitespace_arguments":
@@ -224,7 +244,10 @@ async def test_owned_sdk_step_stops_after_persisted_tool(
             assert len(sent_calls) == len(calls)
         else:
             result = await bridge.run(step, "synthetic-not-a-key", guard, persist, observed, sent)
-            assert result.kind == "tool" and result.call_id == "read-1"
+            assert (
+                result.kind == ("finish" if mode == "finish" else "tool")
+                and result.call_id == "read-1"
+            )
             assert receipts == ["read-1"] and len(calls) == 1
         assert CURRENT.get(None) is None
         if mode == "exact_32768":

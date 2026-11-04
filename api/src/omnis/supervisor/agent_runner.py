@@ -20,7 +20,7 @@ from agents.exceptions import AgentsException
 from agents.items import TResponseInputItem
 from agents.retry import ModelRetrySettings
 from openai import APIError, APIStatusError, AsyncOpenAI, Omit
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 
 from omnis.modules.runs.model_test_contract import ENDPOINTS
 from omnis.modules.runs.model_test_store import digest
@@ -37,6 +37,7 @@ READ_SCHEMA: dict[str, object] = {
     "required": [],
     "additionalProperties": False,
 }
+FINISH_DESCRIPTION = "Finish this inert Recon task through the owner completion gate. Cite stored read refs and report gaps."
 ROUTING = {"allow_fallbacks": False, "require_parameters": True}
 
 
@@ -53,6 +54,24 @@ class Exchange(KeyDTO):
         return value
 
 
+class ToolCall(KeyDTO):
+    name: Literal["read_context", "finish"]
+    call_id: str = Field(min_length=1, max_length=128)
+    arguments: str = Field(min_length=2, max_length=8192)
+
+    @model_validator(mode="after")
+    def valid_arguments(self) -> "ToolCall":
+        if len(self.arguments.encode()) > 8192:
+            raise ValueError("TOOL_ARGUMENTS_DENIED")
+        value = decode(self.arguments.encode())
+        if self.name == "read_context":
+            if value != {} or len(self.arguments) > 128:
+                raise ValueError("TOOL_ARGUMENTS_DENIED")
+        else:
+            WorkerFinal.model_validate(value)
+        return self
+
+
 class StepInput(KeyDTO):
     role: Literal["BRAIN", "RECON"]
     model: str = Field(min_length=1, max_length=256)
@@ -64,7 +83,7 @@ class StepInput(KeyDTO):
 
 
 class StepResult(KeyDTO):
-    kind: Literal["tool", "final"]
+    kind: Literal["tool", "final", "finish"]
     text: str
     call_id: str | None
     arguments: str | None
@@ -149,7 +168,16 @@ class AgentStep:
                         "parameters": READ_SCHEMA,
                         "strict": True,
                     },
-                }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "finish",
+                        "description": FINISH_DESCRIPTION,
+                        "parameters": AgentOutputSchema(WorkerFinal).json_schema(),
+                        "strict": True,
+                    },
+                },
             ]
         body["response_format"] = {
             "type": "json_schema",
@@ -195,7 +223,7 @@ class AgentStep:
         for exchange in step.history:
             await checked_text(exchange.result)
         parent = self
-        call: Exchange | None = None
+        call: ToolCall | None = None
         tool_result: str | None = None
         requests = 0
 
@@ -281,8 +309,8 @@ class AgentStep:
                                 function = item["function"]
                                 if (
                                     item.get("type") != "function"
-                                    or function.get("name") != "read_context"
-                                    or step.history
+                                    or function.get("name") not in {"read_context", "finish"}
+                                    or (function.get("name") == "read_context" and step.history)
                                 ):
                                     raise SendDenied("TOOL_LIST_DENIED")
                                 call_id = item.get("id")
@@ -291,7 +319,13 @@ class AgentStep:
                                 arguments = function.get("arguments")
                                 if not isinstance(arguments, str):
                                     raise SendDenied("TOOL_LIST_DENIED")
-                                call = Exchange(call_id=call_id, arguments=arguments, result="")
+                                call = ToolCall.model_validate(
+                                    {
+                                        "name": function["name"],
+                                        "call_id": call_id,
+                                        "arguments": arguments,
+                                    }
+                                )
                             parsed = {
                                 key: parsed[key]
                                 for key in ("id", "object", "created", "model")
@@ -328,7 +362,7 @@ class AgentStep:
             nonlocal tool_result
             if call is None or arguments != call.arguments or tool_result is not None:
                 raise SendDenied("TOOL_AUTHORITY_DENIED")
-            tool_result = await tool("read_context", arguments, call.call_id)
+            tool_result = await tool(call.name, arguments, call.call_id)
             await checked_text(tool_result)
             return tool_result
 
@@ -388,7 +422,13 @@ class AgentStep:
                                 description=READ_DESCRIPTION,
                                 params_json_schema=READ_SCHEMA,
                                 on_invoke_tool=invoke,
-                            )
+                            ),
+                            FunctionTool(
+                                name="finish",
+                                description=FINISH_DESCRIPTION,
+                                params_json_schema=AgentOutputSchema(WorkerFinal).json_schema(),
+                                on_invoke_tool=invoke,
+                            ),
                         ]
                         if step.role == "RECON"
                         else [],
@@ -408,7 +448,10 @@ class AgentStep:
                     )
             if call is not None and tool_result is not None:
                 return StepResult(
-                    kind="tool", text=tool_result, call_id=call.call_id, arguments=call.arguments
+                    kind="finish" if call.name == "finish" else "tool",
+                    text=tool_result,
+                    call_id=call.call_id,
+                    arguments=call.arguments,
                 )
             output: object = result.final_output
             if isinstance(output, (BrainDecision, WorkerFinal)):

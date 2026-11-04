@@ -1,0 +1,94 @@
+{
+  "review_id": "R1-RELEASE-S0-V2",
+  "role": "Independent read-only requirement/order/history/caller and exact-identity review",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "integration_status": "FROZEN_DEVELOPER_CANDIDATE_NOT_INTEGRATED",
+  "findings": [],
+  "snapshot": {
+    "worktree": "/home/kali/.hermes/cache/scratch/t2web-me7ugrx1/release-fix",
+    "base": "828b6fdac384992251282516798745ee1129a188",
+    "freeze": "finalfreeze-v2.json",
+    "freeze_sha256": "76f52e82b3301415f5a9ba9c421f4fc4b4b8796cf324341a61bcdf1c6815451a",
+    "files": {
+      "cli/src/omnis_cli/release.py": {
+        "sha256": "53ac504eefee022be544351fa575d8963b3ffff8a6caed012d3fa1be7ec4c4e2",
+        "git_blob": "d2dff09dedae9477e9091dba5fa3c0dce4f18704"
+      },
+      "cli/tests/test_provider_settings_profile.py": {
+        "sha256": "a084be1046013307254e23280ee377a6e362cc7ea26c58a5b69ca387c159f9d8",
+        "git_blob": "b0e6c70d7174df0e64fc94ee2529375396eb9b6f"
+      }
+    },
+    "candidate_patch_sha256": "f08824106c4ff79c410fe0e44834085781c391ef1778f4883abb0f37a51f8cf5",
+    "cli_wheel_sha256": "f7cc79f11ab40748ab70dae3eac945d4a2e0b08fb765ef69294550aa6a67e637",
+    "bundle_manifest_sha256": "7127e3f1695dfb3a26c01dac74d91dc6474beff3c993168ba296604f7ea77b3d"
+  },
+  "admission": {
+    "requirement": "Repair the demonstrated S0 producer rejection while retaining exact legacy T1 closure and immutable release identity; no runtime or operator rollout work.",
+    "consumer": "ops/build_control_bundle.py -> omnis_cli.release._manifest, shared by install, image/compose, start, Stop and upgrade readers.",
+    "risk": "Accepting mixed or inexact dependency closures, rejecting supported historical bundles, or allowing changed bytes to replace an installed same-version release.",
+    "decision": "No R1 blocking finding on the exact v2 candidate. Parent may proceed to separately admitted real release QA after the complementary review approves these same bytes.",
+    "prior_harness_only_counter": 2,
+    "counter_disposition": "UNCHANGED; this is a demonstrated production compatibility repair, not a reset or another harness-only repair."
+  },
+  "requirements_review": [
+    {
+      "criterion": "S0 pair admitted only at current T1 release; supported historical closure remains readable",
+      "code": "cli/src/omnis_cli/release.py:71-87,142-201",
+      "assessment": "The existing release/schema/profile allowlist is unchanged. Common exact pins remain cryptography==50.0.1, httpx==0.28.1 and httpcore==1.0.9. Exact openai==2.24.0 without agents remains valid at all three supported T1 release/schema pairs. Exact openai==2.45.0 plus openai-agents==0.19.0 is admitted only at 0.1.1. Format 1/2 historical branches are unchanged.",
+      "evidence": "cli/tests/test_provider_settings_profile.py:339-399; source-v2.json; installed-consumers-v2.json; actual API wheel METADATA readback"
+    },
+    {
+      "criterion": "Retain the trust boundary rather than replace the old pin with a permissive match",
+      "code": "cli/src/omnis_cli/release.py:103-137,143-215",
+      "assessment": "Required modules, schema conditions, file set, payload hashes, aggregate/file bounds and standalone CLI checks remain. API METADATA is a unique member capped at 32768 bytes; parser defects and non-string requirements are refused. Core aliases are recognized for refusal, not normalized for acceptance; duplicate, mixed, extra-qualified and nonexact core requirements cannot match either accepted set.",
+      "evidence": "cli/tests/test_provider_settings_profile.py:364-465; preserved negative controls and real-builder-readback-and-negative-v2.json"
+    },
+    {
+      "criterion": "Immutable same-version installations and historical reader identities",
+      "code": "cli/src/omnis_cli/release.py:291-323,350-411",
+      "assessment": "Validation still precedes installation effects. Existing manifest and payload bytes must equal the supplied bundle; no same-version replacement or pointer rewrite was introduced. Fresh installation and identical repeat installation remain distinct from operator upgrade. A version bump is not required for this S0-only parser compatibility repair; this approval does not make a changed 0.1.1 bundle installable over an existing different 0.1.1.",
+      "evidence": "cli/tests/test_provider_settings_profile.py:411-423; installed-consumers-v2.json"
+    },
+    {
+      "criterion": "Repair the shared production consumer with the smallest complete source change",
+      "code": "ops/build_control_bundle.py:54-97,172-194; cli/src/omnis_cli/compose.py:353-396; cli/src/omnis_cli/start_runtime.py:223-244; cli/src/omnis_cli/stop_owner.py:115-143; cli/src/omnis_cli/upgrade.py:270-342",
+      "assessment": "All affected paths consume the shared manifest validator and unchanged return shape. Builder validation remains before atomic publication with stage cleanup. Image, start and Stop readers continue binding receipts to the raw manifest digest. Upgrade retains its explicit old-release/schema admission, backup/restore ordering and separate activation path. No caller edits, new dependency, generic metadata framework or new runtime behavior are needed for the demonstrated failure.",
+      "evidence": "Parent bundle-refusal.json identifies the actual builder -> _manifest failure. real-builder-v2.json records BUNDLE_READY exit0 with the rebuilt installed CLI; missing-agents negative records the exact ReleaseError and absent output/stages. Caller review was static, not a fresh lifecycle execution."
+    }
+  ],
+  "prior_findings": [
+    {
+      "id": "PARENT-RELEASE-F01",
+      "disposition": "CLOSED_SOURCE_SCOPED_ON_V2",
+      "location": "cli/src/omnis_cli/release.py:174-177",
+      "reproducer": "Raw non-ASCII Requires-Dist values cafe-with-accent==1 and openai==2.45.0 followed by an accented character produce email.header.Header rather than str under BytesParser compat32; the former unchecked lstrip raised AttributeError.",
+      "criterion": "Malformed release metadata must fail through the explicit ReleaseError boundary before publication or installation.",
+      "minimal_remedy_reviewed": "The two-line isinstance guard raises the existing ReleaseError before lstrip. No coercion, ignored requirement or acceptance relaxation.",
+      "evidence": "red-parent-f01-v2.json: two exact Header AttributeError errors, exit1, original installed candidate. source-v2.json: both regressions pass within 10 tests, exit0. installed-consumers-v2.json: both pass within 92 tests, exit0, rebuilt installed v2. Test cases at cli/tests/test_provider_settings_profile.py:401-409.",
+      "limit": "R1 inspected retained RED/GREEN evidence and final code; no test was executed by this read-only review. Parent adjudication remains separate."
+    }
+  ],
+  "independent_readonly_verification": {
+    "git": "HEAD/status read at entry and before report; only the two assigned files remain modified. git diff --check exit0. Full working git diff --binary equals candidate-v2.patch byte-for-byte.",
+    "hashes": "Recomputed both source SHA256 and Git blob identities, every artifact and evidence SHA256 listed in finalfreeze-v2.json; all matched. Freeze and source identities were checked again before report.",
+    "distribution": "Read ZIP contents without importing product modules: all 29 CLI source/wheel/private-installed Python modules match byte-for-byte; CLI METADATA has no Requires-Dist. All 10 bundle payload SHA256 values match release.json. Actual API wheel METADATA contains the exact reviewed S0 core pair and common pins.",
+    "test_receipt_counts": "Parsed retained output programmatically: RED declared/enumerated 2/2 exit1; source declared/enumerated 10/10 exit0; installed declared/enumerated 92/92 exit0. Installed tests include synthetic fixtures/doubles and do not certify a live image or operator lifecycle.",
+    "developer_evidence": "Read exact commands/cwd/output/exit from source-v2.json, installed-consumers-v2.json, red-parent-f01-v2.json, artifact-binding-v2.json, quality-v2.json, real-builder-v2.json and real-builder-readback-and-negative-v2.json. Builder positive is the real producer, not a synthetic success label; negative is the real API wheel with only the agents requirement removed and is explicitly never installed."
+  },
+  "limits": {
+    "qa": "INDEPENDENT_REAL_RELEASE_QA_PENDING; no runtime PASS or S0 closure from this review",
+    "s1": "NOT_STARTED_NOT_ADMITTED",
+    "operator_rollout": "NOT_RUN_NOT_AUTHORIZED",
+    "dependencies": "No re-audit of the separately reviewed SDK dependency prerequisite 9ec3587",
+    "effects": "No tests, DB, browser, provider/target/network, install, commit or push executed; no protected main checkout, original HTML or credential read",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO",
+    "status": "T1 historical acceptance is retained at its scope; S0 remains partial pending parent review/QA/integration decisions."
+  },
+  "files_created": [
+    "/home/kali/.hermes/cache/scratch/t2web-me7ugrx1/release-fix-evidence/review-r1-v2.json"
+  ],
+  "product_files_modified_by_reviewer": [],
+  "issues_encountered": []
+}

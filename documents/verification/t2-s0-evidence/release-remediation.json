@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "status": "PRODUCT_FIX_ACCEPTED_SCOPED_PENDING_FULL_S0_GATE",
+  "commit": "a8462197a010bd1c9d6955e457c438ccc5872f68",
+  "cause": "The real bundle builder rejected the S0 API wheel because the shared CLI release validator admitted only openai==2.24.0. Parent reproduced ReleaseError: Provider Settings production closure required at build_bundle -> _manifest, before publication or operator installation.",
+  "remedy": "Retain the exact historical T1 closure; additionally admit openai==2.45.0 with openai-agents==0.19.0 only for release0.1.1. Keep common crypto/httpx/httpcore pins, required modules, checksum/file limits and same-version immutable installation conflict. Bound and disambiguate METADATA; malformed Header inputs receive ReleaseError.",
+  "reviews": ["release-review-r1-v2.json", "release-review-r2-v2.json"],
+  "prior_finding": {"id": "PARENT-RELEASE-F01", "disposition": "CLOSED_SCOPED", "evidence": "Original installed-candidate RED2 Header AttributeError failures; non-str guard and two regressions GREEN on the exact final wheel, reviewed independently."},
+  "developer_evidence": {"source_tests": 10, "installed_consumer_tests": 92, "source_wheel_installed_equal_modules": 29, "quality_exit": 0, "real_builder": "BUNDLE_READY exit0; exact10payload readback and missing-agents refusal/no publication"},
+  "parent_release_qa": {
+    "before_process": "proc_c690dd77f14c",
+    "before_exit": 2,
+    "after_process": "proc_f5b6f9e2cbe7",
+    "after_exit": 0,
+    "cwd": "/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/checkout",
+    "command": "env -i PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin:/home/kali/.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/bin HOME=/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/home TMPDIR=/home/kali/.hermes/cache/scratch/s0g-wnyxj_1x NPM_CONFIG_UPDATE_NOTIFIER=false make --no-print-directory check-release-install UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+    "cli_wheel_tests": {"passed": 444, "seconds": 111.940},
+    "release_cases": {"run": 83, "skipped": 3, "failures": 0, "seconds": 19.791},
+    "tracked_files_checked": 2345,
+    "tracked_drift": [],
+    "operator_public_assets_checked": 7,
+    "operator_public_asset_drift": []
+  },
+  "unchanged_api_browser_evidence": {
+    "snapshot": "90eb7041fb928098f35aa2916f77772b2b1e1dfa",
+    "process": "proc_9fe023aed872",
+    "target": "test-e2e",
+    "exit": 0,
+    "family_drained": true,
+    "models": {"passed": 1, "seconds": 95.02},
+    "remove": {"passed": 1, "seconds": 68.99},
+    "other_e2e": {"passed": 10, "seconds": 118.32},
+    "reuse_scope": "API/web/source and their exercised paths are unchanged by the subsequent CLI manifest-validator repair; this is not proof of that changed release parser.",
+    "tracked_files_checked": 2344,
+    "tracked_drift": [],
+    "operator_assets_unchanged": 7,
+    "container_id": "71dfd7ac5f0fcf80f5a367fb703a11410eb8b528b7677e53e9ea6d7f3c938edd",
+    "project": "omnis-p01-379a447f23c04bf68209122849032224",
+    "fixture_root": "/home/kali/.hermes/cache/scratch/s0g-wnyxj_1x/db-9bd72ace65c341b8",
+    "container_network_socket_absent": true,
+    "synthetic_data_retained": true
+  },
+  "web_dependency_audit": {"exit": 0, "vulnerabilities": 0, "scope": "Pinned isolated frontend including development dependencies; public advisory lookup, not provider/target traffic"},
+  "originals": {"archive": "release-remediation-originals.tar.gz", "sha256": "0fe8b6776ffc408203038217c0758fcbe4871593be56db587a9a05e78908c74b", "members": 50, "verification": "Selected original receipts/output/patches read back byte-exact; environments, caches, credentials and data trees excluded."},
+  "limits": [
+    "The full final S0 gate is separately running as proc_b285e2f0f6c1 on a846219; no result is inferred here.",
+    "Historical web failures remain UNKNOWN/NOT_REPRODUCED; no frontend fix, deadline/worker change or test weakening was made.",
+    "Prior harness-only counter2 remains; this repair addresses a demonstrated production release compatibility defect, not another harness-only cycle.",
+    "No operator install/upgrade/environment synchronization, provider/target inference, S1 or push. Same-version different-digest installation remains refused.",
+    "Retained scratch PGDATA is not a certified backup or indefinite retention guarantee."
+  ]
+}

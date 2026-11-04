@@ -1,0 +1,69 @@
+{
+  "reviewer": "R2 independent safety/bounds review",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "S0 release metadata remedy only; exact frozen candidate, not integration, operator installation or runtime acceptance",
+  "base": "828b6fdac384992251282516798745ee1129a188",
+  "freeze": "/home/kali/.hermes/cache/scratch/t2web-me7ugrx1/release-fix-evidence/finalfreeze-v2.json",
+  "files": {
+    "cli/src/omnis_cli/release.py": "53ac504eefee022be544351fa575d8963b3ffff8a6caed012d3fa1be7ec4c4e2",
+    "cli/tests/test_provider_settings_profile.py": "a084be1046013307254e23280ee377a6e362cc7ea26c58a5b69ca387c159f9d8"
+  },
+  "candidate_patch_sha256": "f08824106c4ff79c410fe0e44834085781c391ef1778f4883abb0f37a51f8cf5",
+  "findings": [],
+  "prior_finding": {
+    "id": "PARENT-RELEASE-F01",
+    "disposition": "CLOSED_SCOPED_ON_V2",
+    "location": "cli/src/omnis_cli/release.py:174-179",
+    "reproducer": "Exact S0 requirements plus either café==1 or openai==2.45.0é in API METADATA",
+    "observation": "Both now raise ReleaseError: Provider Settings production closure required before lstrip; neither leaks Header AttributeError.",
+    "evidence": "Read original red-parent-f01-v2.json (2 errors, exit1), source-v2.json (10 tests, exit0), installed-consumers-v2.json (92 tests, exit0); independently exercised the exact AST metadata block in memory."
+  },
+  "reviewed_criteria": [
+    {
+      "criterion": "Only two exact core dependency closures; S0 restricted to release 0.1.1",
+      "location": "cli/src/omnis_cli/release.py:177-199",
+      "result": "Approved scoped. Core aliases are recognized for refusal without normalizing accepted values. Duplicate, mixed, wrong-version, extra-bearing and conditional core entries cannot equal an allowed set. No generic version fallback."
+    },
+    {
+      "criterion": "Metadata boundary is bounded and rejects parser ambiguity relevant to core pins",
+      "location": "cli/src/omnis_cli/release.py:164-201",
+      "result": "Approved scoped. Unique expected metadata archive member, 32768-byte cap, message defects, empty/unrecognizable names and non-string Header values are rejected. No universal parser for unrelated dependency grammar is required or claimed."
+    },
+    {
+      "criterion": "Preserve legacy readers, required modules, checksums and file bounds",
+      "location": "cli/src/omnis_cli/release.py:41-163",
+      "result": "These boundaries remain unchanged. Exact legacy core closure remains supported at existing admitted release/schema combinations; new closure does not enter 0.1.0."
+    },
+    {
+      "criterion": "Never replace installed immutable release bytes on same-version digest conflict",
+      "location": "cli/src/omnis_cli/release.py:350-412; cli/tests/test_provider_settings_profile.py:411-423",
+      "result": "Conflict checks and no-replace publication remain unchanged. Existing test now explicitly covers legacy/S0 same-version rejection and preservation of installed payloads and pointer. Acceptance of both closures is not permission to overwrite the operator installation."
+    }
+  ],
+  "verification": {
+    "identity": "Verified both source SHA256 values, full patch SHA256, frozen CLI wheel SHA256, bundle manifest SHA256, every evidence_sha256 entry, and release.py source/wheel byte identity.",
+    "independent_execution": "python -I -B: compiled the exact release.py AST Try block at lines164-201 and ReleaseError definition; synthetic in-memory ZIP only, no product imports or product test runner. Eight cases agreed: three accepted closures and five ReleaseError refusals, including both F01 reproducers, old-release S0, empty requirement and malformed header defect. Exit0.",
+    "reused_evidence": [
+      "source-v2.json: 10 tests, exit0",
+      "installed-consumers-v2.json: 92 tests, exit0",
+      "quality-v2.json: Ruff check/format and strict mypy, exit0",
+      "real-builder-v2.json: BUNDLE_READY, exit0",
+      "real-builder-readback-and-negative-v2.json: 10 payloads; missing agents refused; output/stages absent",
+      "artifact-binding-v2.json: 29 source/wheel/installed module identities; dependency-free standalone CLI"
+    ],
+    "receipt_count_note": "Initial reviewer regex counted 91 single-line test results. A follow-up assertion failed; direct parsing found 92 test headers, with one unittest description printed on a separate line. This was a reviewer extraction mismatch, not a test failure or evidence discrepancy.",
+    "final_git_state": "Only the two frozen pre-existing modified paths; git diff --check clean. No source edits, commits or installations."
+  },
+  "limits": {
+    "product_tests_build_install": "NOT_RUN_BY_REVIEWER; existing exact-v2 evidence read without rerunning",
+    "PG_browser_provider_target_network_operator": "NOT_RUN",
+    "S1": "NOT_STARTED_NOT_ADMITTED",
+    "SDK_9ec3587": "Unchanged prior scoped evidence retained; not re-audited",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO",
+    "harness_only_counter": 2,
+    "integration": "Parent decision and independent real-consumer QA remain separate; no runtime PASS or global S0 closure claimed"
+  },
+  "files_created": ["review-r2-v2.json"],
+  "product_files_modified": []
+}

@@ -185,6 +185,21 @@ async def handle(runtime: "ApiKeyModelTest", command: CatalogControl) -> dict[st
                 await store.put(
                     db, runtime.instance, "catalog-request", record.model_dump(mode="json")
                 )
+                await store.relay_scope(
+                    db,
+                    {
+                        "instance_id": runtime.instance,
+                        "kind": "METADATA_COMMAND",
+                        "id": identity,
+                        "execution_owner_id": record.execution_owner_id,
+                        "generation": record.generation,
+                        "owner_epoch": record.owner_epoch,
+                        "cancel_epoch": 1,
+                        "deadline": record.deadline.isoformat(),
+                        "provider": connection.provider,
+                    },
+                    allocate=True,
+                )
             await store.command(
                 db,
                 runtime.instance,
@@ -242,12 +257,10 @@ async def refresh(runtime: "ApiKeyModelTest", request: CatalogRequest) -> None:
     except (ValueError, OSError, TimeoutError):
         reason = "METADATA_UNAVAILABLE"
     finally:
-        task = asyncio.current_task()
-        if task is not None and task.cancelling():
-            try:
-                await runtime.sender.drain()
-            except (RelayFailure, OSError, ValueError, TimeoutError):
-                runtime.settlement_failed = True
+        try:
+            await runtime.retire_relay()
+        except (RelayFailure, OSError, ValueError, TimeoutError):
+            runtime.settlement_failed = True
         if runtime.sender.transport.backend.relay.failed or runtime.settlement_failed:
             runtime.settlement_failed = True
             raise RelayFailure("RELAY_CONTROL_UNCERTAIN")

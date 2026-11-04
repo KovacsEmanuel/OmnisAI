@@ -7,6 +7,113 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from omnis.core.schema import AuthoritySpec
 
+RELAY_AUTHORITY_GUARD = """BEGIN
+    IF TG_OP = 'INSERT' THEN
+        PERFORM 1 FROM public.instance_control WHERE instance_id=NEW.instance_id FOR UPDATE;
+        IF NEW.state <> 'ACTIVE' OR NEW.operation_serial <> (
+            SELECT COALESCE(max(operation_serial),0)+1 FROM public.model_relay_authority
+            WHERE instance_id=NEW.instance_id
+        ) THEN
+            RAISE EXCEPTION 'relay serial must extend the admitted prefix';
+        END IF;
+    ELSIF OLD.state <> 'ACTIVE' OR NEW.state <> 'DRAINED'
+        OR (to_jsonb(NEW)-'state') IS DISTINCT FROM (to_jsonb(OLD)-'state') THEN
+        RAISE EXCEPTION 'original relay authority is immutable';
+    END IF;
+    RETURN NEW;
+END;"""
+
+RELAY_TABLES: dict[str, AuthoritySpec] = {
+    "model_relay_authority": (
+        {
+            "instance_id": ("uuid", True, None),
+            "kind": ("text", True, None),
+            "id": ("uuid", True, None),
+            "execution_owner_id": ("uuid", True, None),
+            "generation": ("bigint", True, None),
+            "owner_epoch": ("bigint", True, None),
+            "cancel_epoch": ("bigint", True, None),
+            "deadline": ("text", True, None),
+            "provider": ("text", True, None),
+            "operation_serial": ("bigint", True, None),
+            "state": ("text", True, None),
+        },
+        {
+            ("model_relay_authority_pkey", "p", "PRIMARY KEY (instance_id, kind, id)", True, True),
+            (
+                "model_relay_authority_instance_id_operation_serial_key",
+                "u",
+                "UNIQUE (instance_id, operation_serial)",
+                True,
+                True,
+            ),
+            (
+                "model_relay_authority_instance_id_fkey",
+                "f",
+                "FOREIGN KEY (instance_id) REFERENCES instance_control(instance_id)",
+                True,
+                True,
+            ),
+            (
+                "model_relay_authority_kind_check",
+                "c",
+                "CHECK ((kind = ANY (ARRAY['MODEL_DISPATCH'::text, 'METADATA_COMMAND'::text])))",
+                True,
+                True,
+            ),
+            (
+                "model_relay_authority_generation_check",
+                "c",
+                "CHECK ((generation >= 0))",
+                True,
+                True,
+            ),
+            (
+                "model_relay_authority_owner_epoch_check",
+                "c",
+                "CHECK ((owner_epoch > 0))",
+                True,
+                True,
+            ),
+            (
+                "model_relay_authority_cancel_epoch_check",
+                "c",
+                "CHECK ((cancel_epoch > 0))",
+                True,
+                True,
+            ),
+            (
+                "model_relay_authority_operation_serial_check",
+                "c",
+                "CHECK ((operation_serial > 0))",
+                True,
+                True,
+            ),
+            (
+                "model_relay_authority_provider_check",
+                "c",
+                "CHECK ((provider = ANY (ARRAY['openrouter'::text, 'orcarouter'::text])))",
+                True,
+                True,
+            ),
+            (
+                "model_relay_authority_state_check",
+                "c",
+                "CHECK ((state = ANY (ARRAY['ACTIVE'::text, 'DRAINED'::text])))",
+                True,
+                True,
+            ),
+            (
+                "model_relay_authority_deadline_check",
+                "c",
+                "CHECK (((length(deadline) <= 32) AND (deadline ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]{1,6})?[+]00:00$'::text) AND isfinite((deadline)::timestamp with time zone)))",
+                True,
+                True,
+            ),
+        },
+    ),
+}
+
 MODEL_TABLES: dict[str, AuthoritySpec] = {
     "model_command_v2": (
         {

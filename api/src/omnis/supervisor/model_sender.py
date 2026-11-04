@@ -422,8 +422,8 @@ class ModelSender:
                 raise RelayFailure("RELAY_CONTROL_UNCERTAIN")
 
     async def drain(self) -> None:
-        await self.transport.backend.relay.drain()
         await self.transport.aclose()
+        await self.transport.backend.relay.drain()
 
     async def close(self) -> None:
         await self.http.aclose()

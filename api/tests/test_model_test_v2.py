@@ -584,6 +584,7 @@ async def test_api_pg_sdk_protocol_and_replay(
         size: int = 0,
         timeout: float = 1,
         write_deadline: str | None = None,
+        retire_through: int | None = None,
     ) -> tuple[str, bytes]:
         if action == "OPEN" and scope.kind == "MODEL_DISPATCH":
             assert write_deadline is not None
@@ -593,7 +594,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                 physical_entered.set()
                 await asyncio.sleep(1)  # Expire local IPC/guard alone, never concurrent Cancel.
         reply = await original_rpc(
-            action, scope, connection, sequence, data, size, timeout, write_deadline
+            action, scope, connection, sequence, data, size, timeout, write_deadline, retire_through
         )
         if action == "WRITE" and scope.kind == "MODEL_DISPATCH" and reply[0] == "OK":
             assert connection is not None and write_deadline is not None
@@ -2832,7 +2833,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                     )
                     assert late_now < late_deadline <= late_now + timedelta(seconds=0.5)
                     late: dict[str, object] = {
-                        "version": 1,
+                        "version": 2,
                         "action": "WRITE",
                         "request_id": str(uuid4()),
                         "connection_id": captured_connection,
@@ -2841,6 +2842,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                         "size": len(b"post-ack-replay"),
                         "timeout_ms": 500,
                         "write_deadline": late_deadline.isoformat(),
+                        "retire_through": 0,
                         "capability": (relay_directory / "model-relay.cap").read_text(),
                     }
                     try:
@@ -2859,6 +2861,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                                     "connection_id",
                                     "scope",
                                     "sequence",
+                                    "retire_through",
                                 )
                             },
                             "status": "DENIED",

@@ -19,6 +19,17 @@ from .model_relay_protocol import HOSTS, Scope, decode, encode, utc, validate
 
 
 @dataclass
+class Operation:
+    scope: Scope
+    requests: set[str] = field(default_factory=set)
+    opened: set[str] = field(default_factory=set)
+    fenced: bool = False
+    drained: bool = False
+    sent: int = 0
+    received: int = 0
+
+
+@dataclass
 class Connection:
     scope: Scope
     sequence: int = 0
@@ -26,8 +37,6 @@ class Connection:
     socket: socket.socket | None = None
     resolver: threading.Thread | None = None
     tasks: set[asyncio.Task[None]] = field(default_factory=set)
-    sent: int = 0
-    received: int = 0
     closed: bool = False
 
     def close(self) -> None:
@@ -60,14 +69,18 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
     closing, uncertain = asyncio.Event(), asyncio.Event()
     clients: set[asyncio.Task[None]] = set()
     connections: dict[str, Connection] = {}
-    fenced: set[Scope] = set()
-    requests: set[str] = set()
+    operations: dict[int, Operation] = {}
+    retired_through: int | None = None
+    instance: str | None = None
+    data_clients: set[asyncio.Task[None]] = set()
     owner: ForwarderListener
 
     async def handle(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+        nonlocal retired_through, instance
         task = asyncio.current_task()
         assert task is not None
-        if closing.is_set() or len(clients) >= 8:
+        # Reserve parser/control capacity independently of the eight data clients.
+        if closing.is_set() or len(clients) >= 16:
             writer.transport.abort()
             return
         clients.add(task)
@@ -90,30 +103,73 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
                 scope = validate(frame)
                 if not hmac.compare_digest(str(frame["capability"]), capability):
                     raise ValueError("Model relay capability denied")
-                request = str(frame["request_id"])
-                if request in requests or len(requests) >= 16384:
-                    raise ValueError("Model relay request replay/limit")
-                requests.add(request)
                 action, identity = frame["action"], str(frame["connection_id"])
+                prefix = int(str(frame["retire_through"]))
+                control = action in ("FENCE", "DRAIN")
+                if retired_through is None:
+                    if action == "DRAIN":
+                        raise ValueError("Model relay fence required")
+                    # Only a fresh capability may bootstrap the durable owner's prefix.
+                    retired_through, instance = prefix, scope.instance_id
+                if scope.instance_id != instance:
+                    raise ValueError("Model relay instance changed")
+                if not control and (
+                    scope.operation_serial <= retired_through or prefix > retired_through
+                ):
+                    raise ValueError("Model relay retired scope")
+                operation = operations.get(scope.operation_serial)
+                if scope.operation_serial > retired_through:
+                    if operation is None:
+                        if (
+                            len(operations) >= 8
+                            or scope.operation_serial != retired_through + len(operations) + 1
+                        ):
+                            raise ValueError("Model relay operation gap/limit")
+                        operation = Operation(scope)
+                        operations[scope.operation_serial] = operation
+                    if operation.scope != scope:
+                        raise ValueError("Model relay immutable scope changed")
+                if not control:
+                    assert operation is not None
+                    if len(data_clients) >= 8:
+                        raise ValueError("Model relay client limit")
+                    data_clients.add(task)
+                    request = str(frame["request_id"])
+                    if request in operation.requests or len(operation.requests) >= 16384:
+                        raise ValueError("Model relay request replay/limit")
+                    operation.requests.add(request)
                 body = (
                     await reader.readexactly(int(str(frame["size"]))) if action == "WRITE" else b""
                 )
             if action in ("FENCE", "DRAIN"):
-                if action == "FENCE":
-                    if len(fenced) >= 3600 and scope not in fenced:
-                        raise ValueError("Model relay scope limit")
-                    fenced.add(scope)
+                if action == "FENCE" and operation is not None:
+                    operation.fenced = True
                     for item in connections.values():
                         if item.scope == scope:
                             item.close()
-                status = "OK" if scope in fenced else "DENIED"
+                status = "OK" if operation is None or operation.fenced else "DENIED"
                 if action == "DRAIN" and any(
                     item.scope == scope and item.pending() for item in connections.values()
                 ):
                     status = "BUSY"
+                if action == "DRAIN" and status == "OK" and operation is not None:
+                    operation.drained = True
+                if prefix > retired_through and status != "BUSY":
+                    retiring = [serial for serial in operations if serial <= prefix]
+                    if (
+                        action != "DRAIN"
+                        or status != "OK"
+                        or len(retiring) != prefix - retired_through
+                        or any(not operations[serial].drained for serial in retiring)
+                    ):
+                        raise ValueError("Model relay retirement gap/pending")
+                    for serial in retiring:
+                        del operations[serial]
+                    retired_through = prefix
             else:
+                assert operation is not None
                 now = datetime.now(UTC)
-                if scope in fenced or not now < utc(scope.deadline) <= now + timedelta(
+                if operation.fenced or not now < utc(scope.deadline) <= now + timedelta(
                     seconds=3600
                 ):
                     raise ValueError("Model relay scope expired/fenced")
@@ -124,7 +180,8 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
                 if action == "OPEN":
                     if (
                         identity in connections
-                        or len(connections) >= 3600
+                        or identity in operation.opened
+                        or len(operation.opened) >= 256
                         or frame["sequence"] != 0
                     ):
                         raise ValueError("Model relay connection replay/limit")
@@ -132,6 +189,7 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
                     if any(not item.closed or item.pending() for item in connections.values()):
                         raise ValueError("Model relay busy")
                     connection = Connection(scope)
+                    operation.opened.add(identity)
                     connections[identity] = connection
                     connection.tasks.add(task)
                     rows: list[AuthAddress] = []
@@ -160,7 +218,7 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
                     async with asyncio.timeout((end - datetime.now(UTC)).total_seconds()):
                         while not done.is_set():
                             await asyncio.sleep(0.01)
-                        if connection.closed or scope in fenced:
+                        if connection.closed or operation.fenced:
                             raise ValueError("Model relay fenced before connect")
                         if datetime.now(UTC) >= end:
                             raise TimeoutError("Model relay connect window expired")
@@ -171,7 +229,7 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
                         connection.socket = socket.socket(family, kind, protocol)
                         connection.socket.setblocking(False)
                         await asyncio.get_running_loop().sock_connect(connection.socket, address)
-                        if connection.closed or scope in fenced or datetime.now(UTC) >= end:
+                        if connection.closed or operation.fenced or datetime.now(UTC) >= end:
                             raise TimeoutError("Model relay connect window uncertain")
                     status = "OK"
                 else:
@@ -194,10 +252,10 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
                     if action == "WRITE":
                         if connection.socket is None:
                             raise ValueError("Model relay has no prepared upstream")
-                        if scope in fenced or connection.closed or datetime.now(UTC) >= end:
+                        if operation.fenced or connection.closed or datetime.now(UTC) >= end:
                             raise ValueError("Model relay fenced before handoff")
-                        connection.sent += len(body)
-                        if connection.sent > 4 * 1024 * 1024:
+                        operation.sent += len(body)
+                        if operation.sent > 4 * 1024 * 1024:
                             raise ValueError("Model relay write limit")
                         # One nonblocking syscall: partial/backpressure is uncertain, never resumed.
                         if connection.socket.send(body) != len(body):
@@ -215,8 +273,9 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
                             )
                         ):
                             data = await loop.sock_recv(connection.socket, int(str(frame["size"])))
-                        connection.received += len(data)
-                        if connection.received > 4 * 1024 * 1024:
+                        operation.received += len(data)
+                        limit = 32 if scope.kind == "METADATA_COMMAND" else 4
+                        if operation.received > limit * 1024 * 1024:
                             raise ValueError("Model relay read limit")
                         status = "OK"
         except (OSError, TimeoutError):
@@ -224,6 +283,7 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
             if connection is not None:
                 connection.close()
         except (ValueError, asyncio.IncompleteReadError, asyncio.CancelledError):
+            status = "DENIED"
             if (
                 connection is not None
                 and connection.scope == scope
@@ -234,14 +294,23 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
         finally:
             if connection is not None:
                 connection.tasks.discard(task)
+            for key, item in tuple(connections.items()):
+                if item.closed and not item.pending():
+                    del connections[key]
             try:
                 if frame is not None:
                     reply = {
                         k: frame.get(k)
-                        for k in ("request_id", "connection_id", "scope", "sequence")
+                        for k in (
+                            "request_id",
+                            "connection_id",
+                            "scope",
+                            "sequence",
+                            "retire_through",
+                        )
                     }
                     writer.write(
-                        encode({"version": 1, **reply, "status": status, "size": len(data)})
+                        encode({"version": 2, **reply, "status": status, "size": len(data)})
                     )
                     writer.write(data)
                     await asyncio.wait_for(writer.drain(), 0.25)
@@ -250,6 +319,7 @@ async def start_model_forwarder(directory: Path) -> ForwarderListener:
             finally:
                 writer.transport.abort()
                 clients.discard(task)
+                data_clients.discard(task)
 
     server = await asyncio.start_unix_server(handle, path, limit=4096, cleanup_socket=True)
     path.chmod(0o600)

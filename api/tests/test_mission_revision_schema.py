@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 
 from omnis.core.db import SCHEMA_REVISION
 from omnis.core.managed_schema import MANAGED_TABLES
-from omnis.core.model_schema import MODEL_TABLES
+from omnis.core.model_schema import MODEL_TABLES, RELAY_AUTHORITY_GUARD, RELAY_TABLES
 from omnis.core.provider_schema import MODEL_RETIRE_GUARD
 from omnis.core.schema import AUTHORITY_TABLES, authority_schema_matches
 
@@ -21,13 +21,14 @@ SOURCE_OIDS = {
     "managed_record": 42002,
     **{name: 42003 + index for index, name in enumerate(MODEL_TABLES)},
     "provider_model_entry": 43001,
+    "model_relay_authority": 43002,
 }
 
 
 def test_mission_revision_head_keeps_historical_chain() -> None:
     config = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
     scripts = ScriptDirectory.from_config(config)
-    assert scripts.get_current_head() == SCHEMA_REVISION == "0017_model_removal"
+    assert scripts.get_current_head() == SCHEMA_REVISION == "0018_model_relay_authority"
     revision = scripts.get_revision("0013_mission_revisions")
     assert revision is not None and revision.down_revision == "0012_contract_methods"
 
@@ -204,6 +205,42 @@ def source_catalog_connection(
             oid = SOURCE_OIDS[table]
             result.all.return_value = [(oid, "public", table, "r", "p")]
             return result
+        if parameters == {"oid": SOURCE_OIDS["model_relay_authority"]}:
+            result.all.return_value = [
+                (
+                    "model_relay_guard",
+                    23,
+                    "O",
+                    "model_relay_authority_guard",
+                    RELAY_AUTHORITY_GUARD,
+                    "plpgsql",
+                    False,
+                    0,
+                    0,
+                    True,
+                    "",
+                    "trigger",
+                    ["search_path=pg_catalog, pg_temp"],
+                    "public",
+                ),
+                (
+                    "model_relay_no_delete",
+                    42,
+                    "O",
+                    "model_v2_immutable",
+                    "BEGIN\n        RAISE EXCEPTION 'model V2 history is immutable';\n        END;",
+                    "plpgsql",
+                    False,
+                    0,
+                    0,
+                    True,
+                    "",
+                    "trigger",
+                    None,
+                    "public",
+                ),
+            ]
+            return result
         table = (
             next(name for name, oid in SOURCE_OIDS.items() if oid == parameters["relation_oid"])
             if "relation_oid" in parameters
@@ -272,10 +309,10 @@ def source_catalog_connection(
                     )
         elif "FROM pg_attribute" in query or "FROM pg_catalog.pg_attribute" in query:
             result.all.return_value = [
-                (name, *spec) for name, spec in AUTHORITY_TABLES[table][0].items()
+                (name, *spec) for name, spec in (AUTHORITY_TABLES | RELAY_TABLES)[table][0].items()
             ]
         else:
-            columns, constraints = AUTHORITY_TABLES[table]
+            columns, constraints = (AUTHORITY_TABLES | RELAY_TABLES)[table]
             required = {
                 (
                     f"{table}_{name}_not_null",
@@ -457,6 +494,7 @@ async def test_source_mission_catalog_reads_bind_one_public_physical_oid() -> No
         "public.managed_record",
         "public.provider_model_entry",
         *("public." + name for name in MODEL_TABLES),
+        "public.model_relay_authority",
     }
     for call in identities:
         query = str(call.args[0])

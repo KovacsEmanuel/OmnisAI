@@ -33,6 +33,7 @@ async def guard() -> AsyncIterator[Authority]:
             1,
             (now + timedelta(seconds=15)).isoformat(),
             "openrouter",
+            1,
         ),
         (now + timedelta(seconds=0.4)).isoformat(),
     )

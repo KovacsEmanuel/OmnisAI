@@ -12,7 +12,7 @@ from omnis.supervisor.model_relay_protocol import MAX_INT, Scope, decode, encode
 
 def frame() -> dict[str, object]:
     return {
-        "version": 1,
+        "version": 2,
         "action": "WRITE",
         "request_id": str(uuid4()),
         "connection_id": str(uuid4()),
@@ -26,12 +26,14 @@ def frame() -> dict[str, object]:
             MAX_INT,
             "9999-12-31T23:59:59.999999+00:00",
             "orcarouter",
+            MAX_INT,
         ).wire(),
         "sequence": MAX_INT,
         "size": 65536,
         "timeout_ms": 300000,
         "write_deadline": "9999-12-31T23:59:59.999999+00:00",
         "capability": "f" * 64,
+        "retire_through": MAX_INT,
     }
 
 
@@ -39,7 +41,7 @@ def test_final_wire_maxima_and_packaging_are_bounded() -> None:
     value = frame()
     raw = encode(value)
     validate(decode(raw))
-    assert len(raw) == 699 <= 4096
+    assert len(raw) == 775 <= 4096
     assert b"f" * 64 in raw
     root = Path(__file__).resolve().parents[2]
     assert (root / "api/src/omnis/supervisor/model_relay_protocol.py").read_bytes() == (
@@ -60,7 +62,10 @@ def test_effect_requires_existing_utc_authority_window(action: str, deadline: ob
     "field,value",
     [
         ("version", True),
-        ("version", 2),
+        ("version", 1),
+        ("retire_through", True),
+        ("retire_through", -1),
+        ("retire_through", MAX_INT + 1),
         ("action", "CONNECT"),
         ("sequence", MAX_INT + 1),
         ("sequence", -1),
@@ -127,7 +132,14 @@ async def test_missing_scoped_ack_prevents_quiescence(mode: str) -> None:
             if mode != "missing":
                 reply = {
                     k: request[k]
-                    for k in ("version", "request_id", "connection_id", "scope", "sequence")
+                    for k in (
+                        "version",
+                        "request_id",
+                        "connection_id",
+                        "scope",
+                        "sequence",
+                        "retire_through",
+                    )
                 }
                 if mode == "bool_version":
                     reply["version"] = True
@@ -163,6 +175,7 @@ async def test_missing_scoped_ack_prevents_quiescence(mode: str) -> None:
             1,
             (datetime.now(UTC) + timedelta(seconds=30)).isoformat(),
             "openrouter",
+            1,
         )
         relay.scopes.add(scope)
         try:

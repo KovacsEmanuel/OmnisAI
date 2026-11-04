@@ -17,6 +17,7 @@ from omnis.modules.runs.model_test_contract import (
     Snapshot,
 )
 from omnis.modules.settings.provider_vault import canonical
+from omnis.supervisor.model_relay_protocol import Scope
 
 
 class ModelConflict(ValueError):
@@ -27,6 +28,102 @@ class ModelConflict(ValueError):
 
 def digest(value: object) -> str:
     return sha256(canonical(value)).hexdigest()
+
+
+def retained_scope(row: dict[str, object]) -> Scope:
+    fields = {key: row[key] for key in Scope.__dataclass_fields__}
+    for key in ("instance_id", "id", "execution_owner_id"):
+        fields[key] = str(fields[key])
+    return Scope.parse(fields)
+
+
+async def relay_scope(
+    db: AsyncConnection, fields: dict[str, object], *, allocate: bool = False
+) -> Scope:
+    # Allocation callers already hold InstanceControl admission; guards only read.
+    if set(fields) != set(Scope.__dataclass_fields__) - {"operation_serial"}:
+        raise ModelConflict("RELAY_AUTHORITY_DENIED")
+    Scope.parse({**fields, "operation_serial": 1})
+    row = (
+        (
+            await db.execute(
+                text(
+                    "SELECT * FROM model_relay_authority WHERE instance_id=:instance_id AND kind=:kind AND id=:id"
+                ),
+                fields,
+            )
+        )
+        .mappings()
+        .one_or_none()
+    )
+    if row is not None:
+        original = retained_scope(dict(row))
+        if (
+            original.wire() != {**fields, "operation_serial": original.operation_serial}
+            or not allocate
+            and row["state"] != "ACTIVE"
+        ):
+            raise ModelConflict("RELAY_AUTHORITY_DENIED")
+        return original
+    if not allocate:
+        raise ModelConflict("RELAY_AUTHORITY_DENIED")
+    serial = (
+        await db.execute(
+            text(
+                "SELECT COALESCE(max(operation_serial),0)+1 FROM model_relay_authority WHERE instance_id=:instance_id"
+            ),
+            fields,
+        )
+    ).scalar_one()
+    scope = Scope.parse({**fields, "operation_serial": serial})
+    await db.execute(
+        text(
+            "INSERT INTO model_relay_authority ("
+            + ",".join(scope.wire())
+            + ",state) VALUES ("
+            + ",".join(":" + key for key in scope.wire())
+            + ",'ACTIVE')"
+        ),
+        scope.wire(),
+    )
+    return scope
+
+
+async def relay_pending(db: AsyncConnection, instance: str) -> tuple[int, list[Scope]]:
+    prefix = (
+        await db.execute(
+            text(
+                "SELECT COALESCE(min(operation_serial) FILTER (WHERE state='ACTIVE')-1,max(operation_serial),0) "
+                "FROM model_relay_authority WHERE instance_id=:instance"
+            ),
+            {"instance": instance},
+        )
+    ).scalar_one()
+    rows = (
+        (
+            await db.execute(
+                text(
+                    "SELECT * FROM model_relay_authority WHERE instance_id=:instance AND state='ACTIVE' ORDER BY operation_serial"
+                ),
+                {"instance": instance},
+            )
+        )
+        .mappings()
+        .all()
+    )
+    if type(prefix) is not int:
+        raise ModelConflict("RELAY_AUTHORITY_DENIED")
+    return prefix, [retained_scope(dict(row)) for row in rows]
+
+
+async def retire_relay(db: AsyncConnection, scope: Scope) -> None:
+    await db.execute(
+        text(
+            "UPDATE model_relay_authority SET state='DRAINED' WHERE instance_id=:instance_id "
+            "AND operation_serial=:operation_serial AND state='ACTIVE'"
+        ),
+        scope.wire(),
+    )
 
 
 async def put(db: AsyncConnection, instance: str, kind: str, payload: dict[str, object]) -> Ref:

@@ -65,6 +65,7 @@ class Scope:
     cancel_epoch: int
     deadline: str
     provider: str
+    operation_serial: int
 
     @classmethod
     def parse(cls, value: object) -> "Scope":
@@ -92,6 +93,7 @@ class Scope:
             integer(value["cancel_epoch"], 1, MAX_INT),
             deadline,
             provider,
+            integer(value["operation_serial"], 1, MAX_INT),
         )
 
     def wire(self) -> dict[str, object]:
@@ -118,9 +120,10 @@ def validate(value: dict[str, object]) -> Scope:
             "timeout_ms",
             "write_deadline",
             "capability",
+            "retire_through",
         }
         or type(value["version"]) is not int
-        or value["version"] != 1
+        or value["version"] != 2
     ):
         raise ValueError("Invalid relay envelope")
     action = value["action"]
@@ -133,6 +136,7 @@ def validate(value: dict[str, object]) -> Scope:
     else:
         canonical_uuid(value["connection_id"])
     integer(value["sequence"], 0, MAX_INT)
+    integer(value["retire_through"], 0, MAX_INT)
     integer(value["size"], 0, 65536)
     integer(value["timeout_ms"], 1, 300000)
     if action != "WRITE" and value["size"] != 0 and action != "READ":

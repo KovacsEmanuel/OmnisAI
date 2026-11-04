@@ -36,6 +36,7 @@ class Relay:
         self.capability: str | None = None
         self.identity: tuple[int, int] | None = None
         self.scopes: set[Scope] = set()
+        self.retired_through = 0
         self.failed = False
 
     async def rpc(
@@ -48,6 +49,7 @@ class Relay:
         size: int = 0,
         timeout: float = 1,
         write_deadline: str | None = None,
+        retire_through: int | None = None,
     ) -> tuple[str, bytes]:
         writer: asyncio.StreamWriter | None = None
         self.scopes.add(scope)
@@ -79,7 +81,7 @@ class Relay:
             if self.identity != identity:
                 raise RelayFailure("RELAY_BINDING_CHANGED")
             request: dict[str, object] = {
-                "version": 1,
+                "version": 2,
                 "action": action,
                 "request_id": str(uuid4()),
                 "connection_id": connection,
@@ -89,6 +91,9 @@ class Relay:
                 "timeout_ms": max(1, min(300000, int(timeout * 1000))),
                 "write_deadline": write_deadline,
                 "capability": self.capability,
+                "retire_through": self.retired_through
+                if retire_through is None
+                else retire_through,
             }
             async with asyncio.timeout(timeout + 0.25):
                 reader, writer = await asyncio.open_unix_connection(self.path, limit=4096)
@@ -113,14 +118,23 @@ class Relay:
                     "sequence",
                     "status",
                     "size",
+                    "retire_through",
                 }:
                     raise RelayFailure("RELAY_ACK_INVALID")
-                integer(reply["version"], 1, 1)
+                integer(reply["version"], 2, 2)
                 integer(reply["sequence"], 0, MAX_INT)
+                integer(reply["retire_through"], 0, MAX_INT)
                 Scope.parse(reply["scope"])
                 if any(
                     reply[k] != request[k]
-                    for k in ("version", "request_id", "connection_id", "scope", "sequence")
+                    for k in (
+                        "version",
+                        "request_id",
+                        "connection_id",
+                        "scope",
+                        "sequence",
+                        "retire_through",
+                    )
                 ):
                     raise RelayFailure("RELAY_ACK_STALE")
                 length = reply["size"]
@@ -146,14 +160,19 @@ class Relay:
 
     async def drain(self) -> None:
         async with asyncio.timeout(1.5):
-            for scope in tuple(self.scopes):
+            for scope in sorted(self.scopes, key=lambda scope: scope.operation_serial):
                 status, _ = await self.rpc("FENCE", scope)
                 if status != "OK":
                     raise RelayFailure("RELAY_FENCE_UNCERTAIN")
-            for scope in tuple(self.scopes):
+            for scope in sorted(self.scopes, key=lambda scope: scope.operation_serial):
                 while True:
-                    status, _ = await self.rpc("DRAIN", scope)
+                    status, _ = await self.rpc(
+                        "DRAIN",
+                        scope,
+                        retire_through=max(self.retired_through, scope.operation_serial),
+                    )
                     if status == "OK":
+                        self.retired_through = max(self.retired_through, scope.operation_serial)
                         break
                     if status != "BUSY":
                         self.failed = True

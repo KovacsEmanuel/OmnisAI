@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql.base import PGIdentifierPreparer
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from omnis.core.managed_schema import MANAGED_TABLES, MISSION_REVISION_GUARD
-from omnis.core.model_schema import MODEL_TABLES
+from omnis.core.model_schema import MODEL_TABLES, RELAY_AUTHORITY_GUARD, RELAY_TABLES
 from omnis.core.provider_schema import MODEL_RETIRE_GUARD, PROVIDER_TABLES
 
 type ColumnSpec = tuple[str, bool, str | None]
@@ -391,6 +391,7 @@ async def schema0016_matches(connection: AsyncConnection) -> bool:
 
 
 async def _authority_schema_matches(connection: AsyncConnection, *, previous: bool) -> bool:
+    relay_tables = {} if previous else RELAY_TABLES
     # Physical identity is required only for the new extension and its FK root;
     # historical authority contracts below remain unchanged. Never resolve the
     # extension again through the caller's search_path after this OID lookup.
@@ -400,6 +401,7 @@ async def _authority_schema_matches(connection: AsyncConnection, *, previous: bo
         "managed_record",
         "provider_model_entry",
         *MODEL_TABLES,
+        *relay_tables,
     ):
         identities = (
             await connection.execute(
@@ -425,7 +427,9 @@ async def _authority_schema_matches(connection: AsyncConnection, *, previous: bo
     mission_oid = physical_oids["managed_mission_revision"]
     root_oid = physical_oids["managed_record"]
     quote_identifier = PGIdentifierPreparer(connection.dialect).quote
-    for table, (expected_columns, expected_constraints) in AUTHORITY_TABLES.items():
+    for table, (expected_columns, expected_constraints) in (
+        AUTHORITY_TABLES | relay_tables
+    ).items():
         if previous and table == "provider_model_entry":
             expected_columns = {
                 key: value
@@ -446,7 +450,7 @@ async def _authority_schema_matches(connection: AsyncConnection, *, previous: bo
                 )
             }
         mission = table == "managed_mission_revision"
-        owned = mission or table in MODEL_TABLES
+        owned = mission or table in MODEL_TABLES or table in relay_tables
         catalog = "pg_catalog." if owned else ""
         relation_filter = ":relation_oid" if owned else "to_regclass(:table)"
         parameters: dict[str, str | int] = (
@@ -618,6 +622,55 @@ async def _authority_schema_matches(connection: AsyncConnection, *, previous: bo
                 )
             )
         if sorted(tuple(row) for row in immutable) != sorted(expected_immutable):
+            return False
+    if not previous:
+        relay_triggers = (
+            await connection.execute(
+                text(
+                    "SELECT t.tgname,t.tgtype,t.tgenabled,p.proname,p.prosrc,l.lanname,p.prosecdef,"
+                    "p.pronargs,t.tgnargs,t.tgqual IS NULL,t.tgattr::text,p.prorettype::regtype::text,"
+                    "p.proconfig,p.pronamespace::regnamespace::text FROM pg_catalog.pg_trigger t "
+                    "JOIN pg_catalog.pg_proc p ON p.oid=t.tgfoid "
+                    "JOIN pg_catalog.pg_language l ON l.oid=p.prolang "
+                    "WHERE t.tgrelid=:oid AND NOT t.tgisinternal ORDER BY t.tgname"
+                ),
+                {"oid": physical_oids["model_relay_authority"]},
+            )
+        ).all()
+        if [tuple(row) for row in relay_triggers] != [
+            (
+                "model_relay_guard",
+                23,
+                "O",
+                "model_relay_authority_guard",
+                RELAY_AUTHORITY_GUARD,
+                "plpgsql",
+                False,
+                0,
+                0,
+                True,
+                "",
+                "trigger",
+                ["search_path=pg_catalog, pg_temp"],
+                "public",
+            ),
+            (
+                "model_relay_no_delete",
+                42,
+                "O",
+                "model_v2_immutable",
+                "BEGIN\n        RAISE EXCEPTION 'model V2 history is immutable';\n        END;",
+                "plpgsql",
+                False,
+                0,
+                0,
+                True,
+                "",
+                "trigger",
+                None,
+                "public",
+            ),
+        ]:
             return False
     # Only the mission extension has a second guard. Preserve the exact single
     # immutable-trigger contract for every historical authority table above.

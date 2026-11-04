@@ -32,7 +32,7 @@ from omnis.modules.settings.provider_catalog_models import CatalogControl
 from omnis.modules.settings.provider_key_models import SelectionView
 from omnis.modules.settings.provider_key_service import ConnectionRevision, ProviderSettingsOwner
 from omnis.supervisor.model_relay import RelayFailure
-from omnis.supervisor.model_relay_protocol import Authority, Scope
+from omnis.supervisor.model_relay_protocol import Authority
 from omnis.supervisor.model_sender import ModelSender, Reply, SendDenied
 
 
@@ -68,56 +68,47 @@ class ApiKeyModelTest:
             if pending:
                 return False
         try:
-            await self.sender.drain()
+            await self.retire_relay()
         except (RelayFailure, OSError, ValueError, TimeoutError):
             self.settlement_failed = True
         if not self.settlement_failed:
             await self.reconcile(cancelled=True)
         return not self.settlement_failed
 
-    async def reconcile(self, *, cancelled: bool = False) -> None:
-        # Read inherited scopes without SQL locks; host drain must precede terminal reconciliation.
+    async def retire_relay(self, *, recovery: bool = False) -> None:
         async with self.service.engine.connect() as db:
-            identities = (
-                (
-                    await db.execute(
-                        text(
-                            "SELECT operation_id::text FROM system_operation WHERE instance_id=:instance AND state <> 'FINISHED'"
-                        ),
-                        {"instance": self.instance},
-                    )
-                )
-                .scalars()
-                .all()
+            prefix, scopes = await store.relay_pending(db, self.instance)
+        scopes = [
+            scope
+            for scope in scopes
+            if recovery
+            or (
+                scope.execution_owner_id == str(self.settings.owner)
+                and scope.owner_epoch == self.settings.epoch
             )
-            for identity in identities:
-                op = await store.operation(db, self.instance, identity)
-                assert op is not None
-                dispatch = await store.dispatch(db, self.instance, identity)
-                snapshot = await store.snapshot(db, self.instance, op.config_snapshot_ref)
-                self.sender.transport.backend.relay.scopes.add(
-                    Scope(
-                        self.instance,
-                        "MODEL_DISPATCH",
-                        dispatch.dispatch_attempt_id,
-                        op.execution_owner_id,
-                        op.generation,
-                        op.owner_epoch,
-                        dispatch.cancel_epoch,
-                        op.deadline.isoformat(),
-                        snapshot.connection.provider,
-                    )
-                )
-        if identities:
-            await self.sender.drain()
+        ]
+        relay = self.sender.transport.backend.relay
+        relay.retired_through = max(relay.retired_through, prefix)
+        relay.scopes.update(scopes)
+        await self.sender.drain()
+        # Only acknowledged physical drain can retire durable authority, never expiry alone.
+        async with self.service.engine.begin() as db:
+            for scope in scopes:
+                await store.retire_relay(db, scope)
+
+    async def reconcile(self, *, cancelled: bool = False) -> None:
+        await self.retire_relay(recovery=not cancelled)
         # New process never schedules inherited work, even a PENDING pre-send attempt.
         async with self.service.engine.begin() as db:
             rows = (
                 (
                     await db.execute(
                         text(
-                            "SELECT operation_id::text FROM system_operation "
+                            "SELECT operation_id::text FROM system_operation o "
                             "WHERE instance_id=:instance AND state <> 'FINISHED' "
+                            "AND EXISTS (SELECT 1 FROM model_dispatch_v2 d JOIN model_relay_authority a "
+                            "ON a.instance_id=d.instance_id AND a.kind='MODEL_DISPATCH' AND a.id=d.dispatch_attempt_id "
+                            "WHERE d.instance_id=o.instance_id AND d.operation_id=o.operation_id) "
                             + (
                                 "AND execution_owner_id=:owner AND owner_epoch=:epoch "
                                 if cancelled
@@ -268,8 +259,13 @@ class ApiKeyModelTest:
         return await handle(self, command)
 
     async def require_idle(self, db: AsyncConnection) -> None:
+        prefix, pending = await store.relay_pending(db, self.instance)
+        self.sender.transport.backend.relay.retired_through = max(
+            self.sender.transport.backend.relay.retired_through, prefix
+        )
         if (
             self.tasks
+            or pending
             or (
                 await db.execute(
                     text(
@@ -354,6 +350,18 @@ class ApiKeyModelTest:
                         raise store.ModelConflict("REVISION_CONFLICT")
                     if op.state == "FINISHED":
                         raise store.ModelConflict("OPERATION_FINISHED")
+                    if (
+                        await db.execute(
+                            text(
+                                "SELECT 1 FROM model_dispatch_v2 d JOIN model_relay_authority a "
+                                "ON a.instance_id=d.instance_id AND a.kind='MODEL_DISPATCH' "
+                                "AND a.id=d.dispatch_attempt_id WHERE d.instance_id=:instance "
+                                "AND d.operation_id=:operation"
+                            ),
+                            {"instance": self.instance, "operation": op.operation_id},
+                        )
+                    ).first() is None:
+                        raise store.ModelConflict("CONTROL_UNAVAILABLE")
                     stopping = op.model_copy(
                         update={
                             "state": "STOPPING",
@@ -384,6 +392,7 @@ class ApiKeyModelTest:
                         connection = await self.settings.require_selection(db, selection.default)
                     if command.action == "refresh":
                         assert selection is not None
+                        deadline = (datetime.now(UTC) + timedelta(seconds=15)).isoformat()
                         await store.put(
                             db,
                             self.instance,
@@ -394,11 +403,26 @@ class ApiKeyModelTest:
                                 "generation": status.generation,
                                 "owner_epoch": self.settings.epoch,
                                 "execution_owner_id": str(self.settings.owner),
-                                "deadline": (datetime.now(UTC) + timedelta(seconds=15)).isoformat(),
+                                "deadline": deadline,
                             },
                         )
                         await store.command(
                             db, self.instance, identity, request_digest, "refresh", None
+                        )
+                        await store.relay_scope(
+                            db,
+                            {
+                                "instance_id": self.instance,
+                                "kind": "METADATA_COMMAND",
+                                "id": identity,
+                                "execution_owner_id": str(self.settings.owner),
+                                "generation": status.generation,
+                                "owner_epoch": self.settings.epoch,
+                                "cancel_epoch": 1,
+                                "deadline": deadline,
+                                "provider": connection.provider,
+                            },
+                            allocate=True,
                         )
                     else:
                         if selected_snapshot is not None:
@@ -493,6 +517,21 @@ class ApiKeyModelTest:
                         await store.event(
                             db, self.instance, dispatch.dispatch_attempt_id, "RESERVED"
                         )
+                        await store.relay_scope(
+                            db,
+                            {
+                                "instance_id": self.instance,
+                                "kind": "MODEL_DISPATCH",
+                                "id": dispatch.dispatch_attempt_id,
+                                "execution_owner_id": op.execution_owner_id,
+                                "generation": op.generation,
+                                "owner_epoch": op.owner_epoch,
+                                "cancel_epoch": dispatch.cancel_epoch,
+                                "deadline": op.deadline.isoformat(),
+                                "provider": snapshot.connection.provider,
+                            },
+                            allocate=True,
+                        )
                         await store.command(
                             db, self.instance, identity, request_digest, "start", identity
                         )
@@ -569,22 +608,23 @@ class ApiKeyModelTest:
                     )
                 ):
                     raise SendDenied("METADATA_AUTHORITY_DENIED")
-                deadline = str(request["deadline"])
+                deadline = datetime.fromisoformat(str(request["deadline"])).isoformat()
+                scope = await store.relay_scope(
+                    db,
+                    {
+                        "instance_id": self.instance,
+                        "kind": "METADATA_COMMAND",
+                        "id": command,
+                        "execution_owner_id": str(self.settings.owner),
+                        "generation": generation,
+                        "owner_epoch": self.settings.epoch,
+                        "cancel_epoch": 1,
+                        "deadline": deadline,
+                        "provider": connection.provider,
+                    },
+                )
                 async with self.physical_window(db, datetime.fromisoformat(deadline)) as end:
-                    yield Authority(
-                        Scope(
-                            self.instance,
-                            "METADATA_COMMAND",
-                            command,
-                            str(self.settings.owner),
-                            generation,
-                            self.settings.epoch,
-                            1,
-                            deadline,
-                            connection.provider,
-                        ),
-                        end,
-                    )
+                    yield Authority(scope, end)
 
     async def refresh(
         self,
@@ -655,12 +695,10 @@ class ApiKeyModelTest:
         except (ValueError, OSError, TimeoutError):
             result["reason"] = "METADATA_UNAVAILABLE"
         finally:
-            task = asyncio.current_task()
-            if task is not None and task.cancelling():
-                try:
-                    await self.sender.drain()
-                except (RelayFailure, OSError, ValueError, TimeoutError):
-                    self.settlement_failed = True
+            try:
+                await self.retire_relay()
+            except (RelayFailure, OSError, ValueError, TimeoutError):
+                self.settlement_failed = True
             if self.sender.transport.backend.relay.failed or self.settlement_failed:
                 self.settlement_failed = True
                 raise RelayFailure("RELAY_CONTROL_UNCERTAIN")
@@ -766,21 +804,22 @@ class ApiKeyModelTest:
                 await asyncio.to_thread(
                     self.settings.vault.get, snapshot.connection.credential(self.instance)
                 )
+                scope_binding = await store.relay_scope(
+                    db,
+                    {
+                        "instance_id": self.instance,
+                        "kind": "MODEL_DISPATCH",
+                        "id": dispatch.dispatch_attempt_id,
+                        "execution_owner_id": op.execution_owner_id,
+                        "generation": op.generation,
+                        "owner_epoch": op.owner_epoch,
+                        "cancel_epoch": dispatch.cancel_epoch,
+                        "deadline": op.deadline.isoformat(),
+                        "provider": snapshot.connection.provider,
+                    },
+                )
                 async with self.physical_window(db, op.deadline) as end:
-                    yield Authority(
-                        Scope(
-                            self.instance,
-                            "MODEL_DISPATCH",
-                            dispatch.dispatch_attempt_id,
-                            op.execution_owner_id,
-                            op.generation,
-                            op.owner_epoch,
-                            dispatch.cancel_epoch,
-                            op.deadline.isoformat(),
-                            snapshot.connection.provider,
-                        ),
-                        end,
-                    )
+                    yield Authority(scope_binding, end)
 
     async def run(self, identity: str) -> None:
         reply = Reply("UNKNOWN", "RESULT_UNKNOWN")
@@ -825,11 +864,10 @@ class ApiKeyModelTest:
         except (ValueError, OSError):
             reply = Reply("UNKNOWN", "AUTHORITY_OR_TRANSPORT_UNAVAILABLE")
         finally:
-            if finish in {"CANCELLED", "DEADLINE"}:
-                try:
-                    await self.sender.drain()
-                except (RelayFailure, OSError, ValueError, TimeoutError):
-                    self.settlement_failed = True
+            try:
+                await self.retire_relay()
+            except (RelayFailure, OSError, ValueError, TimeoutError):
+                self.settlement_failed = True
             if self.sender.transport.backend.relay.failed or self.settlement_failed:
                 self.settlement_failed = True
                 raise RelayFailure("RELAY_DRAIN_UNCERTAIN")

@@ -70,6 +70,7 @@ async def test_dns_failure_closes_open_and_allows_explicit_new_attempt(
             1,
             (datetime.now(UTC) + timedelta(seconds=30)).isoformat(),
             "openrouter",
+            1,
         )
 
         async def opening() -> tuple[str, bytes]:
@@ -149,6 +150,7 @@ async def test_stale_fence_owner_cancel_and_duplicate_write_do_not_cross_scope(
             1,
             (datetime.now(UTC) + timedelta(seconds=30)).isoformat(),
             "openrouter",
+            1,
         ).wire()
 
         async def rpc(
@@ -157,7 +159,7 @@ async def test_stale_fence_owner_cancel_and_duplicate_write_do_not_cross_scope(
             reader, writer = await asyncio.open_unix_connection(root / "model-egress.sock")
             try:
                 value: dict[str, object] = {
-                    "version": 1,
+                    "version": 2,
                     "action": action,
                     "request_id": str(uuid4()),
                     "connection_id": None if action in {"FENCE", "DRAIN"} else identity,
@@ -169,6 +171,7 @@ async def test_stale_fence_owner_cancel_and_duplicate_write_do_not_cross_scope(
                     if action in ("OPEN", "WRITE")
                     else None,
                     "capability": (root / "model-relay.cap").read_text(),
+                    "retire_through": 0,
                 }
                 writer.write(encode(value) + data)
                 await writer.drain()
@@ -182,7 +185,7 @@ async def test_stale_fence_owner_cancel_and_duplicate_write_do_not_cross_scope(
         try:
             assert await rpc("OPEN", scope) == "OK"
             assert await rpc("WRITE", scope, 1, b"a") == "OK"
-            newer = {**scope, "id": str(uuid4())}
+            newer = {**scope, "id": str(uuid4()), "operation_serial": 2}
             assert await rpc("WRITE", newer, 2, b"b") == "OK"
             assert await rpc("FENCE", scope) == "OK"
             assert await rpc("DRAIN", scope) == "OK"
@@ -193,7 +196,7 @@ async def test_stale_fence_owner_cancel_and_duplicate_write_do_not_cross_scope(
                 )
                 == "DENIED"
             )
-            assert await rpc("FENCE", {**newer, "cancel_epoch": 2}) == "OK"
+            assert await rpc("FENCE", {**newer, "cancel_epoch": 2}) == "DENIED"
             assert await rpc("WRITE", newer, 3, b"c") == "OK"
             assert await rpc("WRITE", newer, 3, b"duplicate") == "DENIED"
             assert await rpc("FENCE", newer) == "OK"

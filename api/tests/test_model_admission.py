@@ -2357,7 +2357,7 @@ async def test_protocol_phase_timing_existing_source_consumer(
     )
     rows = timing.snapshot()
     reads = [r for r in rows if r["phase"] == "dispatch.read"]
-    assert len([r for r in reads if r["caller"] == "sender"]) == 3
+    assert len([r for r in reads if r["caller"] == "sender"]) == 4
     assert len([r for r in reads if r["caller"] == "second"]) == int(case == "duplicate")
     qualified = [r for r in rows if r["phase"] == "protocol.qualified"]
     assert len(qualified) == (3 if case == "duplicate" else 2)

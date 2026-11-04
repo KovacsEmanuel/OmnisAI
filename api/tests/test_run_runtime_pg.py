@@ -36,7 +36,7 @@ from omnis.modules.runs.run_contract import (
     UsageSummary,
 )
 from omnis.modules.runs.run_runtime import AgentRunOwner
-from omnis.modules.settings.provider_catalog_models import CatalogModel
+from omnis.modules.settings.provider_catalog_models import CatalogControl, CatalogModel, CatalogView
 from omnis.modules.settings.provider_catalog_runtime import CatalogResult
 from omnis.modules.settings.provider_key_models import KeySettingsControl
 from omnis.modules.settings.provider_key_service import ProviderSettingsOwner
@@ -47,6 +47,18 @@ from omnis.supervisor.model_sender import ModelSender
 from omnis.transport.local_control import LocalControl
 from test_agent_core_publication import publish_core
 from test_engagements import draft
+
+S1_CATALOG_PAGE = {
+    "data": [
+        {
+            "id": model,
+            "top_provider": {"max_completion_tokens": 4096},
+            "supported_parameters": ["max_tokens"],
+        }
+        for model in ("fixture/s1", "fixture/s1-recon")
+    ],
+    "total_count": 2,
+}
 
 
 @pytest.mark.asyncio
@@ -81,6 +93,7 @@ async def test_run_api_pg_three_causal_tasks_and_receive_only_replay(
     model_owner = ApiKeyModelTest(settings, sender)
     run_owner = None
     sink_calls: list[bytes] = []
+    metadata_calls: list[bytes] = []
     decisions = 0
     worker_results = 0
     ui = os.environ.get("OMNIS_S1_RUN_UI") == "1"
@@ -111,6 +124,15 @@ async def test_run_api_pg_three_causal_tasks_and_receive_only_replay(
         nonlocal decisions, worker_results
         assert isinstance(request.stream, AsyncIterable)
         raw = b"".join([part async for part in request.stream])
+        if request.method == b"GET" and request.url.target == b"/api/v1/models?offset=0&limit=1000":
+            assert ui and not raw and not metadata_calls
+            metadata_calls.append(request.url.target)
+            return httpcore.Response(
+                200,
+                headers=[(b"content-type", b"application/json")],
+                content=Body(S1_CATALOG_PAGE),
+            )
+        assert request.method == b"POST" and request.url.target == b"/api/v1/chat/completions"
         sink_calls.append(raw)
         body = json.loads(raw)
         message: dict[str, object] = {"role": "assistant"}
@@ -635,24 +657,71 @@ async def test_run_api_pg_three_causal_tasks_and_receive_only_replay(
                 }
             )
         )
-        async with engine.begin() as db:
-            connection = await settings.require_connection(db, connection_id, 1)
-            await records.put(
-                db,
-                str(initial.instance_id),
-                "catalog-result",
-                CatalogResult(
-                    command_id=str(uuid4()),
-                    connection=connection,
-                    state="READY",
-                    reason=None,
-                    # Synthetic capabilities, not provider discovery or inference.
-                    entries=[
-                        CatalogModel(model=model, max_output_tokens=4096, supports_max_tokens=True)
-                        for model in ("fixture/s1", "fixture/s1-recon")
-                    ],
-                ).model_dump(mode="json"),
+        if ui:
+            # UI search needs the owned request/result pair, not the RUN-only result seed.
+            catalog_command_id = str(uuid4())
+            await model_owner.catalog_handle(
+                CatalogControl.model_validate(
+                    {
+                        "op": "provider_catalog",
+                        "request": {
+                            "action": "refresh",
+                            "command_id": catalog_command_id,
+                            "connection_id": connection_id,
+                            "connection_revision": 1,
+                        },
+                    }
+                )
             )
+            async with asyncio.timeout(15):
+                while model_owner.tasks:
+                    await asyncio.sleep(0.01)
+            assert not model_owner.settlement_failed and not sender.transport.backend.relay.failed
+            cached_catalog = CatalogView.model_validate(
+                await model_owner.catalog_handle(
+                    CatalogControl.model_validate(
+                        {
+                            "op": "provider_catalog",
+                            "request": {
+                                "action": "search",
+                                "connection_id": connection_id,
+                                "connection_revision": 1,
+                            },
+                        }
+                    )
+                )
+            )
+            assert cached_catalog.catalog_command_id == catalog_command_id
+            assert cached_catalog.connection_id == connection_id
+            assert cached_catalog.connection_revision == 1
+            assert cached_catalog.state == "READY" and cached_catalog.reason is None
+            assert cached_catalog.total == 2 and cached_catalog.next_offset is None
+            assert cached_catalog.entries == [
+                CatalogModel(model=model, max_output_tokens=4096, supports_max_tokens=True)
+                for model in ("fixture/s1", "fixture/s1-recon")
+            ]
+            assert metadata_calls == [b"/api/v1/models?offset=0&limit=1000"] and not sink_calls
+        else:
+            async with engine.begin() as db:
+                connection = await settings.require_connection(db, connection_id, 1)
+                await records.put(
+                    db,
+                    str(initial.instance_id),
+                    "catalog-result",
+                    CatalogResult(
+                        command_id=str(uuid4()),
+                        connection=connection,
+                        state="READY",
+                        reason=None,
+                        # Synthetic capabilities, not provider discovery or inference.
+                        entries=[
+                            CatalogModel(
+                                model=model, max_output_tokens=4096, supports_max_tokens=True
+                            )
+                            for model in ("fixture/s1", "fixture/s1-recon")
+                        ],
+                    ).model_dump(mode="json"),
+                )
         run_owner = AgentRunOwner(model_owner, catalog)
         control_dir = ipc_directory / "control"
         control_dir.mkdir(mode=0o700)
@@ -683,6 +752,7 @@ async def test_run_api_pg_three_causal_tasks_and_receive_only_replay(
                 )
                 assert worker_results == 3 and decisions == 5 and len(sink_calls) == 11
                 await assert_checkpoint(run_owner)
+                assert len(metadata_calls) == 1
                 return
             app = create_app()
             app.state.db_engine = engine

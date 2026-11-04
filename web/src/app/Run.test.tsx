@@ -222,6 +222,85 @@ it.each(['unknown', 'sending'])('SOURCE Stop remains available when Pause is %s'
   view.unmount(); client.clear(); sessionStorage.clear();
 });
 
+it.each([['DATA_DENIED', 'acknowledged'], ['DATA_DENIED', 'lost'], ['CONNECTION_UNAVAILABLE', 'acknowledged'], ['MODEL_NOT_REGISTERED', 'acknowledged'], ['OPERATION_FINISHED', 'acknowledged'], ['ANSWER_DENIED', 'acknowledged']])('SOURCE definite command refusal %s allows a corrected explicit command with %s reply', async (code, reply) => {
+  const { state, writes, fetcher, view, client } = mountedRun();
+  state.run = { ...state.run, question_id: id };
+  state.summary = { ...state.summary, run: state.run, question: { question_id: id, run_id: runId, task_id: id, revision: 1, kind: 'CLARIFICATION', cause: 'Inert detail', text: 'Which part?', refs: [], state: 'PENDING', answer_ref: null, command_id: null } };
+  const original = fetcher.getMockImplementation()!;
+  fetcher.mockImplementation(async (input, init) => {
+    if (init?.method === 'POST' && writes.length === 0) {
+      const payload: unknown = JSON.parse(String(init.body));
+      if (!isRecord(payload)) throw new Error('Invalid command');
+      writes.push(payload);
+      return new Response(JSON.stringify({ error: { code, correlation_id: id } }), { status: 409 });
+    }
+    if (String(input).startsWith('/api/v1/runs/commands/')) return new Response(JSON.stringify({ error: { code: 'NOT_FOUND', correlation_id: id } }), { status: 404 });
+    const response = await original(input, init);
+    if (init?.method === 'POST' && reply === 'lost') throw new Error('Lost corrected answer acknowledgement');
+    return response;
+  });
+  const user = userEvent.setup();
+  const field = await screen.findByLabelText('Non-secret clarification');
+  await user.type(field, 'First synthetic answer');
+  const submit = screen.getByRole('button', { name: 'Submit clarification' });
+  await user.click(submit);
+  await screen.findByText(/Refused; refresh and give fresh explicit consent/);
+  expect(sessionStorage.getItem(`omnis-run-command-${id}`)).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Read command receipt' })).not.toBeInTheDocument();
+  if (code === 'DATA_DENIED') expect(screen.getByText(/Selected data was refused/)).toBeVisible();
+  state.run = { ...state.run, revision: 8 };
+  state.summary = { ...state.summary, run: state.run };
+  await user.click(screen.getByRole('button', { name: 'Refresh run' }));
+  await waitFor(() => expect(field).toHaveValue(''));
+  await user.clear(field); await user.type(field, 'Corrected synthetic answer');
+  expect(submit).toBeEnabled();
+  expect(writes).toHaveLength(1);
+  await user.click(submit);
+  if (reply === 'lost') {
+    await screen.findByText(/Read the same command; no resend/);
+    await user.click(screen.getByRole('button', { name: 'Read command receipt' }));
+    await screen.findByText(/Receipt unavailable; command remains unknown/);
+    await user.click(screen.getByRole('button', { name: 'Refresh run' }));
+    expect(submit).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Stop run' })).toBeEnabled();
+    expect(sessionStorage.getItem(`omnis-run-command-${id}`)).toContain(writes[1]?.command_id);
+  } else await screen.findByText(/ADMITTED ·/);
+  expect(writes).toHaveLength(2);
+  expect(writes[1]).toMatchObject({ action: 'answer', run_id: runId, question_id: id, expected_revision: 8, expected_generation: 3, answer: 'Corrected synthetic answer' });
+  expect(writes[1]?.command_id).not.toBe(writes[0]?.command_id);
+  view.unmount(); client.clear(); sessionStorage.clear();
+});
+
+it.each([['CONTROL_UNAVAILABLE', 503], ['HTTP_ERROR', 409], ['NOT_FOUND', 404]] as const)('SOURCE uncertain command %s and receipt NOT_FOUND never release pending or resend', async (code, status) => {
+  const { writes, fetcher, view, client } = mountedRun();
+  const original = fetcher.getMockImplementation()!;
+  fetcher.mockImplementation(async (input, init) => {
+    if (init?.method === 'POST') {
+      const payload: unknown = JSON.parse(String(init.body));
+      if (!isRecord(payload)) throw new Error('Invalid command');
+      writes.push(payload);
+      return new Response(JSON.stringify({ error: { code, correlation_id: id } }), { status });
+    }
+    if (String(input).startsWith('/api/v1/runs/commands/')) return new Response(JSON.stringify({ error: { code: 'NOT_FOUND', correlation_id: id } }), { status: 404 });
+    return original(input, init);
+  });
+  const user = userEvent.setup();
+  const pause = await screen.findByRole('button', { name: 'Pause run' });
+  await waitFor(() => expect(pause).toBeEnabled());
+  await user.click(pause);
+  await screen.findByText(/Read the same command; no resend/);
+  const stored = sessionStorage.getItem(`omnis-run-command-${id}`);
+  expect(stored).toContain(writes[0]?.command_id);
+  await user.click(screen.getByRole('button', { name: 'Read command receipt' }));
+  await screen.findByText(/Receipt unavailable; command remains unknown/);
+  await user.click(screen.getByRole('button', { name: 'Refresh run' }));
+  expect(pause).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Stop run' })).toBeEnabled();
+  expect(sessionStorage.getItem(`omnis-run-command-${id}`)).toBe(stored);
+  expect(writes).toHaveLength(1);
+  view.unmount(); client.clear(); sessionStorage.clear();
+});
+
 it('SOURCE binds clarification to the displayed question revision and bounds complete escaped JSON', async () => {
   const { state, writes, view, client } = mountedRun();
   const question = { question_id: id, run_id: runId, task_id: id, revision: 1, kind: 'CLARIFICATION', cause: 'Inert detail', text: 'Which part?', refs: [], state: 'PENDING', answer_ref: null, command_id: null } as const;

@@ -27,6 +27,7 @@ export const errorCopy: Record<ErrorCode, string> = {
   OPERATION_FINISHED: 'This operation is already finished. Read its outcome.',
   AUTHORITY_DENIED: 'The run authority was refused. Read the persisted run; nothing was resumed.',
   ANSWER_DENIED: 'This question no longer accepts that answer. Read its current state.',
+  DATA_DENIED: 'Selected data was refused. Remove secrets or disallowed content, refresh and explicitly submit corrected data.',
   REF_UNAVAILABLE: 'An exact required reference is unavailable. Nothing was admitted.',
   GENERATION_CONFLICT: 'The instance generation changed. Read status and repeat preflight with fresh consent.',
   CURSOR_DENIED: 'The event cursor does not belong to this run. Read its first page.',

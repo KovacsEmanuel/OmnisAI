@@ -77,7 +77,7 @@ export function RunPanel({ draft, stream }: { draft: SelectedDraft; stream: bool
       return receipt;
     } catch (error) {
       if (signal.aborted) return null;
-      const refused = error instanceof ApiError && ['REVISION_CONFLICT', 'GENERATION_CONFLICT', 'AUTHORITY_DENIED', 'ANSWER_DENIED', 'REF_UNAVAILABLE', 'OPERATION_ACTIVE', 'CAPABILITIES_REQUIRED', 'INVALID_INPUT'].includes(error.code);
+      const refused = error instanceof ApiError && ['REVISION_CONFLICT', 'GENERATION_CONFLICT', 'AUTHORITY_DENIED', 'ANSWER_DENIED', 'DATA_DENIED', 'REF_UNAVAILABLE', 'OPERATION_ACTIVE', 'OPERATION_FINISHED', 'CONNECTION_UNAVAILABLE', 'MODEL_NOT_REGISTERED', 'CAPABILITIES_REQUIRED', 'INVALID_INPUT'].includes(error.code);
       if (refused) { remember(pointer, scope, null); setPending(null); setReview(null); setConfirmed(false); }
       setMessage(`${error instanceof ApiError ? error.message : 'Outcome unknown'}. ${refused ? 'Refused; refresh and give fresh explicit consent.' : 'Read the same command; no resend.'}`); return null;
     }

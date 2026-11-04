@@ -1940,6 +1940,7 @@
           "OPERATION_FINISHED",
           "AUTHORITY_DENIED",
           "ANSWER_DENIED",
+          "DATA_DENIED",
           "REF_UNAVAILABLE",
           "GENERATION_CONFLICT",
           "CURSOR_DENIED",

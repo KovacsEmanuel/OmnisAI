@@ -15,7 +15,7 @@ from zipfile import ZipFile
 
 from omnis_cli.compose import ImageReceipt, _put_record, _record
 from omnis_cli.lifecycle import StartError, read_record, write_record
-from omnis_cli.release import ReleaseError, _manifest
+from omnis_cli.release import ReleaseError, _manifest, install_release
 from omnis_cli.start import _check_pgdata, service_roles
 from omnis_cli.start_runtime import ControlRuntime, private_identity
 from runtime_inspect_fixture import container_item, image_item
@@ -278,7 +278,11 @@ class ProviderSettingsProfileTest(unittest.TestCase):
 
 
 class ProviderSettingsBundleTest(unittest.TestCase):
-    def test_format3_requires_api_key_modules_migration_and_crypto_closure(self):
+    COMMON = ("cryptography==50.0.1", "httpx==0.28.1", "httpcore==1.0.9")
+    LEGACY = (*COMMON, "openai==2.24.0")
+    S0 = (*COMMON, "openai==2.45.0", "openai-agents==0.19.0")
+
+    def bundle(self, *, version="0.1.0", schema="0017_model_removal", dependencies=LEGACY):
         import hashlib
 
         fixture = InstallTest()
@@ -302,17 +306,152 @@ class ProviderSettingsBundleTest(unittest.TestCase):
                 "omnis/modules/runs/model_test_contract.py",
                 "omnis/modules/runs/model_test_store.py",
                 "omnis/supervisor/model_sender.py",
+                "omnis/migrate.py",
+                "omnis/stop_reconcile.py",
             ):
+                if schema == "0016_provider_models" and "0017_model_removal" in name:
+                    continue
                 wheel.writestr(name, "# SOURCE synthetic closure\n")
             wheel.writestr(
-                "omnis_api-0.1.0.dist-info/METADATA",
-                "Requires-Dist: cryptography==50.0.1\nRequires-Dist: openai==2.24.0\nRequires-Dist: httpx==0.28.1\nRequires-Dist: httpcore==1.0.9\n",
+                f"omnis_api-{version}.dist-info/METADATA",
+                "".join(f"Requires-Dist: {dependency}\n" for dependency in dependencies),
             )
-        fixture.manifest.update(format=3, profile=PROFILE)
-        name = "api/omnis_api-0.1.0-py3-none-any.whl"
+        fixture.manifest.update(format=3, profile=PROFILE, release=version, schema=schema)
+        for name in tuple(fixture.manifest["files"]):
+            if "0.1.0" in name:
+                renamed = name.replace("0.1.0", version)
+                (fixture.bundle / name).rename(fixture.bundle / renamed)
+                fixture.manifest["files"][renamed] = fixture.manifest["files"].pop(name)
+        if version == "0.1.1":
+            cli_name = f"cli/omnis_cli-{version}-py3-none-any.whl"
+            with ZipFile(fixture.bundle / cli_name, "w") as wheel:
+                wheel.writestr("omnis_cli/upgrade.py", "# SOURCE synthetic closure\n")
+                wheel.writestr(f"omnis_cli-{version}.dist-info/METADATA", f"Version: {version}\n")
+            fixture.manifest["files"][cli_name] = hashlib.sha256(
+                (fixture.bundle / cli_name).read_bytes()
+            ).hexdigest()
+        name = f"api/omnis_api-{version}-py3-none-any.whl"
         (fixture.bundle / name).write_bytes(content.getvalue())
         fixture.manifest["files"][name] = hashlib.sha256(content.getvalue()).hexdigest()
         fixture.write_manifest()
+        return fixture
+
+    def test_current_release_accepts_exact_s0_sdk_pair(self):
+        fixture = self.bundle(version="0.1.1", dependencies=self.S0)
+        source, payloads = _manifest(fixture.bundle)
+        self.assertEqual(source, (fixture.bundle / "release.json").read_bytes())
+        self.assertEqual(set(payloads), set(fixture.manifest["files"]))
+
+    def test_legacy_closure_remains_readable_at_all_supported_t1_versions(self):
+        for version, schema in (
+            ("0.1.0", "0016_provider_models"),
+            ("0.1.0", "0017_model_removal"),
+            ("0.1.1", "0017_model_removal"),
+        ):
+            with self.subTest(version=version, schema=schema):
+                fixture = self.bundle(version=version, schema=schema)
+                self.assertEqual(
+                    _manifest(fixture.bundle)[0], (fixture.bundle / "release.json").read_bytes()
+                )
+
+    def test_s0_pair_is_not_admitted_into_old_release(self):
+        for schema in ("0016_provider_models", "0017_model_removal"):
+            with self.subTest(schema=schema):
+                fixture = self.bundle(schema=schema, dependencies=self.S0)
+                with self.assertRaisesRegex(ReleaseError, "production closure required"):
+                    _manifest(fixture.bundle)
+
+    def test_inexact_mixed_or_duplicate_core_metadata_is_refused(self):
+        invalid = [
+            (*self.COMMON, "openai==2.45.0"),
+            (*self.LEGACY, "openai-agents==0.19.0"),
+            (*self.S0, "openai==2.24.0"),
+            (*self.S0[:-1], "openai-agents==0.18.0"),
+            (*self.S0[:-1], "openai-agents[voice]==0.19.0"),
+            (*self.S0[:-1], "openai_agents==0.19.0"),
+        ]
+        for closure in (self.LEGACY, self.S0):
+            for pin in closure:
+                invalid.extend(
+                    (
+                        tuple(value for value in closure if value != pin),
+                        (*closure, pin),
+                        tuple(value if value != pin else pin + "0" for value in closure),
+                    )
+                )
+            invalid.extend(
+                (
+                    (*closure, "OpenAI>=2.0"),
+                    (*closure, "openai.agents==0.19.0"),
+                    (*closure, "openai_agents==0.19.0"),
+                    (*closure, "openai===2.24.0"),
+                    (*closure, "openai[socks]==2.24.0"),
+                    (*closure, "openai==2.24.0; python_version < '3.0'"),
+                    (*closure, "openai @ https://invalid.example/openai.whl"),
+                    (*closure, "httpx==0.28.1\nrequires-dist: OpenAI>=2.0"),
+                    tuple(value + "\n ; extra == 'x'" for value in closure),
+                )
+            )
+        for dependencies in invalid:
+            with self.subTest(dependencies=dependencies):
+                fixture = self.bundle(version="0.1.1", dependencies=dependencies)
+                with self.assertRaisesRegex(ReleaseError, "production closure required"):
+                    _manifest(fixture.bundle)
+
+    def test_non_ascii_unrelated_requirement_is_refused(self):
+        fixture = self.bundle(version="0.1.1", dependencies=(*self.S0, "café==1"))
+        with self.assertRaisesRegex(ReleaseError, "production closure required"):
+            _manifest(fixture.bundle)
+
+    def test_non_ascii_core_requirement_is_refused(self):
+        fixture = self.bundle(version="0.1.1", dependencies=(*self.S0, "openai==2.45.0é"))
+        with self.assertRaisesRegex(ReleaseError, "production closure required"):
+            _manifest(fixture.bundle)
+
+    def test_same_version_different_closure_cannot_replace_installed_bytes(self):
+        legacy = self.bundle(version="0.1.1")
+        current = self.bundle(version="0.1.1", dependencies=self.S0)
+        installed = install_release(legacy.bundle, legacy.data_home)
+        before = _manifest(installed)
+        pointer = (legacy.data_home / "omnis/installed.json").read_bytes()
+        with self.assertRaisesRegex(ReleaseError, "Release installation refused"):
+            install_release(current.bundle, legacy.data_home)
+        self.assertEqual(_manifest(installed), before)
+        self.assertEqual((legacy.data_home / "omnis/installed.json").read_bytes(), pointer)
+        fresh = install_release(current.bundle, current.data_home)
+        self.assertEqual(install_release(current.bundle, current.data_home), fresh)
+        self.assertEqual(_manifest(fresh), _manifest(current.bundle))
+
+    def test_api_metadata_is_bounded(self):
+        headers = "".join(f"Requires-Dist: {pin}\n" for pin in self.LEGACY)
+        padding = "a" * (32768 - len(headers) - len("Requires-Dist: ==1\n"))
+        exact = self.bundle(dependencies=(*self.LEGACY, padding + "==1"))
+        _manifest(exact.bundle)
+        oversized = self.bundle(dependencies=(*self.LEGACY, padding + "a==1"))
+        with self.assertRaisesRegex(ReleaseError, "production closure required"):
+            _manifest(oversized.bundle)
+
+    def test_api_metadata_has_one_archive_member(self):
+        import hashlib
+
+        duplicate = self.bundle()
+        name = "api/omnis_api-0.1.0-py3-none-any.whl"
+        with ZipFile(duplicate.bundle / name, "a") as wheel:
+            metadata = "omnis_api-0.1.0.dist-info/METADATA"
+            with self.assertWarnsRegex(UserWarning, "Duplicate name"):
+                wheel.writestr(metadata, wheel.read(metadata))
+        duplicate.manifest["files"][name] = hashlib.sha256(
+            (duplicate.bundle / name).read_bytes()
+        ).hexdigest()
+        duplicate.write_manifest()
+        with self.assertRaisesRegex(ReleaseError, "production closure required"):
+            _manifest(duplicate.bundle)
+
+    def test_format3_requires_api_key_modules_migration_and_crypto_closure(self):
+        import hashlib
+
+        fixture = self.bundle()
+        name = "api/omnis_api-0.1.0-py3-none-any.whl"
         _manifest(fixture.bundle)
         fixture.manifest["profile"] = "p4a-codex-auth"
         fixture.write_manifest()

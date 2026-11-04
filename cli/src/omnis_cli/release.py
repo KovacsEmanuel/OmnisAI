@@ -10,6 +10,7 @@ import re
 import shutil
 import stat
 import tempfile
+from email.parser import BytesParser
 from pathlib import Path
 from zipfile import BadZipFile, ZipFile
 
@@ -162,15 +163,38 @@ def _manifest(root: Path) -> tuple[bytes, dict[str, bytes]]:
             required |= {"omnis/migrate.py", "omnis/stop_reconcile.py"}
         try:
             with ZipFile(io.BytesIO(result[f"api/omnis_api-{version}-py3-none-any.whl"])) as wheel:
-                if not required <= set(wheel.namelist()) or any(
-                    ("Requires-Dist: " + dependency + "\n").encode()
-                    not in wheel.read(f"omnis_api-{version}.dist-info/METADATA")
-                    for dependency in (
-                        "cryptography==50.0.1",
-                        "openai==2.24.0",
-                        "httpx==0.28.1",
-                        "httpcore==1.0.9",
-                    )
+                metadata_name = f"omnis_api-{version}.dist-info/METADATA"
+                if (
+                    wheel.getinfo(metadata_name).file_size > 32768
+                    or wheel.namelist().count(metadata_name) != 1
+                ):
+                    raise ReleaseError("Provider Settings production closure required")
+                api_metadata = BytesParser().parsebytes(wheel.read(metadata_name), headersonly=True)
+                core: list[str] = []
+                for dependency in api_metadata.get_all("Requires-Dist", []):
+                    if not isinstance(dependency, str):
+                        raise ReleaseError("Provider Settings production closure required")
+                    package = re.match(r"[A-Za-z0-9][A-Za-z0-9._-]*", dependency.lstrip())
+                    if package is None:
+                        raise ReleaseError("Provider Settings production closure required")
+                    # Recognize aliases for refusal, never normalize an accepted pin.
+                    if re.sub(r"[-_.]+", "-", package[0]).lower() in {
+                        "cryptography",
+                        "httpx",
+                        "httpcore",
+                        "openai",
+                        "openai-agents",
+                    }:
+                        core.append(dependency)
+                common = {"cryptography==50.0.1", "httpx==0.28.1", "httpcore==1.0.9"}
+                supported = [common | {"openai==2.24.0"}]
+                if version == T1_RELEASE:
+                    supported.append(common | {"openai==2.45.0", "openai-agents==0.19.0"})
+                if (
+                    not required <= set(wheel.namelist())
+                    or api_metadata.defects
+                    or len(core) != len(set(core))
+                    or set(core) not in supported
                 ):
                     raise ReleaseError("Provider Settings production closure required")
         except (BadZipFile, KeyError):

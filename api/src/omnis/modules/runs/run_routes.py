@@ -171,8 +171,19 @@ async def attempt(
                 result = await store.inspect_completion(
                     db, await store.attempt(db, run, attempt_id)
                 )
+                usage = await projections.usage_summary(db, run, attempt_id)
+                dispatches, more = await projections.dispatch_usage(db, run, result)
+                result = result.model_copy(update={"usage": usage, "dispatches_has_more": more})
                 if len(result.model_dump_json().encode()) > 65536:
                     raise ModelConflict("PROJECTION_LIMIT")
+                for dispatch in dispatches:
+                    proposed = result.model_copy(
+                        update={"dispatches": [*result.dispatches, dispatch]}
+                    )
+                    if len(proposed.model_dump_json().encode()) > 65536:
+                        result = result.model_copy(update={"dispatches_has_more": True})
+                        break
+                    result = proposed
                 return result
     except ModelConflict as error:
         return error_response(error.code, 404 if error.code == "NOT_FOUND" else 422)

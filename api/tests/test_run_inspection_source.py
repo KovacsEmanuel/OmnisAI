@@ -225,9 +225,28 @@ async def test_normal_attempt_route_reload_is_readonly_and_bounded(
         )
     )
     monkeypatch.setattr(AsyncConnection, "scalar", scalar)
+    from omnis.modules.runs.run_contract import Setup, UsageMeasures
+    from test_run_owner_source import fixture_setup_payload
+
     monkeypatch.setattr(
-        AsyncConnection, "execute", AsyncMock(side_effect=AssertionError("No writes"))
+        store, "setup", AsyncMock(return_value=Setup.model_validate(fixture_setup_payload()))
     )
+
+    async def execute(
+        self: AsyncConnection, statement: object, parameters: object
+    ) -> IteratorResult[tuple[object, ...]]:
+        sql = str(statement)
+        assert sql.startswith("\nWITH") and "UPDATE" not in sql and "INSERT" not in sql
+        if "GROUPING SETS" in sql:
+            columns = ["role", "dispatches", "unobserved", "invalid"]
+            row: list[object] = [None, 0, 0, 0]
+            for key in UsageMeasures.model_fields:
+                columns.extend([key, key + "_observed"])
+                row.extend([None, 0])
+            return IteratorResult(SimpleResultMetaData(columns), iter([tuple(row)]))
+        return IteratorResult(SimpleResultMetaData(["dispatch_id"]), iter([]))
+
+    monkeypatch.setattr(AsyncConnection, "execute", execute)
     app = FastAPI()
     app.state.db_engine = engine
     request = Request({"type": "http", "method": "GET", "path": "/", "app": app})
@@ -243,3 +262,79 @@ async def test_normal_attempt_route_reload_is_readonly_and_bounded(
     denied = await run_routes.attempt(item.run_id, item.attempt_id, request)
     assert isinstance(denied, JSONResponse) and denied.status_code == 422
     assert b"PROJECTION_LIMIT" in bytes(denied.body)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("held", [False, True])
+async def test_worker_result_resolves_consuming_brain_exactly(
+    monkeypatch: pytest.MonkeyPatch, held: bool
+) -> None:
+    item = actor()
+    result_payload = {
+        "run_id": item.run_id,
+        "task_id": item.task_id,
+        "attempt_id": item.attempt_id,
+        "state": item.state,
+        "summary": "Incomplete",
+        "consumed_refs": [],
+        "gaps": ["not proved"],
+    }
+    result_ref = Ref(
+        instance_id=item.instance_id,
+        kind="run-result-v1",
+        id=str(uuid4()),
+        digest=records.digest(result_payload),
+    )
+    item = item.model_copy(update={"result_ref": result_ref})
+    consumer = item.model_copy(
+        update={
+            "task_id": str(uuid4()),
+            "attempt_id": str(uuid4()),
+            "role": "BRAIN",
+            "state": "SUCCEEDED",
+        }
+    )
+    decision = {
+        "action": "finish",
+        "summary": "No assessment",
+        "detail": "Exact incomplete result",
+        "consumed_refs": [result_ref.model_dump()],
+    }
+    payload = {
+        "run_id": consumer.run_id,
+        "task_id": consumer.task_id,
+        "attempt_id": consumer.attempt_id,
+        "completion_kind": "direct",
+        "decision": decision,
+    }
+    decision_ref = Ref(
+        instance_id=item.instance_id,
+        kind="run-decision-v2",
+        id=str(uuid4()),
+        digest=records.digest(payload),
+    )
+    consumer = consumer.model_copy(update={"result_ref": decision_ref})
+    execute = AsyncMock(
+        side_effect=[
+            IteratorResult(SimpleResultMetaData(["payload"]), iter([(result_payload,)])),
+            IteratorResult(
+                SimpleResultMetaData(["held", "consumed_decision_id"]),
+                iter([(held, decision_ref.id)]),
+            ),
+            IteratorResult(SimpleResultMetaData(["payload"]), iter([(consumer.model_dump(),)])),
+            IteratorResult(SimpleResultMetaData(["payload"]), iter([(payload,)])),
+            IteratorResult(
+                SimpleResultMetaData(list(result_ref.model_dump())),
+                iter([tuple(result_ref.model_dump().values())]),
+            ),
+        ]
+    )
+    monkeypatch.setattr(AsyncConnection, "execute", execute)
+    if held:
+        with pytest.raises(ValueError, match="REF_UNAVAILABLE"):
+            await store.inspect_completion(object.__new__(AsyncConnection), item)
+    else:
+        result = await store.inspect_completion(object.__new__(AsyncConnection), item)
+        assert result.consumption is not None and result.consumption.decision_ref == decision_ref
+        assert result.consumption.consumer_attempt_id == consumer.attempt_id
+        assert result.result is not None and result.result.gaps == ["not proved"]

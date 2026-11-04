@@ -32,6 +32,7 @@ from omnis.modules.runs.run_contract import (
     StartRun,
     WorkerFinal,
     completion_status,
+    usage_observation,
 )
 from omnis.modules.settings.catalog_models import ExactRef
 from omnis.modules.settings.catalog_publication import PublicationCatalog
@@ -726,36 +727,28 @@ class AgentRunOwner:
             async def observe(
                 raw: bytes, *, scope: Scope = scope, attempt: Attempt = attempt
             ) -> None:
-                parsed = decode(raw)
-                usage = parsed.get("usage") if isinstance(parsed, dict) else None
-                fields: dict[str, object] = {
-                    "dispatch_id": scope.id,
-                    "state": "UNKNOWN",
-                    "prompt_tokens": None,
-                    "completion_tokens": None,
-                }
-                if isinstance(usage, dict):
-                    for key in ("prompt_tokens", "completion_tokens"):
-                        count = usage.get(key)
-                        fields[key] = (
-                            count if type(count) is int and 0 <= count <= 9007199254740991 else None
-                        )
-                    fields["state"] = (
-                        "OBSERVED"
-                        if all(
-                            fields[k] is not None for k in ("prompt_tokens", "completion_tokens")
-                        )
-                        else "UNKNOWN"
-                    )
+                observation = usage_observation(decode(raw))
                 async with self.service.engine.begin() as db:
-                    await records.put(db, self.instance, "run-usage-v1", fields)
                     retained_run = await store.run(db, self.instance, identity)
                     retained_attempt = await store.attempt(db, retained_run, attempt.attempt_id)
-                    observed_model = parsed.get("model") if isinstance(parsed, dict) else None
-                    if isinstance(observed_model, str) and len(observed_model) <= 256:
+                    snapshot = await store.setup(db, self.instance, retained_run.setup_ref)
+                    choice = (
+                        snapshot.brain.choice
+                        if retained_attempt.role == "BRAIN"
+                        else snapshot.recon.choice
+                    )
+                    await store.record_usage(
+                        db, retained_run, retained_attempt, scope.id, choice, observation
+                    )
+                    if (
+                        observation.observed_model is not None
+                        and observation.observed_model != retained_attempt.observed_model
+                    ):
                         await store.save_attempt(
                             db,
-                            retained_attempt.model_copy(update={"observed_model": observed_model}),
+                            retained_attempt.model_copy(
+                                update={"observed_model": observation.observed_model}
+                            ),
                         )
 
             async def tool(

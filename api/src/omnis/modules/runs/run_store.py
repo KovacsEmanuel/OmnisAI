@@ -21,9 +21,81 @@ from omnis.modules.runs.run_contract import (
     RunEvent,
     RunView,
     Setup,
+    UsageObservation,
+    UsageRecord,
 )
+from omnis.modules.settings.provider_key_models import ModelSelection
 
 TERMINAL = ("STOPPED", "COMPLETED", "LIMITED")
+
+
+async def record_usage(
+    db: AsyncConnection,
+    run: RunView,
+    actor: Attempt,
+    dispatch: str,
+    choice: ModelSelection,
+    observation: UsageObservation,
+) -> Ref:
+    if (actor.instance_id, actor.run_id, actor.configured_model) != (
+        run.instance_id,
+        run.run_id,
+        choice.model,
+    ):
+        raise records.ModelConflict("REF_UNAVAILABLE")
+    raw: object = await db.scalar(
+        text(
+            "SELECT payload FROM run_dispatch WHERE instance_id=:instance AND run_id=:run "
+            "AND task_id=:task AND attempt_id=:attempt AND dispatch_id=:id FOR UPDATE"
+        ),
+        {
+            "instance": run.instance_id,
+            "run": run.run_id,
+            "task": actor.task_id,
+            "attempt": actor.attempt_id,
+            "id": dispatch,
+        },
+    )
+    if not isinstance(raw, dict) or raw.get("setup_ref") != run.setup_ref.model_dump(mode="json"):
+        raise records.ModelConflict("REF_UNAVAILABLE")
+    value = UsageRecord(
+        **observation.model_dump(),
+        instance_id=run.instance_id,
+        run_id=run.run_id,
+        task_id=actor.task_id,
+        attempt_id=actor.attempt_id,
+        dispatch_id=dispatch,
+        role=actor.role,
+        configured_model=choice.model,
+        connection_id=choice.connection_id,
+        connection_revision=choice.connection_revision,
+        observed_at=datetime.now(UTC),
+    )
+    if raw.get("usage_ref") is not None:
+        reference = Ref.model_validate(raw["usage_ref"])
+        if reference.revision != 1:
+            raise records.ModelConflict("REF_UNAVAILABLE")
+        prior = UsageRecord.model_validate_json(
+            json.dumps(await records.resolve(db, run.instance_id, reference, "run-usage-v2"))
+        )
+        if prior.model_dump(exclude={"observed_at"}) != value.model_dump(exclude={"observed_at"}):
+            raise records.ModelConflict("USAGE_CONFLICT")
+        return reference
+    reference = await records.put(
+        db, run.instance_id, "run-usage-v2", value.model_dump(mode="json")
+    )
+    await db.execute(
+        text(
+            "UPDATE run_dispatch SET payload=CAST(:payload AS jsonb) WHERE instance_id=:instance "
+            "AND dispatch_id=:id"
+        ),
+        {
+            "instance": run.instance_id,
+            "id": dispatch,
+            "payload": json.dumps({**raw, "usage_ref": reference.model_dump(mode="json")}),
+        },
+    )
+    return reference
 
 
 async def dispatch_event(db: AsyncConnection, instance: str, identity: str, state: str) -> None:

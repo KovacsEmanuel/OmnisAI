@@ -209,7 +209,7 @@ async def test_run_api_pg_three_causal_tasks_and_receive_only_replay(
                 "run-composition-v1": 2,
                 "run-setup-v1": 1,
                 "run-step-v1": expected_calls,
-                "run-usage-v1": expected_calls,
+                "run-usage-v2": expected_calls,
                 "run-tool-result-v1": 3,
                 "run-result-v1": 3,
                 "run-decision-v2": expected_decisions,

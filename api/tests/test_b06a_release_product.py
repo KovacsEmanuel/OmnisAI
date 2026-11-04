@@ -199,7 +199,10 @@ def test_candidate_bindings_are_exact_nonrecursive_inventory(ipc_directory: Path
         candidate_index.bind_catalog(compiled, wrong)
 
 
-def test_qualification_cannot_claim_fabricated_pure_outputs(ipc_directory: Path) -> None:
+@pytest.mark.parametrize("mutation", ["outputs", "input"])
+def test_qualification_cannot_claim_fabricated_pure_outputs(
+    ipc_directory: Path, mutation: str
+) -> None:
     root = private_root(ipc_directory / "catalog")
     package, profile = seed(ipc_directory, "qualified")
     dependency = external(root, package, profile)
@@ -213,7 +216,11 @@ def test_qualification_cannot_claim_fabricated_pure_outputs(ipc_directory: Path)
     path.write_text(yaml.safe_dump(document, sort_keys=False))
     skill_catalog.compile_catalog((local,), local_profile, dependencies=(dependency,))
     qualification = json.loads(dependency.qualification_json)
-    qualification["payload"]["outputs"] = ["{}", "{}", "{}"]
+    if mutation == "outputs":
+        qualification["payload"]["outputs"] = ["{}", "{}", "{}"]
+    else:
+        # Schema-valid outputs from another input are not fresh qualification.
+        qualification["payload"]["pure_input"] = {"capture": "[]"}
     qualification["digest"] = digest(
         canonical({k: v for k, v in qualification.items() if k != "digest"})
     )

@@ -156,13 +156,15 @@ async def test_evaluation_revision_and_stale_readback_storage_seam(
         selected: list[dict[str, object]],
         refs: list[dict[str, object]],
         selected_index: dict[str, object] | None = None,
+        *,
+        read_only: bool = False,
     ) -> CompiledCatalog:
         # Extend only the existing storage seam to the new reservation/dependency
         # join. Real compiler/material/handler behavior remains under test here;
         # actual DB bindings and RELEASE authority are proved in the PG tests.
         assert who == owner and selected == source_records and refs == [profile_ref]
         assert selected_index == index
-        return compile_material(directory, sources)
+        return compile_material(directory, sources, read_only=read_only)
 
     async def execute(
         self: AsyncConnection, statement: object, parameters: object = None

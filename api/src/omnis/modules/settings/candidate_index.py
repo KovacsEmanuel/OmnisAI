@@ -74,11 +74,13 @@ def compile_material(
     sources: list[dict[str, object]],
     *,
     dependencies: tuple["ReleasePackage", ...] = (),
+    read_only: bool = False,
 ) -> CompiledCatalog:
     compiled = compile_catalog(
         tuple(directory / str(s["prefix"]) for s in sources if s["source_kind"] == "package"),
         directory / "profile.yaml",
         dependencies=dependencies,
+        read_only=read_only,
     )
     if any(s["material_digest"] != compiled.material_digest for s in sources):
         raise CatalogError("FROZEN_MATERIAL_MISMATCH")

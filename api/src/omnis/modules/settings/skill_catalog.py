@@ -135,11 +135,14 @@ def compile_catalog(
     profile_path: Path,
     *,
     dependencies: tuple["ReleasePackage", ...] = (),
+    read_only: bool = False,
 ) -> CompiledCatalog:
     from .candidate_resolution import artifact, body, verify
     from .candidate_store import reference as record_ref
 
-    compiled = _compile_catalog(package_roots, profile_path, dependencies=dependencies)
+    compiled = _compile_catalog(
+        package_roots, profile_path, dependencies=dependencies, read_only=read_only
+    )
     if dependencies and any(
         slot.expected_kind in {"contract-case-input", "contract-case-records"}
         for slot in compiled.slots
@@ -148,7 +151,7 @@ def compile_catalog(
     by_ref = {canonical(record_ref(artifact(d))): d for d in dependencies}
     # Each exact release is checked once against its own profile and transitive inventory.
     for dependency in dependencies:
-        release = verify(dependency)
+        release = verify(dependency, read_only=read_only)
         record = artifact(dependency)
         descendants: dict[bytes, ReleasePackage] = {}
         queue = list(cast(list[dict[str, object]], release["dependency_artifact_refs"]))
@@ -160,13 +163,19 @@ def compile_catalog(
             if child is None:
                 raise CatalogError("DEPENDENCY_UNAVAILABLE")
             descendants[token] = child
-            queue.extend(cast(list[dict[str, object]], verify(child)["dependency_artifact_refs"]))
+            queue.extend(
+                cast(
+                    list[dict[str, object]],
+                    verify(child, read_only=read_only)["dependency_artifact_refs"],
+                )
+            )
         directory = dependency.root / "candidates" / str(record["id"])
         qualified = body(cast(dict[str, object], load_json(dependency.qualification_json)))
         checked = _compile_catalog(
             (directory / "packages/0",),
             directory / "profile.yaml",
             dependencies=tuple(descendants[token] for token in sorted(descendants)),
+            read_only=read_only,
         )
         if (
             qualified["material_digest"] != checked.material_digest
@@ -175,14 +184,30 @@ def compile_catalog(
         ):
             raise CatalogError("RELEASE_UNQUALIFIED")
         try:
-            outputs = [
-                raw.decode("utf-8")
-                for raw in evaluate_pure(checked, qualified["pure_input"]).outputs_json
-            ]
+            if read_only:
+                # Retained evidence is checked, never regenerated into fresh qualification.
+                stored = cast(list[str], qualified["outputs"])
+                if (
+                    len(stored) != len(checked.steps)
+                    or sum(len(raw.encode("utf-8")) for raw in stored) > checked.max_output_bytes
+                ):
+                    raise CatalogError("RELEASE_UNQUALIFIED")
+                validate(checked.input_schema, qualified["pure_input"])
+                for step, raw in zip(checked.steps, stored, strict=True):
+                    output = load_json(raw)
+                    if canonical(output).decode("utf-8") != raw:
+                        raise CatalogError("RELEASE_UNQUALIFIED")
+                    validate(step.output_schema, output)
+                validate(checked.output_schema, load_json(stored[-1]))
+            else:
+                outputs = [
+                    raw.decode("utf-8")
+                    for raw in evaluate_pure(checked, qualified["pure_input"]).outputs_json
+                ]
+                if outputs != qualified["outputs"]:
+                    raise CatalogError("RELEASE_UNQUALIFIED")
         except CatalogError:
             raise CatalogError("RELEASE_UNQUALIFIED") from None
-        if outputs != qualified["outputs"]:
-            raise CatalogError("RELEASE_UNQUALIFIED")
     return compiled
 
 
@@ -191,6 +216,7 @@ def _compile_catalog(
     profile_path: Path,
     *,
     dependencies: tuple["ReleasePackage", ...],
+    read_only: bool,
 ) -> CompiledCatalog:
     from .candidate_resolution import artifact, verify
     from .candidate_store import reference as record_ref
@@ -199,7 +225,7 @@ def _compile_catalog(
         raise CatalogError("COUNT_LIMIT")
     if len(dependencies) > 128:
         raise CatalogError("COUNT_LIMIT")
-    releases = [verify(dependency) for dependency in dependencies]
+    releases = [verify(dependency, read_only=read_only) for dependency in dependencies]
     release_records = [artifact(dependency) for dependency in dependencies]
     declared_graph = {
         str(record["id"]): [

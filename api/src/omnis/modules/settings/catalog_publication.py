@@ -318,7 +318,12 @@ class PublicationCatalog:
         return profile, compiled
 
     async def load_probe(
-        self, connection: AsyncConnection, owner: str, ref: dict[str, object]
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        ref: dict[str, object],
+        *,
+        read_only: bool = True,
     ) -> tuple[str, dict[str, object], Profile, CompiledCatalog]:
         """Revalidate exact publication/material without executing qualification PURE."""
         owner = uuid_string(owner)
@@ -326,8 +331,7 @@ class PublicationCatalog:
             raise CatalogError("SNAPSHOT_MISMATCH")
         group, snapshot = await store.get(connection, owner, ref)
         body = payload(snapshot)
-        # RELEASE recompilation executes its qualification input. This interim
-        # consumer cannot admit it while promising execution-free readback.
+        # This interim probe still does not support RELEASE execution.
         if body.get("dependency_artifact_refs") != []:
             raise CatalogError("RELEASE_DEPENDENCY_NOT_SUPPORTED")
         back = await self._readback(connection, owner, valid_ref(body.get("publication_ref")))
@@ -343,6 +347,10 @@ class PublicationCatalog:
         publication_group, _ = await store.get(connection, owner, store.reference(publication))
         if group != publication_group or body != snapshot_payload(publication):
             raise CatalogError("SNAPSHOT_MISMATCH")
+        if not read_only and not readable_revisions(
+            payload(publication)["compiler_revision"], payload(publication)["evaluator_revision"]
+        ):
+            raise CatalogError("LEGACY_READ_ONLY")
         candidate_body = payload(candidate)
         _, records = await self.candidates.sources(connection, owner, candidate_body)
         directory = self.root / "candidates" / str(candidate["id"])
@@ -353,7 +361,13 @@ class PublicationCatalog:
         if not isinstance(refs, list):
             raise CatalogError("SNAPSHOT_MISMATCH")
         compiled = await self.candidates.compile_pinned(
-            connection, owner, directory, records, [valid_ref(r) for r in refs], index
+            connection,
+            owner,
+            directory,
+            records,
+            [valid_ref(r) for r in refs],
+            index,
+            read_only=read_only,
         )
         if resolved_index(compiled) != index or compiled.material_digest != body["material_digest"]:
             raise CatalogError("SNAPSHOT_MISMATCH")
@@ -368,7 +382,7 @@ class PublicationCatalog:
         result: dict[str, object],
     ) -> None:
         if operation == "confirm":
-            group, _, _ = await self._selected(connection, owner, value)
+            group, _, _ = await self._selected(connection, owner, value, read_only=True)
             record = await self._confirmation(
                 connection,
                 owner,
@@ -435,6 +449,11 @@ class PublicationCatalog:
                 publication = back["publication"]
                 if not isinstance(publication, dict):
                     raise CatalogError("STORAGE_INCOMPATIBLE")
+                if not readable_revisions(
+                    payload(publication)["compiler_revision"],
+                    payload(publication)["evaluator_revision"],
+                ):
+                    raise CatalogError("LEGACY_READ_ONLY")
                 group, _ = await store.get(connection, owner, valid_ref(value["publication_ref"]))
                 record = store.envelope("run-snapshot", snapshot_payload(publication))
                 await store.put(connection, owner, group, record)

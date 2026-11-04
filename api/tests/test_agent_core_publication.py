@@ -530,6 +530,117 @@ async def test_retained_v1_publication_readback_preserves_original_revisions(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("operation", ["snapshot", "select", "execute"])
+@pytest.mark.parametrize("legacy", [False, True])
+async def test_probe_legacy_is_read_only_at_each_new_admission(
+    storage_seam: AsyncEngine,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    operation: str,
+    legacy: bool,
+) -> None:
+    from omnis.modules.runs import pure_probe
+    from omnis.modules.settings import catalog_publication as publication
+
+    source = Path(__file__).parent / "fixtures/b06b_publication/source"
+    with monkeypatch.context() as revisions:
+        if legacy:
+            for module in (candidates, publication):
+                revisions.setattr(module, "COMPILER_REVISION", candidates.LEGACY_COMPILER_REVISION)
+            revisions.setattr(
+                candidates, "EVALUATOR_REVISION", candidates.LEGACY_EVALUATOR_REVISION
+            )
+            revisions.setattr(
+                pure_probe,
+                "EXECUTOR_REVISION",
+                "sha256:8a2772da2182682eee14e275bf84529939e4575d418bccd3d42a66d59e026e9e",
+            )
+        catalog, owner, ref = await publish_core(
+            storage_seam,
+            tmp_path / "catalog",
+            package=source / "b06b-publish-contract",
+            profile=source / "profile.yaml",
+            pure_input={"capture": "[]"},
+        )
+
+        def command(**values: object) -> dict[str, object]:
+            return {"schema_version": 1, "owner_id": owner, "command_id": str(uuid4()), **values}
+
+        probe = pure_probe.PureProbe(storage_seam, catalog.root)
+        snapshot_request = command(publication_ref=ref)
+        snapshot = await catalog.dispatch("snapshot", snapshot_request)
+        async with storage_seam.connect() as connection:
+            _, _, profile, _ = await catalog.load_probe(
+                connection, owner, candidates.valid_ref(snapshot["snapshot_ref"])
+            )
+        select_request = command(
+            snapshot_ref=snapshot["snapshot_ref"], recipe_key=profile.agent_recipes[0].key
+        )
+        selected = await probe.dispatch("select", select_request)
+        execute_request = command(selection_ref=selected["selection_ref"], input={"capture": "[]"})
+        executed = await probe.dispatch("execute", execute_request)
+        before = await catalog.dispatch(
+            "readback", {"schema_version": 1, "owner_id": owner, "publication_ref": ref}
+        )
+    before_bytes = canonical(before)
+    files_before = {str(p): p.read_bytes() for p in catalog.root.rglob("*") if p.is_file()}
+
+    def no_effect(*args: object, **kwargs: object) -> None:
+        raise AssertionError("read/replay or legacy admission reached a write/execution sink")
+
+    with monkeypatch.context() as sinks:
+        sinks.setattr(store, "put", no_effect)
+        sinks.setattr(store, "complete", no_effect)
+        sinks.setattr(pure_probe, "execute_outputs", no_effect)
+        sinks.setattr(candidates, "evaluate_pure", no_effect)
+        # Already retained snapshots/selections remain readable, not executable authority.
+        assert await catalog.dispatch("snapshot", snapshot_request) == snapshot
+        assert await probe.dispatch("select", select_request) == selected
+        assert await probe.dispatch("execute", execute_request) == executed
+        receipt = await probe.dispatch(
+            "readback",
+            {"schema_version": 1, "owner_id": owner, "receipt_ref": executed["receipt_ref"]},
+        )
+        assert receipt["receipt"] == executed["receipt"]
+        after = await catalog.dispatch(
+            "readback", {"schema_version": 1, "owner_id": owner, "publication_ref": ref}
+        )
+        assert before_bytes == canonical(after)
+        published = before["publication"]
+        assert isinstance(published, dict)
+        from omnis.modules.settings.publication_models import selection
+
+        async with storage_seam.connect() as connection:
+            confirmation_ref = candidates.valid_ref(
+                candidates.payload(published)["confirmation_ref"]
+            )
+            _, confirmation = await store.get(connection, owner, confirmation_ref)
+            await catalog._revalidate(
+                connection,
+                owner,
+                "confirm",
+                command(**selection(candidates.payload(published))),
+                {"confirmation_ref": confirmation_ref, "confirmation": confirmation},
+            )
+        request = {
+            "snapshot": snapshot_request,
+            "select": select_request,
+            "execute": execute_request,
+        }[operation]
+        consumer = catalog if operation == "snapshot" else probe
+        if legacy:
+            with pytest.raises(CatalogError, match="^LEGACY_READ_ONLY$"):
+                await consumer.dispatch(operation, {**request, "command_id": str(uuid4())})
+    if not legacy:
+        fresh = await consumer.dispatch(operation, {**request, "command_id": str(uuid4())})
+        assert fresh != {"snapshot": snapshot, "select": selected, "execute": executed}[operation]
+    else:
+        assert files_before == {
+            str(p): p.read_bytes() for p in catalog.root.rglob("*") if p.is_file()
+        }
+
+
+@pytest.mark.asyncio
 async def test_core_publication_composition_pg(
     migrated_database_url: URL,
     tmp_path: Path,

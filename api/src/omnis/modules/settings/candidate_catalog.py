@@ -573,6 +573,8 @@ class CandidateCatalog:
         records: list[dict[str, object]],
         refs: list[dict[str, object]],
         index: dict[str, object] | None = None,
+        *,
+        read_only: bool = False,
     ) -> CompiledCatalog:
         sources = [payload(record) for record in records]
         pins = None if index is None else index.get("dependency_artifact_refs")
@@ -589,10 +591,12 @@ class CandidateCatalog:
             directory,
             sources,
             None if pins is None else [valid_ref(p) for p in pins],
+            read_only=read_only,
         )
         bindings = await store.reservation_bindings(connection, owner, refs, records)
         return bind_catalog(
-            compile_material(directory, sources, dependencies=dependencies), bindings
+            compile_material(directory, sources, dependencies=dependencies, read_only=read_only),
+            bindings,
         )
 
     async def freeze(
@@ -702,6 +706,7 @@ class CandidateCatalog:
             records,
             [valid_ref(r) for r in candidate_refs],
             index,
+            read_only=True,
         )
         if (
             resolved_index(compiled) != index
@@ -954,6 +959,8 @@ class CandidateCatalog:
         if await self.frozen_record(connection, owner, group) != snapshot:
             raise CatalogError("SNAPSHOT_MISMATCH")
         body = payload(snapshot)
+        if body["compiler_revision"] != COMPILER_REVISION:
+            raise CatalogError("LEGACY_READ_ONLY")
         _, records = await self.sources(connection, owner, body)
         refs, index = body["candidate_refs"], back["resolved_index"]
         if not isinstance(refs, list) or not isinstance(index, dict):
@@ -1025,6 +1032,7 @@ class CandidateCatalog:
             records,
             [valid_ref(r) for r in refs],
             index,
+            read_only=True,
         )
         material = await self.capture_material(
             connection, owner, group, snapshot, compiled, records, result.get("input_ref")

@@ -45,7 +45,7 @@ def artifact(dependency: ReleasePackage) -> dict[str, object]:
     return store.checked(load_json(dependency.artifact_json))
 
 
-def verify(dependency: ReleasePackage) -> dict[str, object]:
+def verify(dependency: ReleasePackage, *, read_only: bool = False) -> dict[str, object]:
     # Code identities are imported lazily to avoid a compiler/storage import cycle.
     from .candidate_catalog import readable_revisions
 
@@ -86,7 +86,7 @@ def verify(dependency: ReleasePackage) -> dict[str, object]:
             "pure_input",
         }
         or not readable_revisions(
-            qualified["compiler_revision"], qualified["evaluator_revision"], legacy=True
+            qualified["compiler_revision"], qualified["evaluator_revision"], legacy=read_only
         )
         or qualified["static_status"] != "STATIC_PASS"
         or qualified["pure_status"] != "PURE_PASS"
@@ -94,6 +94,7 @@ def verify(dependency: ReleasePackage) -> dict[str, object]:
         or qualified["effective"] is not None
         or not isinstance(qualified["outputs"], list)
         or len(qualified["outputs"]) != 3
+        or not all(isinstance(raw, str) for raw in qualified["outputs"])
         or not isinstance(qualified["pure_input"], dict)
     ):
         raise CatalogError("RELEASE_UNQUALIFIED")
@@ -254,6 +255,8 @@ async def load_dependencies(
     directory: Path,
     sources: list[dict[str, object]],
     pinned: list[dict[str, object]] | None = None,
+    *,
+    read_only: bool = False,
 ) -> tuple[ReleasePackage, ...]:
     """Initial exact selector joins; pinned reads never query a latest/replacement."""
     queue: list[dict[str, object]] = []
@@ -293,7 +296,7 @@ async def load_dependencies(
             connection, owner, exact(body(record).get("qualification_ref"))
         )
         dependency = ReleasePackage(root, canonical(record), canonical(qualification))
-        data = verify(dependency)
+        data = verify(dependency, read_only=read_only)
         total_bytes += sum(
             cast(int, item["size"])
             for source in cast(list[dict[str, object]], data["sources"])

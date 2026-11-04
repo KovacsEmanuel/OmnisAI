@@ -19,6 +19,7 @@ from omnis.core.db import database_engine
 from omnis.modules.settings import candidate_store as store
 from omnis.modules.settings.candidate_catalog import (
     EVALUATOR_REVISION,
+    LEGACY_COMPILER_REVISION,
     payload,
     uuid_string,
     valid_ref,
@@ -55,6 +56,8 @@ def executor_revision() -> str:
 
 
 EXECUTOR_REVISION = executor_revision()
+# Exact bf6d197 receipt identity, accepted only for its retained legacy publication.
+LEGACY_EXECUTOR_REVISION = "sha256:8a2772da2182682eee14e275bf84529939e4575d418bccd3d42a66d59e026e9e"
 
 
 def validate_request(operation: str, value: object) -> dict[str, object]:
@@ -121,7 +124,12 @@ class PureProbe:
             return await self._dispatch(operation, value)
 
     async def _selection(
-        self, connection: AsyncConnection, owner: str, ref: dict[str, object]
+        self,
+        connection: AsyncConnection,
+        owner: str,
+        ref: dict[str, object],
+        *,
+        read_only: bool = True,
     ) -> tuple[str, dict[str, object], CompiledCatalog]:
         group, record = await store.get(connection, owner, ref)
         if record["kind"] != "execution-selection":
@@ -132,7 +140,7 @@ class PureProbe:
         if type(key) is not str:
             raise CatalogError("SELECTION_MISMATCH")
         source_group, _, profile, compiled = await self.publications.load_probe(
-            connection, owner, snapshot_ref
+            connection, owner, snapshot_ref, read_only=read_only
         )
         if group != source_group or body != selection_payload(snapshot_ref, key, profile, compiled):
             raise CatalogError("SELECTION_MISMATCH")
@@ -155,6 +163,18 @@ class PureProbe:
         selection_group, selection, compiled = await self._selection(
             connection, owner, selection_ref
         )
+        if body["executor_revision"] != EXECUTOR_REVISION:
+            _, snapshot = await store.get(
+                connection, owner, valid_ref(payload(selection)["snapshot_ref"])
+            )
+            _, candidate = await store.get(
+                connection, owner, valid_ref(payload(snapshot)["snapshot_ref"])
+            )
+            if (
+                body["executor_revision"] != LEGACY_EXECUTOR_REVISION
+                or payload(candidate)["compiler_revision"] != LEGACY_COMPILER_REVISION
+            ):
+                raise CatalogError("RECEIPT_MISMATCH")
         input_ref = valid_ref(body["input_ref"])
         input_group, input_record = await store.get(connection, owner, input_ref)
         input_body = payload(input_record)
@@ -165,7 +185,6 @@ class PureProbe:
             or set(input_body) != {"selection_ref", "input", "created_by"}
             or input_body["selection_ref"] != selection_ref
             or input_body["created_by"] != owner
-            or body["executor_revision"] != EXECUTOR_REVISION
             or body["status"] != "COMPLETED"
         ):
             raise CatalogError("RECEIPT_MISMATCH")
@@ -243,7 +262,7 @@ class PureProbe:
             if operation == "select":
                 snapshot_ref = valid_ref(value["snapshot_ref"])
                 group, _, profile, compiled = await self.publications.load_probe(
-                    connection, owner, snapshot_ref
+                    connection, owner, snapshot_ref, read_only=False
                 )
                 key = value["recipe_key"]
                 if type(key) is not str:
@@ -255,7 +274,9 @@ class PureProbe:
                 result = {"selection_ref": store.reference(record), "selection": record}
             else:
                 selection_ref = valid_ref(value["selection_ref"])
-                group, _, compiled = await self._selection(connection, owner, selection_ref)
+                group, _, compiled = await self._selection(
+                    connection, owner, selection_ref, read_only=False
+                )
                 outputs = execute_outputs(compiled, value["input"])
                 input_record = store.envelope(
                     "pure-probe-input",

@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "verdict": "APPROVED_DOCUMENTARY_SCOPED",
+  "base_commit": "5c1f6d7640fdc9520d103e1bdf26b7da2cc71281",
+  "reviewed_commit": "dfa0ebfba7d1e24779d7c9dfb8011ff57e5730b2",
+  "scope": "Independent read-only review of the final documentary status delta and blocked S0 recovery point; not S0 acceptance, runtime requalification or an audit of prior reviewers.",
+  "findings": [],
+  "minimal_remedy": null,
+  "reviewed_files": [
+    "README.md",
+    "documents/Omnis_Implementation_Plan.html",
+    "documents/Omnis_Implementation_Plan.md",
+    "documents/Omnis_MVP_Architecture.html",
+    "documents/Omnis_MVP_Architecture.md",
+    "documents/Omnis_Stack_Baseline.html",
+    "documents/Omnis_Stack_Baseline.md",
+    "documents/Omnis_Stack_Baseline.versions.json",
+    "documents/Omnis_UI_UX_Spec.html",
+    "documents/Omnis_UI_UX_Spec.md",
+    "documents/verification/implementation-status.md",
+    "documents/verification/t2-discussion.md"
+  ],
+  "snapshot_verification": {
+    "files_changed": 12,
+    "additions": 50,
+    "deletions": 32,
+    "working_files_match_reviewed_commit": true,
+    "freeze_allowlist_matches": true,
+    "original_freeze_sha_matches": 11,
+    "changed_since_original_freeze": "documents/verification/t2-discussion.md; reviewed directly at the final commit, including its neutral closing status sentence.",
+    "historical_discussion_body_unchanged": true,
+    "versions_json_outside_api_key_runtime_unchanged": true,
+    "production_api_and_frontend_unchanged_since_7ace4f0": true,
+    "final_head_unchanged": true,
+    "tracked_worktree_edits": false,
+    "protected_untracked_files": "tempkey.txt and documents/Omnis_Notite_Originale.html were neither read nor changed."
+  },
+  "conclusions": [
+    "CURRENT, map, plan, architecture, UI, stack and versions JSON consistently retain T2_S0_PARTIAL / BLOCKED_FULL_GATE and S1_NOT_STARTED_NOT_ADMITTED.",
+    "Amendment approval at 7ace4f0, isolated SDK SOURCE proof/reviews at 9ec3587 and failed integrated gate at 22eaecd are separate; none is promoted into S0 acceptance.",
+    "The manifest-pinned library candidate remains CANDIDATE_NOT_ADMITTED with selected_version=null; main API and operator installation remain NOT_SYNCED.",
+    "Section 10 preserves both harness-only repairs, counter=2, earlier canonical FAILs, the narrow Remove PASS and the final three web failures with cause UNKNOWN.",
+    "Recovery requires a separately admitted, bounded discriminating diagnosis on the existing web consumers; no successor, third repair, fourth canonical retry, timeout increase, deselection or oracle weakening is authorized.",
+    "Sizing and IPC exemplars are not proof of future Needs-you schema, owner300s, runtime bridge, persistence, SENT or Brain consumption; clean SDK environment remains material.",
+    "Cleanup and retention claims are bounded to the recorded own-fixture readbacks; scratch PGDATA is not certified backup or indefinite retention, and no current universal live state is claimed."
+  ],
+  "authoritative_gate_readback": {
+    "summary": "documents/verification/t2-s0-evidence/canonical-final-fail.json",
+    "archive": "documents/verification/t2-s0-evidence/canonical-final-fail-originals.tar.gz",
+    "archive_sha256_verified": "3a20e237148e3df58073fce2f95ae555e984549ea64ec90dfa325adf707a1784",
+    "log_sha256_verified": "76d0f64bff724dc48122027c1db126b3a29509a8111094a9a88c8597ce1f6177",
+    "commit": "22eaecdd73d6a42d9a1a79f2edada109ae1f4804",
+    "process": "proc_0ce7bd7e4332",
+    "original_receipt": {"schema_version": 1, "code": 2, "family_drained": true},
+    "failed_stage": "test-web",
+    "api": {"passed": 3218, "skipped": 70, "deselected": 7},
+    "migrations_passed": 23,
+    "web": {"passed": 351, "failed": 3, "total": 354},
+    "failures": [
+      "ProjectionStates.test.tsx: a dashboard 401 expires auth and removes every private query — missing link Synthetic read-only draft",
+      "SettingsModels.test.tsx: activates Skills and Models navigation, wiping unsent secrets without resuming work — missing region Configured models",
+      "SettingsWizard.test.tsx: explicit Refresh creates one fresh catalog identity and retains chosen models without any test or assignment — missing button Add models"
+    ],
+    "cause": "UNKNOWN",
+    "not_reached": ["web production build and audit", "browser/API E2E", "CLI source/wheel/status/release"],
+    "readback_scope": "Final canonical and Remove receipts report 2338 tracked files and 7 operator assets unchanged. First/second/final canonical and Remove receipts retain exact owned cleanup and data-retention observations. No live recheck performed."
+  },
+  "documentary_checks_reused_without_rerun": {
+    "source": "/home/kali/.hermes/cache/scratch/t2-s0-doc-close-5c1f6d7/parent-checks.json and corresponding original stdout/stderr",
+    "render_check": {"command": "python -B scripts/render_docs.py --check", "exit_code": 0, "readers_matching": 5},
+    "documentation": {"command": "python -B -m unittest discover -s tests/documentation -v", "exit_code": 0, "passed": 87, "seconds": 2.135},
+    "diff_check": {"command": "git diff --check", "exit_code": 0},
+    "timing_scope": "Parent-provided checks after its last documentary edit, reused for this read-only review."
+  },
+  "review_tool_issue": "The optional direct diff against the original uncommitted discussion blob returned bad object because that blob is not present in this Git object database. This did not block review: all final paths were compared to the exact final commit, 11 original freeze SHA256 values matched, and the final discussion delta was read directly against the requested base. No source issue inferred.",
+  "limits": [
+    "No tests, SDK/runtime, PostgreSQL, browser, services, provider/target/network calls, environment synchronization, repository edits, commit or push were performed.",
+    "Reticle NOT_APPLICABLE; Chisel BLOCKED_NO_GO.",
+    "No new product mandate, S1 admission, global safety guarantee or S0 acceptance. Parent owns integration and adjudication."
+  ],
+  "created_files": ["/home/kali/.hermes/cache/scratch/t2s0-k6xshrjy/final-status-review.json"]
+}

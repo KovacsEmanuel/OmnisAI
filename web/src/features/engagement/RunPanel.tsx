@@ -28,7 +28,8 @@ export function RunPanel({ draft, stream }: { draft: SelectedDraft; stream: bool
   const busy = useRef(false);
   useEffect(() => { const controller = new AbortController(); lifetime.current = controller; return () => controller.abort(); }, []);
   const [inspected, setInspected] = useState<{ run: string | undefined; attempt: string | null } | null>(null);
-  const [page, setPage] = useState<{ run: string | undefined; after: number } | null>(null);
+  const [page, setPage] = useState<{ run: string | undefined; cursors: number[] } | null>(null);
+  const [eventFilter, setEventFilter] = useState<{ run: string | undefined; kind: string; actor: string }>({ run: undefined, kind: '', actor: '' });
   const pointer = `omnis-run-command-${draft.engagement_id}`;
   useEffect(() => {
     let current = true;
@@ -49,9 +50,11 @@ export function RunPanel({ draft, stream }: { draft: SelectedDraft; stream: bool
   const currentRun = useQuery({ queryKey: currentKey, queryFn: ({ signal }) => readPrivate(async () => checkRunProgress(await api.engagementRun(draft.engagement_id, signal), client.getQueryData<RunView | null>(currentKey)), signal), enabled, ...polling });
   const runId = currentRun.data?.run_id;
   const selected = inspected?.run === runId ? inspected?.attempt : null;
-  const after = page?.run === runId ? page?.after ?? 0 : 0;
+  const cursors = page?.run === runId ? page?.cursors ?? [] : [];
+  const after = cursors.at(-1) ?? 0;
+  const filter = eventFilter.run === runId ? eventFilter : { run: runId, kind: '', actor: '' };
   const setSelected = (attempt: string | null) => setInspected({ run: runId, attempt });
-  const setAfter = (after: number) => setPage({ run: runId, after });
+  const setAfter = (after: number) => setPage({ run: runId, cursors: after === 0 ? [] : [...cursors, after] });
   const summary = useQuery({ queryKey: ['private', 'run-summary', runId], queryFn: ({ signal }) => { if (!runId) throw new ApiError('INVALID_INPUT'); return readPrivate(async () => { const result = await api.runSummary(runId, signal); checkRunProgress(result.run, client.getQueryData<RunSummary>(['private', 'run-summary', runId])?.run); checkRunProgress(result.run, client.getQueryData<RunView | null>(currentKey)); return result; }, signal); }, enabled: enabled && !!runId, ...polling });
   const events = useQuery({ queryKey: ['private', 'run-events', runId, after], queryFn: ({ signal }) => { if (!runId) throw new ApiError('INVALID_INPUT'); return readPrivate(async () => { const result = await api.runEvents(runId, after, signal); const previous = client.getQueryData<EventPage>(['private', 'run-events', runId, after]); if (previous && result.through_cursor < previous.through_cursor) throw new ApiError('INVALID_RESPONSE'); return result; }, signal); }, enabled: enabled && !!runId && stream, ...polling });
   const inspector = useQuery({ queryKey: ['private', 'run-attempt', runId, selected], queryFn: ({ signal }) => { if (!runId || !selected) throw new ApiError('INVALID_INPUT'); return readPrivate(() => api.runAttempt(runId, selected, signal), signal); }, enabled: enabled && !!runId && !!selected && stream, ...polling });
@@ -110,6 +113,11 @@ export function RunPanel({ draft, stream }: { draft: SelectedDraft; stream: bool
     catch { if (!lifetime.current.signal.aborted) setMessage('Receipt unavailable; command remains unknown. No automatic resend.'); }
   }
   const attempts = summary.data?.attempts ?? [];
+  // shortcut: filters cover only this page; whole-run filtering needs a server query contract.
+  const pageEvents = events.data?.events ?? [];
+  const eventTypes = [...new Set([filter.kind, ...pageEvents.map(event => event.kind)])].filter(Boolean);
+  const actors = [...new Set([filter.actor, ...pageEvents.map(event => event.task_id ?? 'none')])].filter(Boolean);
+  const filteredEvents = pageEvents.filter(event => (!filter.kind || event.kind === filter.kind) && (!filter.actor || (event.task_id ?? 'none') === filter.actor));
   const agentButton = (item: Attempt) => <button aria-pressed={selected === item.attempt_id} onClick={() => { setSelected(item.attempt_id); }}>{item.role} · {item.task_id} · {item.state}{item.parent_task_id ? ` · parent ${item.parent_task_id}` : ''}</button>;
   return <section className={`${styles.panel} ${styles.run}`} aria-label="Inert run"><div className={styles.core}>
     <h2>{stream ? 'Brain stream' : 'Inert run · S1'}</h2>
@@ -137,9 +145,14 @@ export function RunPanel({ draft, stream }: { draft: SelectedDraft; stream: bool
       <ul aria-label="Spawned agents">{attempts.filter(item => !attempts.some(parent => parent.task_id === item.parent_task_id)).map(item => <li key={item.attempt_id}>{agentButton(item)}{item.parent_task_id && <p>Parent outside this bounded summary: {item.parent_task_id}</p>}<ul>{attempts.filter(child => child.parent_task_id === item.task_id).map(child => <li key={child.attempt_id}>{agentButton(child)}</li>)}</ul></li>)}</ul>
       {summary.data?.has_more && <p>Some attempts are omitted from this bounded summary. Page through events to select their exact attempt IDs.</p>}
       {summary.data?.attempts.length === 0 && <p>No spawned agents in this summary.</p>}
-      <ol aria-label="Run events">{events.data?.events.map(event => <li key={event.event_id}><button disabled={!event.attempt_id} onClick={() => { setSelected(event.attempt_id); }}>{event.kind} · {event.summary}</button> · {event.event_id}{event.call_id && ` · call ${event.call_id}`}</li>)}</ol>
+      <p>Filters apply only to the loaded page, not the whole run. Page navigation remains unfiltered.</p>
+      <label>Event type<select value={filter.kind} onChange={event => { setEventFilter({ ...filter, kind: event.target.value }); }}><option value="">All types</option>{eventTypes.map(kind => <option key={kind} value={kind}>{kind}</option>)}</select></label>
+      <label>Event actor (task)<select value={filter.actor} onChange={event => { setEventFilter({ ...filter, actor: event.target.value }); }}><option value="">All actors</option>{actors.map(actor => <option key={actor} value={actor}>{actor === 'none' ? 'No actor recorded' : `Task ${actor}`}</option>)}</select></label>
+      <ol aria-label="Run events">{filteredEvents.map(event => <li key={event.event_id}><time dateTime={event.created_at}>{event.created_at} UTC</time> · {event.task_id || event.attempt_id ? `Task ${event.task_id ?? 'not recorded'} · attempt ${event.attempt_id ?? 'not recorded'}` : 'No actor recorded'} · <button disabled={!event.attempt_id} onClick={() => { setSelected(event.attempt_id); }}>{event.kind} · {event.summary}</button> · {event.event_id}{event.call_id && ` · call ${event.call_id}`}</li>)}</ol>
+      {events.data && filteredEvents.length === 0 && <p>{filter.kind || filter.actor ? 'No events match these filters on this loaded page.' : 'No events on this loaded page.'}</p>}
       {events.data && <p>Events after {after} · through {events.data.through_cursor} · {events.data.has_more ? 'More events available' : 'End of observed events'} · as of {events.data.as_of}</p>}
       {after > 0 && <button onClick={() => { setAfter(0); }}>First events</button>}
+      {after > 0 && <button onClick={() => { setPage({ run: runId, cursors: cursors.slice(0, -1) }); }}>Previous events</button>}
       {events.data?.has_more && <button disabled={events.isFetching || events.data.through_cursor <= after} onClick={() => { setAfter(events.data?.through_cursor ?? after); }}>Next events</button>}
       {selected && inspector.isPending && <p>Loading selected agent…</p>}
       {selected && inspector.data && <section aria-label="Agent inspector"><h3>{inspector.data.role} · {inspector.data.attempt_id}</h3><p>Run {inspector.data.run_id} · task {inspector.data.task_id} · parent {inspector.data.parent_task_id ?? 'none'} · {inspector.data.state}</p><p>{inspector.data.brief}</p><ul>{inspector.data.input_refs.map(ref => <li key={ref.id}>Input {ref.kind} · {ref.id} · revision {ref.revision} · {ref.digest}</li>)}</ul><p>Configured model: {inspector.data.configured_model} · Observed model: {inspector.data.observed_model ?? 'UNKNOWN'}</p><ul>{inspector.data.skill_refs.map(ref => <li key={ref.id}>Skill {ref.id} · {ref.digest}</li>)}</ul><p>{inspector.data.result_summary}</p><h4>Allowed input actually sent</h4><pre>{inspector.data.input_text}</pre><h4>Composed instructions and pinned skills</h4><pre>{inspector.data.instructions}</pre><p>Call {inspector.data.call_id ?? 'none'} · tool {inspector.data.tool_arguments ?? 'none'}</p><h4>Persisted tool result</h4><pre>{inspector.data.tool_output ?? 'No tool result'}</pre><p>Read receipt: {inspector.data.read_receipt_ref ? `${inspector.data.read_receipt_ref.id} · ${inspector.data.read_receipt_ref.digest}` : 'Not observed'}</p><p>Final result: {inspector.data.result_ref ? `${inspector.data.result_ref.id} · ${inspector.data.result_ref.digest}` : 'Not finalized'}</p></section>}

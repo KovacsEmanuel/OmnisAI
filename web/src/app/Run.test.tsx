@@ -601,6 +601,90 @@ it('SOURCE pages actual spawn events, inspects only selected attempts and resets
   view.unmount(); client.clear();
 });
 
+it('SOURCE event filters show UTC and exact actors from the loaded page and preserve unfiltered cursor navigation by keyboard', async () => {
+  const { state, writes, fetcher, view, client } = mountedRun('stream');
+  const event: components['schemas']['RunEvent'] = { event_id: id, run_id: runId, task_id: id, attempt_id: setup.id, sequence: 1, kind: 'result', summary: 'First worker result', refs: [], call_id: 'call-actual', created_at: '2026-11-04T10:11:12Z' };
+  const attempt: components['schemas']['Attempt'] = { instance_id: instance.instance_id, run_id: runId, task_id: id, attempt_id: setup.id, role: 'RECON', parent_task_id: instance.instance_id, state: 'SUCCEEDED', brief: 'Exact event attempt', input_refs: [], input_text: 'Synthetic input', instructions: 'Pinned instructions', configured_model: 'fixture/recon', observed_model: null, skill_refs: [], result_summary: 'Bounded result', result_ref: null, read_receipt_ref: null, call_id: 'call-actual', tool_arguments: null, tool_output: null, correction_count: 0 };
+  const original = fetcher.getMockImplementation()!;
+  fetcher.mockImplementation(async (input, init) => {
+    const path = String(input);
+    if (path === `/api/v1/runs/${runId}/attempts/${attempt.attempt_id}`) return new Response(JSON.stringify(attempt));
+    if (path.includes('/events?')) {
+      const after = Number(path.split(':').at(-1));
+      const events = after === 0 ? [event, { ...event, event_id: instance.instance_id, task_id: instance.instance_id, attempt_id: instance.instance_id, sequence: 2, kind: 'decision', summary: 'Actual Brain decision', created_at: '2026-11-04T10:12:13Z' }, { ...event, event_id: setup.id, task_id: null, attempt_id: null, sequence: 3, kind: 'control', summary: 'Control without actor' }] : [{ ...event, sequence: after === 3 ? 7 : 10, task_id: instance.instance_id, attempt_id: instance.instance_id, summary: `Later page after ${after}` }];
+      return new Response(JSON.stringify({ run_id: state.run.run_id, events: events.map(item => ({ ...item, run_id: state.run.run_id })), through_cursor: events.at(-1)?.sequence, has_more: after < 7, as_of: '2026-11-04T12:00:00Z' }));
+    }
+    return original(input, init);
+  });
+  const user = userEvent.setup();
+  const list = await screen.findByRole('list', { name: 'Run events' });
+  await within(list).findByRole('button', { name: 'result · First worker result' });
+  const row = within(list).getByRole('button', { name: 'result · First worker result' }).closest('li');
+  expect(row).toHaveTextContent(`Task ${id} · attempt ${attempt.attempt_id}`);
+  expect(row?.querySelector('time')).toHaveAttribute('datetime', event.created_at);
+  expect(row).toHaveTextContent(`${event.created_at} UTC`);
+  expect(row).not.toHaveTextContent(state.summary.as_of);
+  expect(list).toHaveTextContent('No actor recorded');
+  expect(fetcher.mock.calls.some(([path]) => String(path).includes('/attempts/'))).toBe(false);
+  await user.click(within(list).getByRole('button', { name: 'result · First worker result' }));
+  expect(await screen.findByRole('region', { name: 'Agent inspector' })).toHaveTextContent(`RECON · ${attempt.attempt_id}`);
+  expect(fetcher.mock.calls.some(([path]) => String(path) === `/api/v1/runs/${runId}/attempts/${attempt.attempt_id}`)).toBe(true);
+  expect(screen.getByText(/Filters apply only to the loaded page, not the whole run/)).toBeVisible();
+  const type = screen.getByRole('combobox', { name: 'Event type' });
+  const actor = screen.getByRole('combobox', { name: 'Event actor (task)' });
+  const reads = fetcher.mock.calls.length;
+  type.focus(); await user.selectOptions(type, 'decision');
+  expect(within(list).getAllByRole('listitem')).toHaveLength(1);
+  expect(list).toHaveTextContent('Actual Brain decision');
+  await user.tab(); expect(actor).toHaveFocus();
+  await user.selectOptions(actor, id);
+  expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
+  expect(screen.getByText('No events match these filters on this loaded page.')).toBeVisible();
+  await user.selectOptions(type, '');
+  expect(list).toHaveTextContent('First worker result');
+  expect(list).not.toHaveTextContent('Actual Brain decision');
+  expect(fetcher.mock.calls).toHaveLength(reads);
+  await user.selectOptions(type, 'decision');
+  actor.focus(); await user.tab();
+  expect(screen.getByRole('button', { name: 'Next events' })).toHaveFocus();
+  await user.keyboard('{Enter}');
+  await screen.findByText(/Events after 3 · through 7/);
+  expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
+  expect(screen.getByRole('button', { name: 'Previous events' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'Next events' })).toBeEnabled();
+  screen.getByRole('button', { name: 'Next events' }).focus(); await user.keyboard('{Enter}');
+  await screen.findByText(/Events after 7 · through 10/);
+  screen.getByRole('button', { name: 'Previous events' }).focus(); await user.keyboard('{Enter}');
+  await screen.findByText(/Events after 3 · through 7/);
+  await user.click(screen.getByRole('button', { name: 'First events' }));
+  await screen.findByText(/Events after 0 · through 3/);
+  await user.selectOptions(type, ''); await user.selectOptions(actor, 'none');
+  expect(within(list).getAllByRole('listitem')).toHaveLength(1);
+  expect(list).toHaveTextContent('Control without actor');
+  const next = '00000000-0000-4000-8000-000000000099';
+  state.run = { ...state.run, run_id: next, revision: 1, through_cursor: 3 };
+  state.summary = { ...state.summary, run: state.run };
+  await user.click(screen.getByRole('button', { name: 'Refresh run' }));
+  await waitFor(() => expect(actor).toHaveValue(''));
+  await waitFor(() => expect(within(list).getAllByRole('listitem')).toHaveLength(3));
+  expect(fetcher.mock.calls.filter(([path]) => String(path).includes('/events?')).every(([path]) => new RegExp(`/events\\?after=(${runId}|${next}):(0|3|7)$`).test(String(path)))).toBe(true);
+  expect(writes).toHaveLength(0);
+  view.unmount(); client.clear();
+});
+
+it('SOURCE distinguishes an empty loaded event page from an empty filter result', async () => {
+  const { fetcher, writes, view, client } = mountedRun('stream');
+  const original = fetcher.getMockImplementation()!;
+  fetcher.mockImplementation(async (input, init) => String(input).includes('/events?') ? new Response(JSON.stringify({ run_id: runId, through_cursor: 0, events: [], has_more: false, as_of: '2026-11-04T12:00:00Z' })) : original(input, init));
+  await screen.findByText('No events on this loaded page.');
+  expect(screen.queryByText('No events match these filters on this loaded page.')).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Next events' })).not.toBeInTheDocument();
+  expect(screen.getByRole('combobox', { name: 'Event type' })).toHaveValue('');
+  expect(screen.getByRole('combobox', { name: 'Event actor (task)' })).toHaveValue('');
+  expect(writes).toHaveLength(0);
+  view.unmount(); client.clear();
+});
+
 it('SOURCE retains the newer run revision when a delayed read regresses', async () => {
   const { state, client, view } = mountedRun();
   await screen.findByRole('button', { name: 'Pause run' });

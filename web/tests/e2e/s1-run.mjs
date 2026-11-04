@@ -130,7 +130,7 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   const preparedReceipt = await prepared.json();
   assert.equal(preparedReceipt.state, 'READY');
   assert.ok(preparedReceipt.setup_ref);
-  assert.equal(writes.filter(path => path === preflightPath).length, 1, 'Preflight is not retried');
+  assert.equal(writes.filter(path => path === `POST ${preflightPath}`).length, 1, 'Preflight is not retried');
   const confirmation = page.getByRole('region', { name: 'Run preflight confirmation' });
   await check(confirmation).toContainText(input);
   await check(confirmation).toContainText('fixture/s1');

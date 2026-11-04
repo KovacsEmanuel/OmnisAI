@@ -517,4 +517,4 @@ async def test_recovery_drains_before_unknown_without_spawning(
     else:
         await owned.owner.recover()
         assert owned.run.state == "NEEDS_RECONCILIATION" and owned.run.reason == "OWNER_LOST"
-        assert owned.writes == ["drain_ack", "UNKNOWN", "run:NEEDS_RECONCILIATION"]
+        assert owned.writes == ["drain_ack", "UNKNOWN", "event", "run:NEEDS_RECONCILIATION"]

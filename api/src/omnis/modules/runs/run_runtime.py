@@ -1128,16 +1128,22 @@ class AgentRunOwner:
                     await self.complete(db, run, active, None, "CANCELLED")
                     run = await store.run(db, self.instance, identity)
             if run.state in {"PAUSING", "STOPPING"}:
+                run = run.model_copy(
+                    update={
+                        "state": "NEEDS_RECONCILIATION"
+                        if self.failed
+                        else "PAUSED"
+                        if run.state == "PAUSING"
+                        else "STOPPED",
+                    }
+                )
+                cursor = await store.event(db, run, "control", run.state)
                 await store.save_run(
                     db,
                     run.model_copy(
                         update={
-                            "state": "NEEDS_RECONCILIATION"
-                            if self.failed
-                            else "PAUSED"
-                            if run.state == "PAUSING"
-                            else "STOPPED",
                             "revision": run.revision + 1,
+                            "through_cursor": cursor,
                         }
                     ),
                 )
@@ -1172,16 +1178,18 @@ class AgentRunOwner:
             )
             for identity in ids:
                 run = await store.run(db, self.instance, identity)
-                await store.save_run(
-                    db,
-                    run.model_copy(
-                        update={
-                            "state": "STOPPING",
-                            "fence": run.fence + 1,
-                            "revision": run.revision + 1,
-                        }
-                    ),
-                )
+                if run.state != "STOPPING":
+                    run = run.model_copy(update={"state": "STOPPING", "fence": run.fence + 1})
+                    cursor = await store.event(db, run, "control", "STOPPING")
+                    await store.save_run(
+                        db,
+                        run.model_copy(
+                            update={
+                                "revision": run.revision + 1,
+                                "through_cursor": cursor,
+                            }
+                        ),
+                    )
         for identity in ids:
             await self.drain_run(identity)
         return not self.failed
@@ -1213,17 +1221,24 @@ class AgentRunOwner:
             )
             for identity in ids:
                 run = await store.run(db, self.instance, identity)
-                await store.save_run(
-                    db,
-                    run.model_copy(
+                if run.state != "NEEDS_RECONCILIATION" or run.reason != "OWNER_LOST":
+                    run = run.model_copy(
                         update={
                             "state": "NEEDS_RECONCILIATION",
                             "reason": "OWNER_LOST",
                             "fence": run.fence + 1,
-                            "revision": run.revision + 1,
                         }
-                    ),
-                )
+                    )
+                    cursor = await store.event(db, run, "control", "OWNER_LOST")
+                    await store.save_run(
+                        db,
+                        run.model_copy(
+                            update={
+                                "revision": run.revision + 1,
+                                "through_cursor": cursor,
+                            }
+                        ),
+                    )
                 retained = await store.run(db, self.instance, identity)
                 if retained.active_attempt_id is not None:
                     attempt = await store.attempt(db, retained, retained.active_attempt_id)

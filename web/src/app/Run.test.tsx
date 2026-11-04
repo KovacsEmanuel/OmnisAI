@@ -8,6 +8,7 @@ import { draft, id } from '../../tests/projection-fixtures';
 import { App } from './App';
 import type { components } from '../shared/api/generated';
 import { isRecord } from '../shared/api/errors';
+import { sessionScope } from '../features/engagement/SettingsModels';
 
 it.each(['unchanged', 'selection', 'draft', 'context', 'generation', 'lost-preflight', 'lost-start'] as const)('SOURCE normal preflight/Start pins and invalidates %s without implicit writes', async change => {
   const publication = { kind: 'catalog-publication', id: '00000000-0000-4000-8000-000000000030', revision: 1, digest: 'c'.repeat(64) };
@@ -159,7 +160,7 @@ it('SOURCE global Stop binds the observed run, survives a lost reply and reload 
   view.unmount(); client.clear(); failRead = false;
   current = { ...current, run_id: '00000000-0000-4000-8000-000000000099', revision: 1 };
   view = mount();
-  await user.click(await screen.findByRole('button', { name: 'Read Stop receipt' }));
+  await user.click(await screen.findByRole('button', { name: /^Read Stop receipt/ }));
   await screen.findByText(/ADMITTED.*00000000-0000-4000-8000-000000000032/);
   expect(writes).toHaveLength(1);
   expect(sessionStorage.getItem('omnis-run-stop')).toBeNull();
@@ -189,6 +190,240 @@ function mountedRun(surface = 'overview') {
   const view = render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${id}/${surface}`]}><App /></MemoryRouter></QueryClientProvider>);
   return { state, writes, fetcher, client, view };
 }
+
+it.each(['OPERATION_FINISHED', 'REVISION_CONFLICT', 'AUTHORITY_DENIED'])('SOURCE definite Stop %s releases only its command and requires an explicit Stop for the next observed run', async code => {
+  const { state, writes, fetcher, view, client } = mountedRun();
+  const original = fetcher.getMockImplementation()!;
+  fetcher.mockImplementation(async (input, init) => {
+    if (init?.method === 'POST' && writes.length === 0) {
+      const payload: unknown = JSON.parse(String(init.body));
+      if (!isRecord(payload)) throw new Error('Invalid command');
+      writes.push(payload);
+      return new Response(JSON.stringify({ error: { code, correlation_id: id } }), { status: 409 });
+    }
+    return original(input, init);
+  });
+  const user = userEvent.setup();
+  const stop = await screen.findByRole('button', { name: 'Stop active run' });
+  await waitFor(() => expect(stop).toBeEnabled());
+  // The scripted owner finishes A after its last read, before handling this Stop.
+  sessionStorage.setItem(`omnis-run-command-${id}`, 'unrelated command recovery');
+  state.run = { ...state.run, state: 'COMPLETED', revision: 8 };
+  state.summary = { ...state.summary, run: state.run };
+  await user.click(stop);
+  await screen.findByText(/Stop refused/);
+  expect(sessionStorage.getItem('omnis-run-stop')).toBeNull();
+  expect(sessionStorage.getItem(`omnis-run-command-${id}`)).toBe('unrelated command recovery');
+  expect(screen.queryByRole('button', { name: /^Read Stop receipt/ })).not.toBeInTheDocument();
+  expect(writes).toEqual([expect.objectContaining({ action: 'stop', run_id: runId, expected_revision: 7, expected_generation: 3 })]);
+  await user.click(screen.getByRole('button', { name: 'Read active run' }));
+  await waitFor(() => expect(stop).toBeDisabled());
+  const next = '00000000-0000-4000-8000-000000000099';
+  state.run = { ...state.run, run_id: next, state: 'RUNNING', revision: 2, generation: 4, through_cursor: 1 };
+  state.summary = { ...state.summary, run: state.run };
+  await user.click(screen.getByRole('button', { name: 'Read active run' }));
+  await waitFor(() => expect(screen.getByRole('region', { name: 'Global run control' })).toHaveTextContent(`Run ${next} · RUNNING · revision 2 · generation 4`));
+  expect(writes).toHaveLength(1);
+  await user.click(stop);
+  await screen.findByText(new RegExp(`ADMITTED.*Stop run ${next}`));
+  expect(writes).toHaveLength(2);
+  expect(writes[1]).toMatchObject({ action: 'stop', run_id: next, expected_revision: 2, expected_generation: 4 });
+  expect(writes[1]?.command_id).not.toBe(writes[0]?.command_id);
+  view.unmount(); client.clear(); sessionStorage.clear();
+});
+
+it.each(['receipt', 'refusal'])('SOURCE a late Stop %s clears only A, not an unresolved Stop B from the other control', async outcome => {
+  const { state, writes, fetcher, view, client } = mountedRun();
+  const original = fetcher.getMockImplementation()!;
+  let release: (() => void) | undefined;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  fetcher.mockImplementation(async (input, init) => {
+    if (init?.method === 'POST') {
+      const payload: unknown = JSON.parse(String(init.body));
+      if (!isRecord(payload)) throw new Error('Invalid command');
+      writes.push(payload);
+      if (writes.length === 1) {
+        await gate;
+        return outcome === 'refusal' ? new Response(JSON.stringify({ error: { code: 'OPERATION_FINISHED', correlation_id: id } }), { status: 409 }) : new Response(JSON.stringify({ command_id: payload.command_id, setup_ref: null, run_id: payload.run_id, revision: 8, state: 'ADMITTED' }));
+      }
+      throw new Error('Lost second Stop reply');
+    }
+    return original(input, init);
+  });
+  const user = userEvent.setup();
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Stop active run' })).toBeEnabled());
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Stop run' })).toBeEnabled());
+  await user.click(screen.getByRole('button', { name: 'Stop active run' }));
+  const next = '00000000-0000-4000-8000-000000000099';
+  state.run = { ...state.run, run_id: next, revision: 1, through_cursor: 1 };
+  state.summary = { ...state.summary, run: state.run };
+  await user.click(screen.getByRole('button', { name: 'Refresh run' }));
+  await waitFor(() => expect(screen.getByRole('region', { name: 'Inert run' })).toHaveTextContent(`Run ${next}`));
+  await user.click(screen.getByRole('button', { name: 'Stop run' }));
+  await within(screen.getByRole('region', { name: 'Inert run' })).findByText(/Stop outcome unknown/);
+  const stored = sessionStorage.getItem('omnis-run-stop');
+  expect(stored).toContain(writes[0]?.command_id);
+  expect(stored).toContain(writes[1]?.command_id);
+  await act(async () => { release?.(); });
+  await within(screen.getByRole('region', { name: 'Global run control' })).findByText(outcome === 'refusal' ? /Stop refused/ : /ADMITTED.*Stop run/);
+  expect(sessionStorage.getItem('omnis-run-stop')).toContain(writes[1]?.command_id);
+  expect(sessionStorage.getItem('omnis-run-stop')).not.toContain(writes[0]?.command_id);
+  expect(screen.getByRole('button', { name: 'Stop run' })).toBeDisabled();
+  expect(writes).toHaveLength(2);
+  view.unmount(); client.clear(); sessionStorage.clear();
+});
+
+it('SOURCE lost Stop and receipt NOT_FOUND preserve A while an explicit Stop targets B, both survive reload and settle independently', async () => {
+  const { state, writes, fetcher, client, view } = mountedRun();
+  const original = fetcher.getMockImplementation()!;
+  fetcher.mockImplementation(async (input, init) => {
+    if (init?.method === 'POST') {
+      const payload: unknown = JSON.parse(String(init.body));
+      if (!isRecord(payload)) throw new Error('Invalid command');
+      writes.push(payload);
+      throw new Error('Genuinely lost reply');
+    }
+    if (String(input).startsWith('/api/v1/runs/commands/')) return new Response(JSON.stringify({ error: { code: 'NOT_FOUND', correlation_id: id } }), { status: 404 });
+    return original(input, init);
+  });
+  const user = userEvent.setup();
+  const stop = await screen.findByRole('button', { name: 'Stop active run' });
+  await waitFor(() => expect(stop).toBeEnabled());
+  await user.click(stop);
+  const global = within(screen.getByRole('region', { name: 'Global run control' }));
+  await global.findByText(new RegExp(`Stop outcome unknown · run ${runId}`));
+  const stored = sessionStorage.getItem('omnis-run-stop');
+  expect(stored).toContain(writes[0]?.command_id);
+  await user.click(global.getByRole('button', { name: /^Read Stop receipt/ }));
+  await waitFor(() => expect(global.getByRole('button', { name: /^Read Stop receipt/ })).toBeEnabled());
+  const next = '00000000-0000-4000-8000-000000000099';
+  state.run = { ...state.run, run_id: next, revision: 1, through_cursor: 1 };
+  state.summary = { ...state.summary, run: state.run };
+  await user.click(global.getByRole('button', { name: 'Read active run' }));
+  await global.findByRole('link', { name: new RegExp(`Run ${next}`) });
+  expect(global.getByText(new RegExp(`Unacknowledged Stop · run ${runId}`))).toBeVisible();
+  expect(stop).toBeEnabled();
+  expect(sessionStorage.getItem('omnis-run-stop')).toBe(stored);
+  view.unmount(); client.clear();
+  const mount = () => render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/runtime']}><App /></MemoryRouter></QueryClientProvider>);
+  let reloaded = mount();
+  await user.click(await screen.findByRole('button', { name: /^Read Stop receipt/ }));
+  await screen.findByText(new RegExp(`Stop outcome unknown · run ${runId}`));
+  const stopB = screen.getByRole('button', { name: 'Stop active run' });
+  expect(stopB).toBeEnabled();
+  expect(sessionStorage.getItem('omnis-run-stop')).toBe(stored);
+  expect(writes).toHaveLength(1);
+  await user.click(stopB);
+  await screen.findByText(new RegExp(`Stop outcome unknown · run ${next}`));
+  expect(writes).toHaveLength(2);
+  expect(writes[1]).toMatchObject({ action: 'stop', run_id: next, expected_revision: 1, expected_generation: 3 });
+  expect(writes[1]?.command_id).not.toBe(writes[0]?.command_id);
+  const both = sessionStorage.getItem('omnis-run-stop');
+  expect(both).toContain(writes[0]?.command_id);
+  expect(both).toContain(writes[1]?.command_id);
+  reloaded.unmount(); client.clear(); reloaded = mount();
+  const readA = await screen.findByRole('button', { name: `Read Stop receipt · run ${runId} · command ${writes[0]?.command_id}` });
+  const readB = screen.getByRole('button', { name: `Read Stop receipt · run ${next} · command ${writes[1]?.command_id}` });
+  expect(screen.getByRole('button', { name: 'Stop active run' })).toBeDisabled();
+  expect(writes).toHaveLength(2);
+  expect(sessionStorage.getItem('omnis-run-stop')).toBe(both);
+  const lost = fetcher.getMockImplementation()!;
+  let recoveredA = false;
+  fetcher.mockImplementation(async (input, init) => {
+    const command = String(input).split('/').at(-1);
+    if (String(input).startsWith('/api/v1/runs/commands/') && (command === writes[1]?.command_id || recoveredA)) return new Response(JSON.stringify({ command_id: command, setup_ref: null, run_id: command === writes[0]?.command_id ? runId : next, revision: 8, state: 'ADMITTED' }));
+    return lost(input, init);
+  });
+  await user.click(readB);
+  await screen.findByText(new RegExp(`ADMITTED.*Stop run ${next}`));
+  expect(sessionStorage.getItem('omnis-run-stop')).toContain(writes[0]?.command_id);
+  expect(sessionStorage.getItem('omnis-run-stop')).not.toContain(writes[1]?.command_id);
+  await user.click(readA);
+  await screen.findByText(new RegExp(`Stop outcome unknown · run ${runId}`));
+  expect(readA).toBeEnabled();
+  recoveredA = true;
+  await user.click(readA);
+  await screen.findByText(new RegExp(`ADMITTED.*Stop run ${runId}`));
+  expect(sessionStorage.getItem('omnis-run-stop')).toBeNull();
+  expect(writes).toHaveLength(2);
+  expect(fetcher.mock.calls.filter(([path]) => String(path).startsWith('/api/v1/runs/commands/')).map(([path]) => String(path))).toEqual([writes[0], writes[0], writes[1], writes[0], writes[0]].map(write => `/api/v1/runs/commands/${write?.command_id}`));
+  reloaded.unmount(); client.clear(); sessionStorage.clear();
+});
+
+it.each(['global-first', 'local-first'])('SOURCE competing Stop controls %s check shared pending before another same-run send', async order => {
+  const { writes, fetcher, view, client } = mountedRun();
+  const original = fetcher.getMockImplementation()!;
+  let release: (() => void) | undefined;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  fetcher.mockImplementation(async (input, init) => {
+    if (init?.method === 'POST') { await original(input, init); await gate; throw new Error('Lost Stop reply'); }
+    return original(input, init);
+  });
+  const global = await screen.findByRole('button', { name: 'Stop active run' });
+  const local = await screen.findByRole('button', { name: 'Stop run' });
+  await waitFor(() => { expect(global).toBeEnabled(); expect(local).toBeEnabled(); });
+  act(() => {
+    fireEvent.click(order === 'global-first' ? global : local);
+    fireEvent.click(order === 'global-first' ? local : global);
+  });
+  await waitFor(() => expect(writes).toHaveLength(1));
+  await waitFor(() => { expect(global).toBeDisabled(); expect(local).toBeDisabled(); });
+  await act(async () => { release?.(); });
+  await screen.findByText(/Stop outcome unknown/);
+  fireEvent.click(global); fireEvent.click(local);
+  expect(writes).toHaveLength(1);
+  expect(sessionStorage.getItem('omnis-run-stop')).toContain(writes[0]?.command_id);
+  view.unmount(); client.clear(); sessionStorage.clear();
+});
+
+it('SOURCE retains the legacy single Stop pointer without rewriting it at hydration', async () => {
+  const { writes, fetcher, view, client } = mountedRun();
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Stop active run' })).toBeEnabled());
+  view.unmount(); client.clear();
+  const old = JSON.stringify({ scope: await sessionScope(session.csrf_token), value: { run: runId, command: id } });
+  sessionStorage.setItem('omnis-run-stop', old);
+  const reloaded = render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/runtime']}><App /></MemoryRouter></QueryClientProvider>);
+  const read = await screen.findByRole('button', { name: `Read Stop receipt · run ${runId} · command ${id}` });
+  expect(screen.getByRole('button', { name: 'Stop active run' })).toBeDisabled();
+  expect(sessionStorage.getItem('omnis-run-stop')).toBe(old);
+  const original = fetcher.getMockImplementation()!;
+  fetcher.mockImplementation(async (input, init) => String(input) === `/api/v1/runs/commands/${id}` ? new Response(JSON.stringify({ command_id: id, setup_ref: null, run_id: runId, revision: 8, state: 'ADMITTED' })) : original(input, init));
+  await userEvent.setup().click(read);
+  await screen.findByText(/ADMITTED.*Stop run/);
+  expect(sessionStorage.getItem('omnis-run-stop')).toBeNull();
+  expect(writes).toHaveLength(0);
+  reloaded.unmount(); client.clear();
+});
+
+it.each(['corrupt-json', 'corrupt-entry', 'other-session', 'unreadable', 'unwritable', 'unclearable'])('SOURCE Stop recovery %s fails honestly without purging identities or silently sending', async failure => {
+  const { writes, view, client } = mountedRun();
+  const stop = await screen.findByRole('button', { name: 'Stop active run' });
+  await waitFor(() => expect(stop).toBeEnabled());
+  const scoped = await sessionScope(session.csrf_token);
+  if (failure === 'corrupt-json') sessionStorage.setItem('omnis-run-stop', '{');
+  if (failure === 'corrupt-entry') sessionStorage.setItem('omnis-run-stop', JSON.stringify({ scope: scoped, value: [{ run: runId, command: id }, { run: 'broken', command: id }] }));
+  if (failure === 'other-session') sessionStorage.setItem('omnis-run-stop', JSON.stringify({ scope: 'other', value: { run: runId, command: id } }));
+  const before = sessionStorage.getItem('omnis-run-stop');
+  const method = failure === 'unreadable' ? 'getItem' : failure === 'unwritable' ? 'setItem' : failure === 'unclearable' ? 'removeItem' : null;
+  const spy = method ? vi.spyOn(Storage.prototype, method).mockImplementation(() => { throw new Error('Storage unavailable'); }) : null;
+  await userEvent.setup().click(stop);
+  await within(screen.getByRole('region', { name: 'Global run control' })).findByText(/Stop recovery storage unavailable or invalid/);
+  expect(stop).toBeDisabled();
+  expect(writes).toHaveLength(failure === 'unclearable' ? 1 : 0);
+  spy?.mockRestore();
+  if (failure === 'unclearable') expect(sessionStorage.getItem('omnis-run-stop')).toContain(writes[0]?.command_id);
+  else expect(sessionStorage.getItem('omnis-run-stop')).toBe(before);
+  view.unmount(); client.clear();
+  if (failure.startsWith('corrupt-') || failure === 'other-session') {
+    const reloaded = render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/settings/runtime']}><App /></MemoryRouter></QueryClientProvider>);
+    await screen.findByText(/Stop recovery storage unavailable or invalid/);
+    expect(screen.getByRole('button', { name: 'Stop active run' })).toBeDisabled();
+    expect(sessionStorage.getItem('omnis-run-stop')).toBe(before);
+    expect(writes).toHaveLength(0);
+    reloaded.unmount(); client.clear();
+  }
+  sessionStorage.clear();
+});
 
 it.each(['unknown', 'sending'])('SOURCE Stop remains available when Pause is %s', async phase => {
   const { writes, view, client, fetcher } = mountedRun();

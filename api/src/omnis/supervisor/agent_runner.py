@@ -171,8 +171,29 @@ class AgentStep:
         tool: Callable[[str, str, str], Awaitable[str]],
         observe: Callable[[bytes], Awaitable[None]],
         sent: Callable[[], Awaitable[None]],
+        *,
+        check_data: Callable[[object], Awaitable[None]] | None = None,
     ) -> StepResult:
+        async def checked(value: object) -> None:
+            if contains_secret(value, secret):
+                raise SendDenied("SECRET_ECHO_DENIED")
+            if check_data is not None:
+                await check_data(value)
+
+        async def checked_text(value: str) -> None:
+            await checked(value)
+            try:
+                parsed = decode(value.encode())
+            except ValueError:
+                return
+            await checked(parsed)
+
         expected = self.projection(step)
+        # Check before SDK input logging, then independently check the final wire body.
+        await checked(expected)
+        await checked_text(step.input_text)
+        for exchange in step.history:
+            await checked_text(exchange.result)
         parent = self
         call: Exchange | None = None
         tool_result: str | None = None
@@ -185,6 +206,7 @@ class AgentStep:
                 raw = await request.aread()
                 if requests != 1 or len(raw) > 32768 or digest(decode(raw)) != digest(expected):
                     raise SendDenied("FINAL_DATA_DENIED")
+                await checked(decode(raw))
                 token = CURRENT.set(
                     Permit(
                         ENDPOINTS[step.provider] + "/chat/completions",
@@ -201,9 +223,30 @@ class AgentStep:
                     try:
                         data = await response.aread()
                         parsed = decode(data)
-                        if contains_secret(parsed, secret):
-                            raise SendDenied("SECRET_ECHO_DENIED")
-                        # Preserve original bounded usage before the SDK coerces provider values.
+                        await checked(parsed)
+                        choices_data = parsed.get("choices") if isinstance(parsed, dict) else None
+                        if isinstance(choices_data, list):
+                            for choice in choices_data:
+                                message_data = (
+                                    choice.get("message") if isinstance(choice, dict) else None
+                                )
+                                if isinstance(message_data, dict):
+                                    content = message_data.get("content")
+                                    if isinstance(content, str):
+                                        await checked_text(content)
+                                    tools = message_data.get("tool_calls")
+                                    if isinstance(tools, list):
+                                        for item_data in tools:
+                                            function_data = (
+                                                item_data.get("function")
+                                                if isinstance(item_data, dict)
+                                                else None
+                                            )
+                                            if isinstance(function_data, dict):
+                                                arguments_data = function_data.get("arguments")
+                                                if isinstance(arguments_data, str):
+                                                    await checked_text(arguments_data)
+                        # Capture safe original usage even when output shape later fails.
                         await observe(data)
                         if response.is_success:
                             if isinstance(parsed, dict) and "error" in parsed:
@@ -286,6 +329,7 @@ class AgentStep:
             if call is None or arguments != call.arguments or tool_result is not None:
                 raise SendDenied("TOOL_AUTHORITY_DENIED")
             tool_result = await tool("read_context", arguments, call.call_id)
+            await checked_text(tool_result)
             return tool_result
 
         inputs: list[TResponseInputItem] = [{"role": "user", "content": step.input_text}]
@@ -371,6 +415,7 @@ class AgentStep:
                 output = output.model_dump_json()
             if not isinstance(output, str) or len(output.encode()) > 8192:
                 raise SendDenied("FINAL_OUTPUT_DENIED")
+            await checked_text(output)
             return StepResult(kind="final", text=output, call_id=None, arguments=None)
         except APIStatusError as error:
             raise SendDenied(failure_code(error.status_code, error.body)) from None

@@ -35,6 +35,7 @@ from omnis.modules.runs.run_contract import (
 from omnis.modules.settings.catalog_models import ExactRef
 from omnis.modules.settings.catalog_publication import PublicationCatalog
 from omnis.modules.settings.provider_catalog_runtime import CatalogResult
+from omnis.modules.settings.provider_key_service import ConnectionRevision
 from omnis.modules.tasks.agent_composition import compose_publication
 from omnis.supervisor.agent_runner import (
     AgentStep,
@@ -88,6 +89,26 @@ class AgentRunOwner:
             or (running and run.state != "RUNNING")
         ):
             raise records.ModelConflict("AUTHORITY_DENIED")
+
+    async def data_connections(
+        self, db: AsyncConnection, snapshot: Setup
+    ) -> tuple[ConnectionRevision, ...]:
+        # At most two configured providers and the two pinned role revisions; never plaintext.
+        connections = await self.settings.connections(db)
+        for config in (snapshot.brain, snapshot.recon):
+            if config.connection not in connections:
+                connections.append(config.connection)
+        if len(connections) > 4:
+            raise SendDenied("DATA_CONNECTIONS_DENIED")
+        return tuple(connections)
+
+    async def check_data(self, value: object, connections: tuple[ConnectionRevision, ...]) -> None:
+        for connection in connections:
+            secret = await asyncio.to_thread(
+                self.settings.vault.get, connection.credential(self.instance)
+            )
+            if contains_secret(value, secret):
+                raise SendDenied("SECRET_ECHO_DENIED")
 
     async def role_config(self, db: AsyncConnection, role: str, revision: int) -> RoleConfig:
         selection = await self.settings.selection(db)
@@ -597,6 +618,7 @@ class AgentRunOwner:
                     assert run.active_attempt_id is not None
                     attempt = await store.attempt(db, run, run.active_attempt_id)
                     config = snapshot.brain if attempt.role == "BRAIN" else snapshot.recon
+                    connections = await self.data_connections(db, snapshot)
                     step = StepInput(
                         role=attempt.role,
                         model=config.choice.model,
@@ -691,6 +713,11 @@ class AgentRunOwner:
                             raise SendDenied("DISPATCH_DENIED")
                         await store.dispatch_event(db, self.instance, scope.id, "SENT")
 
+            async def check_data(
+                value: object, *, connections: tuple[ConnectionRevision, ...] = connections
+            ) -> None:
+                await self.check_data(value, connections)
+
             async def observe(
                 raw: bytes, *, scope: Scope = scope, attempt: Attempt = attempt
             ) -> None:
@@ -753,6 +780,7 @@ class AgentRunOwner:
                         context = await records.resolve(
                             db, self.instance, snapshot.context_ref, "run-context-v1"
                         )
+                        await check_data(context)
                         await store.event(
                             db, current, "tool_called", "read_context", actor=owned, call_id=call_id
                         )
@@ -821,6 +849,7 @@ class AgentRunOwner:
                         tool,
                         observe,
                         sent,
+                        check_data=check_data,
                     )
             except asyncio.CancelledError:
                 reason, cancelled = "CANCELLED", True
@@ -929,6 +958,10 @@ class AgentRunOwner:
         if attempt.state != "RUNNING":
             return
         snapshot = await store.setup(db, self.instance, run.setup_ref)
+        if output is not None and reason is None:
+            await self.check_data(
+                decode(output.encode()), await self.data_connections(db, snapshot)
+            )
         if attempt.role == "BRAIN" and reason is None and output is not None:
             decision = BrainDecision.model_validate_json(output)
             if len(decision.consumed_refs) != len(attempt.input_refs) or {

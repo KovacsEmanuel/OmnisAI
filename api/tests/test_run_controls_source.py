@@ -47,6 +47,13 @@ def owned(monkeypatch: pytest.MonkeyPatch) -> Owned:
     settings.owner, settings.epoch, settings.lock = UUID(run.owner_id), 1, asyncio.Lock()
     owner.settings, owner.service, owner.instance = settings, service, run.instance_id
     owner.closing, owner.draining, owner.failed, owner.tasks = False, False, False, {}
+    from unittest.mock import AsyncMock
+
+    from omnis.modules.settings.provider_vault import ProviderVault
+
+    settings.vault = object.__new__(ProviderVault)
+    monkeypatch.setattr(ProviderVault, "get", lambda self, reference: "synthetic-unused-key")
+    monkeypatch.setattr(ProviderSettingsOwner, "connections", AsyncMock(return_value=[]))
     state = Owned(owner, run, None, [])
 
     @asynccontextmanager

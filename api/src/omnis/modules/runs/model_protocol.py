@@ -73,6 +73,17 @@ async def reserve(
 ) -> dict[str, object]:
     payload = mapping(prepared["payload"])
     run = text(payload["run_id"])
+    current = await consumer.read(
+        conn,
+        command.owner_id,
+        run,
+        records.reference(mapping(payload["binding"])),
+        prepared["approval_ref"],
+        payload["projection_ref"],
+        read_only=False,
+    )
+    if canonical(current) != canonical(prepared):
+        raise CatalogError("MODEL_PROTOCOL_REJECTED")
     caps = admitted_caps(command, config)
     remaining = (frozen.deadline_ns - time.monotonic_ns()) / 1_000_000_000
     deadline = (datetime.now(UTC) + timedelta(seconds=remaining)).isoformat()
@@ -154,6 +165,8 @@ async def qualified(
     consumer: ModelDispatch,
     command: NativeTaskCommand,
     references: dict[str, object],
+    *,
+    read_only: bool,
 ) -> tuple[dict[str, object], dict[str, object]]:
     await budgets._transaction(conn, command.owner_id)
     run, descriptor = await store.owned(conn, command.owner_id, references["descriptor_ref"])
@@ -223,6 +236,7 @@ async def qualified(
         body["binding_ref"],
         prepared["approval_ref"],
         payload["projection_ref"],
+        read_only=read_only,
     )
     config = await consumer.read_configuration(
         conn,
@@ -273,7 +287,7 @@ async def mark_sent(
     references: dict[str, object],
     frozen: FrozenPreflight,
 ) -> None:
-    body, _ = await qualified(conn, consumer, command, references)
+    body, _ = await qualified(conn, consumer, command, references, read_only=False)
     require_live_deadline(body)
     if (
         body["request_id"] != frozen.request_id
@@ -293,7 +307,7 @@ async def settle(
     references: dict[str, object],
     result: object,
 ) -> dict[str, object]:
-    body, _ = await qualified(conn, consumer, command, references)
+    body, _ = await qualified(conn, consumer, command, references, read_only=True)
     prepared = mapping(body["prepared"])
     # qualified just performed the same read and canonical equality in this T2.
     # No retained token/cache or public validation bypass crosses this call.
@@ -401,7 +415,7 @@ async def readback(
     command: NativeTaskCommand,
     references: dict[str, object],
 ) -> dict[str, object]:
-    body, state = await qualified(conn, consumer, command, references)
+    body, state = await qualified(conn, consumer, command, references, read_only=True)
     return await _readback(conn, consumer, command, references, body, state)
 
 

@@ -112,6 +112,8 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
     protocol_failure: str | None = None,
     cleanup_fault: str | None = None,
     protocol_case: str | None = None,
+    catalog_boundary: str | None = None,
+    legacy_catalog: bool = False,
 ) -> None:
     """Real composer/reader/adapter; storage and native identity are SOURCE doubles."""
     name = "omnis.modules.runs.model_dispatch"
@@ -157,10 +159,12 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
         request: dict[str, object],
         *,
         preparation_ref: dict[str, object],
+        read_only: bool = False,
     ) -> BuildSource:
         # SOURCE storage/material seam only; producer is actual selection_payload,
         # full publication/material qualification is tested independently in PG.
         source = sources[0]
+        assert type(read_only) is bool
         assert actual_owner == owner
         assert request["selection_ref"] == records.reference(source.selection)
         assert preparation_ref == source.preparation_ref
@@ -220,6 +224,180 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
     )
     assert sum(item["kind"] == "model-data-approval" for item in graph) == 1
     assert sum(item["kind"] == "model-projection" for item in graph) == 1
+    if catalog_boundary is not None:
+        from collections.abc import AsyncIterator
+        from contextlib import asynccontextmanager
+
+        from omnis.modules.runs import model_protocol
+        from omnis.modules.runs.plan_snapshot import snapshot_payload
+        from omnis.modules.settings import candidate_catalog
+        from omnis.modules.settings.catalog_models import CatalogError
+        from omnis.modules.settings.catalog_publication import PublicationCatalog
+        from omnis.supervisor.native_tasks import NativeTaskOwner
+        from omnis.supervisor.runtime_client import FrozenPreflight
+
+        # SOURCE lookup/descriptor doubles; stop just after the real legacy gate.
+        # This is not full historical protocol replay or a persisted ledger.
+        class PassedCatalogGuard(Exception):
+            pass
+
+        managed.root = tmp_path / "catalog"
+        managed.root.mkdir(mode=0o700)
+        monkeypatch.setattr(managed, "_source", ManagedAdmission._source.__get__(managed))
+        selected = sources[0].selection
+        candidate = records.envelope("candidate-snapshot", {})
+        publication = records.envelope(
+            "catalog-publication",
+            {
+                "compiler_revision": candidate_catalog.LEGACY_COMPILER_REVISION
+                if legacy_catalog
+                else candidate_catalog.COMPILER_REVISION,
+                "evaluator_revision": candidate_catalog.LEGACY_EVALUATOR_REVISION
+                if legacy_catalog
+                else candidate_catalog.EVALUATOR_REVISION,
+                "snapshot_ref": records.reference(candidate),
+                "profile_ref": records.reference(records.envelope("profile", {})),
+                "candidate_refs": [],
+                "dependency_closure_refs": [],
+                "dependency_artifact_refs": [],
+                "material_digest": "c" * 64,
+                "resolved_index_digest": "d" * 64,
+                "dependency_closure_digest": "e" * 64,
+                "created_by": owner,
+            },
+        )
+        snapshot = records.envelope("run-snapshot", snapshot_payload(publication))
+        group = str(uuid4())
+
+        async def catalog_get(
+            conn: AsyncConnection, actual_owner: str, pin: object
+        ) -> tuple[str, dict[str, object]]:
+            assert conn is connection and actual_owner == owner
+            if pin == records.reference(selected):
+                return group, selected
+            if pin == mapping(selected["payload"])["snapshot_ref"]:
+                return group, snapshot
+            assert pin == records.reference(publication)
+            return group, publication
+
+        monkeypatch.setattr(records, "get", catalog_get)
+        monkeypatch.setattr(
+            PublicationCatalog,
+            "_readback",
+            AsyncMock(
+                return_value={
+                    "publication": publication,
+                    "snapshot": candidate,
+                    "resolved_index": {},
+                }
+            ),
+        )
+        monkeypatch.setattr(
+            candidate_catalog.CandidateCatalog,
+            "sources",
+            AsyncMock(side_effect=PassedCatalogGuard),
+        )
+        command = NativeTaskCommand.model_validate(
+            {
+                **preflight_command(),
+                "owner_id": owner,
+                "manifest_ref": records.reference(manifest),
+                "action": "model_protocol_prepare",
+                "protocol_id": str(uuid4()),
+                "provider_config_ref": records.reference(records.envelope("provider-config", {})),
+                "protocol_caps": {"calls": 1, "output_tokens": 64, "wall_seconds": 3},
+            }
+        )
+        descriptor = records.envelope(
+            "model-dispatch-owner",
+            {
+                "version": 1,
+                "provenance": model_protocol.PROVENANCE,
+                "owner_id": owner,
+                "run_id": run,
+                "manifest_ref": command.manifest_ref,
+                "binding_ref": records.reference(binding),
+                "authority": mapping(binding["payload"])["authority"],
+                "runtime_boot": mapping(binding["payload"])["runtime_boot"],
+                "purpose": "PREPARE",
+                "provider_config_ref": command.provider_config_ref,
+                "execution_selection_ref": records.reference(selected),
+                "prepared": prepared,
+                "requested_caps": command.protocol_caps,
+                "admitted_caps": command.protocol_caps,
+                "request_id": str(uuid4()),
+                "body_digest": "a" * 64,
+                "frame_digest": "b" * 64,
+                "body": "{}",
+                "deadline": "2030-01-01T00:00:00+00:00",
+                "deadline_ns": 1,
+            },
+        )
+        catalog_refs: dict[str, object] = {
+            "descriptor_ref": records.reference(descriptor),
+            "dispatch_ref": records.reference(records.envelope("model-dispatch", {})),
+        }
+        monkeypatch.setattr(managed_store, "command_replay", AsyncMock(return_value=catalog_refs))
+        monkeypatch.setattr(managed_store, "owned", AsyncMock(return_value=(run, descriptor)))
+
+        @asynccontextmanager
+        async def begin() -> AsyncIterator[AsyncConnection]:
+            yield connection
+
+        monkeypatch.setattr(managed.engine, "begin", begin)
+        handler = object.__new__(NativeTaskOwner)
+        handler.domain = managed
+        for sink, name in (
+            (records, "put"),
+            (records, "complete"),
+            (managed_store, "put"),
+            (managed_store, "command_complete"),
+            (budgets, "create_budget"),
+            (budgets, "reserve"),
+            (budgets, "mark_sent"),
+        ):
+            monkeypatch.setattr(sink, name, AsyncMock(side_effect=AssertionError("write denied")))
+        before = canonical(graph)
+        legacy_denied = legacy_catalog and catalog_boundary in {"prepare", "reserve", "sent"}
+        with pytest.raises(
+            CatalogError if legacy_denied else PassedCatalogGuard,
+            match="^LEGACY_READ_ONLY$" if legacy_denied else None,
+        ):
+            frozen = FrozenPreflight(
+                str(uuid4()),
+                str(mapping(binding["payload"])["runtime_boot"]),
+                0,
+                1,
+                1,
+                3,
+                b"{}",
+                b"{}",
+            )
+            if catalog_boundary == "replay":
+                await handler._model_protocol(command, binding, 0.0)
+            elif catalog_boundary == "read":
+                await model_protocol.readback(connection, consumer, command, catalog_refs)
+            elif catalog_boundary == "settle":
+                await model_protocol.settle(connection, consumer, command, catalog_refs, {})
+            elif catalog_boundary == "sent":
+                await model_protocol.mark_sent(connection, consumer, command, catalog_refs, frozen)
+            elif catalog_boundary == "reserve":
+                from test_ready_model_configuration import configuration
+
+                await model_protocol.reserve(
+                    connection, consumer, command, prepared, configuration(), frozen
+                )
+            else:
+                assert catalog_boundary == "prepare"
+                await consumer.prepare(
+                    connection,
+                    owner,
+                    records.reference(manifest),
+                    records.reference(binding),
+                    {**decision, "decision_id": str(uuid4())},
+                )
+        assert canonical(graph) == before
+        return
     adapter = importlib.import_module("omnis_hermes.model_admission")
     payload = mapping(prepared["payload"])
     carrier = adapter.validate_preflight(payload)
@@ -1136,7 +1314,9 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
                         mutation.setattr(managed_store, "owned", forged_owned)
                         mutation.setattr(budgets, "readback", forged_dispatch)
                         with pytest.raises(CatalogError):
-                            await model_protocol.qualified(connection, consumer, command_dto, refs)
+                            await model_protocol.qualified(
+                                connection, consumer, command_dto, refs, read_only=True
+                            )
                 if protocol_case in {
                     "usage_tokens",
                     "usage_identity",
@@ -1298,6 +1478,17 @@ async def test_qualified_projection_reaches_cold_admission_without_model_reserva
             assert measured["complete_frames_after_return"] == 0
             assert measured["received_after_return"] > 0
     assert not {"native-turn"} & {str(r["kind"]) for r in graph}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("legacy", [False, True])
+@pytest.mark.parametrize("boundary", ["replay", "read", "settle", "prepare", "reserve", "sent"])
+async def test_legacy_catalog_model_admission_intent_source(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, boundary: str, legacy: bool
+) -> None:
+    await test_qualified_projection_reaches_cold_admission_without_model_reservation(
+        tmp_path, monkeypatch, catalog_boundary=boundary, legacy_catalog=legacy
+    )
 
 
 def test_protocol_private_failure_channel_source(tmp_path: Path) -> None:
@@ -2211,7 +2402,9 @@ async def test_protocol_t2_strict_wrappers_source(
         result: object,
     ) -> object:
         nonlocal challenged
-        body, _ = await model_protocol.qualified(conn, consumer, command, references)
+        body, _ = await model_protocol.qualified(
+            conn, consumer, command, references, read_only=True
+        )
         prepared = mapping(body["prepared"])
         before = canonical(await managed_store.graph(conn, command.owner_id, str(body["run_id"])))
         original_context = consumer._context
@@ -2224,6 +2417,8 @@ async def test_protocol_t2_strict_wrappers_source(
             binding: dict[str, object],
             manifest: dict[str, object],
             projection: dict[str, object],
+            *,
+            read_only: bool,
         ) -> dict[str, object]:
             original_source = consumer.projections.managed._source
 
@@ -2233,17 +2428,24 @@ async def test_protocol_t2_strict_wrappers_source(
                 request: dict[str, object],
                 *,
                 preparation_ref: dict[str, object],
+                read_only: bool = False,
             ) -> BuildSource:
                 return replace(
                     await original_source(
-                        connection, owner, request, preparation_ref=preparation_ref
+                        connection,
+                        owner,
+                        request,
+                        preparation_ref=preparation_ref,
+                        read_only=read_only,
                     ),
                     role="VALIDATOR",
                 )
 
             with monkeypatch.context() as local:
                 local.setattr(consumer.projections.managed, "_source", source)
-                return await original_context(connection, owner, run, binding, manifest, projection)
+                return await original_context(
+                    connection, owner, run, binding, manifest, projection, read_only=read_only
+                )
 
         async def get(
             connection: AsyncConnection, owner: str, run: str, pin: object

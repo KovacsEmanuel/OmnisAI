@@ -704,6 +704,17 @@ async def test_probe_legacy_is_read_only_at_each_new_admission(
         if operation in {"native-build", "managed-source"}:
             managed = ManagedAdmission(storage_seam, catalog.root)
             async with storage_seam.connect() as connection:
+                if operation == "managed-source":
+                    read_source = await managed._source(
+                        connection,
+                        owner,
+                        {"selection_ref": selected["selection_ref"]},
+                        preparation_ref=store.reference(receipt),
+                        read_only=True,
+                    )
+                    assert read_source.selection == selected["selection"]
+                    assert read_source.preparation_ref == store.reference(receipt)
+                    assert read_source.preparation_bundle == bundle
                 if legacy:
                     with pytest.raises(CatalogError, match="^LEGACY_READ_ONLY$"):
                         if operation == "native-build":

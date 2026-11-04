@@ -160,8 +160,9 @@ class ManagedAdmission:
         request: dict[str, object],
         *,
         preparation_ref: dict[str, object] | None = None,
+        read_only: bool = False,
     ) -> BuildSource:
-        # Optional material/producer imports occur only on prepare, not API startup/readback.
+        # New admissions stay strict; retained model readers opt in explicitly.
         from omnis.modules.runs.native_preparation import read_receipt, reservation
         from omnis.modules.runs.pure_probe import PureProbe
 
@@ -169,11 +170,11 @@ class ManagedAdmission:
             raise CatalogError("CATALOG_REQUIRED")
         probe = PureProbe(self.engine, self.root)
         group, selection, compiled = await probe._selection(
-            connection, owner, ref(request["selection_ref"]), read_only=False
+            connection, owner, ref(request["selection_ref"]), read_only=read_only
         )
         snapshot_ref = ref(mapping(selection["payload"])["snapshot_ref"])
         _, _, profile, _ = await probe.publications.load_probe(
-            connection, owner, snapshot_ref, read_only=False
+            connection, owner, snapshot_ref, read_only=read_only
         )
         if compiled.dependency_artifact_refs or compiled.dependency_closure_refs:
             raise CatalogError("UNSUPPORTED_DEPENDENCY")

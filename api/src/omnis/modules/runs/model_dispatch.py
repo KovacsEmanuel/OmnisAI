@@ -557,6 +557,23 @@ class ModelDispatch:
         )
         if state["binding_id"] != binding["id"]:
             raise CatalogError("MODEL_DATA_DECISION_REJECTED")
+        graph = await store.graph(connection, owner, run)
+        runs = [r for r in graph if r["kind"] == "managed-run" and r["id"] == run]
+        if len(runs) != 1:
+            raise CatalogError("MODEL_CONTEXT_REJECTED")
+        # Qualify before projection/approval writes, not only their final readback.
+        await self.projections.managed._source(
+            connection,
+            owner,
+            {
+                "selection_ref": mapping(manifest["payload"])["selection_ref"],
+                "composition_version": mapping(manifest["payload"])["composition_version"],
+            },
+            preparation_ref=ref(
+                mapping(runs[0]["payload"])["preparation_receipt_ref"], "native-preparation-receipt"
+            ),
+            read_only=False,
+        )
         payload: dict[str, object] = {
             **supplied,
             "version": 1,
@@ -599,6 +616,7 @@ class ModelDispatch:
             records.reference(binding),
             records.reference(approved),
             records.reference(projection),
+            read_only=False,
         )
 
     async def read(
@@ -609,6 +627,8 @@ class ModelDispatch:
         binding_ref: object,
         approval_ref: object,
         projection_ref: object,
+        *,
+        read_only: bool = True,
     ) -> dict[str, object]:
         await budgets._transaction(connection, owner)
         approved = await store.get(connection, owner, run, ref(approval_ref, "model-data-approval"))
@@ -618,7 +638,9 @@ class ModelDispatch:
         binding = await store.get(connection, owner, run, binding_ref)
         manifest = await store.get(connection, owner, run, body["manifest_ref"])
         contract.validate_binding(binding, manifest)
-        context = await self._context(connection, owner, run, binding, manifest, projection)
+        context = await self._context(
+            connection, owner, run, binding, manifest, projection, read_only=read_only
+        )
         return {
             "approval_ref": records.reference(approved),
             "payload": {
@@ -644,6 +666,8 @@ class ModelDispatch:
         binding: dict[str, object],
         manifest: dict[str, object],
         projection: dict[str, object],
+        *,
+        read_only: bool,
     ) -> dict[str, object]:
         """Qualified source read in the current owner transaction, never authority from a Ref."""
         from omnis.policy.model_context import derive_model_context
@@ -663,6 +687,7 @@ class ModelDispatch:
                 "composition_version": mapping(manifest["payload"])["composition_version"],
             },
             preparation_ref=ref(run_body["preparation_receipt_ref"], "native-preparation-receipt"),
+            read_only=read_only,
         )
         brief = await store.get(connection, owner, run, projection_body["brief_ref"])
         brief_body = mapping(brief["payload"])

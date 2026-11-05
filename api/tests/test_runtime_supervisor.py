@@ -267,9 +267,15 @@ async def test_api_key_owner_admits_after_preopen_heartbeats(
 
     # SOURCE storage/transport doubles; lifecycle, admission and ModelTest callback are real.
     result = Mock(first=Mock(return_value=None), one_or_none=Mock(return_value=None))
+    result.scalar_one.return_value = 0
     result.mappings.return_value.one_or_none.return_value = None
+    result.mappings.return_value.all.return_value = []
     result.scalars.return_value.all.return_value = []
-    connection = Mock(spec=AsyncConnection, execute=AsyncMock(return_value=result))
+    connection = Mock(
+        spec=AsyncConnection,
+        execute=AsyncMock(return_value=result),
+        scalar=AsyncMock(return_value=None),
+    )
 
     @asynccontextmanager
     async def database() -> AsyncIterator[AsyncConnection]:
@@ -314,9 +320,12 @@ async def test_api_key_owner_admits_after_preopen_heartbeats(
         metadata=AsyncMock(side_effect=AssertionError("No SOURCE metadata IO")),
     )
     monkeypatch.setattr(model_sender, "ModelSender", lambda path: sender)
+    sender.transport.backend.relay.retired_through = 0
+    sender.transport.backend.relay.scopes = set()
     monkeypatch.setattr(ProviderVault, "quiescent", lambda vault: True)
     ctl = Mock()
     task_joined = False
+    reached: set[str] = set()
 
     async def active() -> None:
         nonlocal task_joined
@@ -326,6 +335,7 @@ async def test_api_key_owner_admits_after_preopen_heartbeats(
             task_joined = True
 
     async def failed_settlement() -> None:
+        reached.add("settlement-failure")
         raise ValueError("SOURCE settlement failure")
 
     def command() -> ModelTestControl:
@@ -379,7 +389,9 @@ async def test_api_key_owner_admits_after_preopen_heartbeats(
                     "FROM public.provider_selection_revision" in str(call.args[0])
                     for call in connection.execute.await_args_list
                 )  # Missing selection is reached only inside real admission, without provider IO.
-                assert sender.drain.await_count == int(historical_shutdown)
+                reached.add("admission")
+                # Startup reconcile plus both retirement traversals for inherited shutdown.
+                assert sender.drain.await_count == 1 + 2 * int(historical_shutdown)
                 if ending == "stop":
                     owner.spawn(active())
                     await asyncio.sleep(0)
@@ -387,6 +399,7 @@ async def test_api_key_owner_admits_after_preopen_heartbeats(
                     stopped = await service.shutdown(
                         shutdown_id, state.generation, owner.settings.owner, owner.settings.epoch
                     )
+                    reached.add("stop")
                     state = state.model_copy(
                         update={
                             "generation": stopped,
@@ -405,6 +418,7 @@ async def test_api_key_owner_admits_after_preopen_heartbeats(
                     require_owner.side_effect = refusal
                     with pytest.raises(ControlConflict, match="LEASE_LOST"):
                         await callback(command())
+                    reached.add("owner-loss")
                     heartbeat.side_effect = refusal
             elif self.cycles > 3:
                 if ending == "stop":
@@ -449,6 +463,7 @@ async def test_api_key_owner_admits_after_preopen_heartbeats(
             await consumer.run()
         release.assert_awaited_once()
         sender.close.assert_awaited_once()
+    assert reached == {"admission", ending}
     with pytest.raises(ModelConflict, match="^CONTROL_UNAVAILABLE$"):
         await ctl.model_test(command())
     sender.send.assert_not_awaited()

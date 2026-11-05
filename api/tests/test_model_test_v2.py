@@ -684,8 +684,6 @@ async def test_api_pg_sdk_protocol_and_replay(
     heartbeat_stop = asyncio.Event()
 
     async def renew(owner_id: UUID, owner_epoch: int) -> None:
-        if not entry_scenario and scenario != "settings_ui" and not cancel_probe:
-            return
         while not heartbeat_stop.is_set():
             await service.heartbeat(owner_id, owner_epoch)
             try:
@@ -1990,9 +1988,9 @@ async def test_api_pg_sdk_protocol_and_replay(
                             traffic = len(received)
                             assert await overlap(models, removal, other_path, body) == code
                             assert len(received) == traffic
+                        assert await owner.drain()
                         heartbeat_stop.set()
                         await heartbeat
-                        assert await owner.drain()
                         await service.release(process, epoch)
                         released = True
                         fresh_process = uuid4()
@@ -2005,6 +2003,8 @@ async def test_api_pg_sdk_protocol_and_replay(
                         )
                         fresh_sender = ModelSender(socket, client_context)
                         fresh_owner = ApiKeyModelTest(fresh_settings, fresh_sender)
+                        heartbeat_stop.clear()
+                        fresh_heartbeat = asyncio.create_task(renew(fresh_process, fresh_epoch))
                         try:
                             before_restart, traffic = await census_remove(), len(received)
                             await fresh_owner.reconcile()
@@ -2029,9 +2029,17 @@ async def test_api_pg_sdk_protocol_and_replay(
                                 await census_remove() == before_restart and len(received) == traffic
                             )
                         finally:
-                            await fresh_owner.drain()
-                            await fresh_sender.close()
-                            await service.release(fresh_process, fresh_epoch)
+                            try:
+                                await fresh_owner.drain()
+                            finally:
+                                try:
+                                    await fresh_sender.close()
+                                finally:
+                                    heartbeat_stop.set()
+                                    try:
+                                        await fresh_heartbeat
+                                    finally:
+                                        await service.release(fresh_process, fresh_epoch)
                         return
                     if scenario.startswith("entry_generation_"):
                         path = "/api/v1/model-test/entries"
@@ -2242,15 +2250,15 @@ async def test_api_pg_sdk_protocol_and_replay(
                                     ).scalar_one() == expected
                                 assert len(received) == generation_traffic[0] + 1
                         finally:
-                            heartbeat_stop.set()
                             try:
-                                await fresh_heartbeat
+                                assert await fresh_owner.drain()
                             finally:
                                 try:
-                                    assert await fresh_owner.drain()
+                                    await fresh_sender.close()
                                 finally:
+                                    heartbeat_stop.set()
                                     try:
-                                        await fresh_sender.close()
+                                        await fresh_heartbeat
                                     finally:
                                         await service.release(fresh_process, fresh_epoch)
                         return
@@ -2561,9 +2569,9 @@ async def test_api_pg_sdk_protocol_and_replay(
                     await service.shutdown(uuid4(), generation, process, epoch)
                     await service.quiesce(process, epoch)
                     assert (await http.get(read_path)).json() == historical
+                    await owner.drain()
                     heartbeat_stop.set()
                     await heartbeat
-                    await owner.drain()
                     await service.release(process, epoch)
                     released = True
                     fresh_process = uuid4()
@@ -2615,15 +2623,15 @@ async def test_api_pg_sdk_protocol_and_replay(
                                 assert len(received) == before_rotation
                                 assert await relay_census(engine) == catalog_authorities
                     finally:
-                        heartbeat_stop.set()
                         try:
-                            await fresh_heartbeat
+                            assert await fresh_owner.drain()
                         finally:
                             try:
-                                assert await fresh_owner.drain()
+                                await fresh_sender.close()
                             finally:
+                                heartbeat_stop.set()
                                 try:
-                                    await fresh_sender.close()
+                                    await fresh_heartbeat
                                 finally:
                                     await service.release(fresh_process, fresh_epoch)
                     return
@@ -3143,6 +3151,8 @@ async def test_api_pg_sdk_protocol_and_replay(
                         2 if scenario.endswith("at_body") or scenario.startswith("relay_") else 1
                     )
                 if scenario == "complete":
+                    heartbeat_stop.set()
+                    await heartbeat
                     await service.release(process, epoch)
                     released = True
                     script = """
@@ -3167,6 +3177,15 @@ async def main():
     settings=ProviderSettingsOwner(service,owner,epoch,ProviderVault(Path(config["vault"]),Path(config["keys"]),str(status.instance_id)))
     sender=ModelSender(Path(config["socket"]))
     runtime=ApiKeyModelTest(settings,sender)
+    stopped=asyncio.Event()
+    async def renew():
+        while not stopped.is_set():
+            await service.heartbeat(owner,epoch)
+            try:
+                await asyncio.wait_for(stopped.wait(),1)
+            except TimeoutError:
+                pass
+    heartbeat=asyncio.create_task(renew())
     try:
         await runtime.reconcile()
         view=await runtime.handle(ModelTestControl(op="model_test",action="start",operation_id=config["operation"],expected_selection_revision=1,consent=True))
@@ -3175,10 +3194,26 @@ async def main():
         assert replay == read == config["receipt"]
         print(json.dumps(view))
     finally:
-        await runtime.drain()
-        await sender.close()
-        await service.release(owner,epoch)
-        await engine.dispose()
+        primary=sys.exception()
+        try:
+            try:
+                await runtime.drain()
+            finally:
+                await sender.close()
+        finally:
+            stopped.set()
+            try:
+                try:
+                    await heartbeat
+                finally:
+                    await service.release(owner,epoch)
+            except BaseException as cleanup:
+                if primary is not None:
+                    primary.add_note(f"Fixture release also failed: {type(cleanup).__name__}")
+                else:
+                    raise
+            finally:
+                await engine.dispose()
 asyncio.run(main())
 """
                     child = await asyncio.to_thread(
@@ -3215,13 +3250,9 @@ asyncio.run(main())
         catalog_release.set()
         remove_peer_release.set()
         ui_model_release.set()
-        heartbeat_stop.set()
         try:
             try:
-                try:
-                    await heartbeat
-                finally:
-                    await owner.drain()
+                await owner.drain()
             finally:
                 await sender.close()
                 relay.close()
@@ -3233,9 +3264,13 @@ asyncio.run(main())
                 if tasks:
                     await asyncio.wait_for(asyncio.gather(*tasks), 2)
         finally:
+            heartbeat_stop.set()
             try:
-                if not released:
-                    await service.release(process, epoch)
+                try:
+                    await heartbeat
+                finally:
+                    if not released:
+                        await service.release(process, epoch)
             except BaseException as cleanup:
                 if primary is not None:
                     primary.add_note(f"Fixture release also failed: {type(cleanup).__name__}")

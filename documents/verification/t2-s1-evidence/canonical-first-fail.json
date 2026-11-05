@@ -1,0 +1,52 @@
+{
+  "status": "FAIL_CANONICAL_API_STAGE",
+  "source": "dcb1b9be39502f057f6398a86a910d4b36e8f3bc",
+  "session": "proc_64651ed74df5",
+  "command": "make check UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+  "api": {
+    "failed": 18,
+    "passed": 3496,
+    "skipped": 75,
+    "deselected": 7,
+    "seconds": 3452.1,
+    "failed_nodes": [
+      "api/tests/test_catalog_candidates_pg_compatibility.py::test_catalog_candidates_pg_installed_cli_status",
+      "api/tests/test_model_admission_pg.py::test_pg_protocol_failure_late_accounting_and_data[timeout]",
+      "api/tests/test_model_admission_pg.py::test_pg_protocol_concurrent_duplicate_and_conflict[duplicate]",
+      "api/tests/test_model_test_routes.py::test_generation_denial_is_definitive_only_for_entry_start[entry-read]",
+      "api/tests/test_model_test_routes.py::test_generation_denial_is_definitive_only_for_entry_start[entry-cancel]",
+      "api/tests/test_model_test_routes.py::test_generation_denial_is_definitive_only_for_entry_start[legacy]",
+      "api/tests/test_model_test_v2.py::test_api_pg_sdk_protocol_and_replay[complete]",
+      "api/tests/test_openapi.py::test_openapi_declares_real_error_envelopes[/api/pairing-post-statuses0]",
+      "api/tests/test_openapi.py::test_openapi_declares_real_error_envelopes[/api/session-get-statuses1]",
+      "api/tests/test_openapi.py::test_openapi_declares_real_error_envelopes[/api/logout-post-statuses2]",
+      "api/tests/test_openapi.py::test_openapi_declares_real_error_envelopes[/api/instance-get-statuses3]",
+      "api/tests/test_runtime_supervisor.py::test_api_key_owner_admits_after_preopen_heartbeats[stop-False]",
+      "api/tests/test_runtime_supervisor.py::test_api_key_owner_admits_after_preopen_heartbeats[stop-True]",
+      "api/tests/test_runtime_supervisor.py::test_api_key_owner_admits_after_preopen_heartbeats[settlement-failure-False]",
+      "api/tests/test_runtime_supervisor.py::test_api_key_owner_admits_after_preopen_heartbeats[settlement-failure-True]",
+      "api/tests/test_runtime_supervisor.py::test_api_key_owner_admits_after_preopen_heartbeats[owner-loss-False]",
+      "api/tests/test_runtime_supervisor.py::test_api_key_owner_admits_after_preopen_heartbeats[owner-loss-True]",
+      "api/tests/test_t1_upgrade.py::test_finite_upgrade_retains_stop_fence_and_rejects_replay"
+    ]
+  },
+  "receipt": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "after_api_stages": "NOT_RUN: make stopped at test-api",
+  "root": "/home/kali/.hermes/cache/scratch/s1c-a5o4h7si/db-8aa1253e6acc4374",
+  "project": "omnis-p01-bd27f03c1ee247ea8834048def168064",
+  "cid": "d6eb256b75f427d479f86ff456592037aa8049365d2b53302155c9e5812e84ba",
+  "cleanup": {
+    "cid_project_network_absent": true,
+    "pg_socket_absent": true,
+    "launcher_absent": true,
+    "pgdata_retained": "/home/kali/.hermes/cache/scratch/s1c-a5o4h7si/db-8aa1253e6acc4374/data/18/docker"
+  },
+  "source_git_clean": true,
+  "raw_log_sha256": "4ce9bb4523ca18f086a74e9bb7b59c7fedb6ff21e2515c641ee65e913c7147f4",
+  "raw_log_limit": "private log not published; may contain sensitive traceback arguments",
+  "earlier_derived_safe_failures_limit": "its detail associations are invalid for long pytest headers; use only failed_nodes, not that detail map"
+}

@@ -146,6 +146,57 @@ se păstrează. La incertitudine nu se pretinde cleanup. Desktop/mobile/focus ș
 acceptarea vizuală Settings se verifică separat/reutilizează scoped, nu sunt
 certificate de scenariul browser session. Fără provider/target traffic sau T2.
 
+## Upgrade finit T1/S1 — fără upgrade implicit la Start
+
+`omnis upgrade` admite exclusiv profilul `t1-provider-settings` și perechile
+**0.1.0/0016→0.1.1/0017** sau **0.1.1/0017→0.1.2/0019**. Sursa trebuie să fie
+STOPPED verificat, cu receipt/grant original complet și masterul seifului prezent.
+Nu se admite replay, salt de versiuni, schema arbitrară sau adoptarea unui catalog
+preexistent. Aceasta este calea de produs; SOURCE nu certifică rolloutul S1.
+
+```sh
+# CLI candidat instalat separat; bundle și destinație absolută, în afara state/data.
+<cli-candidat>/bin/omnis upgrade --bundle <bundle-0.1.2> --backup <snapshot-nou> --json
+```
+
+Comanda păstrează configurația și UUID-ul, verifică backupul T1 prin restore izolat,
+apoi construiește imaginea țintă, creează catalogul privat S1 și migrează sub fence-ul
+Stop. Publică metadata numai după readback fizic al schemei și folosește Start-ul
+normal, inclusiv modul DEVELOPMENT selectat explicit. Checkoutul DEVELOPMENT
+ales trebuie pregătit separat pentru versiunea țintă; upgrade nu îl modifică.
+Receiptul rămâne format5; payloadul Stop și plafonul16KiB nu se schimbă.
+
+Un `upgrade.json` T1 **COMPLETE validat și legat de sursa curentă** este păstrat
+byte-exact în noul `upgrade-source-<uuid>/upgrade.json`, împreună cu metadata sursei;
+vechiul director rămâne intact. Orice intent activ, necunoscut sau UNCERTAIN refuză
+continuarea. Rollbackul automat există numai pentru eșecul cert, drenat, pre-OPEN:
+restaurează versiunea sursă din metadata salvată și păstrează copia eșuată în
+carantină. După OPEN ori rezultat necunoscut, nu se face downgrade/retry automat.
+
+**Backupul unei instanțe S1 cu catalog rămâne `COLD_CATALOG_UNSUPPORTED`.** Acest
+upgrade verifică snapshotul T1 de dinaintea migrării; nu implementează backup S1 și
+nu include masterul separat în arhiva backupului.
+
+Consumerul instalat existent se selectează din cele două perechi de bundle-uri;
+numele opt-in/testului T1 este păstrat. Numai după review și cu owner/deadline QA:
+
+```sh
+OMNIS_T1_UPGRADE_PROBE=1 \
+OMNIS_T1_OLD_BUNDLE=<copie-bundle-0.1.1> \
+OMNIS_T1_UPGRADE_BUNDLE=<bundle-0.1.2> \
+OMNIS_T1_OLD_CLI=<venv-vechi>/bin/omnis \
+OMNIS_CLI_BIN=<venv-candidat>/bin/omnis \
+cli/.venv/bin/python -I -B -m unittest discover -s cli/integration -p test_release.py \
+  -k test_t1_populated0016_upgrade_installed -v
+```
+
+Aceleași intrări și filtrul
+`test_t1_upgrade_known_preopen_failure_restores_installed_snapshot` verifică rollbackul.
+Fixture-ul este propriu/sintetic, fără conturi sau modele live; nu folosi wrapperul,
+state-ul sau bundle-ul activ al operatorului ca destinație QA. Pentru regresia T1
+se păstrează intrările0.1.0→0.1.1. În DEVELOPMENT, consumerul montează pachetul API
+al bundle-ului țintă, nu sursele unei versiuni mai noi peste schema veche.
+
 ## Recuperare explicită T1 — acceptată local scoped, fără autoresume
 
 `omnis recover [--json]` recuperează **numai** profilul normal `t1-provider-settings`

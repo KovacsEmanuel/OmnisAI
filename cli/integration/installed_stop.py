@@ -115,19 +115,22 @@ def upgrade_preflight(options):
         path = Path(options[name])
         if not path.is_absolute() or path.resolve() != path or not path.exists():
             raise ValueError("UPGRADE_PROBE_INPUTS")
-    for name, version, schema in (
-        ("old_bundle", "0.1.0", "0016_provider_models"),
-        ("bundle", "0.1.1", "0017_model_removal"),
-    ):
-        manifest = json.loads(_manifest(Path(options[name]))[0])
-        if (manifest["release"], manifest["schema"], manifest.get("profile")) != (
-            version,
-            schema,
-            "t1-provider-settings",
-        ):
-            raise ValueError("UPGRADE_PROBE_PROFILE")
+    source, target = (
+        json.loads(_manifest(Path(options[name]))[0]) for name in ("old_bundle", "bundle")
+    )
+    if any(item.get("profile") != "t1-provider-settings" for item in (source, target)) or (
+        source["release"],
+        source["schema"],
+        target["release"],
+        target["schema"],
+    ) not in {
+        ("0.1.0", "0016_provider_models", "0.1.1", "0017_model_removal"),
+        ("0.1.1", "0017_model_removal", "0.1.2", "0019_agent_runs"),
+    }:
+        raise ValueError("UPGRADE_PROBE_PROFILE")
     if not all(os.access(options[name], os.X_OK) for name in ("old_cli", "cli")):
         raise ValueError("UPGRADE_PROBE_CLI")
+    return source, target
 
 
 def run_installed_stop(
@@ -148,8 +151,9 @@ def run_installed_stop(
         ):
             raise ValueError("REBOOT_PROBE_PROFILE")
         validate_new(post_reboot_workspace)
+    upgrade_pair = None
     if upgrade is not None:
-        upgrade_preflight(upgrade)
+        upgrade_pair = upgrade_preflight(upgrade)
         if development is not None or settings_browser is not None:
             raise ValueError("UPGRADE_PROBE_PROFILE")
     if development is not None:
@@ -784,13 +788,19 @@ def run_installed_stop(
         # SO_REUSEADDR=False may retain TIME_WAIT; never adopt a foreign listener.
         wait_port()
         if upgrade is not None:
+            assert upgrade_pair is not None
+            upgrade_source, upgrade_target = upgrade_pair
             old = json.loads(first_receipt)
             completion = root / ("stop-" + old["stop_command"] + ".json")
             completion_bytes = completion.read_bytes()
             cli = upgrade["cli"]
-            assert (
-                command("start", "--no-open", "--json", expected=2)["reason"] == "UPGRADE_REQUIRED"
-            )
+            if upgrade_source["release"] == "0.1.0":
+                assert (
+                    command("start", "--no-open", "--json", expected=2)["reason"]
+                    == "UPGRADE_REQUIRED"
+                )
+            else:
+                assert command("status", "--json")["state"] == "STOPPED"
             assert (root / "startup.json").read_bytes() == first_receipt
             if upgrade_failure:
                 # Test-only installed interpreter seam: fail before OPEN, never alter product bytes.
@@ -835,7 +845,10 @@ def run_installed_stop(
                 assert quarantine.is_dir() and "open_command" not in json.loads(
                     (quarantine / "startup.json").read_text()
                 )
-                assert json.loads((data / "omnis/installed.json").read_text())["release"] == "0.1.0"
+                assert (
+                    json.loads((data / "omnis/installed.json").read_text())["release"]
+                    == upgrade_source["release"]
+                )
                 runtime = ControlRuntime(data, time.monotonic() + 90)
                 assert runtime.receipt.image_id == receipt["image_id"]
                 assert not runtime.ids()
@@ -844,7 +857,7 @@ def run_installed_stop(
                 restored = command("start", "--no-open", "--json")
                 assert (
                     restored["instance_id"] == started["instance_id"]
-                    and restored["schema"] == "0016_provider_models"
+                    and restored["schema"] == upgrade_source["schema"]
                 )
                 record = json.loads((root / "startup.json").read_text())
                 runtime.attempt = record["attempt"]
@@ -870,13 +883,19 @@ def run_installed_stop(
                 assert_resources_absent(runtime, root, control, record)
                 proof = cleanup = True
                 return
-            # Candidate sources are mounted only after old0016 has stopped.
-            source = Path(__file__).resolve().parents[2]
-            shutil.copytree(
-                source / "api/src/omnis",
-                workspace / "api/src/omnis",
-                ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+            # Mount this target's package, not a newer checkout over a retained T1 schema.
+            from zipfile import ZipFile
+
+            wheel_path = (
+                Path(upgrade["bundle"])
+                / "api"
+                / f"omnis_api-{upgrade_target['release']}-py3-none-any.whl"
             )
+            with ZipFile(wheel_path) as wheel:
+                wheel.extractall(
+                    workspace / "api/src",
+                    members=[name for name in wheel.namelist() if name.startswith("omnis/")],
+                )
             shutil.copytree(Path(upgrade["bundle"]) / "web", workspace / "web/dist")
             validate_new(str(workspace))
             config.write_text(
@@ -898,7 +917,15 @@ def run_installed_stop(
             assert (
                 root / ("stopped-" + old["stop_command"] + ".json")
             ).read_bytes() == first_receipt
-            assert restarted["release"] == "0.1.1" and restarted["schema"] == "0017_model_removal"
+            assert (
+                restarted["release"] == upgrade_target["release"]
+                and restarted["schema"] == upgrade_target["schema"]
+            )
+            if upgrade_target["release"] == "0.1.2":
+                from omnis_cli.start_runtime import private_identity
+
+                assert upgraded_record["format"] == 5
+                assert upgraded_record["catalog_identity"] == private_identity(root / "catalog")
             assert restarted["mode"] == "DEVELOPMENT"
             assert upgraded_record["development_workspace"] == str(workspace)
             assert config.read_bytes() == upgrade_config
@@ -920,7 +947,7 @@ def run_installed_stop(
             )
             assert runtime.receipt.image_id != receipt["image_id"]
             assert all((root / name).read_bytes() == value for name, value in vault_before.items())
-            assert (data / "omnis/releases/0.1.0/release.json").is_file()
+            assert (data / "omnis/releases" / upgrade_source["release"] / "release.json").is_file()
             assert (
                 json.loads(runtime.psql(upgraded_record["containers"]["db"], history_sql))
                 == history_before

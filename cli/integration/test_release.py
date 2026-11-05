@@ -276,6 +276,47 @@ class ReleaseBundleTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "UPGRADE_PROBE_INPUTS"):
                 upgrade_preflight({})
 
+    def test_upgrade_preflight_admits_only_two_finite_pairs(self):
+        from installed_stop import upgrade_preflight
+
+        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as name:
+            root = Path(name)
+            for leaf in ("old", "new"):
+                (root / leaf).mkdir()
+            options = {
+                "old_bundle": str(root / "old"),
+                "bundle": str(root / "new"),
+                "old_cli": "/usr/bin/true",
+                "cli": "/usr/bin/true",
+            }
+            for pair in (
+                (("0.1.0", "0016_provider_models"), ("0.1.1", "0017_model_removal")),
+                (("0.1.1", "0017_model_removal"), ("0.1.2", "0019_agent_runs")),
+                (("0.1.0", "0016_provider_models"), ("0.1.2", "0019_agent_runs")),
+                (("0.1.2", "0019_agent_runs"), ("0.1.2", "0019_agent_runs")),
+            ):
+                manifests = [
+                    {"release": v, "schema": s, "profile": "t1-provider-settings"} for v, s in pair
+                ]
+                with (
+                    self.subTest(pair=pair),
+                    patch(
+                        "omnis_cli.release._manifest",
+                        side_effect=[(json.dumps(item).encode(), {}) for item in manifests],
+                    ),
+                    patch("subprocess.run", side_effect=AssertionError("No effects")),
+                ):
+                    if (
+                        pair[0][0] == "0.1.0"
+                        and pair[1][0] == "0.1.1"
+                        or pair[0][0] == "0.1.1"
+                        and pair[1][0] == "0.1.2"
+                    ):
+                        self.assertEqual(upgrade_preflight(options), tuple(manifests))
+                    else:
+                        with self.assertRaisesRegex(ValueError, "UPGRADE_PROBE_PROFILE"):
+                            upgrade_preflight(options)
+
     def test_t1_populated0016_upgrade_installed(self):
         self.t1_upgrade()
 

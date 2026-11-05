@@ -85,13 +85,18 @@ async def control_exchange(
                     "NOT_FOUND",
                     "OPERATION_FINISHED",
                     "CONNECTION_UNAVAILABLE",
-                    "AUTHORITY_DENIED",
-                    "ANSWER_DENIED",
-                    "REF_UNAVAILABLE",
-                    "GENERATION_CONFLICT",
                 }
                 if isinstance(command, RunControl):
-                    allowed.update({"MODEL_NOT_REGISTERED", "DATA_DENIED"})
+                    allowed.update(
+                        {
+                            "AUTHORITY_DENIED",
+                            "ANSWER_DENIED",
+                            "REF_UNAVAILABLE",
+                            "GENERATION_CONFLICT",
+                            "MODEL_NOT_REGISTERED",
+                            "DATA_DENIED",
+                        }
+                    )
                 if isinstance(code, str) and code in allowed:
                     raise ModelConflict(code)
                 raise ValueError("Control unavailable")

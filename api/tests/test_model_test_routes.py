@@ -16,10 +16,23 @@ from omnis.security.sessions import SessionStore
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "case", ["entry-start", "entry-max", "entry-read", "entry-cancel", "legacy", "uncertain"]
+    "case", ["entry-start", "entry-max", "entry-read", "entry-cancel", "legacy", "catalog", "run"]
 )
-async def test_generation_denial_is_definitive_only_for_entry_start(
-    monkeypatch: pytest.MonkeyPatch, case: str
+@pytest.mark.parametrize(
+    "code",
+    [
+        "GENERATION_CONFLICT",
+        "AUTHORITY_DENIED",
+        "ANSWER_DENIED",
+        "REF_UNAVAILABLE",
+        "MODEL_NOT_REGISTERED",
+        "DATA_DENIED",
+        "REVISION_CONFLICT",
+        "CONTROL_UNAVAILABLE",
+    ],
+)
+async def test_control_denial_is_definitive_only_for_its_command(
+    monkeypatch: pytest.MonkeyPatch, case: str, code: str
 ) -> None:
     import asyncio
     import os
@@ -55,15 +68,26 @@ async def test_generation_denial_is_definitive_only_for_entry_start(
     elif case == "entry-cancel":
         path, method = path + "/" + identity + "/cancel", "POST"
         body = {"command_id": identity, "expected_state_revision": 1}
+    elif case == "catalog":
+        path, method = "/api/v1/settings/provider-catalog/search", "POST"
+        body = {
+            "action": "search",
+            "connection_id": identity,
+            "connection_revision": 1,
+            "query": "",
+        }
+    elif case == "run":
+        path, method = f"/api/v1/runs/{identity}/commands", "POST"
+        body = {
+            "action": "stop",
+            "command_id": identity,
+            "run_id": identity,
+            "expected_generation": 1,
+            "expected_revision": 1,
+        }
     reader, writer = Mock(), Mock()
     reader.readuntil = AsyncMock(
-        return_value=json.dumps(
-            {
-                "ok": False,
-                "error": "CONTROL_UNAVAILABLE" if case == "uncertain" else "GENERATION_CONFLICT",
-            }
-        ).encode()
-        + b"\n"
+        return_value=json.dumps({"ok": False, "error": code}).encode() + b"\n"
     )
     writer.drain, writer.wait_closed = AsyncMock(), AsyncMock()
     writer.get_extra_info.return_value.getsockopt.return_value = struct.pack(
@@ -87,14 +111,26 @@ async def test_generation_denial_is_definitive_only_for_entry_start(
         response = await client.request(
             method, path, headers=headers, json=None if method == "GET" else body
         )
-    assert response.status_code == (409 if case in {"entry-start", "entry-max"} else 503)
+    entry_generation = code == "GENERATION_CONFLICT" and case in {"entry-start", "entry-max"}
+    definitive = (
+        entry_generation
+        or code == "REVISION_CONFLICT"
+        or (case == "run" and code != "CONTROL_UNAVAILABLE")
+    )
+    assert response.status_code == (409 if definitive else 503)
     assert response.json()["error"]["code"] == (
-        "REVISION_CONFLICT" if case in {"entry-start", "entry-max"} else "CONTROL_UNAVAILABLE"
+        "REVISION_CONFLICT" if entry_generation else code if definitive else "CONTROL_UNAVAILABLE"
     )
     frame = writer.write.call_args.args[0]
     command = decode_control_frame(frame).command
-    if case in {"entry-start", "entry-max", "uncertain"}:
+    if case in {"entry-start", "entry-max"}:
         assert command.model_dump()["expected_generation"] == body["expected_generation"]
+    if case == "run":
+        assert command.op == "agent_run" and command.model_dump()["request"] == {
+            **body,
+            "question_id": None,
+            "answer": None,
+        }
     if case == "entry-max":
         assert len(frame) == 570
         print(f"ENTRY_ACTUAL_WRITER_MAX_BYTES={len(frame)}")

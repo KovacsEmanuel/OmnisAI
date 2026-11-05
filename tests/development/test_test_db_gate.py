@@ -221,21 +221,35 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
         previous = {signum: signal.getsignal(signum) for signum in (signal.SIGTERM, signal.SIGINT)}
         module = runpy.run_path(str(SCRIPT))
         main = module["main"]
-        with (
-            patch.object(
-                sys, "argv", [str(SCRIPT), "--check", "--target", "test-catalog-candidates-pg"]
-            ),
-            patch.dict(main.__globals__, {"prove_private_fixture": lambda *args: args}),
-            patch.object(module["signal"], "signal"),
+        for target, deadline in (
+            ("test-catalog-candidates-pg", 3600),
+            ("test-s1-run-physical-pg", 900),
         ):
-            try:
-                result = main()
-            except SystemExit as denial:
-                result = denial.code
-            self.assertEqual(result, ("test-catalog-candidates-pg", "uv", 3600))
+            with (
+                self.subTest(target=target),
+                patch.object(
+                    sys,
+                    "argv",
+                    [
+                        str(SCRIPT),
+                        "--check",
+                        "--target",
+                        target,
+                        "--timeout-seconds",
+                        str(deadline),
+                    ],
+                ),
+                patch.dict(main.__globals__, {"prove_private_fixture": lambda *args: args}),
+                patch.object(module["signal"], "signal"),
+            ):
+                try:
+                    result = main()
+                except SystemExit as denial:
+                    result = denial.code
+                self.assertEqual(result, (target, "uv", deadline))
+            self.assertEqual(module["gate_label"](target), "TARGETED_GATE")
         for signum, handler in previous.items():
             self.assertIs(signal.getsignal(signum), handler)
-        self.assertEqual(module["gate_label"]("test-catalog-candidates-pg"), "TARGETED_GATE")
 
     def test_contract_method_target_keeps_existing_owner_and_schema_consumers(self) -> None:
         module = runpy.run_path(str(SCRIPT))
@@ -434,6 +448,7 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
                 for target in (
                     "test-model-test-v2-pg",
                     "test-s1-run-pg",
+                    "test-s1-run-physical-pg",
                     "test-s1-run-ui-pg",
                     "test-settings-models-ui-pg",
                     "test-settings-remove-pg",
@@ -454,16 +469,17 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
                     self.assertEqual(completed.returncode, 2)
                     self.assertIn("Unsafe Make flags", completed.stderr)
                     self.assertFalse((root / "effect").exists())
-            missing = subprocess.run(
-                ["make", "test-model-test-v2-pg"],
-                cwd=root,
-                env=env,
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-            self.assertEqual(missing.returncode, 2)
-            self.assertIn("Dedicated PostgreSQL fixture required", missing.stderr)
+            for target in ("test-model-test-v2-pg", "test-s1-run-physical-pg"):
+                missing = subprocess.run(
+                    ["make", target],
+                    cwd=root,
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
+                self.assertEqual(missing.returncode, 2)
+                self.assertIn("Dedicated PostgreSQL fixture required", missing.stderr)
 
     def test_gate_process_propagates_failure_without_a_database(self) -> None:
         module = runpy.run_path(str(SCRIPT))

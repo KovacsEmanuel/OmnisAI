@@ -1,15 +1,18 @@
 """S1 PG/API owner journey, collected only until parent admits real-consumer QA.
 
-Uses the existing disposable PG and private control fixtures. SDK replies and
-physical relay ACK are explicitly scripted: this proves owner/SQL/API causality,
-not provider inference, network confinement or physical Stop.
+The original journey scripts SDK replies and relay ACKs for owner/SQL/API proof.
+The opt-in physical-control test below uses the real SDK, sender and host relay
+with a programmed local TLS peer: fault injection, never provider inference.
 """
 
 import asyncio
+import importlib
 import json
 import os
+import socket as network_socket
 from collections.abc import AsyncIterable, AsyncIterator
 from contextlib import suppress
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
 
@@ -960,6 +963,872 @@ async def test_run_api_pg_three_causal_tasks_and_receive_only_replay(
                 await service.release(owner, epoch)
             finally:
                 await engine.dispose()
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    os.environ.get("OMNIS_S1_RUN_PHYSICAL") != "1",
+    reason="Explicit reviewed physical-control target; includes a real 300s operation",
+)
+@pytest.mark.parametrize("scenario", ["stop", "pause", "hold", "owner_loss", "deadline"])
+async def test_run_physical_control_pg(
+    migrated_database_url: URL,
+    ipc_directory: Path,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    scenario: str,
+) -> None:
+    """Real SDK/PG/UDS/relay/TLS, programmed local peer, never live inference.
+
+    Linearization: SENT commits before OPEN; Stop/Pause commit their run fence
+    before FENCE/DRAIN; only real ACKs permit DRAINED/final readback. The owner-loss
+    barrier is before OPEN, outside admission/Settings locks, never inside WRITE.
+    """
+    from omnis.modules.instance.domain import ControlConflict
+    from omnis.modules.instance.schemas import ControlRequest
+    from omnis.modules.runs.run_contract import RunControl
+    from omnis.supervisor.model_relay import CipherStream
+    from omnis.supervisor.model_relay_protocol import Scope
+    from omnis.transport import local_control
+    from test_model_test_v2 import tls_contexts
+
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[2] / "cli/src"))
+    start_relay = importlib.import_module("omnis_cli.forwarder").start_auth_forwarder
+    server_context, client_context = tls_contexts(tmp_path)
+    relay_directory = ipc_directory / "r"
+    socket_path = relay_directory / "model-egress.sock"
+    assert len(bytes(socket_path)) <= 107
+    relay = server = run_owner = sender = None
+    peers: list[asyncio.Task[None]] = []
+    received: list[int] = []
+    responses: list[int] = []
+    frame_sizes: list[tuple[int, int]] = []
+    upstream: list[network_socket.socket] = []
+    handed: list[int] = []
+    opens: list[tuple[Scope, str]] = []
+    fences: list[tuple[Scope, float, str, int]] = []
+    acks: list[tuple[str, Scope, float]] = []
+    phase = "positive"
+    entered = asyncio.Event()
+    release_open = asyncio.Event()
+    loop = asyncio.get_running_loop()
+    original_connect = loop.sock_connect
+    original_send = network_socket.socket.send
+    original_decode = local_control.decode_control_frame
+
+    def decode_frame(frame: bytes) -> ControlRequest:
+        result = original_decode(frame)
+        if isinstance(result.command, RunControl):
+            command_size = len(result.command.model_dump_json().encode())
+            assert command_size <= 3600 and len(frame) <= 4096
+            frame_sizes.append((command_size, len(frame)))
+        return result
+
+    monkeypatch.setattr(local_control, "decode_control_frame", decode_frame)
+
+    async def census() -> dict[str, tuple[object, ...]]:
+        values = {}
+        async with engine.connect() as db:
+            for table in (*RUN_COLUMNS, "model_record_v2", "model_relay_authority"):
+                row = (
+                    await db.execute(
+                        text(
+                            f"SELECT count(*),md5(COALESCE(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'')) FROM {table} t"
+                        )
+                    )
+                ).one()
+                values[table] = tuple(row)
+        return values
+
+    async def serve(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+        task = asyncio.current_task()
+        assert task is not None
+        peers.append(task)
+        peer_phase = phase
+        try:
+            header = await reader.readuntil(b"\r\n\r\n")
+            assert header.split(b"\r\n", 1)[0] == b"POST /api/v1/chat/completions HTTP/1.1"
+            lengths = [
+                line.split(b":", 1)[1].strip()
+                for line in header.split(b"\r\n")
+                if line.lower().startswith(b"content-length:")
+            ]
+            assert len(lengths) == 1 and 0 < int(lengths[0]) <= 32768
+            raw = await reader.readexactly(int(lengths[0]))
+            received.append(len(raw))
+            body = json.loads(raw)
+            assert body["model"] == "fixture/s1" and body["max_tokens"] == 1024
+            assert body["provider"] == {"allow_fallbacks": False, "require_parameters": True}
+            if peer_phase in {"stop", "pause", "deadline"}:
+                # Incomplete response with progress defeats the 15s idle timeout,
+                # not the unmodified absolute 300s owner deadline.
+                writer.write(
+                    b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 131072\r\n\r\n "
+                )
+                await writer.drain()
+                responses.append(1)
+                entered.set()
+                for _ in range(330):
+                    try:
+                        assert await asyncio.wait_for(reader.read(1), 1) == b""
+                        return
+                    except TimeoutError:
+                        writer.write(b" ")
+                        await writer.drain()
+                        responses[-1] += 1
+                raise AssertionError("Owner did not close the incomplete TLS response")
+            message: dict[str, object] = {"role": "assistant"}
+            finish = "stop"
+            if body.get("tools") and body["messages"][-1]["role"] != "tool":
+                finish = "tool_calls"
+                message.update(
+                    content=None,
+                    tool_calls=[
+                        {
+                            "id": str(uuid4()),
+                            "type": "function",
+                            "function": {"name": "read_context", "arguments": "{}"},
+                        }
+                    ],
+                )
+            elif body.get("tools"):
+                tool_result = json.loads(body["messages"][-1]["content"])
+                message["content"] = json.dumps(
+                    {
+                        "summary": "Synthetic physical S1 result",
+                        "consumed_refs": [tool_result["ref"]],
+                        "gaps": [],
+                    }
+                )
+            else:
+                inbox = json.loads(body["messages"][-1]["content"])["inbox"]
+                message["content"] = json.dumps(
+                    {
+                        "action": "delegate"
+                        if peer_phase == "positive" and not inbox
+                        else "finish",
+                        "summary": "Synthetic physical S1 decision",
+                        "consumed_refs": [item["ref"] for item in inbox],
+                        "detail": "Read the selected inert context only",
+                    }
+                )
+            payload = (
+                {"error": {"code": "free_quota_exhausted"}}
+                if peer_phase == "hold"
+                else {
+                    "id": "synthetic-physical-not-provider-live",
+                    "object": "chat.completion",
+                    "created": 0,
+                    "model": body["model"],
+                    "usage": {"prompt_tokens": 10, "completion_tokens": 10, "total_tokens": 20},
+                    "choices": [{"index": 0, "message": message, "finish_reason": finish}],
+                }
+            )
+            response = json.dumps(payload).encode()
+            assert len(response) <= 131072
+            responses.append(len(response))
+            status = b"429 Too Many Requests" if peer_phase == "hold" else b"200 OK"
+            writer.write(
+                b"HTTP/1.1 "
+                + status
+                + b"\r\nContent-Type: application/json\r\nContent-Length: "
+                + str(len(response)).encode()
+                + b"\r\n\r\n"
+                + response
+            )
+            await writer.drain()
+            assert await reader.read(1) == b""  # Owner closes each retired dispatch.
+        except ConnectionError:
+            if peer_phase not in {"stop", "pause", "deadline"}:
+                raise
+            # Physical FENCE may reset the peer instead of delivering a TLS EOF.
+        finally:
+            writer.close()
+            with suppress(ConnectionError):
+                await writer.wait_closed()
+
+    def local_dns(
+        host: str, port: int, family: int = 0, type: int = 0, proto: int = 0, flags: int = 0
+    ) -> list[tuple[object, ...]]:
+        assert host == "openrouter.ai" and port == 443 and flags == 0
+        assert family in (0, network_socket.AF_INET)
+        assert type in (0, network_socket.SOCK_STREAM)
+        assert proto in (0, network_socket.IPPROTO_TCP)
+        return [
+            (
+                network_socket.AF_INET,
+                network_socket.SOCK_STREAM,
+                network_socket.IPPROTO_TCP,
+                "",
+                ("8.8.8.8", 443),
+            )
+        ]
+
+    async def local_connect(
+        sock: network_socket.socket, destination: str | tuple[object, ...]
+    ) -> None:
+        if sock.family == network_socket.AF_UNIX:
+            await original_connect(sock, destination)
+        else:
+            assert destination == ("8.8.8.8", 443)
+            upstream.append(sock)
+            await original_connect(sock, address)  # Only the owned loopback TLS peer.
+
+    def observe_send(sock: network_socket.socket, data: bytes, flags: int = 0) -> int:
+        size = original_send(sock, data, flags)
+        if any(sock is item for item in upstream):
+            handed.append(size)
+        return size
+
+    lease_acquired = False
+    heartbeat: asyncio.Task[None] | None = None
+    engine = database_engine(migrated_database_url.render_as_string(hide_password=False))
+    try:
+        service = InstanceService(engine)
+        owner = uuid4()
+        epoch = await service.acquire(owner)
+        lease_acquired = True
+        initial = await service.owned_status(owner, epoch)
+        generation = await service.open(uuid4(), initial.generation, owner, epoch)
+
+        async def renew() -> None:
+            while True:
+                await asyncio.sleep(0.5)
+                await service.heartbeat(owner, epoch)
+
+        heartbeat = asyncio.create_task(renew())
+        vault, key = tmp_path / "vault", tmp_path / "key"
+        vault.mkdir(mode=0o700)
+        key.mkdir(mode=0o700)
+        settings = ProviderSettingsOwner(
+            service, owner, epoch, ProviderVault(vault, key, str(initial.instance_id))
+        )
+        relay_directory.mkdir(mode=0o700)
+        relay = await start_relay(relay_directory, model=True)
+        server = await asyncio.start_server(serve, "127.0.0.1", 0, ssl=server_context)
+        address = server.sockets[0].getsockname()
+        monkeypatch.setattr(network_socket, "getaddrinfo", local_dns)
+        monkeypatch.setattr(loop, "sock_connect", local_connect)
+        monkeypatch.setattr(network_socket.socket, "send", observe_send)
+        sender = ModelSender(socket_path, client_context)
+        model_owner = ApiKeyModelTest(settings, sender)
+        catalog, _, publication = await publish_core(engine, tmp_path / "catalog")
+        run_owner = AgentRunOwner(model_owner, catalog)
+        original_rpc = sender.transport.backend.relay.rpc
+
+        async def observe_rpc(
+            action: str,
+            scope: Scope,
+            connection: str | None = None,
+            sequence: int = 0,
+            data: bytes = b"",
+            size: int = 0,
+            timeout: float = 1,
+            write_deadline: str | None = None,
+            retire_through: int | None = None,
+        ) -> tuple[str, bytes]:
+            if action == "OPEN":
+                assert connection is not None
+                opens.append((scope, connection))
+                async with engine.connect() as db:
+                    assert (
+                        await db.scalar(
+                            text("SELECT state FROM run_dispatch WHERE dispatch_id=:id"),
+                            {"id": scope.id},
+                        )
+                        == "SENT"
+                    )
+                if phase == "owner_loss":
+                    entered.set()
+                    await release_open.wait()  # SENT, no socket opened; no lock held.
+            if action == "FENCE":
+                fence_started = loop.time()
+                async with engine.connect() as db:
+                    identity, state, fence = (
+                        await db.execute(
+                            text(
+                                "SELECT r.run_id::text,r.state,r.fence FROM agent_run r JOIN run_dispatch d USING(run_id) WHERE d.dispatch_id=:id"
+                            ),
+                            {"id": scope.id},
+                        )
+                    ).one()
+                fences.append((scope, fence_started, state, fence))
+                if phase in {"stop", "pause"} and state in {"STOPPING", "PAUSING"}:
+                    # Read committed fence, then veto through CipherStream before host ACK.
+                    active_owner = run_owner
+                    assert active_owner is not None and sender is not None
+                    prior_wire = sum(handed)
+                    stale = CipherStream(
+                        sender.transport.backend.relay,
+                        opens[-1][1],
+                        scope,
+                        lambda: active_owner.write_guard(identity, scope),
+                    )
+                    with pytest.raises(records.ModelConflict) as refused:
+                        await stale.send(b"stale-before-fence-ack")
+                    assert refused.value.code == "AUTHORITY_DENIED" and sum(handed) == prior_wire
+            reply = await original_rpc(
+                action,
+                scope,
+                connection,
+                sequence,
+                data,
+                size,
+                timeout,
+                write_deadline,
+                retire_through,
+            )
+            if action in {"FENCE", "DRAIN"} and reply[0] == "OK":
+                acks.append((action, scope, loop.time()))
+            return reply
+
+        monkeypatch.setattr(sender.transport.backend.relay, "rpc", observe_rpc)
+        connection_id = str(uuid4())
+        choice = {
+            "connection_id": connection_id,
+            "connection_revision": 1,
+            "model": "fixture/s1",
+            "output_tokens": 1024,
+        }
+        await settings.handle(
+            KeySettingsControl.model_validate(
+                {
+                    "op": "provider_settings",
+                    "request": {
+                        "action": "save_connection",
+                        "command_id": str(uuid4()),
+                        "connection_id": connection_id,
+                        "expected_revision": 0,
+                        "provider": "openrouter",
+                        "secret": "synthetic-s1-not-a-key",
+                    },
+                }
+            )
+        )
+        await settings.handle(
+            ModelRegistryControl.model_validate(
+                {
+                    "op": "provider_models",
+                    "request": {
+                        "action": "save_models",
+                        "command_id": str(uuid4()),
+                        "expected_registry_revision": 0,
+                        "connection_id": connection_id,
+                        "connection_revision": 1,
+                        "models": [
+                            {
+                                "entry_id": str(uuid4()),
+                                "expected_revision": 0,
+                                "model": "fixture/s1",
+                                "output_tokens": 1024,
+                            }
+                        ],
+                    },
+                }
+            )
+        )
+        await settings.handle(
+            KeySettingsControl.model_validate(
+                {
+                    "op": "provider_settings",
+                    "request": {
+                        "action": "save_selection_v2",
+                        "command_id": str(uuid4()),
+                        "expected_revision": 0,
+                        "default": choice,
+                        "brain": None,
+                        "recon": None,
+                        "investigator": None,
+                        "validator": None,
+                    },
+                }
+            )
+        )
+        async with engine.begin() as db:
+            connection = await settings.require_connection(db, connection_id, 1)
+            await records.put(
+                db,
+                str(initial.instance_id),
+                "catalog-result",
+                CatalogResult(
+                    command_id=str(uuid4()),
+                    connection=connection,
+                    state="READY",
+                    reason=None,
+                    entries=[
+                        CatalogModel(
+                            model="fixture/s1", max_output_tokens=4096, supports_max_tokens=True
+                        )
+                    ],
+                ).model_dump(mode="json"),
+            )  # Synthetic capabilities, not provider discovery.
+        control_dir = ipc_directory / "control"
+        control_dir.mkdir(mode=0o700)
+        monkeypatch.setenv("OMNIS_CONTROL_DIR", str(control_dir))
+        monkeypatch.setenv("OMNIS_HTTP_PORT", "8765")
+        sessions = SessionStore(engine)
+        await sessions.register(code_digest("s1-physical-pair"), issuance_id=uuid4())
+        grant = await sessions.exchange("s1-physical-pair")
+        async with LocalControl(control_dir, service, owner, epoch) as control:
+            control.agent_run = run_owner.handle
+            app = create_app()
+            app.state.db_engine = engine
+            async with httpx.AsyncClient(
+                transport=httpx.ASGITransport(app=app), base_url="http://127.0.0.1:8765"
+            ) as http:
+                http.cookies.set("omnis_session", grant.token)
+                headers = {"Origin": "http://127.0.0.1:8765", "X-CSRF-Token": grant.csrf}
+                created = await http.post("/api/v1/engagements", json=draft(), headers=headers)
+                assert created.status_code == 201, created.text
+                view = created.json()
+                prepared = await http.post(
+                    f"/api/v1/engagements/{view['engagement_id']}/run-preflight",
+                    json={
+                        "command_id": str(uuid4()),
+                        "expected_generation": generation,
+                        "engagement_id": view["engagement_id"],
+                        "draft_ref": {
+                            key: view[key] for key in ("kind", "id", "revision", "digest")
+                        },
+                        "selection_revision": 1,
+                        "publication_ref": publication,
+                        "synthetic_context": "Owned synthetic physical control fixture",
+                        "data_consent": True,
+                    },
+                    headers=headers,
+                )
+                assert prepared.status_code == 200, prepared.text
+                assert not received and not opens
+                start = {
+                    "expected_generation": generation,
+                    "expected_revision": 1,
+                    "setup_ref": prepared.json()["setup_ref"],
+                }
+
+                async def summary(identity: str, state: str, seconds: int = 15) -> RunSummary:
+                    async with asyncio.timeout(seconds):
+                        while True:
+                            response = await http.get(f"/api/v1/runs/{identity}/summary")
+                            assert response.status_code == 200, response.text
+                            value = RunSummary.model_validate_json(response.content)
+                            assert run_owner is not None and not run_owner.failed
+                            if value.run.state == state and identity not in run_owner.tasks:
+                                return value
+                            await asyncio.sleep(0.02)
+
+                positive = await http.post(
+                    "/api/v1/runs", json={**start, "command_id": str(uuid4())}, headers=headers
+                )
+                assert positive.status_code == 202, positive.text
+                good = await summary(positive.json()["run_id"], "LIMITED")
+                assert len(received) == len(opens) == 4 and sum(handed) > 0
+                worker = next(item for item in good.attempts if item.role == "RECON")
+                inspected = await http.get(
+                    f"/api/v1/runs/{good.run.run_id}/attempts/{worker.attempt_id}"
+                )
+                assert inspected.status_code == 200, inspected.text
+                result = AttemptInspection.model_validate_json(inspected.content)
+                assert result.result is not None and result.result.state == "SUCCEEDED"
+                assert result.result.summary == "Synthetic physical S1 result"
+                assert result.result.consumed_refs == [worker.read_receipt_ref]
+                assert (
+                    result.consumption is not None
+                    and result.consumption.consumer_attempt_id is not None
+                )
+                before = await census()
+                reread = await http.get(
+                    f"/api/v1/runs/{good.run.run_id}/attempts/{worker.attempt_id}"
+                )
+                assert reread.status_code == 200
+                assert AttemptInspection.model_validate_json(reread.content).model_dump(
+                    exclude={"as_of"}
+                ) == result.model_dump(exclude={"as_of"})
+                assert await census() == before and len(received) == 4
+
+                phase = scenario
+                started_mono, started_utc = loop.time(), datetime.now(UTC)
+                started = await http.post(
+                    "/api/v1/runs", json={**start, "command_id": str(uuid4())}, headers=headers
+                )
+                assert started.status_code == 202, started.text
+                identity = started.json()["run_id"]
+                if scenario != "hold":
+                    await asyncio.wait_for(entered.wait(), 15)
+                else:
+                    held = await summary(identity, "HOLD")
+                    assert held.run.reason == "PROVIDER_QUOTA"
+                scope, stream_id = opens[-1]
+                assert len(opens) == 5
+                wire_at_fault = (len(received), len(upstream), sum(handed))
+                deadline_origin = datetime.fromisoformat(scope.deadline) - timedelta(seconds=300)
+                assert 0 <= (deadline_origin - started_utc).total_seconds() < 10
+                reserved_mono = started_mono + (deadline_origin - started_utc).total_seconds()
+                control_started = loop.time()
+                command: dict[str, object] | None = None
+                if scenario in {"stop", "pause"}:
+                    response = await http.get(f"/api/v1/runs/{identity}/summary")
+                    current = RunSummary.model_validate_json(response.content)
+                    command = {
+                        "action": scenario,
+                        "command_id": str(uuid4()),
+                        "run_id": identity,
+                        "expected_generation": generation,
+                        "expected_revision": current.run.revision,
+                    }
+                    stopped = await http.post(
+                        f"/api/v1/runs/{identity}/commands", json=command, headers=headers
+                    )
+                    assert stopped.status_code == 202, stopped.text
+                    end = await summary(identity, "STOPPED" if scenario == "stop" else "PAUSED")
+                    first_fence = next(item for item in fences if item[0] == scope)
+                    assert first_fence[2:] == (
+                        "STOPPING" if scenario == "stop" else "PAUSING",
+                        scope.cancel_epoch + 1,
+                    )
+                    assert control_started <= first_fence[1] and loop.time() - control_started < 10
+                    assert end.run.fence == scope.cancel_epoch + 1 and not end.phase_active
+                elif scenario == "owner_loss":
+                    before = await census()
+                    stale_before_loss = await http.post(
+                        f"/api/v1/runs/{identity}/commands",
+                        json={
+                            "action": "stop",
+                            "command_id": str(uuid4()),
+                            "run_id": identity,
+                            "expected_generation": generation,
+                            "expected_revision": 999,
+                        },
+                        headers=headers,
+                    )
+                    assert stale_before_loss.status_code == 409
+                    assert stale_before_loss.json()["error"]["code"] == "REVISION_CONFLICT"
+                    assert await census() == before and len(received) == 4
+                    heartbeat.cancel()
+                    with suppress(asyncio.CancelledError):
+                        await heartbeat
+                    async with asyncio.timeout(8):
+                        while True:
+                            async with engine.connect() as db:
+                                expired = await db.scalar(
+                                    text(
+                                        "SELECT expires_at<=clock_timestamp() FROM supervisor_lease WHERE id=1"
+                                    )
+                                )
+                            if expired:
+                                break
+                            await asyncio.sleep(0.05)
+                    # Actual PG lease expiry/takeover, not SIGKILL or a forged clock.
+                    owner = uuid4()
+                    epoch = await service.acquire(owner)
+                    heartbeat = asyncio.create_task(renew())
+                    recovered_settings = ProviderSettingsOwner(
+                        service, owner, epoch, settings.vault
+                    )
+                    recovery = AgentRunOwner(ApiKeyModelTest(recovered_settings, sender), catalog)
+                    await recovery.recover()
+                    old_task = run_owner.tasks[identity]
+                    assert not old_task.done()
+                    async with engine.connect() as db:
+                        assert (
+                            await db.scalar(
+                                text("SELECT state FROM run_dispatch WHERE dispatch_id=:id"),
+                                {"id": scope.id},
+                            )
+                            == "UNKNOWN"
+                        )
+                        assert (
+                            await db.scalar(
+                                text("SELECT payload->>'reason' FROM agent_run WHERE run_id=:id"),
+                                {"id": identity},
+                            )
+                            == "OWNER_LOST"
+                        )
+                    recovered_rows = await census()
+                    old_task.cancel()
+                    await asyncio.wait_for(old_task, 3)
+                    assert await census() == recovered_rows
+                    end = await summary(identity, "NEEDS_RECONCILIATION")
+                    assert end.run.reason == "OWNER_LOST" and len(received) == 4
+                    assert (len(received), len(upstream), sum(handed)) == wire_at_fault
+                    async with engine.connect() as db:
+                        assert (
+                            await db.scalar(
+                                text("SELECT state FROM run_dispatch WHERE dispatch_id=:id"),
+                                {"id": scope.id},
+                            )
+                            == "UNKNOWN"
+                        )
+                    before = await census()
+                    await recovery.recover()
+                    assert await census() == before and len(received) == 4
+                elif scenario == "deadline":
+                    await asyncio.wait_for(asyncio.shield(run_owner.tasks[identity]), 320)
+                    end = await summary(identity, "NEEDS_RECONCILIATION", 320)
+                    assert end.run.reason == "MODEL_RESPONSE_UNKNOWN"
+                    first_fence = next(item for item in fences if item[0] == scope)
+                    operation_seconds = first_fence[1] - reserved_mono
+                    drain_seconds = (
+                        max(t for action, s, t in acks if action == "DRAIN" and s == scope)
+                        - first_fence[1]
+                    )
+                    assert 299.5 <= operation_seconds <= 305
+                    assert 0 <= drain_seconds < 10
+                    assert 290 <= responses[-1] <= 330
+                    print(
+                        f"S1_DEADLINE operation_seconds={operation_seconds:.3f} drain_seconds={drain_seconds:.3f}"
+                    )
+
+                assert not run_owner.failed and not model_owner.settlement_failed
+                assert not sender.transport.backend.relay.failed
+                assert {action for action, s, _ in acks if s == scope} == {"FENCE", "DRAIN"}
+                async with engine.connect() as db:
+                    assert (
+                        await db.scalar(
+                            text("SELECT state FROM model_relay_authority WHERE id=:id"),
+                            {"id": scope.id},
+                        )
+                        == "DRAINED"
+                    )
+                    assert (
+                        await db.scalar(
+                            text(
+                                "SELECT count(*) FROM run_dispatch WHERE state IN ('RESERVED','SENT')"
+                            )
+                        )
+                        == 0
+                    )
+                before, wire_before = await census(), (len(received), len(opens), sum(handed))
+                stale_stream = CipherStream(
+                    sender.transport.backend.relay,
+                    stream_id,
+                    scope,
+                    lambda: run_owner.write_guard(identity, scope),
+                )
+                if scenario == "owner_loss":
+                    with pytest.raises(ControlConflict) as lost:
+                        await stale_stream.send(b"stale-owned-ciphertext")
+                    assert lost.value.code.value == "LEASE_LOST"
+                else:
+                    with pytest.raises(records.ModelConflict) as denied:
+                        await stale_stream.send(b"stale-owned-ciphertext")
+                    assert denied.value.code == "AUTHORITY_DENIED"
+                # Receive-only reads and stale CAS cannot schedule work or mutate any run table.
+                for _ in range(3):
+                    assert (await http.get(f"/api/v1/runs/{identity}/summary")).status_code == 200
+                stale = {
+                    "action": "resume",
+                    "command_id": str(uuid4()),
+                    "run_id": identity,
+                    "expected_generation": generation,
+                    "expected_revision": 1,
+                }
+                if scenario != "owner_loss":
+                    refused = await http.post(
+                        f"/api/v1/runs/{identity}/commands", json=stale, headers=headers
+                    )
+                    assert refused.status_code == 409, refused.text
+                    assert refused.json()["error"]["code"] == "REVISION_CONFLICT"
+                assert await census() == before
+                assert (len(received), len(opens), sum(handed)) == wire_before
+                if scenario in {"hold", "pause"}:
+                    # No background task remains; manual Resume alone creates a new dispatch.
+                    assert (
+                        identity not in run_owner.tasks and identity not in run_owner.continuations
+                    )
+                    current = (await http.get(f"/api/v1/runs/{identity}/summary")).json()["run"]
+                    phase = "resume"
+                    resumed = await http.post(
+                        f"/api/v1/runs/{identity}/commands",
+                        json={
+                            **stale,
+                            "command_id": str(uuid4()),
+                            "expected_revision": current["revision"],
+                        },
+                        headers=headers,
+                    )
+                    assert resumed.status_code == 202, resumed.text
+                    await summary(identity, "LIMITED")
+                    fresh = opens[-1][0]
+                    assert len(opens) == 6 and len(received) == 6
+                    assert fresh.id != scope.id and fresh.operation_serial > scope.operation_serial
+                    assert fresh.cancel_epoch > scope.cancel_epoch
+                    async with engine.connect() as db:
+                        states = (
+                            await db.execute(
+                                text(
+                                    "SELECT state,count(*) FROM run_dispatch WHERE run_id=:run GROUP BY state ORDER BY state"
+                                ),
+                                {"run": identity},
+                            )
+                        ).all()
+                        assert [tuple(row) for row in states] == [("SETTLED", 1), ("UNKNOWN", 1)]
+                assert frame_sizes and max(received) <= 32768 and max(responses) <= 131072
+                await asyncio.wait_for(asyncio.gather(*peers), 3)
+                print(
+                    f"S1_PHYSICAL scenario={scenario} requests={len(received)} "
+                    f"request_max={max(received)} response_max={max(responses)} "
+                    f"command_max={max(item[0] for item in frame_sizes)} "
+                    f"frame_max={max(item[1] for item in frame_sizes)}"
+                )
+    finally:
+        try:
+            if run_owner is not None:
+                assert await run_owner.drain()
+        finally:
+            try:
+                try:
+                    if sender is not None:
+                        await sender.close()
+                finally:
+                    try:
+                        if relay is not None:
+                            relay.close()
+                            await relay.wait_closed()
+                    finally:
+                        if server is not None:
+                            server.close()
+                            server.close_clients()
+                        for task in peers:
+                            if not task.done():
+                                task.cancel()
+                        await asyncio.gather(*peers, return_exceptions=True)
+                        if server is not None:
+                            await asyncio.wait_for(server.wait_closed(), 3)
+            finally:
+                try:
+                    if heartbeat is not None:
+                        heartbeat.cancel()
+                        with suppress(asyncio.CancelledError):
+                            await heartbeat
+                finally:
+                    try:
+                        if lease_acquired:
+                            await service.release(owner, epoch)
+                    finally:
+                        await engine.dispose()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "failure",
+    ["none", "acquire", "owned_status", "open", "vault", "socket", "heartbeat", "release"],
+)
+async def test_run_physical_cleanup_source(failure: str) -> None:
+    """Execute the real setup/finally AST, stopping before any relay/network/DB effect."""
+    import __future__
+
+    import ast
+    from collections.abc import Awaitable, Callable
+    from pathlib import PurePosixPath
+    from types import SimpleNamespace
+    from typing import cast
+    from unittest.mock import AsyncMock, Mock
+
+    tree = ast.parse(Path(__file__).read_bytes())
+    consumer = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.AsyncFunctionDef) and node.name == "test_run_physical_control_pg"
+    )
+    start = next(
+        index + 1
+        for index, node in enumerate(consumer.body)
+        if isinstance(node, ast.Assign)
+        and isinstance(node.value, ast.Call)
+        and isinstance(node.value.func, ast.Name)
+        and node.value.func.id == "tls_contexts"
+    )
+    protected = next(node for node in consumer.body if isinstance(node, ast.Try) and node.finalbody)
+    boundary = next(
+        index
+        for index, node in enumerate(protected.body)
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "relay" for target in node.targets)
+    )
+    protected.body = (
+        protected.body[:boundary]
+        + ast.parse("await heartbeat" if failure in {"heartbeat", "release"} else "return").body
+    )
+    probe = ast.parse("async def probe(): pass")
+    function = cast(ast.AsyncFunctionDef, probe.body[0])
+    function.body = consumer.body[start:]
+
+    primary = RuntimeError("inert setup/heartbeat failure")
+    secondary = RuntimeError("inert release failure")
+    engine = Mock(dispose=AsyncMock())
+    factory = Mock(return_value=engine)
+    service = Mock(
+        acquire=AsyncMock(return_value=1),
+        owned_status=AsyncMock(return_value=SimpleNamespace(instance_id=uuid4(), generation=0)),
+        open=AsyncMock(return_value=1),
+        heartbeat=AsyncMock(side_effect=primary),
+        release=AsyncMock(side_effect=secondary if failure == "release" else None),
+    )
+    if failure in {"acquire", "owned_status", "open"}:
+        getattr(service, failure).side_effect = primary
+    cleanup = Mock()
+    cleanup.attach_mock(service.release, "release")
+    cleanup.attach_mock(engine.dispose, "dispose")
+
+    class MemoryPath(PurePosixPath):
+        def mkdir(self, mode: int) -> None:
+            assert mode == 0o700
+
+    path = MemoryPath("/" + "x" * (110 if failure == "socket" else 10))
+    namespace = {
+        **globals(),
+        "migrated_database_url": Mock(),
+        "ipc_directory": path,
+        "tmp_path": path,
+        "monkeypatch": Mock(),
+        "local_control": Mock(),
+        "database_engine": factory,
+        "InstanceService": Mock(return_value=service),
+        "ProviderVault": Mock(side_effect=primary if failure == "vault" else None),
+        "ProviderSettingsOwner": Mock(),
+    }
+    exec(
+        compile(
+            ast.fix_missing_locations(probe),
+            __file__,
+            "exec",
+            flags=__future__.annotations.compiler_flag,
+        ),
+        namespace,
+    )
+    run = cast(Callable[[], Awaitable[None]], namespace["probe"])
+    before = asyncio.all_tasks()
+    try:
+        if failure == "none":
+            await run()
+        else:
+            with pytest.raises((AssertionError, RuntimeError)) as caught:
+                await run()
+            if failure == "socket":
+                assert isinstance(caught.value, AssertionError)
+            elif failure == "release":
+                assert caught.value is secondary and caught.value.__context__ is primary
+            else:
+                assert caught.value is primary
+        pending = asyncio.all_tasks() - before
+        observed = [call[0] for call in cleanup.mock_calls]
+        print(f"S1_CLEANUP_SOURCE failure={failure} pending={len(pending)} cleanup={observed}")
+        assert not pending
+        assert factory.call_count == int(failure != "socket")
+        assert observed == (
+            []
+            if failure == "socket"
+            else ["dispose"]
+            if failure == "acquire"
+            else ["release", "dispose"]
+        )
+        if failure not in {"acquire", "socket"}:
+            service.release.assert_awaited_once_with(service.acquire.call_args.args[0], 1)
+    finally:
+        leaked = asyncio.all_tasks() - before
+        for task in leaked:
+            task.cancel()
+        await asyncio.gather(*leaked, return_exceptions=True)
 
 
 @pytest.mark.asyncio

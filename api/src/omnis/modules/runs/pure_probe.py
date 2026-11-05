@@ -25,7 +25,7 @@ from omnis.modules.settings.candidate_catalog import (
     valid_ref,
 )
 from omnis.modules.settings.candidate_material import digest
-from omnis.modules.settings.catalog_models import CatalogError, CompiledCatalog
+from omnis.modules.settings.catalog_models import CatalogError, CompiledCatalog, Profile
 from omnis.modules.settings.catalog_publication import PublicationCatalog
 from omnis.modules.settings.catalog_schema import bounded, canonical, load_json, validate
 from omnis.modules.settings.publication_models import clean_text, load_request
@@ -130,7 +130,7 @@ class PureProbe:
         ref: dict[str, object],
         *,
         read_only: bool = True,
-    ) -> tuple[str, dict[str, object], CompiledCatalog]:
+    ) -> tuple[str, dict[str, object], Profile, CompiledCatalog]:
         group, record = await store.get(connection, owner, ref)
         if record["kind"] != "execution-selection":
             raise CatalogError("SELECTION_MISMATCH")
@@ -144,7 +144,7 @@ class PureProbe:
         )
         if group != source_group or body != selection_payload(snapshot_ref, key, profile, compiled):
             raise CatalogError("SELECTION_MISMATCH")
-        return group, record, compiled
+        return group, record, profile, compiled
 
     async def _readback(
         self, connection: AsyncConnection, owner: str, ref: dict[str, object]
@@ -160,7 +160,7 @@ class PureProbe:
         }:
             raise CatalogError("RECEIPT_MISMATCH")
         selection_ref = valid_ref(body["selection_ref"])
-        selection_group, selection, compiled = await self._selection(
+        selection_group, selection, _, compiled = await self._selection(
             connection, owner, selection_ref
         )
         if body["executor_revision"] != EXECUTOR_REVISION:
@@ -223,7 +223,7 @@ class PureProbe:
     ) -> None:
         expected: dict[str, object]
         if operation == "select":
-            _, record, _ = await self._selection(
+            _, record, _, _ = await self._selection(
                 connection, owner, valid_ref(result.get("selection_ref"))
             )
             body = payload(record)
@@ -274,7 +274,7 @@ class PureProbe:
                 result = {"selection_ref": store.reference(record), "selection": record}
             else:
                 selection_ref = valid_ref(value["selection_ref"])
-                group, _, compiled = await self._selection(
+                group, _, _, compiled = await self._selection(
                     connection, owner, selection_ref, read_only=False
                 )
                 outputs = execute_outputs(compiled, value["input"])

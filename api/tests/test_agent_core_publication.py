@@ -19,7 +19,7 @@ from omnis.modules.settings import candidate_catalog as candidates
 from omnis.modules.settings import candidate_store as store
 from omnis.modules.settings import publication_store as heads
 from omnis.modules.settings.candidate_material import digest
-from omnis.modules.settings.catalog_models import CatalogError, ExactRef
+from omnis.modules.settings.catalog_models import CatalogError, CompiledCatalog, ExactRef, Profile
 from omnis.modules.settings.catalog_publication import PublicationCatalog
 from omnis.modules.settings.catalog_schema import canonical, load_json
 from test_agent_core_catalog import PACKAGE, PROFILE
@@ -654,6 +654,39 @@ async def test_probe_legacy_is_read_only_at_each_new_admission(
             prepared = await native_preparation.read_receipt(
                 connection, owner, store.reference(bundle)
             )
+    if operation == "managed-source":
+        rejected = [(str(uuid4()), selected["selection_ref"], "REF_UNAVAILABLE", 0)]
+        async with storage_seam.connect() as connection:
+            for foreign_group, change, reason in (
+                (True, {}, "SELECTION_MISMATCH"),
+                (False, {"reason": "unqualified"}, "SELECTION_MISMATCH"),
+                (
+                    False,
+                    {"snapshot_ref": store.reference(store.envelope("run-snapshot", {}))},
+                    "REF_UNAVAILABLE",
+                ),
+            ):
+                bad = store.envelope(
+                    "execution-selection",
+                    {**candidates.payload(store.checked(selected["selection"])), **change},
+                )
+                await store.put(connection, owner, str(uuid4()) if foreign_group else group, bad)
+                rejected.append((owner, store.reference(bad), reason, 1))
+            bad_receipts = []
+            for revision in (
+                ["sha256:" + "0" * 64]
+                if legacy
+                else ["sha256:" + "0" * 64, pure_probe.LEGACY_EXECUTOR_REVISION]
+            ):
+                bad_receipt = store.envelope(
+                    "pure-probe-receipt",
+                    {
+                        **candidates.payload(store.checked(executed["receipt"])),
+                        "executor_revision": revision,
+                    },
+                )
+                await store.put(connection, owner, group, bad_receipt)
+                bad_receipts.append(store.reference(bad_receipt))
     before_bytes = canonical(before)
     files_before = {str(p): p.read_bytes() for p in catalog.root.rglob("*") if p.is_file()}
 
@@ -674,6 +707,13 @@ async def test_probe_legacy_is_read_only_at_each_new_admission(
             {"schema_version": 1, "owner_id": owner, "receipt_ref": executed["receipt_ref"]},
         )
         assert probe_back["receipt"] == executed["receipt"]
+        if operation == "managed-source":
+            for receipt_ref in bad_receipts:
+                with pytest.raises(CatalogError, match="^RECEIPT_MISMATCH$"):
+                    await probe.dispatch(
+                        "readback",
+                        {"schema_version": 1, "owner_id": owner, "receipt_ref": receipt_ref},
+                    )
         after = await catalog.dispatch(
             "readback", {"schema_version": 1, "owner_id": owner, "publication_ref": ref}
         )
@@ -705,6 +745,24 @@ async def test_probe_legacy_is_read_only_at_each_new_admission(
             managed = ManagedAdmission(storage_seam, catalog.root)
             async with storage_seam.connect() as connection:
                 if operation == "managed-source":
+                    loads: list[tuple[AsyncConnection, str, dict[str, object], bool]] = []
+                    loaded: list[tuple[str, dict[str, object], Profile, CompiledCatalog]] = []
+                    load_probe = PublicationCatalog.load_probe
+
+                    async def observed_load(
+                        self: PublicationCatalog,
+                        conn: AsyncConnection,
+                        who: str,
+                        reference: dict[str, object],
+                        *,
+                        read_only: bool = True,
+                    ) -> tuple[str, dict[str, object], Profile, CompiledCatalog]:
+                        loads.append((conn, who, reference, read_only))
+                        result = await load_probe(self, conn, who, reference, read_only=read_only)
+                        loaded.append(result)
+                        return result
+
+                    sinks.setattr(PublicationCatalog, "load_probe", observed_load)
                     read_source = await managed._source(
                         connection,
                         owner,
@@ -712,9 +770,14 @@ async def test_probe_legacy_is_read_only_at_each_new_admission(
                         preparation_ref=store.reference(receipt),
                         read_only=True,
                     )
+                    assert len(loads) == 1
+                    assert loads == [(connection, owner, snapshot["snapshot_ref"], True)]
                     assert read_source.selection == selected["selection"]
                     assert read_source.preparation_ref == store.reference(receipt)
                     assert read_source.preparation_bundle == bundle
+                    assert read_source.limits is loaded[0][2].agent_recipes[0].limits
+                    assert read_source.role == loaded[0][2].agent_recipes[0].role
+                    assert read_source.bindings == list(loaded[0][3].catalog_bindings)
                 if legacy:
                     with pytest.raises(CatalogError, match="^LEGACY_READ_ONLY$"):
                         if operation == "native-build":
@@ -749,6 +812,61 @@ async def test_probe_legacy_is_read_only_at_each_new_admission(
                     )
                     assert build_source.selection == selected["selection"]
                     assert build_source.preparation_bundle == bundle
+                if operation == "managed-source":
+                    assert loads == [
+                        (connection, owner, snapshot["snapshot_ref"], True),
+                        (connection, owner, snapshot["snapshot_ref"], False),
+                    ]
+                    if not legacy:
+                        assert build_source == read_source
+                        assert build_source.limits is loaded[1][2].agent_recipes[0].limits
+                        assert loaded[1][2] is not loaded[0][2]
+                    for who, selection_ref, reason, count in rejected:
+                        before_loads = len(loads)
+                        with pytest.raises(CatalogError, match="^" + reason + "$"):
+                            await managed._source(
+                                connection,
+                                who,
+                                {"selection_ref": selection_ref},
+                                preparation_ref=store.reference(receipt),
+                                read_only=True,
+                            )
+                        assert len(loads) == before_loads + count
+                    # A later operation must revalidate actual retained bytes, not a cached profile.
+                    for filename in ("profile.yaml", "SKILL.md"):
+                        paths = list((catalog.root / "candidates").rglob(filename))
+                        assert len(paths) == 1
+                        path = paths[0]
+                        raw, mode = path.read_bytes(), path.stat().st_mode & 0o777
+                        before_loads = len(loads)
+                        try:
+                            path.chmod(0o600)
+                            path.write_bytes(raw + b"\nqualification reuse tamper\n")
+                            path.chmod(mode)
+                            with pytest.raises(CatalogError, match="^FROZEN_MATERIAL_MISMATCH$"):
+                                await managed._source(
+                                    connection,
+                                    owner,
+                                    {"selection_ref": selected["selection_ref"]},
+                                    preparation_ref=store.reference(receipt),
+                                    read_only=True,
+                                )
+                            assert len(loads) == before_loads + 1
+                        finally:
+                            path.chmod(0o600)
+                            path.write_bytes(raw)
+                            path.chmod(mode)
+                        assert (
+                            await managed._source(
+                                connection,
+                                owner,
+                                {"selection_ref": selected["selection_ref"]},
+                                preparation_ref=store.reference(receipt),
+                                read_only=True,
+                            )
+                            == read_source
+                        )
+                        assert len(loads) == before_loads + 2
             assert files_before == {
                 str(p): p.read_bytes() for p in catalog.root.rglob("*") if p.is_file()
             }

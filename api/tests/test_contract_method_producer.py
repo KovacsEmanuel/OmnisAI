@@ -31,7 +31,6 @@ async def batch2_source(
     from omnis.modules.runs import native_preparation as preparation
     from omnis.modules.runs.contract_inputs import ContractInputs
     from omnis.modules.runs.managed_admission import ManagedAdmission, validate_request
-    from omnis.modules.runs.pure_probe import PureProbe
     from omnis.modules.settings.candidate_index import bind_catalog
     from omnis.modules.settings.candidate_material import capture
     from omnis.modules.settings.catalog_models import Profile
@@ -126,9 +125,6 @@ async def batch2_source(
         preparation, "reservation", AsyncMock(return_value=records.reference(bundle))
     )
     monkeypatch.setattr(preparation, "read_receipt", AsyncMock(return_value=prepared))
-    monkeypatch.setattr(
-        PureProbe, "_selection", AsyncMock(return_value=(group, selection, compiled))
-    )
     monkeypatch.setattr(PublicationCatalog, "load_probe", publications.load_probe)
     consumer = ManagedAdmission(engine, seed.root)
     request = {

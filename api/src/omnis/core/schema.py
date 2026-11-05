@@ -382,16 +382,23 @@ AUTHORITY_TABLES.update(MODEL_TABLES)
 
 
 async def authority_schema_matches(connection: AsyncConnection) -> bool:
-    return await _authority_schema_matches(connection, previous=False)
+    return await _authority_schema_matches(connection, previous=False, relay=True)
 
 
 async def schema0016_matches(connection: AsyncConnection) -> bool:
     """Migration-only physical predecessor; never used by API readiness."""
-    return await _authority_schema_matches(connection, previous=True)
+    return await _authority_schema_matches(connection, previous=True, relay=False)
 
 
-async def _authority_schema_matches(connection: AsyncConnection, *, previous: bool) -> bool:
-    relay_tables = {} if previous else RELAY_TABLES
+async def schema0017_matches(connection: AsyncConnection) -> bool:
+    """Finite T1 postcondition: retirement guards, without S0 relay authority."""
+    return await _authority_schema_matches(connection, previous=False, relay=False)
+
+
+async def _authority_schema_matches(
+    connection: AsyncConnection, *, previous: bool, relay: bool
+) -> bool:
+    relay_tables = RELAY_TABLES if relay else {}
     # Physical identity is required only for the new extension and its FK root;
     # historical authority contracts below remain unchanged. Never resolve the
     # extension again through the caller's search_path after this OID lookup.
@@ -623,7 +630,7 @@ async def _authority_schema_matches(connection: AsyncConnection, *, previous: bo
             )
         if sorted(tuple(row) for row in immutable) != sorted(expected_immutable):
             return False
-    if not previous:
+    if relay:
         relay_triggers = (
             await connection.execute(
                 text(

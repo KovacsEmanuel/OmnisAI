@@ -85,9 +85,9 @@ async def migrate() -> None:
                     await admit_t1_upgrade(connection, engine, request)
                 await connection.run_sync(run_migrations)
                 if request is not None:
-                    from omnis.core.db import schema_reason_on
+                    from omnis.core.db import schema0017_reason_on
 
-                    if await schema_reason_on(connection) is not None:
+                    if await schema0017_reason_on(connection) is not None:
                         raise RuntimeError("Physical0017 readback required")
     except (TimeoutError, SQLAlchemyError):
         raise RuntimeError("PostgreSQL migration failed or timed out") from None

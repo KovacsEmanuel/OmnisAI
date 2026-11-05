@@ -4,6 +4,7 @@ import asyncio
 import os
 from enum import StrEnum
 from pathlib import Path
+from typing import Final, Literal
 from urllib.parse import quote, unquote
 
 from sqlalchemy import text
@@ -12,9 +13,9 @@ from sqlalchemy.exc import ArgumentError, DBAPIError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 
 from omnis.core.run_schema import run_schema_matches
-from omnis.core.schema import authority_schema_matches, schema0016_matches
+from omnis.core.schema import authority_schema_matches, schema0016_matches, schema0017_matches
 
-SCHEMA_REVISION = "0019_agent_runs"
+SCHEMA_REVISION: Final = "0019_agent_runs"
 
 
 class ReadinessReason(StrEnum):
@@ -85,16 +86,23 @@ async def _probe_schema(engine: AsyncEngine) -> ReadinessReason | None:
 
 
 async def schema_reason_on(connection: AsyncConnection) -> ReadinessReason | None:
-    return await _schema_reason_on(connection, previous=False)
+    return await _schema_reason_on(connection, revision=SCHEMA_REVISION)
 
 
 async def schema0016_reason_on(connection: AsyncConnection) -> ReadinessReason | None:
     """Only the explicit T1 migrator admits the predecessor, never API readiness."""
-    return await _schema_reason_on(connection, previous=True)
+    return await _schema_reason_on(connection, revision="0016_provider_models")
+
+
+async def schema0017_reason_on(connection: AsyncConnection) -> ReadinessReason | None:
+    """Finite T1 migration postcondition, not current API readiness."""
+    return await _schema_reason_on(connection, revision="0017_model_removal")
 
 
 async def _schema_reason_on(
-    connection: AsyncConnection, *, previous: bool
+    connection: AsyncConnection,
+    *,
+    revision: Literal["0016_provider_models", "0017_model_removal", "0019_agent_runs"],
 ) -> ReadinessReason | None:
     await connection.execute(text("SELECT 1"))
     try:
@@ -112,16 +120,16 @@ async def _schema_reason_on(
                 )
             )
         ).first()
-        if (
-            revisions != ["0016_provider_models" if previous else SCHEMA_REVISION]
-            or instance is None
-        ):
+        if revisions != [revision] or instance is None:
             return ReadinessReason.SCHEMA_INCOMPATIBLE
-        if not await (
-            schema0016_matches(connection) if previous else authority_schema_matches(connection)
-        ):
+        matches = {
+            "0016_provider_models": schema0016_matches,
+            "0017_model_removal": schema0017_matches,
+            SCHEMA_REVISION: authority_schema_matches,
+        }[revision]
+        if not await matches(connection):
             return ReadinessReason.SCHEMA_INCOMPATIBLE
-        if not previous and not await run_schema_matches(connection):
+        if revision == SCHEMA_REVISION and not await run_schema_matches(connection):
             return ReadinessReason.SCHEMA_INCOMPATIBLE
         columns = (
             await connection.execute(

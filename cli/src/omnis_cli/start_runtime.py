@@ -109,7 +109,7 @@ def provider_settings_overlay(runtime: "ControlRuntime", env: dict[str, str]) ->
     if not runtime.provider_settings or runtime.native or runtime.model_test:
         raise StartError("IMAGE_PROFILE_MISMATCH", 4)
     root = Path(env["OMNIS_STATE_ROOT"])
-    check_vault_paths(root, catalog=runtime.run_catalog)
+    runtime.check_vault_paths(root)
     return {
         "services": {
             "supervisor": {
@@ -225,6 +225,7 @@ def refuse_upgrade(root: Path, upgrade_id: str | None = None) -> None:
 class ControlRuntime:
     development_workspace: str | None = None
     upgrading: bool = False
+    upgrade_catalog_identity: list[int] | None = None
 
     def __init__(
         self,
@@ -538,6 +539,15 @@ class ControlRuntime:
             getattr(self, "schema", None),
         ) == (S1_RELEASE, S1_SCHEMA)
 
+    def check_vault_paths(self, root: Path) -> None:
+        record = read_record(root / "startup.json")
+        if self.upgrading and self.run_catalog:
+            if "catalog_identity" in record or self.upgrade_catalog_identity is None:
+                raise StartError("UPGRADE_CATALOG_MISMATCH", 4)
+            # Keep the original Stop journal/grant byte-identical through migration.
+            record = {**record, "catalog_identity": self.upgrade_catalog_identity}
+        check_vault_paths(root, record, catalog=self.run_catalog)
+
     @property
     def native(self) -> bool:
         return getattr(self.receipt, "profile", None) in {"p4a-settings-offline", "p4a-codex-auth"}
@@ -595,7 +605,7 @@ class ControlRuntime:
         if self.native:
             check_native_paths(root)
         if self.provider_settings:
-            check_vault_paths(root, catalog=self.run_catalog)
+            self.check_vault_paths(root)
         if not isinstance(mounts, list):
             raise StartError("CONTAINER_MOUNTS_INVALID", 3)
         actual: set[tuple[object, object, object, object]] = set()
@@ -653,7 +663,9 @@ class ControlRuntime:
                 "-I",
                 "-m",
                 "omnis.migrate",
-                "--upgrade-t1" if getattr(self, "upgrading", False) else "--initialize",
+                ("--upgrade-s1" if self.run_catalog else "--upgrade-t1")
+                if self.upgrading
+                else "--initialize",
             ],
             "reconcile": ["python", "-I", "-m", "omnis.stop_reconcile"],
         }[role]

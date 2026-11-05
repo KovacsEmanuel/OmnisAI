@@ -67,7 +67,7 @@ def main(argv: list[str] | None = None) -> int:
         "--runtime-context", type=Path, help="Prepared native input for p4a-settings-offline only"
     )
     upgrade_parser = commands.add_parser(
-        "upgrade", help="Explicit stopped T1 0016 to 0017 transition"
+        "upgrade", help="Explicit stopped T1 0016→0017 or S1 0017→0019 transition"
     )
     upgrade_parser.add_argument("--bundle", type=Path, required=True)
     upgrade_parser.add_argument("--backup", type=Path, required=True)

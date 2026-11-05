@@ -15,7 +15,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from omnis.core.db import schema0016_reason_on
+from omnis.core.db import schema0016_reason_on, schema0017_reason_on
 from omnis.core.persistence import read_record
 from omnis.modules.instance.domain import ControlConflict
 from omnis.modules.instance.records import InstanceRecord, LeaseRecord
@@ -24,11 +24,16 @@ from omnis.modules.instance.stop_contract import StopReconciliation
 
 
 async def admit_t1_upgrade(
-    connection: AsyncConnection, engine: AsyncEngine, request: StopReconciliation
+    connection: AsyncConnection,
+    engine: AsyncEngine,
+    request: StopReconciliation,
+    *,
+    s1: bool = False,
 ) -> None:
     """Hold the existing authority rows through DDL; do not retire the Stop grant."""
-    if await schema0016_reason_on(connection) is not None:
-        raise ValueError("Physical0016 required")
+    check = schema0017_reason_on if s1 else schema0016_reason_on
+    if await check(connection) is not None:
+        raise ValueError("Physical0017 required" if s1 else "Physical0016 required")
     instance = (
         (await connection.execute(text("SELECT * FROM instance_control WHERE id=1 FOR UPDATE")))
         .mappings()
@@ -57,19 +62,19 @@ async def admit_t1_upgrade(
         raise ValueError("Unsettled operations")
 
 
-def upgrade_t1(request: StopReconciliation) -> None:
-    """Finite explicit0016→0017 migration; the host must attest stopped resources."""
+def upgrade_t1(request: StopReconciliation, *, s1: bool = False) -> None:
+    """Finite0016→0017 or0017→0019; the host must attest stopped resources."""
     expected = os.environ.get("OMNIS_EXPECTED_SYSTEM_ID", "")
     if not re.fullmatch(r"[0-9]{1,20}", expected) or request.system_identifier != expected:
         raise ValueError("Expected cluster identity required")
     config = Config()
-    config.attributes["t1_upgrade"] = request
+    config.attributes["s1_upgrade" if s1 else "t1_upgrade"] = request
     config.attributes["upgrade_system_id"] = expected
     config.set_main_option("script_location", str(files("omnis.migrations")))
-    command.upgrade(config, "0017_model_removal")
+    command.upgrade(config, "0019_agent_runs" if s1 else "0017_model_removal")
 
 
-def upgrade_job() -> int:
+def upgrade_job(*, s1: bool = False) -> int:
     from omnis.stop_reconcile import read_request
 
     def expired(_signum: int, _frame: FrameType | None) -> None:
@@ -83,10 +88,10 @@ def upgrade_job() -> int:
     signal.alarm(25)
     try:
         request = read_request()
-        upgrade_t1(request)
+        upgrade_t1(request, s1=s1)
         response: dict[str, object] = {
             "ok": True,
-            "schema": "0017_model_removal",
+            "schema": "0019_agent_runs" if s1 else "0017_model_removal",
             "request": request.model_dump(mode="json"),
         }
         code = 0
@@ -111,15 +116,15 @@ def upgrade_job() -> int:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Explicit PostgreSQL migration")
-    parser.add_argument(
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
         "--initialize", action="store_true", help="Only an empty, attested database; never upgrade"
     )
-    parser.add_argument("--upgrade-t1", action="store_true", help="Finite stopped0016→0017 only")
+    mode.add_argument("--upgrade-t1", action="store_true", help="Finite stopped0016→0017 only")
+    mode.add_argument("--upgrade-s1", action="store_true", help="Finite stopped0017→0019 only")
     args = parser.parse_args()
-    if args.upgrade_t1:
-        if args.initialize:
-            parser.error("Initialize and upgrade are mutually exclusive")
-        raise SystemExit(upgrade_job())
+    if args.upgrade_t1 or args.upgrade_s1:
+        raise SystemExit(upgrade_job(s1=args.upgrade_s1))
     config = Config()
     if args.initialize:
         identity = os.environ.get("OMNIS_EXPECTED_SYSTEM_ID", "")

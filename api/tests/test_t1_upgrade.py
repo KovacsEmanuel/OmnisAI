@@ -74,15 +74,16 @@ def test_previous_physical_schema_is_not_api_readiness(
     asyncio.run(probe())
 
 
+@pytest.mark.parametrize("s1", [False, True])
 def test_finite_upgrade_retains_stop_fence_and_rejects_replay(
-    empty_database_url: URL, monkeypatch: pytest.MonkeyPatch
+    empty_database_url: URL, monkeypatch: pytest.MonkeyPatch, s1: bool
 ) -> None:
     from omnis import migrate
 
     monkeypatch.setenv(
         "OMNIS_DATABASE_URL", empty_database_url.render_as_string(hide_password=False)
     )
-    migrate_to("0016_provider_models")
+    migrate_to("0017_model_removal" if s1 else "0016_provider_models")
     body = reconciliation_payload()
 
     async def stopped() -> dict[str, object]:
@@ -152,17 +153,22 @@ def test_finite_upgrade_retains_stop_fence_and_rejects_replay(
     # A mismatched finalized receipt must deny before DDL and preserve the stamp.
     bad = request.model_copy(update={"grant": request.grant.model_copy(update={"generation": 3})})
     with pytest.raises((ValueError, RuntimeError)):
-        upgrade(bad)
-    upgrade(request)
+        upgrade(bad, s1=s1)
+    upgrade(request, s1=s1)
     with pytest.raises((ValueError, RuntimeError)):
-        upgrade(request)
+        upgrade(request, s1=s1)
 
     async def verify() -> None:
         engine = database_engine(os.environ["OMNIS_DATABASE_URL"])
         try:
             async with engine.connect() as connection:
-                assert await db.schema0017_reason_on(connection) is None
-                assert await schema_reason_on(connection) is db.ReadinessReason.SCHEMA_INCOMPATIBLE
+                if s1:
+                    assert await schema_reason_on(connection) is None
+                else:
+                    assert await db.schema0017_reason_on(connection) is None
+                    assert (
+                        await schema_reason_on(connection) is db.ReadinessReason.SCHEMA_INCOMPATIBLE
+                    )
                 service = InstanceService(engine)
                 stored = await service._grant(connection)
                 assert stored is not None
@@ -318,9 +324,10 @@ async def test_source_finite_schema_postcondition(
         run_check.assert_awaited_once_with(connection)
 
 
+@pytest.mark.parametrize("s1", [False, True])
 @pytest.mark.parametrize("mutation", ["none", "column", "retire", "stamp"])
 def test_source_upgrade_env_uses_finite_postcheck(
-    monkeypatch: pytest.MonkeyPatch, mutation: str
+    monkeypatch: pytest.MonkeyPatch, mutation: str, s1: bool
 ) -> None:
     import runpy
 
@@ -329,9 +336,11 @@ def test_source_upgrade_env_uses_finite_postcheck(
     from omnis import migrate
 
     request = StopReconciliation.model_validate(reconciliation_payload())
+    revision = "0019_agent_runs" if s1 else "0017_model_removal"
+    monkeypatch.setattr(db, "run_schema_matches", AsyncMock(return_value=True))
     connection = source_t1_connection(
-        "0017_model_removal",
-        "wrong_stamp" if mutation == "stamp" else "0017_model_removal",
+        revision,
+        "wrong_stamp" if mutation == "stamp" else revision,
         mutation,
     )
     connection.run_sync = AsyncMock()
@@ -340,7 +349,7 @@ def test_source_upgrade_env_uses_finite_postcheck(
     engine.begin.return_value.__aexit__ = AsyncMock(return_value=False)
     engine.dispose = AsyncMock()
     config = Config()
-    config.attributes["t1_upgrade"] = request
+    config.attributes["s1_upgrade" if s1 else "t1_upgrade"] = request
     monkeypatch.setenv("OMNIS_DATABASE_URL", "postgresql+psycopg://synthetic@localhost/unused")
     monkeypatch.setattr(context, "config", config, raising=False)
     monkeypatch.setattr(context, "is_offline_mode", lambda: False)
@@ -353,23 +362,130 @@ def test_source_upgrade_env_uses_finite_postcheck(
     if mutation == "none":
         runpy.run_path(env_path)
     else:
-        with pytest.raises(RuntimeError, match="Physical0017 readback required"):
+        with pytest.raises(
+            RuntimeError,
+            match="Physical0019 readback required" if s1 else "Physical0017 readback required",
+        ):
             runpy.run_path(env_path)
-    admission.assert_awaited_once_with(connection, engine, request)
+    admission.assert_awaited_once_with(connection, engine, request, s1=s1)
     connection.run_sync.assert_awaited_once()
     engine.dispose.assert_awaited_once()
 
 
-def test_source_upgrade_target_remains_finite(monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.mark.parametrize("s1", [False, True])
+def test_source_upgrade_target_remains_finite(monkeypatch: pytest.MonkeyPatch, s1: bool) -> None:
     from omnis import migrate
 
     request = StopReconciliation.model_validate(reconciliation_payload())
     monkeypatch.setenv("OMNIS_EXPECTED_SYSTEM_ID", request.system_identifier)
     upgrade = Mock()
     monkeypatch.setattr(command, "upgrade", upgrade)
-    migrate.upgrade_t1(request)
-    assert upgrade.call_args.args[1] == "0017_model_removal"
-    assert upgrade.call_args.args[0].attributes["t1_upgrade"] == request
+    migrate.upgrade_t1(request, s1=s1)
+    assert upgrade.call_args.args[1] == ("0019_agent_runs" if s1 else "0017_model_removal")
+    assert upgrade.call_args.args[0].attributes["s1_upgrade" if s1 else "t1_upgrade"] == request
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("s1", [False, True])
+@pytest.mark.parametrize("fault", ["none", "schema", "foreign", "uncertain", "unsettled"])
+async def test_source_finite_admission_keeps_original_closed_grant(
+    monkeypatch: pytest.MonkeyPatch, s1: bool, fault: str
+) -> None:
+    from datetime import datetime, timezone
+
+    from omnis import migrate
+    from omnis.modules.instance.records import InstanceRecord, LeaseRecord
+
+    request = StopReconciliation.model_validate(reconciliation_payload())
+    if fault == "uncertain":
+        request = request.model_copy(
+            update={"grant": request.grant.model_copy(update={"state": "STOP_UNCERTAIN"})}
+        )
+    check = AsyncMock(return_value="incompatible" if fault == "schema" else None)
+    monkeypatch.setattr(migrate, "schema0017_reason_on" if s1 else "schema0016_reason_on", check)
+    now = datetime.now(timezone.utc)
+    instance = InstanceRecord(
+        id=1,
+        instance_id=request.grant.instance_id,
+        admission_open=False,
+        shutdown_command_id=request.grant.command_id,
+        generation=request.grant.generation,
+        quiesced_generation=request.grant.generation,
+        quiesced_at=now,
+    )
+    lease = LeaseRecord(
+        id=1, owner=request.grant.owner_uuid, epoch=request.grant.owner_epoch, expires_at=now
+    )
+    connection, engine = Mock(), Mock()
+    rows = [Mock(), Mock(), Mock()]
+    rows[0].mappings.return_value.one.return_value = instance.model_dump()
+    rows[1].mappings.return_value.one.return_value = lease.model_dump()
+    rows[2].scalar_one.return_value = fault == "unsettled"
+    connection.execute = AsyncMock(side_effect=rows)
+    grant = (
+        request.grant.model_copy(update={"owner_uuid": uuid4()})
+        if fault == "foreign"
+        else request.grant
+    )
+    read_grant, closed = AsyncMock(return_value=grant), AsyncMock()
+    monkeypatch.setattr(InstanceService, "_grant", read_grant)
+    monkeypatch.setattr(InstanceService, "_closed_stop", closed)
+    if fault == "none":
+        await migrate.admit_t1_upgrade(connection, engine, request, s1=s1)
+    else:
+        with pytest.raises(
+            ValueError,
+            match={
+                "schema": "Physical0017 required" if s1 else "Physical0016 required",
+                "foreign": "Exact stopped grant required",
+                "uncertain": "Exact stopped grant required",
+                "unsettled": "Unsettled operations",
+            }[fault],
+        ):
+            await migrate.admit_t1_upgrade(connection, engine, request, s1=s1)
+    if fault in ("none", "unsettled"):
+        closed.assert_awaited_once_with(connection, instance, lease, request.grant)
+    else:
+        closed.assert_not_awaited()
+    queries = [str(call.args[0]) for call in connection.execute.call_args_list]
+    assert all(query.startswith("SELECT") for query in queries)
+    if fault != "schema":
+        assert "FOR UPDATE" in queries[0] and "FOR UPDATE" in queries[1]
+
+
+@pytest.mark.parametrize("s1", [False, True])
+def test_source_finite_job_uses_unchanged_bounded_parser(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], tmp_path: Path, s1: bool
+) -> None:
+    from omnis import migrate, stop_reconcile
+    from omnis.modules.instance.stop_contract import canonical_json
+
+    request = StopReconciliation.model_validate(reconciliation_payload())
+    path = tmp_path / "request"
+    raw = canonical_json(request.model_dump(mode="json")).encode()
+    path.write_bytes(raw + b" " * (16384 - len(raw)))
+    original = stop_reconcile.read_request
+    with path.open("rb") as stream:
+        monkeypatch.setattr(stop_reconcile, "read_request", lambda: original(stream.fileno()))
+        job = Mock()
+        monkeypatch.setattr(migrate, "upgrade_t1", job)
+        monkeypatch.setattr(
+            sys, "argv", ["omnis.migrate", "--upgrade-s1" if s1 else "--upgrade-t1"]
+        )
+        with pytest.raises(SystemExit) as exit_info:
+            migrate.main()
+    assert exit_info.value.code == 0
+    job.assert_called_once_with(request, s1=s1)
+    response = json.loads(capsys.readouterr().out)
+    assert response == {
+        "ok": True,
+        "schema": "0019_agent_runs" if s1 else "0017_model_removal",
+        "request": request.model_dump(mode="json"),
+    }
+    path.write_bytes(raw + b" " * (16385 - len(raw)))
+    with path.open("rb") as stream:
+        with pytest.raises(ValueError, match="input too large"):
+            original(stream.fileno())
 
 
 @pytest.mark.asyncio

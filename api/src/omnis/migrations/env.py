@@ -78,17 +78,26 @@ async def migrate() -> None:
                         raise RuntimeError(
                             "Explicit update/backup required; startup never upgrades existing data"
                         )
+                s1_request = context.config.attributes.get("s1_upgrade")
                 request = context.config.attributes.get("t1_upgrade")
+                if s1_request is not None and request is not None:
+                    raise RuntimeError("One finite upgrade required")
+                request = s1_request if s1_request is not None else request
                 if request is not None:
                     from omnis.migrate import admit_t1_upgrade
 
-                    await admit_t1_upgrade(connection, engine, request)
+                    await admit_t1_upgrade(connection, engine, request, s1=s1_request is not None)
                 await connection.run_sync(run_migrations)
                 if request is not None:
-                    from omnis.core.db import schema0017_reason_on
+                    from omnis.core.db import schema0017_reason_on, schema_reason_on
 
-                    if await schema0017_reason_on(connection) is not None:
-                        raise RuntimeError("Physical0017 readback required")
+                    check = schema_reason_on if s1_request is not None else schema0017_reason_on
+                    if await check(connection) is not None:
+                        raise RuntimeError(
+                            "Physical0019 readback required"
+                            if s1_request is not None
+                            else "Physical0017 readback required"
+                        )
     except (TimeoutError, SQLAlchemyError):
         raise RuntimeError("PostgreSQL migration failed or timed out") from None
     finally:

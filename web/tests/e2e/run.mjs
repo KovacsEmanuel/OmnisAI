@@ -13,19 +13,12 @@ import { runB04 } from './b04.mjs';
 import { runCatalog } from './catalog.mjs';
 import { runSettingsModels, runSettingsRemove } from './settings-models.mjs';
 import { runS1 } from './s1-run.mjs';
-import { runS1Live } from './s1-live.mjs';
 
 const check = expect.configure({ timeout: 15000 });
 const origin = process.env.OMNIS_E2E_ORIGIN;
 const directory = process.env.OMNIS_E2E_CONTROL;
 const output = process.env.OMNIS_E2E_OUTPUT;
 const scenario = process.argv[2];
-const live = scenario === 's1-live';
-if (live) {
-  assert.equal(process.env.OMNIS_S1_LIVE_UI, '1');
-  assert.match(process.env.DISPLAY ?? '', /^:[0-9]+(?:\.[0-9]+)?$/);
-  assert.ok(process.env.XAUTHORITY?.startsWith('/'));
-}
 assert.match(origin ?? '', /^http:\/\/127\.0\.0\.1:[0-9]+$/);
 assert.ok(directory && output && process.env.OMNIS_E2E_DATABASE_URL, 'Run via make test-e2e with an owned DB');
 const sensitive = [];
@@ -88,7 +81,7 @@ function fault(operation) {
   assert.equal(result.status, 0, 'Attested DB fault helper failed');
 }
 
-const browser = await chromium.launch(live ? { headless: false } : {});
+const browser = await chromium.launch();
 const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
 await context.route('**/*', async route => {
   const url = route.request().url();
@@ -97,8 +90,8 @@ await context.route('**/*', async route => {
 });
 context.on('request', request => requests.push(request.url()));
 context.on('page', opened => {
-  opened.on('console', message => { if (!live) consoleMessages.push(message.text()); });
-  opened.on('pageerror', error => pageErrors.push(live ? 'LIVE_PAGE_ERROR' : error.message));
+  opened.on('console', message => consoleMessages.push(message.text()));
+  opened.on('pageerror', error => pageErrors.push(error.message));
 });
 const page = await context.newPage();
 
@@ -126,12 +119,6 @@ async function paired() {
 }
 
 async function secretChecks(inspected = page) {
-  if (live) {
-    assertSecretFree(sensitive, requests);
-    assert.equal(external.length, 0);
-    assert.equal(pageErrors.length, 0);
-    return; // Never read live key inputs/DOM into the driver, even for leak checks.
-  }
   const storage = await inspected.evaluate(async () => ({ local: localStorage.length, session: sessionStorage.length,
     cookies: document.cookie, caches: await caches.keys(), databases: await indexedDB.databases(),
     workers: (await navigator.serviceWorker.getRegistrations()).length }));
@@ -154,7 +141,6 @@ async function secretChecks(inspected = page) {
 }
 
 async function screenshot(name, { fullPage = true } = {}) {
-  assert.ok(!live, 'No live credential screenshots');
   await page.screenshot({ path: join(output, `${name}.png`), fullPage });
 }
 
@@ -166,7 +152,7 @@ try {
     // Open the inert admission barrier only after API/dashboard readiness;
     // this is fixture setup, not proof of installed CLI lifecycle.
     const initial = (await control({ op: 'status' })).status;
-    if (['s1-live', 's1-run', 'settings-models', 'settings-remove', 'settings-stop-read', 'settings-cancel-probe', 'settings-cancel-current'].includes(scenario) || (scenario === 'b04' && process.env.OMNIS_E2E_STAGE === 'after')) {
+    if (['s1-run', 'settings-models', 'settings-remove', 'settings-stop-read', 'settings-cancel-probe', 'settings-cancel-current'].includes(scenario) || (scenario === 'b04' && process.env.OMNIS_E2E_STAGE === 'after')) {
       assert.equal(initial.admission_open, true, 'Backend restart must preserve the same admitted instance');
       assert.equal(initial.generation, 1);
     } else {
@@ -195,8 +181,6 @@ try {
     await runB04({ page, context, check, paired, fault, output, origin, screenshot, secretChecks });
   } else if (scenario === 'catalog') {
     catalogEvidence = await runCatalog({ page, check, paired, output, origin, screenshot, secretChecks });
-  } else if (live) {
-    catalogEvidence = await runS1Live({ page, check, paired, origin });
   } else if (scenario === 's1-run') {
     catalogEvidence = await runS1({ page, check, paired, origin, output, screenshot, secretChecks, remember });
   } else if (scenario === 'settings-remove') {
@@ -354,7 +338,7 @@ try {
     ...(scenario === 'b04' ? { stage: process.env.OMNIS_E2E_STAGE } : {}),
     ...(catalogEvidence ? { catalog: catalogEvidence } : {}),
     requestCount: requests.length, externalRequests: external.length, pageErrors: pageErrors.length,
-    secretChecks: live ? 'synthetic_markers_only_no_plaintext_capture' : true, scope: 'owned PostgreSQL/API/supervisor + built assets, synthetic pairing only' }, null, 2));
+    secretChecks: true, scope: 'owned PostgreSQL/API/supervisor + built assets, synthetic pairing only' }, null, 2));
   console.log(`E2E ${scenario === 'settings-cancel-probe' ? 'DIAGNOSTIC' : 'PASS'} ${scenario}: real backend, synthetic pairing, browser ${browser.version()}`);
 } finally {
   if (blocker) { blocker.stdin.end('release\n'); await new Promise(resolve => { blocker.once('exit', resolve); setTimeout(() => { blocker.kill(); resolve(); }, 3000).unref(); }); }

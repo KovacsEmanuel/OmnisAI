@@ -45,36 +45,6 @@ def _render_config(paths):
 
 
 class SafeTestDatabaseGateTests(unittest.TestCase):
-    def test_live_display_only_explicit_target(self) -> None:
-        module = runpy.run_path(str(SCRIPT))
-        with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as raw:
-            auth = Path(raw) / "Xauthority"
-            auth.touch(mode=0o600)
-            with patch.dict(os.environ, {"DISPLAY": ":0.0", "XAUTHORITY": str(auth), "TMPDIR": raw}, clear=True):
-                for index, target in enumerate(("test-s1-live-ui-pg", "check-components", "test-s1-run-ui-pg")):
-                    owned = Path(raw) / str(index)
-                    owned.mkdir(mode=0o700)
-                    paths = module["Paths"](owned, owned / "data", owned / "socket", owned / "password")
-                    result = module["_gate_environment"](paths, {"HOME": raw}, owned / "fixture.json", "synthetic", target)
-                    self.assertEqual("DISPLAY" in result, target == "test-s1-live-ui-pg")
-                    self.assertEqual("XAUTHORITY" in result, target == "test-s1-live-ui-pg")
-                self.assertEqual(module["_live_display_environment"]("check-components"), {})
-                self.assertEqual(module["_live_display_environment"]("test-s1-run-ui-pg"), {})
-                self.assertEqual(module["_live_display_environment"]("test-s1-live-ui-pg"), {"DISPLAY": ":0.0", "XAUTHORITY": str(auth)})
-                for display in ("remote:0", "localhost:10.0", "", ":0;command"):
-                    with patch.dict(os.environ, {"DISPLAY": display}):
-                        with self.assertRaises(module["UnsafeFixture"]):
-                            module["_live_display_environment"]("test-s1-live-ui-pg")
-                auth.chmod(0o644)
-                with self.assertRaises(module["UnsafeFixture"]):
-                    module["_live_display_environment"]("test-s1-live-ui-pg")
-                auth.chmod(0o600)
-                alias = Path(raw) / "alias"
-                alias.symlink_to(auth)
-                with patch.dict(os.environ, {"XAUTHORITY": str(alias)}):
-                    with self.assertRaises(module["UnsafeFixture"]):
-                        module["_live_display_environment"]("test-s1-live-ui-pg")
-
     def test_full_make_check_forwards_measured_family_deadline(self) -> None:
         with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as raw:
             root = Path(raw)

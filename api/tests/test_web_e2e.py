@@ -320,7 +320,7 @@ async def settings_models_browser(
                         "engagement_revision",
                         "model_relay_authority",
                     )
-                    if scenario in {"s1-run", "s1-live"}
+                    if scenario == "s1-run"
                     else tables
                 )
             }
@@ -337,17 +337,12 @@ async def settings_models_browser(
             finite_cancel = scenario in {"settings-cancel-probe", "settings-cancel-current"}
             for stage in (
                 ("before",)
-                if finite_cancel or scenario in {"settings-stop-read", "s1-live"}
+                if finite_cancel or scenario == "settings-stop-read"
                 else ("before", "after")
             ):
                 api = launch_api(listener, database_url, control_dir, own_source=True)
                 resources.append((api, False))
                 await asyncio.to_thread(wait_api, api, origin)
-                if scenario == "s1-live":
-                    print(
-                        f"S1_LIVE_READY origin={origin} phase=manual_settings_and_core_confirmation",
-                        flush=True,
-                    )
                 marker_read, marker_write = os.pipe()
                 os.set_blocking(marker_read, False)
                 os.set_blocking(marker_write, False)
@@ -374,18 +369,12 @@ async def settings_models_browser(
                         start_new_session=True,
                     )
                     resources.append((driver, True))
-                    stdout, stderr = await asyncio.to_thread(
-                        driver.communicate, timeout=1560 if scenario == "s1-live" else 120
-                    )
+                    stdout, stderr = await asyncio.to_thread(driver.communicate, timeout=120)
                     os.close(marker_write)
                     marker_write = -1
                     markers = decode_markers(os.read(marker_read, 16385))
                     assert_secret_free(markers + ["synthetic-not-provider-key"], [stdout, stderr])
-                    observations.extend(
-                        (f"S1_LIVE_DRIVER_EXIT={driver.returncode}",)
-                        if scenario == "s1-live"
-                        else (stdout, stderr)
-                    )
+                    observations.extend((stdout, stderr))
                     label = "DIAGNOSTIC" if diagnostic else "PASS"
                     assert driver.returncode == 0 and f"E2E {label} {scenario}" in stdout, (
                         "Settings browser journey failed; inspect owned sanitized output"
@@ -412,8 +401,6 @@ async def settings_models_browser(
                 if finite_cancel
                 else "SETTINGS_STOP_READ_ONE_OPERATION_PASS"
                 if scenario == "settings-stop-read"
-                else "S1_LIVE_UI_MODEL_READ_CONTEXT_BRAIN_PASS"
-                if scenario == "s1-live"
                 else "SETTINGS_UI_REAL_API_PG_TLS_API_RESTART_PASS",
                 flush=True,
             )

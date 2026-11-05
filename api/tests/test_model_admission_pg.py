@@ -141,6 +141,63 @@ class ProtocolTiming:
         ]
 
 
+@pytest.mark.asyncio
+async def test_timeout_read_observer_source() -> None:
+    """Execute the existing PG wrappers only; no SQL, inputs or error bytes emitted."""
+    import ast
+    import inspect
+    from types import SimpleNamespace
+
+    tree = ast.parse(inspect.getsource(protocol_pg_consumer))
+    handle = next(
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.AsyncFunctionDef) and n.name == "observed_handle"
+    )
+    hooks: list[ast.stmt] = [
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.Expr)
+        and "timing.delegate('dispatch.read', ModelDispatch.read)" in ast.unparse(n)
+    ]
+    assert len(hooks) == 1, "consumer.read timing missing"
+    source = (
+        "def bind(protocol_handle, timing):\n"
+        "    concurrent, admission_case, order = False, False, 'timeout'\n"
+        "    request_count, second_handler = 0, None\n"
+        + "\n".join("    " + line for line in ast.unparse(handle).splitlines())
+        + "\n    return observed_handle\n"
+    )
+    timing = ProtocolTiming()
+    task = asyncio.current_task()
+    token: dict[str, object] = {"synthetic": True}
+
+    async def actual(value: object) -> dict[str, object]:
+        assert value is token and asyncio.current_task() is task
+        return token
+
+    dispatch = SimpleNamespace(read=actual)
+    namespace: dict[str, object] = {"asyncio": asyncio, "ModelDispatch": dispatch, "timing": timing}
+    with pytest.MonkeyPatch.context() as monkeypatch:
+        namespace["monkeypatch"] = monkeypatch
+        exec(compile(ast.Module(body=hooks, type_ignores=[]), __file__, "exec"), namespace)
+        exec("from __future__ import annotations\n" + source, namespace)
+        bind = namespace["bind"]
+        assert callable(bind)
+        observed = bind(dispatch.read, timing)
+        assert callable(observed)
+        for _ in range(3):
+            pending = observed(token)
+            assert inspect.isawaitable(pending)
+            assert await pending is token
+    assert [(r["caller"], r["phase"], r["outcome"]) for r in timing.snapshot()] == [
+        (caller, phase, "RETURNED")
+        for caller in ("sender", "second")
+        for phase in ("owner", "dispatch.read")
+    ]
+    assert not timing.handlers
+
+
 def report_protocol_failure(
     capsys: pytest.CaptureFixture[str],
     error: BaseException,
@@ -802,6 +859,10 @@ async def protocol_pg_consumer(
     monkeypatch.setattr(
         model_protocol, "qualified", timing.delegate("protocol.qualified", model_protocol.qualified)
     )
+    if order in {"timeout", "duplicate", "conflict"}:
+        monkeypatch.setattr(
+            ModelDispatch, "read", timing.delegate("dispatch.read", ModelDispatch.read)
+        )
 
     async def observed_readiness(engine: AsyncEngine | None) -> ReadinessReason | None:
         nonlocal readiness_entered, readiness_completed, readiness_started, readiness_finished
@@ -935,9 +996,11 @@ async def protocol_pg_consumer(
         request_count += 1
         if request_count == 2:
             second_handler = asyncio.current_task()
-        if admission_case or request_count <= (2 if concurrent else 1):
+        if admission_case or request_count <= (2 if concurrent or order == "timeout" else 1):
             task = asyncio.current_task()
-            caller: ProtocolCaller = "second" if concurrent and request_count == 2 else "sender"
+            caller: ProtocolCaller = (
+                "second" if request_count == 2 and not admission_case else "sender"
+            )
             timing.handlers[task] = caller
             try:
                 with timing.phase(caller, "owner"):
@@ -1327,7 +1390,11 @@ async def protocol_pg_consumer(
                                         "inner post-write timeout absent"
                                     )
                                 assert runtime.reader is None and runtime.writer is None
-                                reply = await control_task(root, command_value)
+                                reply = (
+                                    await measured_control(command_value, "second")
+                                    if order == "timeout"
+                                    else await control_task(root, command_value)
+                                )
                             assert monotonic() - started < 4.25  # observation, not a grant
                             accounting = mapping(reply["protocol_accounting"])
                             settled = census()

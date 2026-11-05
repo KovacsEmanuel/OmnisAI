@@ -562,9 +562,14 @@ async def test_api_pg_sdk_protocol_and_replay(
             assert destination == ("8.8.8.8", 443)
             upstream_sockets.append(sock)
             if physical_phase == "connect":
+                scope = model_opens[-1][0]
                 physical_entered.set()
-                while not physical_release.is_set():
-                    await asyncio.sleep(0.01)
+                try:
+                    while not physical_release.is_set():
+                        await asyncio.sleep(0.01)
+                except asyncio.CancelledError:
+                    connect_timings["CONNECT_CANCELLED", scope] = datetime.now(UTC)
+                    raise
             await original_connect(sock, address)
             connected.append(address)
 
@@ -588,6 +593,7 @@ async def test_api_pg_sdk_protocol_and_replay(
     model_opens: list[tuple[Scope, str]] = []
     model_writes: list[tuple[Scope, str, int, str]] = []
     fence_acks: list[tuple[str, Scope]] = []
+    connect_timings: dict[tuple[str, Scope], datetime] = {}
     original_rpc = sender.transport.backend.relay.rpc
 
     async def model_rpc(
@@ -616,6 +622,8 @@ async def test_api_pg_sdk_protocol_and_replay(
             model_writes.append((scope, connection, sequence, write_deadline))
         if action in {"FENCE", "DRAIN"} and reply[0] == "OK":
             fence_acks.append((action, scope))
+            if physical_phase == "connect" and scope.kind == "MODEL_DISPATCH":
+                connect_timings[action, scope] = datetime.now(UTC)
         return reply
 
     monkeypatch.setattr(sender.transport.backend.relay, "rpc", model_rpc)
@@ -2919,6 +2927,13 @@ async def test_api_pg_sdk_protocol_and_replay(
                         assert expired["result_state"] == "UNKNOWN"
                         assert expired["usage_state"] == "UNKNOWN"
                         assert expired["cost_observed"] is None
+                        if physical_phase == "connect":
+                            expired_scope, expired_deadline = model_opens[-1]
+                            assert not any(command.action == "cancel" for command in commands)
+                            assert expired["finish_reason"] != "CANCELLED"
+                            assert connect_timings["CONNECT_CANCELLED", expired_scope] >= min(
+                                utc(expired_scope.deadline), utc(expired_deadline)
+                            )
                         expired_counts = (len(connected), len(handed), len(received))
                         physical_release.set()
                         await asyncio.sleep(0.05)
@@ -2928,11 +2943,16 @@ async def test_api_pg_sdk_protocol_and_replay(
                         assert not owner.settlement_failed
                     else:
                         assert physical_phase in {"dns", "connect"}
-                        before = (await http.get("/api/v1/model-test/" + second_id)).json()
+                        # Prepare CAS without spending the connect window on another HTTP round-trip.
+                        before_control = (
+                            await owner.view(second_id)
+                            if physical_phase == "connect"
+                            else (await http.get("/api/v1/model-test/" + second_id)).json()
+                        )
                         connect_scope: Scope | None = None
                         if physical_phase == "connect":
-                            assert before["operation_id"] == second_id
-                            assert before["state"] == "RUNNING"
+                            assert before_control["operation_id"] == second_id
+                            assert before_control["state"] == "RUNNING"
                             connect_scope, connect_deadline = model_opens[-1]
                             assert datetime.now(UTC) < min(
                                 utc(connect_scope.deadline), utc(connect_deadline)
@@ -2960,7 +2980,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                                     headers=headers,
                                     json={
                                         "command_id": str(uuid4()),
-                                        "expected_state_revision": before["state_revision"],
+                                        "expected_state_revision": before_control["state_revision"],
                                     },
                                 )
                             )
@@ -2973,6 +2993,7 @@ async def test_api_pg_sdk_protocol_and_replay(
                             ] != "FINISHED"
                             physical_release.set()
                         action_reply = await asyncio.wait_for(action, 3)
+                        action_replied_at = datetime.now(UTC)
                         if action_reply is not None:
                             assert action_reply.status_code == (
                                 200 if "revoke" in scenario else 202
@@ -2980,9 +3001,17 @@ async def test_api_pg_sdk_protocol_and_replay(
                         if physical_phase == "connect":
                             assert action_reply is not None
                             assert connect_scope is not None
-                            assert datetime.now(UTC) < min(
-                                utc(connect_scope.deadline), utc(connect_deadline)
+                            # Physical cancellation/drain must beat expiry, not the HTTP reply.
+                            cancelled_at = connect_timings["CONNECT_CANCELLED", connect_scope]
+                            fenced_at = connect_timings["FENCE", connect_scope]
+                            drained_at = connect_timings["DRAIN", connect_scope]
+                            assert (
+                                cancelled_at
+                                <= fenced_at
+                                <= drained_at
+                                < min(utc(connect_scope.deadline), utc(connect_deadline))
                             )
+                            assert drained_at < action_replied_at
                             assert action_reply.json()["state"] == "FINISHED"
                             assert action_reply.json()["finish_reason"] == "CANCELLED"
                             assert (

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../shared/api/client';
 import type { SelectedDraft } from '../../shared/api/projections';
@@ -141,6 +141,14 @@ export function RunPanel({ draft, stream }: { draft: SelectedDraft; stream: bool
   const actors = [...new Set([filter.actor, ...pageEvents.map(event => event.task_id ?? 'none')])].filter(Boolean);
   const filteredEvents = pageEvents.filter(event => (!filter.kind || event.kind === filter.kind) && (!filter.actor || (event.task_id ?? 'none') === filter.actor));
   const agentButton = (item: Attempt) => <button aria-pressed={selected === item.attempt_id} onClick={() => { setSelected(item.attempt_id); }}>{item.role} · {item.task_id} · {item.state}{item.parent_task_id ? ` · parent ${item.parent_task_id}` : ''}</button>;
+  const rendered = new Set<string>();
+  function agentRow(item: Attempt, nested = false): ReactNode {
+    if (rendered.has(item.attempt_id)) return null;
+    rendered.add(item.attempt_id);
+    const children = attempts.filter(child => child.parent_task_id === item.task_id && !rendered.has(child.attempt_id));
+    // Keep real nesting, but cap indentation at the baseline's single child level.
+    return <li key={item.attempt_id}>{agentButton(item)}{item.parent_task_id && !attempts.some(parent => parent.task_id === item.parent_task_id) && <p>Parent outside this bounded summary: {item.parent_task_id}</p>}{children.length > 0 && <ul style={nested ? { paddingInlineStart: 0 } : undefined}>{children.map(child => agentRow(child, true))}</ul>}</li>;
+  }
   return <section className={`${styles.panel} ${styles.run}`} aria-label="Inert run"><div className={styles.core}>
     <h2>{stream ? 'Brain stream' : 'Inert run · S1'}</h2>
     <p>Only the selected synthetic context is sent. No target requests, shell or browser tools. Models may make successive calls; 300 seconds per operation, no total LLM cost cap.</p>
@@ -165,7 +173,8 @@ export function RunPanel({ draft, stream }: { draft: SelectedDraft; stream: bool
     </>}
     {question && <section aria-label="Needs you"><h3>Needs you · {question.state}</h3><p>{question.text}</p><ul>{question.refs.map(ref => <li key={ref.id}>{ref.kind} · {ref.id} · revision {ref.revision} · {ref.digest}</li>)}</ul>{question.answer_ref && <p>Answer {question.answer_ref.id} · {question.answer_ref.digest} · command {question.command_id}</p>}<p>{question.cause} · question {question.question_id} · revision {question.revision} · run revision {run?.revision} · task {question.task_id}</p>{question.state === 'PENDING' && <><label>Non-secret clarification<textarea maxLength={2048} value={answer} onChange={event => { setAnswerDraft({ identity: answerIdentity, text: event.target.value }); }} /></label><p>Clarification cannot change scope/ROE, supply secrets or resume HOLD. Complete command limit: 3600 UTF-8 bytes including JSON escaping.</p>{answer && !answerFits && <p role="alert">Clarification exceeds the command limit or contains invalid text. Nothing was sent.</p>}<button disabled={!answer.trim() || !answerFits || sending || !!pending || run?.state !== 'RUNNING'} onClick={() => { void command('answer'); }}>Submit clarification</button></>}</section>}
     {stream && <>
-      <ul aria-label="Spawned agents">{attempts.filter(item => !attempts.some(parent => parent.task_id === item.parent_task_id)).map(item => <li key={item.attempt_id}>{agentButton(item)}{item.parent_task_id && <p>Parent outside this bounded summary: {item.parent_task_id}</p>}<ul>{attempts.filter(child => child.parent_task_id === item.task_id).map(child => <li key={child.attempt_id}>{agentButton(child)}</li>)}</ul></li>)}</ul>
+      {/* The second pass retains rootless cycles; each bounded-summary attempt renders once. */}
+      <ul aria-label="Spawned agents">{attempts.filter(item => !attempts.some(parent => parent.task_id === item.parent_task_id)).map(item => agentRow(item))}{attempts.map(item => agentRow(item))}</ul>
       {summary.data?.has_more && <p>Some attempts are omitted from this bounded summary. Page through events to select their exact attempt IDs.</p>}
       {summary.data?.attempts.length === 0 && <p>No spawned agents in this summary.</p>}
       <p>Filters apply only to the loaded page, not the whole run. Page navigation remains unfiltered.</p>

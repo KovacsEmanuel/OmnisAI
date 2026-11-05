@@ -602,6 +602,73 @@ it('SOURCE pages actual spawn events, inspects only selected attempts and resets
   view.unmount(); client.clear();
 });
 
+it('SOURCE roster preserves Brain clarification descendants and selects the exact RECON read-only', async () => {
+  const { state, writes, fetcher, view, client } = mountedRun('stream');
+  const asks: components['schemas']['Attempt'] = { ...syntheticAttempt, role: 'BRAIN', task_id: instance.instance_id, attempt_id: instance.instance_id, parent_task_id: null, state: 'SUCCEEDED', result_ref: { ...setup, kind: 'run-decision-v2', revision: 1 } };
+  const consumes = { ...asks, task_id: setup.id, attempt_id: '00000000-0000-4000-8000-000000000041', parent_task_id: asks.task_id };
+  const recon = { ...syntheticAttempt, parent_task_id: consumes.task_id, state: 'SUCCEEDED' as const };
+  // The answer creates a Brain child of the asking task; delegation creates its RECON child.
+  state.summary = { ...state.summary, attempts: [recon, consumes, asks], question: { question_id: id, run_id: runId, task_id: asks.task_id, revision: 2, kind: 'CLARIFICATION', cause: 'Synthetic clarification', text: 'Which synthetic part?', refs: [], state: 'CONSUMED', answer_ref: { ...setup, kind: 'run-answer-v1', revision: 1 }, command_id: id } };
+  const original = fetcher.getMockImplementation()!;
+  fetcher.mockImplementation(async (input, init) => String(input) === `/api/v1/runs/${runId}/attempts/${recon.attempt_id}` ? new Response(JSON.stringify(inspection(recon))) : original(input, init));
+  await screen.findByText('Needs you · CONSUMED');
+  const roster = screen.getByRole('list', { name: 'Spawned agents' });
+  const worker = within(roster).getByRole('button', { name: `RECON · ${recon.task_id} · SUCCEEDED · parent ${consumes.task_id}` });
+  expect(within(roster).getAllByRole('button')).toHaveLength(3);
+  const parent = within(roster).getByRole('button', { name: `BRAIN · ${consumes.task_id} · SUCCEEDED · parent ${asks.task_id}` });
+  const root = within(roster).getByRole('button', { name: `BRAIN · ${asks.task_id} · SUCCEEDED` });
+  expect(worker.closest('li')?.parentElement?.closest('li')).toBe(parent.closest('li'));
+  expect(parent.closest('li')?.parentElement?.closest('li')).toBe(root.closest('li'));
+  expect(worker.closest('ul')).toHaveStyle({ paddingInlineStart: '0' });
+  expect(fetcher.mock.calls.some(([path]) => String(path).includes('/attempts/'))).toBe(false);
+  worker.focus();
+  await userEvent.setup().keyboard('{Enter}');
+  const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
+  expect(inspector).toHaveTextContent(`RECON · ${recon.attempt_id}`);
+  expect(inspector).toHaveTextContent(`task ${recon.task_id} · parent ${consumes.task_id}`);
+  expect(inspector).toHaveTextContent('Completion kind: finish');
+  expect(inspector).toHaveTextContent(recon.result_summary!);
+  expect(worker).toHaveAttribute('aria-pressed', 'true');
+  expect(worker).toHaveFocus();
+  expect(fetcher.mock.calls.filter(([path]) => String(path).includes('/attempts/')).map(([path]) => String(path))).toEqual([`/api/v1/runs/${runId}/attempts/${recon.attempt_id}`]);
+  expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
+  expect(screen.getByRole('button', { name: 'Stop run' })).toBeEnabled();
+  expect(writes).toHaveLength(0);
+  view.unmount(); client.clear();
+});
+
+it('SOURCE roster keeps missing-parent and cyclic attempts selectable once', async () => {
+  const { state, writes, fetcher, view, client } = mountedRun('stream');
+  const missing = '00000000-0000-4000-8000-000000000099';
+  const actors = [
+    syntheticAttempt,
+    { ...syntheticAttempt, task_id: instance.instance_id, attempt_id: instance.instance_id, parent_task_id: syntheticAttempt.task_id },
+    { ...syntheticAttempt, task_id: setup.id, attempt_id: setup.id, parent_task_id: setup.id },
+    { ...syntheticAttempt, task_id: runId, attempt_id: runId, parent_task_id: missing },
+  ];
+  state.summary = { ...state.summary, attempts: actors };
+  const original = fetcher.getMockImplementation()!;
+  fetcher.mockImplementation(async (input, init) => {
+    const actor = actors.find(item => String(input) === `/api/v1/runs/${runId}/attempts/${item.attempt_id}`);
+    return actor ? new Response(JSON.stringify(inspection(actor))) : original(input, init);
+  });
+  await screen.findByText(`Parent outside this bounded summary: ${missing}`);
+  const roster = screen.getByRole('list', { name: 'Spawned agents' });
+  expect(within(roster).getAllByRole('button')).toHaveLength(actors.length);
+  const user = userEvent.setup();
+  for (const actor of actors) {
+    const button = within(roster).getByRole('button', { name: `RECON · ${actor.task_id} · INCONCLUSIVE · parent ${actor.parent_task_id}` });
+    await user.click(button);
+    const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
+    expect(inspector).toHaveTextContent(`RECON · ${actor.attempt_id}`);
+    expect(inspector).toHaveTextContent(`parent ${actor.parent_task_id}`);
+    expect(button).toHaveAttribute('aria-pressed', 'true');
+  }
+  expect(fetcher.mock.calls.filter(([path]) => String(path).includes('/attempts/')).map(([path]) => String(path))).toEqual(actors.map(actor => `/api/v1/runs/${runId}/attempts/${actor.attempt_id}`));
+  expect(writes).toHaveLength(0);
+  view.unmount(); client.clear();
+});
+
 it('SOURCE event filters show UTC and exact actors from the loaded page and preserve unfiltered cursor navigation by keyboard', async () => {
   const { state, writes, fetcher, view, client } = mountedRun('stream');
   const event: components['schemas']['RunEvent'] = { event_id: id, run_id: runId, task_id: id, attempt_id: setup.id, sequence: 1, kind: 'result', summary: 'First worker result', refs: [], call_id: 'call-actual', created_at: '2026-11-04T10:11:12Z' };

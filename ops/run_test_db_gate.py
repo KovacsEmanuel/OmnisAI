@@ -822,7 +822,30 @@ def gate_label(target: str) -> str:
     return "CANONICAL_GATE" if target == "check-components" else "TARGETED_GATE"
 
 
+def _live_display_environment(target: str | None) -> dict[str, str]:
+    if target != "test-s1-live-ui-pg":
+        return {}
+    display = os.environ.get("DISPLAY", "")
+    auth = Path(os.environ.get("XAUTHORITY", ""))
+    try:
+        value = auth.lstat()
+        if (
+            not re.fullmatch(r":[0-9]{1,3}(?:\.[0-9]{1,2})?", display)
+            or not auth.is_absolute()
+            or auth.resolve(strict=True) != auth
+            or not stat.S_ISREG(value.st_mode)
+            or value.st_uid != os.getuid()
+            or stat.S_IMODE(value.st_mode) != 0o600
+            or value.st_nlink != 1
+        ):
+            raise UnsafeFixture("Live S1 requires local DISPLAY and owned private XAUTHORITY")
+    except OSError:
+        raise UnsafeFixture("Live S1 display prerequisite unavailable") from None
+    return {"DISPLAY": display, "XAUTHORITY": str(auth)}
+
+
 def _preflight_gate(uv: str, target: str) -> str:
+    _live_display_environment(target)
     base = {"PATH": os.environ.get("PATH", ""), "HOME": os.environ["HOME"]}
     selected = shutil.which(uv)
     if selected is None:
@@ -850,7 +873,7 @@ def _preflight_gate(uv: str, target: str) -> str:
 
 
 def _gate_environment(
-    paths: Paths, env: dict[str, str], manifest: Path, password: str
+    paths: Paths, env: dict[str, str], manifest: Path, password: str, target: str | None = None
 ) -> dict[str, str]:
     # Never pass ambient Make/pytest/Python/proxy/DB/probe configuration into the gate.
     config_home = paths.root / "xdg-config"
@@ -863,6 +886,7 @@ def _gate_environment(
         "OMNIS_TEST_DB_PASSWORD": password,
         "OMNIS_TEST_DATABASE_URL": f"postgresql+psycopg://omnis_test:{password}@{quote(str(paths.socket), safe='')}/omnis_test",
     }
+    result.update(_live_display_environment(target))
     if "HERMES_NATIVE_SOURCE" in os.environ:
         result["HERMES_NATIVE_SOURCE"] = str(Path(os.environ["HERMES_NATIVE_SOURCE"]).resolve())
     for name in ("NPM_CONFIG_USERCONFIG", "NPM_CONFIG_GLOBALCONFIG"):
@@ -984,7 +1008,7 @@ def prove_private_fixture(
             family_drained = False
             outcome = run_gate(
                 ["make", "--no-print-directory", gate_target, f"UV={uv}"],
-                _gate_environment(paths, env, manifest, password),
+                _gate_environment(paths, env, manifest, password, gate_target),
                 log,
                 timeout_seconds,
             )
@@ -1041,6 +1065,7 @@ def main() -> int:
             "test-s1-run-pg",
             "test-s1-run-physical-pg",
             "test-s1-run-ui-pg",
+            "test-s1-live-ui-pg",
             "test-settings-models-ui-pg",
             "test-migrations",
             "test-e2e",

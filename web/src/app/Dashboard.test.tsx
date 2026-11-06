@@ -67,7 +67,14 @@ it('renders the authenticated bounded dashboard from the real HTTP client', asyn
     expect(within(metric).queryByText('0')).not.toBeInTheDocument();
   }
   expect(screen.getByText('UNAVAILABLE')).toBeVisible();
+  const card = screen.getByRole('article');
+  expect(within(card).getByText(summary.run_state)).toBeVisible();
+  expect(screen.getByText(summary.engagement_id)).not.toBeVisible();
+  await userEvent.setup().click(within(card).getByText('Snapshot details'));
   expect(screen.getByText(summary.engagement_id)).toBeVisible();
+  expect(within(card).getByText(summary.digest)).toBeVisible();
+  expect(screen.getByRole('region', { name: 'Workspace status' })).toHaveTextContent('Attention unavailable');
+  expect(screen.getByText('1 loaded on this page')).toBeVisible();
   const timestamp = screen.getByText(projection.as_of);
   expect(timestamp).toBeVisible();
   expect(timestamp.tagName).toBe('TIME');

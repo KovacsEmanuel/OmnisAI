@@ -18,7 +18,7 @@
 .start p:last-child { color: var(--color-secondary); font-size: 14px; margin: 12px 0 0; }
 .start .action { width: fit-content; background: var(--color-selected); color: var(--color-text); }
 .value { font-size: 36px; line-height: 1; font-weight: 500; letter-spacing: -.035em; font-variant-numeric: tabular-nums; margin: 0 0 12px; }
-.availability { display: flex; align-items: baseline; gap: 12px; color: var(--color-secondary); margin: 16px 0 32px; }
+.availability { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; color: var(--color-secondary); margin: 16px 0 32px; font-size: 13px; }
 .availability p { margin: 0; font-size: 13px; max-width: 88ch; }
 .recentHead { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
 .recentHead h2 { margin: 0; font-size: 26px; font-weight: 500; letter-spacing: -.02em; }
@@ -30,4 +30,11 @@
 .bento h3 a { display: inline-flex; align-items: center; min-height: 44px; overflow-wrap: anywhere; }
 
 .pages { display: flex; flex-wrap: wrap; gap: 16px; margin: 24px 0; }
+.attention .core { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding: 18px 22px; }
+.attention h2 { font-size: 16px; }
+.attention p { color: var(--color-secondary); margin: 4px 0 0; max-width: 72ch; font-size: 13px; }
+.cardHeading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; color: var(--color-secondary); font-size: 12px; }
+.snapshot { border-top: 1px solid var(--color-divider); margin-top: 20px; color: var(--color-secondary); font-size: 13px; }
+.snapshot summary { cursor: pointer; min-height: 44px; padding-block: 12px; }
+.snapshot dd { margin: 4px 0 12px; font-family: var(--font-mono); overflow-wrap: anywhere; }
 @media (max-width: 1023px) { .hero { grid-template-columns: minmax(0,1fr); gap: 24px; } .availability { align-items: start; flex-direction: column; } .hero h1 { font-size: 40px; } .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } .bento { grid-template-columns: minmax(0, 1fr); } .bento article:first-child { grid-column: auto; } }

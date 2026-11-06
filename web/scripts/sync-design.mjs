@@ -14,7 +14,7 @@ if (digest(fonts) !== source.generated_css_sha256 || digest(license) !== source.
 }
 let css = '/* Generated from DESIGN.md via Omnis_Design.tokens.json. Do not edit. */\n:root {\n';
 for (const [name, token] of Object.entries(tokens.color)) {
-  if (!name.startsWith('$')) css += `  --color-${name}: ${token.$value.hex};\n`;
+  if (!name.startsWith('$') && !name.startsWith('light-')) css += `  --color-${name}: ${token.$value.hex};\n`;
 }
 for (const [group, prefix] of [['spacing', 'space'], ['rounded', 'radius']]) {
   for (const [name, token] of Object.entries(tokens[group])) {
@@ -23,6 +23,11 @@ for (const [group, prefix] of [['spacing', 'space'], ['rounded', 'radius']]) {
 }
 css += `  --font-sans: ${tokens.typography['body-md'].$value.fontFamily};\n`;
 css += `  --font-mono: ${tokens.typography.code.$value.fontFamily};\n}\n`;
+css += ':root[data-theme="light"] {\n';
+for (const [name, token] of Object.entries(tokens.color)) {
+  if (name.startsWith('light-')) css += `  --color-${name.slice(6)}: ${token.$value.hex};\n`;
+}
+css += '}\n';
 // Verify the original bytes above; normalize trailing whitespace only in the distributed notice.
 const notice = Buffer.from(license.toString('utf8').replace(/[\t ]+$/gm, ''));
 const files = { 'tokens.css': Buffer.from(css), 'fonts.css': fonts, 'fonts-OFL.txt': notice, 'fonts-provenance.json': provenance };

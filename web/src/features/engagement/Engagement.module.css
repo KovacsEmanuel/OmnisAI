@@ -4,7 +4,7 @@
 .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0; }
 .tabs a { border: 1px solid var(--surface-hairline); border-radius: var(--radius-pill); text-decoration: none; padding: 12px 18px; min-height: 44px; color: var(--color-secondary); font-weight: 600; background: var(--surface-shell); }
 .tabs a[aria-current=page] { background: var(--color-selected); color: var(--color-text); }
-.panel { border: 1px solid var(--surface-hairline); border-radius: var(--radius-lg); padding: 4px; background: var(--surface-shell); box-shadow: 0 1px 2px #0005; min-width: 0; }
+.panel { border: 1px solid var(--surface-hairline); border-radius: var(--radius-lg); padding: 4px; background: var(--surface-shell); box-shadow: var(--shadow-panel); min-width: 0; }
 .core { border: 1px solid var(--surface-shell); border-radius: var(--radius-md); padding: 26px; background: var(--color-surface); box-shadow: inset 0 1px 0 var(--surface-inset); }
 .core h2 { font-size: 20px; font-weight: 500; letter-spacing: -.02em; }
 .details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }

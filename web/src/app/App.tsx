@@ -9,6 +9,7 @@ import { Bootstrap } from '../features/bootstrap/Bootstrap';
 import { BrowserSessionProvider, useSession } from '../features/bootstrap/BrowserSession';
 import { copy } from '../features/bootstrap/copy';
 import styles from './Shell.module.css';
+import { ThemeToggle } from './ThemeToggle';
 
 function Shell() {
   const location = useLocation();
@@ -32,6 +33,7 @@ function Shell() {
       <Link to="/" aria-current={scope === 'home' ? 'page' : undefined}>{copy.home}</Link>
       <Link to={selected ? `/engagements/${selected}/overview` : '/engagements'} aria-current={scope === 'engagement' ? 'page' : undefined}>{copy.engagement}</Link>
       <Link to="/settings/runtime" aria-current={scope === 'settings' ? 'page' : undefined}>{copy.settings}</Link>
+      <ThemeToggle />
     </nav>{session.data && !session.isError && transition === 'idle' && <GlobalStop key={session.data.csrf_token} />}</header>
     <main ref={main} id="content" tabIndex={-1} className={styles.main}>
       {!session.data || session.isError ? <Bootstrap /> : <Routes>

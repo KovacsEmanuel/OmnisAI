@@ -21,6 +21,26 @@ colors:
   successBg: "#2A2C27"
   info: "#A2BAD0"
   infoBg: "#202930"
+  shadow: "#000000"
+  light-primary: "#665C4D"
+  light-secondary: "#5F5B52"
+  light-neutral: "#E9E4DB"
+  light-surface: "#F5F1EA"
+  light-elevated: "#ECE7DE"
+  light-text: "#1A1B17"
+  light-border: "#81796B"
+  light-divider: "#CEC7BB"
+  light-selected: "#E1DBD0"
+  light-focus: "#6F6554"
+  light-danger: "#A83027"
+  light-dangerBg: "#F8E5DF"
+  light-warning: "#76501B"
+  light-warningBg: "#F2E6CE"
+  light-success: "#665C4D"
+  light-successBg: "#E1DBD0"
+  light-info: "#2D5E82"
+  light-infoBg: "#E0EAF1"
+  light-shadow: "#C5BDB0"
 typography:
   h1:
     fontFamily: "Geist, Segoe UI, Liberation Sans, Arial, sans-serif"
@@ -145,6 +165,8 @@ components:
 **VISUAL_ACCEPTED — prototip `df17a29`:** utilizatorul a acceptat direcția vizuală după iterațiile respinse. Referința `omnis-cockpit-v5.html` și proveniența sunt în UI/UX §0. Negru cald, ivory/taupe, accent nisipiu, capsule și double-bezel; compoziția/densitatea se păstrează la portare, nu numai culorile. Fără brain graph/council sau tab Chains. Amendamentul G-PATH permite numai timeline bounded în finding inspector; extensia cere verificare/aprobare vizuală separată și nu schimbă acceptarea df17a29. [Felia UI separată admisă](documents/verification/ui-reference-light-dark.md) aduce acum light/dark global, cu light crem/bej cald din aceeași referință, înlocuind amânarea post-MVP; raportul imprimabil rămâne light. Models păstrează fluxul/searchul, cu schimbări numai grafice. Noua UI cere probe și acceptare vizuală proprie. Prototipul rămâne DEMO, nu aplicație, iar acordul de pornire este separat.
 
 ## Colors
+
+Paleta fără prefix este dark implicit. Culorile `light-*` sunt aceleași roluri semantice în light; exporterul DTCG existent le păstrează, iar sync-design le aplică sub `:root[data-theme="light"]`, fără a duplica paleta în CSS. Fundalul/fețele/ink/taupe provin din CSS-ul referinței; accentul light închide ușor `accent-2` pentru contrast AA inclusiv pe selecția bej, iar statusurile sunt închise pentru contrast pe fundaluri calde. Se păstrează capsulele, fonturile și double-bezel, fără motion/glow nou. `shadow` controlează numai umbra discretă, nu informație.
 
 `primary` marchează acțiunea principală și selecția, nu „securitate garantată”. Statusurile folosesc **text plus semn/etichetă**, niciodată numai culoare. UNKNOWN, unavailable și zero sunt stări diferite. `border` este pentru contururi interactive; `divider` numai pentru separatoare neesențiale. Focus vizibil de 2px, offset 3px, în `focus`. Preview-urile evidence nu moștenesc HTML/CSS de la țintă.
 

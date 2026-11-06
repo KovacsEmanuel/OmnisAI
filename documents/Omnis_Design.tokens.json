@@ -200,6 +200,226 @@
         ],
         "hex": "#202930"
       }
+    },
+    "shadow": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0,
+          0,
+          0
+        ],
+        "hex": "#000000"
+      }
+    },
+    "light-primary": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.4,
+          0.361,
+          0.302
+        ],
+        "hex": "#665c4d"
+      }
+    },
+    "light-secondary": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.373,
+          0.357,
+          0.322
+        ],
+        "hex": "#5f5b52"
+      }
+    },
+    "light-neutral": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.914,
+          0.894,
+          0.859
+        ],
+        "hex": "#e9e4db"
+      }
+    },
+    "light-surface": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.961,
+          0.945,
+          0.918
+        ],
+        "hex": "#f5f1ea"
+      }
+    },
+    "light-elevated": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.925,
+          0.906,
+          0.871
+        ],
+        "hex": "#ece7de"
+      }
+    },
+    "light-text": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.102,
+          0.106,
+          0.09
+        ],
+        "hex": "#1a1b17"
+      }
+    },
+    "light-border": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.506,
+          0.475,
+          0.42
+        ],
+        "hex": "#81796b"
+      }
+    },
+    "light-divider": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.808,
+          0.78,
+          0.733
+        ],
+        "hex": "#cec7bb"
+      }
+    },
+    "light-selected": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.882,
+          0.859,
+          0.816
+        ],
+        "hex": "#e1dbd0"
+      }
+    },
+    "light-focus": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.435,
+          0.396,
+          0.329
+        ],
+        "hex": "#6f6554"
+      }
+    },
+    "light-danger": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.659,
+          0.188,
+          0.153
+        ],
+        "hex": "#a83027"
+      }
+    },
+    "light-dangerBg": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.973,
+          0.898,
+          0.875
+        ],
+        "hex": "#f8e5df"
+      }
+    },
+    "light-warning": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.463,
+          0.314,
+          0.106
+        ],
+        "hex": "#76501b"
+      }
+    },
+    "light-warningBg": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.949,
+          0.902,
+          0.808
+        ],
+        "hex": "#f2e6ce"
+      }
+    },
+    "light-success": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.4,
+          0.361,
+          0.302
+        ],
+        "hex": "#665c4d"
+      }
+    },
+    "light-successBg": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.882,
+          0.859,
+          0.816
+        ],
+        "hex": "#e1dbd0"
+      }
+    },
+    "light-info": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.176,
+          0.369,
+          0.51
+        ],
+        "hex": "#2d5e82"
+      }
+    },
+    "light-infoBg": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.878,
+          0.918,
+          0.945
+        ],
+        "hex": "#e0eaf1"
+      }
+    },
+    "light-shadow": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.773,
+          0.741,
+          0.69
+        ],
+        "hex": "#c5bdb0"
+      }
     }
   },
   "spacing": {

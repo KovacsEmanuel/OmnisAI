@@ -36,6 +36,8 @@ it('navigates Home / Engagement / Settings without duplicating browser auth', as
   expect(screen.getByRole('main')).toHaveFocus();
   expect(screen.getByRole('main')).toHaveAttribute('tabindex', '-1');
   await user.tab({ shift: true });
+  expect(screen.getByRole('button', { name: 'Light theme' })).toHaveFocus();
+  await user.tab({ shift: true });
   expect(screen.getByRole('link', { name: 'Settings' })).toHaveFocus();
   await user.tab({ shift: true });
   expect(screen.getByRole('link', { name: 'Engagement' })).toHaveFocus();

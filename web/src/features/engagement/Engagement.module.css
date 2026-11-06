@@ -44,9 +44,69 @@
 .run textarea, .run select { display: block; width: 100%; max-width: 100%; min-width: 0; }
 .run pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 .run button { max-width: 100%; overflow-wrap: anywhere; }
-.globalControl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 24px; overflow-wrap: anywhere; }
+.globalControl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; max-width: 1116px; margin: 20px auto 0; padding: 12px 20px; overflow-wrap: anywhere; background: var(--color-surface); border: 1px solid var(--surface-hairline); border-radius: var(--radius-lg); }
 .globalControl a { flex: 1 1 280px; min-width: 0; min-height: 44px; }
 .globalControl button, .run button { min-width: 44px; min-height: 44px; max-width: 100%; overflow-wrap: anywhere; }
+.globalControl p { flex-basis: 100%; margin: 0; color: var(--color-secondary); font-size: 12px; }
+.overviewContext { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; margin-block: 16px; }
+.overviewContext > * { min-width: 0; }
+.overviewContext h2 { margin-top: 0; }
+.scope h3 { font-family: var(--font-mono); font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.scope p { color: var(--color-primary); margin: 4px 0; font-size: 12px; }
+.scope dl { margin: 8px 0 0; font-size: 13px; }
+.scope dl > div { display: grid; grid-template-columns: 80px minmax(0, 1fr); gap: 12px; margin-block: 4px; }
+.muted { color: var(--color-secondary); font-size: 13px; }
+.disclosure { border-top: 1px solid var(--color-divider); margin-top: 16px; font-size: 13px; }
+.disclosure summary { min-height: 44px; padding-block: 12px; cursor: pointer; color: var(--color-primary); font-weight: 500; }
+.disclosure dl { display: grid; gap: 8px; }
+.disclosure dl > div { min-width: 0; }
+.disclosure dt { color: var(--color-secondary); }
+.disclosure dd { margin: 0; overflow-wrap: anywhere; font-family: var(--font-mono); }
+.nowBar { border: 1px solid var(--surface-hairline); border-radius: var(--radius-md); background: var(--color-elevated); padding: 12px 16px; }
+.nowBar p { margin: 0; }
+.nowBar .disclosure { margin-top: 8px; }
+.accounting { border-block: 1px solid var(--color-divider); margin-block: 20px; padding-block: 4px; }
+.badge { display: inline-flex; padding: 4px 10px; margin-left: 8px; border: 1px solid var(--surface-hairline); border-radius: var(--radius-pill); color: var(--color-primary); font-size: 12px; font-weight: 400; }
+.usageMetrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.usageMetrics > div { min-width: 0; padding: 16px; border: 1px solid var(--surface-hairline); border-radius: var(--radius-md); background: var(--color-elevated); }
+.usageMetrics dt { color: var(--color-secondary); font-size: 12px; }
+.usageMetrics dd { margin: 8px 0 0; font-size: 24px; line-height: 1.3; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.usageMetrics small { display: block; margin-top: 8px; color: var(--color-secondary); font-size: 12px; }
+.assessmentMetrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; margin-block: 16px; }
+.assessmentMetrics .core { padding: 16px; height: 100%; }
+.assessmentMetrics h2 { font-size: 14px; margin: 12px 0 4px; }
+.metricValue { margin: 0; font-size: 36px; line-height: 1; font-weight: 500; }
+.severityRing { display: grid; place-items: center; width: 128px; aspect-ratio: 1; border: 16px solid var(--color-divider); border-radius: 50%; color: var(--color-secondary); font-size: 24px; margin: 16px auto; }
+.streamWorkspace { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); align-items: start; gap: 24px; margin-top: 24px; }
+.streamFeed, .inspectorDock { min-width: 0; }
+.inspectorDock { border: 1px solid var(--surface-hairline); border-radius: var(--radius-md); padding: 16px; background: var(--color-elevated); }
+.inspectorDock h3 { font-size: 16px; font-weight: 500; }
+.inspectorDock p, .inspectorDock li { font-size: 13px; }
+.inspectorDock ul { padding-left: 16px; }
+.agents, .agents ul, .events { list-style: none; padding: 0; margin: 12px 0; }
+.agents ul { padding-left: 16px; border-left: 1px solid var(--color-divider); }
+.agents button { display: block; width: 100%; text-align: left; font-size: 12px; font-weight: 400; border-radius: var(--radius-sm); background: var(--color-elevated); margin-block: 8px; box-shadow: none; }
+.agents button[aria-pressed=true] { border-color: var(--color-focus); }
+.events > li { border: 1px solid var(--surface-hairline); border-radius: var(--radius-md); background: var(--color-elevated); padding: 12px 16px; margin-top: 12px; }
+.eventMeta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--color-secondary); }
+.events button { padding: 8px 0; text-align: left; border: 0; border-radius: var(--radius-sm); background: transparent; box-shadow: none; font-size: 14px; font-weight: 500; }
+.events .disclosure { margin-top: 4px; }
+.overviewRun > h2 { font-size: 20px; font-weight: 500; margin: 24px 0 8px; }
+.overviewRun > p { color: var(--color-secondary); font-size: 13px; }
+.runControls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-block: 12px; }
+.needsYou { border: 1px solid var(--color-border); border-left: 3px solid var(--color-warning); border-radius: var(--radius-md); padding: 16px 20px; margin-block: 16px; background: var(--color-surface); }
+.needsYou h3, .nowBar h3 { font-size: 15px; font-weight: 500; margin: 0 0 8px; }
+.needsYou > p, .needsYou .disclosure { font-size: 13px; }
+.preflight { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 12px 20px; padding: 20px; border: 1px solid var(--surface-hairline); border-radius: var(--radius-lg); background: var(--color-surface); margin-block: 20px; }
+.preflight > h3, .preflight > p, .preflight > section, .preflight > .fullWidth { grid-column: 1 / -1; margin: 0; }
+.preflight > h3 { font-size: 16px; font-weight: 500; }
+.preflight > label { min-width: 0; margin: 0; font-size: 13px; }
+.preflight select, .preflight textarea { margin-top: 8px; }
+.preflight > button { justify-self: start; }
+.agents { max-height: 280px; overflow: auto; scrollbar-gutter: stable; padding: 4px; }
+@media (max-width: 1023px) { .overviewContext, .streamWorkspace { grid-template-columns: minmax(0, 1fr); } .assessmentMetrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .preflight { grid-template-columns: minmax(0, 1fr); padding: 16px; } .needsYou { padding: 16px; } }
+@media (max-width: 600px) { .usageMetrics { grid-template-columns: minmax(0, 1fr); } .globalControl { padding: 12px; } .globalControl a { flex-basis: 100%; } .assessmentMetrics { gap: 8px; } .inspectorDock { padding: 12px; } }
 @media (max-width: 600px) { .core { padding: 20px; } .heading h1 { margin-block: 12px; } }
 @media (max-width: 700px) { .providerSelection, .providerStates { grid-template-columns: minmax(0, 1fr); } .providerActions button { flex: 1 1 100%; } }
 @media (max-width: 1023px) { .heading { flex-direction: column; align-items: start; } .heading h1 { font-size: 30px; } .details { grid-template-columns: minmax(0, 1fr); } }

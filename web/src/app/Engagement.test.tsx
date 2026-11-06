@@ -3,10 +3,39 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { expect, it, vi } from 'vitest';
-import { health, session } from '../../tests/fixtures';
+import { health, session, instance } from '../../tests/fixtures';
+import { syntheticRun, syntheticSummary } from '../../tests/run-fixtures';
 import { draft, id, projection, summary } from '../../tests/projection-fixtures';
 import { api } from '../shared/api/client';
 import { App } from './App';
+
+it('orders Overview now, Needs you, metrics, context and exact usage without inventing assessment results', async () => {
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async input => {
+    const path = String(input);
+    const runSummary = { ...syntheticSummary, question: { question_id: id, run_id: syntheticRun.run_id, task_id: id, revision: 1, kind: 'CLARIFICATION', cause: 'Synthetic scope question', text: 'Which synthetic part?', refs: [], state: 'PENDING', answer_ref: null, command_id: null } };
+    return Response.json(path === '/api/session' ? session : path === '/health/ready' ? health : path === '/api/instance' ? instance : path === `/api/v1/engagements/${id}` ? draft : path.endsWith('/summary') ? runSummary : path.endsWith('/run') || path === '/api/v1/runs/active' ? syntheticRun : null);
+  });
+  vi.stubGlobal('fetch', fetcher);
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const view = render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${id}/overview`]}><App /></MemoryRouter></QueryClientProvider>);
+  const accounting = await screen.findByRole('region', { name: 'Run accounting' });
+  const needs = screen.getByRole('region', { name: 'Needs you' });
+  const now = screen.getByText(new RegExp(`^Run ${syntheticRun.run_id}`));
+  const metrics = screen.getByLabelText('Target assessment metrics');
+  const context = screen.getByRole('region', { name: 'Engagement scope' });
+
+  for (const [before, after] of [[now, needs], [needs, metrics], [metrics, context], [context, accounting]] as const) expect(before.compareDocumentPosition(after) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(metrics.querySelectorAll('section')).toHaveLength(5);
+  expect(metrics.textContent).not.toContain('0');
+  expect(screen.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Submit clarification' })).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Stop run' })).toBeVisible();
+  expect(screen.getByText('Exact accounting & provenance').closest('details')).not.toHaveAttribute('open');
+  expect(screen.getByRole('heading', { name: 'Top findings' })).toBeVisible();
+  expect(screen.getByRole('heading', { name: 'Severity' })).toBeVisible();
+  expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
+  view.unmount(); client.clear();
+});
 
 it('selects a persisted draft, preserves identity and scope, and navigates editable Setup / New without implicit writes', async () => {
   const fetcher = vi.fn<typeof fetch>().mockImplementation(async input => {
@@ -20,12 +49,15 @@ it('selects a persisted draft, preserves identity and scope, and navigates edita
   await user.click(await screen.findByRole('link', { name: summary.name }));
   expect(await screen.findByRole('heading', { name: summary.name })).toBeVisible();
   expect(screen.getByText(draft.payload.objective_text, { normalizer: value => value })).toBeVisible();
+  expect(screen.queryByRole('region', { name: 'Test model' })).not.toBeInTheDocument();
+  await user.click(screen.getByText('Draft snapshot details'));
   expect(screen.getByText(summary.digest)).toBeVisible();
   expect(screen.getByText(summary.id)).toBeVisible();
   expect(screen.getByText('https://synthetic.invalid')).toBeVisible();
   expect(screen.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
   await user.click(screen.getByRole('link', { name: 'Setup' }));
   expect(await screen.findByRole('region', { name: 'Draft setup' })).toBeVisible();
+  expect(screen.getByRole('region', { name: 'Test model' })).toBeVisible();
   expect(await screen.findByLabelText('Engagement name')).toHaveValue(summary.name);
   expect(screen.getByRole('heading', { name: summary.name })).toBeVisible();
   expect(screen.getByRole('button', { name: 'Save draft' })).toBeDisabled();

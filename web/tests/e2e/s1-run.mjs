@@ -14,15 +14,23 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
     if (!response.ok) throw new Error('S1 readback unavailable');
     return response.json();
   }, path);
+  async function openDisclosure(region, name) {
+    const trigger = region.getByText(name, { exact: true });
+    const disclosure = trigger.locator('..');
+    if (await disclosure.getAttribute('open') === null) await trigger.click();
+    await check(disclosure).toHaveJSProperty('open', true);
+    return disclosure;
+  }
   async function accounting(region, usage) {
     assert.equal(usage.accounting_policy, 'MONITOR');
-    await check(region).toContainText(`Allocations: ${usage.totals.dispatches} · without observation: ${usage.totals.unobserved_dispatches}`);
+    const full = usage.scope === 'RUN' ? await openDisclosure(region, 'Exact accounting & provenance') : region;
+    await check(full).toContainText(`Allocations: ${usage.totals.dispatches} · without observation: ${usage.totals.unobserved_dispatches}`);
     for (const key of ['input_tokens', 'output_tokens', 'total_tokens', 'cached_tokens', 'reasoning_tokens', 'cache_creation_tokens', 'cost_observed']) {
       const amount = usage.totals[key];
-      await check(region.locator('dl').first().locator('dt').filter({ hasText: new RegExp(`^${key}$`) }).locator('..')).toContainText(`${amount.value ?? 'UNKNOWN'} · ${amount.state} · ${amount.observed_dispatches}/${usage.totals.dispatches} observed`);
+      await check(full.locator(':scope > dl').locator('dt').filter({ hasText: new RegExp(`^${key}$`) }).locator('..')).toContainText(`${amount.value ?? 'UNKNOWN'} · ${amount.state} · ${amount.observed_dispatches}/${usage.totals.dispatches} observed`);
     }
     for (const role of usage.roles) {
-      const group = region.getByRole('region', { name: `${role.role} usage`, exact: true });
+      const group = full.getByRole('region', { name: `${role.role} usage`, exact: true });
       await check(group).toContainText(`${role.role} · ${role.configured_model}`);
       await check(group).toContainText(`connection ${role.connection_id} · revision ${role.connection_revision}`);
     }
@@ -43,6 +51,9 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
     await check(inspector).toContainText('Consumption: CONSUMED');
     await check(inspector).toContainText(value.consumption.decision_ref.digest);
     for (const gap of value.result.gaps) await check(inspector).toContainText(gap);
+    await openDisclosure(inspector, 'Prompt & input');
+    await openDisclosure(inspector, 'Tools & results');
+    await openDisclosure(inspector, 'Usage');
     await accounting(inspector.getByRole('region', { name: 'Attempt accounting' }), value.usage);
     assert.equal(value.dispatches_has_more, false);
     for (const dispatch of value.dispatches) {

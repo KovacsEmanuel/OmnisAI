@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, useLocation } from 'react-router';
 import { expect, it, vi } from 'vitest';
 import { health, session, instance } from '../../tests/fixtures';
 import { draft, id } from '../../tests/projection-fixtures';
@@ -168,6 +168,10 @@ it('SOURCE global Stop binds the observed run, survives a lost reply and reload 
   view.unmount(); client.clear();
 });
 
+function ViewLocation() {
+  const location = useLocation();
+  return <output aria-label="Current view URL">{location.pathname}{location.search}</output>;
+}
 function mountedRun(surface = 'overview') {
   sessionStorage.clear();
   const state: { run: components['schemas']['RunView']; summary: components['schemas']['RunSummary'] } = {
@@ -188,9 +192,32 @@ function mountedRun(surface = 'overview') {
   });
   vi.stubGlobal('fetch', fetcher);
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  const view = render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${id}/${surface}`]}><App /></MemoryRouter></QueryClientProvider>);
+  const view = render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${id}/${surface}`]}><App /><ViewLocation /></MemoryRouter></QueryClientProvider>);
   return { state, writes, fetcher, client, view };
 }
+
+it('restores a run-bound stream selection and page filters from a nonsensitive URL without dispatch', async () => {
+  const { state, fetcher, writes, view, client } = mountedRun(`stream?run=${runId}&attempt=${syntheticAttempt.attempt_id}&kind=result&actor=${id}&agent-state=INCONCLUSIVE`);
+  state.summary = { ...state.summary, attempts: [syntheticAttempt] };
+  const original = fetcher.getMockImplementation()!;
+  fetcher.mockImplementation(async (input, init) => String(input).includes('/attempts/') ? Response.json(inspection()) : original(input, init));
+  const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
+  expect(inspector).toHaveTextContent(syntheticAttempt.result_summary!);
+  expect(screen.getByLabelText('Event type')).toHaveValue('result');
+  expect(screen.getByLabelText('Event actor (task)')).toHaveValue(id);
+  expect(screen.getByLabelText('Agent state')).toHaveValue('INCONCLUSIVE');
+  const user = userEvent.setup();
+  await user.click(screen.getByRole('button', { name: 'Light theme' }));
+  expect(screen.getByRole('region', { name: 'Agent inspector' })).toBe(inspector);
+  expect(screen.getByLabelText('Current view URL')).not.toHaveTextContent(syntheticAttempt.input_text);
+  expect(screen.getByLabelText('Current view URL')).not.toHaveTextContent(session.csrf_token);
+  await user.click(screen.getByRole('link', { name: 'Overview' }));
+  await user.click(screen.getByRole('link', { name: 'Brain stream' }));
+  expect(await screen.findByRole('region', { name: 'Agent inspector' })).toHaveTextContent(syntheticAttempt.result_summary!);
+  expect(screen.getByLabelText('Event type')).toHaveValue('result');
+  expect(writes).toHaveLength(0);
+  view.unmount(); client.clear(); localStorage.clear();
+});
 
 it.each(['OPERATION_FINISHED', 'REVISION_CONFLICT', 'AUTHORITY_DENIED'])('SOURCE definite Stop %s releases only its command and requires an explicit Stop for the next observed run', async code => {
   const { state, writes, fetcher, view, client } = mountedRun();
@@ -802,7 +829,7 @@ it('SOURCE expires the run reader on a private 401 without repopulating its cach
   const original = fetcher.getMockImplementation()!;
   fetcher.mockImplementation(async (input, init) => String(input).endsWith('/summary') ? new Response(JSON.stringify({ error: { code: 'UNAUTHENTICATED', correlation_id: id } }), { status: 401 }) : original(input, init));
   await screen.findByLabelText('Pairing code');
-  await waitFor(() => expect(client.getQueryCache().findAll({ queryKey: ['private'] })).toHaveLength(0));
+  await waitFor(() => expect(client.getQueryCache().findAll({ queryKey: ['private'] }).map(query => query.queryKey)).toEqual([]));
   expect(screen.queryByRole('region', { name: 'Inert run' })).not.toBeInTheDocument();
   expect(screen.queryByRole('region', { name: 'Global run control' })).not.toBeInTheDocument();
   expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
@@ -824,6 +851,11 @@ it('SOURCE selected inspection shows exact final, gaps, pending/held/consumed li
   const user = userEvent.setup();
   await user.click(await screen.findByRole('button', { name: /^RECON/ }));
   let inspector = await screen.findByRole('region', { name: 'Agent inspector' });
+  expect(within(inspector).getByText(detail.input_text)).not.toBeVisible();
+  await user.click(within(inspector).getByText('Prompt & input'));
+  expect(within(inspector).getByText(detail.input_text)).toBeVisible();
+  expect(within(inspector).getByText(detail.instructions)).toBeVisible();
+  await user.click(within(inspector).getByText('Usage', { exact: true }));
   expect(inspector).toHaveTextContent('INCONCLUSIVE');
   expect(inspector).toHaveTextContent('Completion kind: finish');
   expect(inspector).toHaveTextContent('INERT_READ_PROOF_INCOMPLETE');
@@ -896,6 +928,7 @@ it('SOURCE inspection reload retains legacy UNKNOWN completion and lost-response
   expect(fetcher.mock.calls.filter(([path]) => String(path).includes('/attempts/'))).toHaveLength(reads);
   await user.click(screen.getByRole('button', { name: /^RECON/ }));
   expect(await screen.findByRole('region', { name: 'Agent inspector' })).toHaveTextContent('Completion kind: UNKNOWN');
+  await user.click(within(screen.getByRole('region', { name: 'Agent inspector' })).getByText('Usage', { exact: true }));
   expect(screen.getByText('No observation receipt; usage UNKNOWN, not zero.')).toBeVisible();
   expect(writes).toHaveLength(0);
   reloaded.unmount(); client.clear();
@@ -905,6 +938,10 @@ it('SOURCE accounting displays exact whole-run partial subtotals, role attributi
   const { state, writes, view, client } = mountedRun();
   state.summary = { ...state.summary, usage: partialUsage(), has_more: true };
   const accounting = await screen.findByRole('region', { name: 'Run accounting' });
+  expect(within(accounting).getByText('Exact accounting & provenance')).toBeVisible();
+  expect(within(accounting).getAllByText('input_tokens')[0]).not.toBeVisible();
+  await userEvent.setup().click(within(accounting).getByText('Exact accounting & provenance'));
+  expect(within(accounting).getAllByText('input_tokens')[0]).toBeVisible();
   expect(accounting).toHaveTextContent('MONITOR');
   expect(accounting).toHaveTextContent('18014398509481982');
   expect(accounting).toHaveTextContent('0.000000000000000000123');

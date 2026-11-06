@@ -1053,8 +1053,14 @@ class AgentRunOwner:
         try:
             async with db.begin_nested():
                 await self.complete(db, current, owned, result.text, None)
-        except ValueError:
-            await self.complete(db, current, owned, None, "FINALIZATION_DENIED")
+        except ValueError as error:
+            reason = "FINALIZATION_DENIED"
+            if isinstance(error, records.ModelConflict) and error.code in {
+                "CONSUMPTION_CONTEXT_DENIED",
+                "CONSUMPTION_DENIED",
+            }:
+                reason = error.code
+            await self.complete(db, current, owned, None, reason)
             return False
         return True
 

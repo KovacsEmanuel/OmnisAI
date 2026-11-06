@@ -4,7 +4,7 @@ import asyncio
 import json
 import ssl
 from collections.abc import AsyncIterator
-from contextlib import AbstractAsyncContextManager
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from unittest.mock import AsyncMock
@@ -12,12 +12,13 @@ from uuid import uuid4
 
 import httpcore
 import pytest
+from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from omnis.modules.runs import model_test_store as records
 from omnis.modules.runs import run_store as store
-from omnis.modules.runs.run_contract import Attempt, Setup, WorkerFinal
-from omnis.supervisor.agent_runner import AgentStep, Exchange, StepInput
+from omnis.modules.runs.run_contract import Attempt, BrainDecision, Setup, WorkerFinal
+from omnis.supervisor.agent_runner import AgentStep, Exchange, StepInput, StepResult
 from omnis.supervisor.model_relay_protocol import Authority, Scope
 from omnis.supervisor.model_sender import CURRENT, SendDenied, Transport
 from test_run_controls_source import Owned
@@ -345,3 +346,201 @@ async def test_finish_sdk_waits_for_owner_receipt_and_settlement_never_duplicate
         assert calls == 1 and CURRENT.get(None) is None
     finally:
         await transport.aclose()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("mode", "reason"),
+    [
+        ("valid", None),
+        ("context", "CONSUMPTION_CONTEXT_DENIED"),
+        ("inbox", "CONSUMPTION_DENIED"),
+        ("value_error", "FINALIZATION_DENIED"),
+        ("validation_error", "FINALIZATION_DENIED"),
+        ("unknown_conflict", "FINALIZATION_DENIED"),
+        ("untyped_code", "FINALIZATION_DENIED"),
+    ],
+)
+async def test_finalization_denial_retains_only_safe_typed_reason(
+    owned: Owned,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+    mode: str,
+    reason: str | None,
+) -> None:
+    """Real finish_step/complete/consume, synthetic storage and savepoint only."""
+    snapshot = Setup.model_validate(fixture_setup_payload())
+    ref = owned.run.setup_ref.model_copy(update={"kind": "run-result-v1"})
+    actor = Attempt(
+        instance_id=owned.run.instance_id,
+        run_id=owned.run.run_id,
+        task_id=str(uuid4()),
+        attempt_id=str(uuid4()),
+        role="BRAIN",
+        parent_task_id=None,
+        state="RUNNING",
+        brief="Inert",
+        input_refs=[],
+        input_text="Inert",
+        instructions="Inert",
+        configured_model="fixture/brain",
+        skill_refs=[],
+    )
+    owned.run = owned.run.model_copy(update={"active_attempt_id": actor.attempt_id})
+    before, original_actor = owned.run, actor
+    scope = Scope(
+        before.instance_id,
+        "MODEL_DISPATCH",
+        str(uuid4()),
+        before.owner_id,
+        before.generation,
+        before.owner_epoch,
+        before.fence,
+        (datetime.now(UTC) + timedelta(seconds=300)).isoformat(),
+        "openrouter",
+        1,
+    )
+    payloads: list[tuple[str, dict[str, object]]] = []
+    refusals: list[ValueError] = []
+
+    @asynccontextmanager
+    async def nested(self: AsyncConnection) -> AsyncIterator[None]:
+        try:
+            yield
+        except ValueError as error:
+            refusals.append(error)
+            # The real savepoint rolls back the tentative decision before the failed result.
+            payloads.clear()
+            raise
+
+    async def put(
+        db: AsyncConnection, instance: str, kind: str, payload: dict[str, object]
+    ) -> object:
+        payloads.append((kind, payload))
+        return ref.model_copy(update={"kind": kind, "digest": records.digest(payload)})
+
+    async def save(db: AsyncConnection, value: Attempt, *, initial: bool = False) -> None:
+        nonlocal actor
+        actor = value
+
+    setup = AsyncMock(return_value=snapshot)
+    sentinel = "SYNTHETIC-SECRET-DO-NOT-RETAIN"
+    if mode == "value_error":
+        setup.side_effect = [ValueError(sentinel), snapshot]
+    elif mode == "unknown_conflict":
+        setup.side_effect = [
+            records.ModelConflict("CONSUMPTION_CONTEXT_DENIED:" + sentinel),
+            snapshot,
+        ]
+    elif mode == "untyped_code":
+        setup.side_effect = [ValueError("CONSUMPTION_CONTEXT_DENIED"), snapshot]
+    output = BrainDecision(
+        action="finish" if mode == "valid" else "delegate",
+        summary="Inert proposal",
+        detail="Inert detail",
+        consumed_refs=[ref] if mode == "context" else [],
+    ).model_dump_json()
+    if mode == "validation_error":
+        output = json.dumps({**json.loads(output), "action": sentinel})
+    result = StepResult(kind="final", text=output, call_id=None, arguments=None)
+    event, inbox, dispatch = AsyncMock(return_value=1), AsyncMock(), AsyncMock()
+    execute = AsyncMock(side_effect=AssertionError("No consumption or new dispatch SQL expected"))
+    monkeypatch.setattr(AsyncConnection, "begin_nested", nested)
+    monkeypatch.setattr(AsyncConnection, "scalar", AsyncMock(return_value="SETTLED"))
+    monkeypatch.setattr(AsyncConnection, "execute", execute)
+    monkeypatch.setattr(store, "setup", setup)
+    monkeypatch.setattr(store, "attempt", AsyncMock(side_effect=lambda *args: actor))
+    monkeypatch.setattr(store, "save_attempt", save)
+    monkeypatch.setattr(
+        store, "inbox", AsyncMock(return_value=[(ref, {})] if mode == "inbox" else [])
+    )
+    monkeypatch.setattr(store, "add_inbox", inbox)
+    monkeypatch.setattr(store, "event", event)
+    monkeypatch.setattr(store, "dispatch_event", dispatch)
+    monkeypatch.setattr(records, "put", put)
+    db = object.__new__(AsyncConnection)
+    again = await owned.owner.finish_step(
+        db, before.run_id, actor.attempt_id, scope, result, None, admitted=True
+    )
+    assert again is (mode == "valid")
+    dispatch.assert_awaited_once_with(db, before.instance_id, scope.id, "SETTLED")
+    assert len(payloads) == 1 and event.await_count == 1
+    assert owned.writes == ["run:LIMITED" if mode == "valid" else "run:HOLD"]
+    assert owned.owner.tasks == {} and not execute.called
+    assert actor.correction_count == 0
+    assert actor.result_ref is not None
+    if mode == "valid":
+        assert not refusals and not inbox.called
+        assert actor == original_actor.model_copy(
+            update={
+                "state": "SUCCEEDED",
+                "result_ref": actor.result_ref,
+                "result_summary": "Inert proposal",
+            }
+        )
+        assert payloads[0][0] == "run-decision-v2"
+        assert payloads[0][1]["decision"] == json.loads(output)
+        assert owned.run == before.model_copy(
+            update={
+                "state": "LIMITED",
+                "reason": "S1_INERT_ONLY_NO_ASSESSMENT",
+                "active_attempt_id": None,
+                "revision": before.revision + 1,
+                "through_cursor": 1,
+                "stagnation": 1,
+            }
+        )
+    else:
+        assert len(refusals) == 1
+        if mode in {"context", "inbox"}:
+            assert isinstance(refusals[0], records.ModelConflict) and refusals[0].code == reason
+        elif mode == "validation_error":
+            assert isinstance(refusals[0], ValidationError)
+        assert actor.result_summary == reason
+        assert actor == original_actor.model_copy(
+            update={
+                "state": "FAILED",
+                "result_ref": actor.result_ref,
+                "result_summary": reason,
+            }
+        )
+        assert payloads == [
+            (
+                "run-result-v1",
+                {
+                    "run_id": before.run_id,
+                    "task_id": actor.task_id,
+                    "attempt_id": actor.attempt_id,
+                    "state": "FAILED",
+                    "completion_kind": "error",
+                    "summary": reason,
+                    "consumed_refs": [],
+                    "gaps": [reason],
+                },
+            )
+        ]
+        assert owned.run == before.model_copy(
+            update={
+                "state": "HOLD",
+                "reason": reason,
+                "active_attempt_id": None,
+                "fence": before.fence + 1,
+                "revision": before.revision + 1,
+                "through_cursor": 1,
+            }
+        )
+        inbox.assert_awaited_once_with(db, before, actor.result_ref)
+        event.assert_awaited_once_with(
+            db,
+            owned.run.model_copy(
+                update={"revision": before.revision, "through_cursor": before.through_cursor}
+            ),
+            "result",
+            reason,
+            actor=original_actor,
+            refs=[actor.result_ref],
+            call_id=None,
+        )
+        retained = json.dumps(payloads) + owned.run.model_dump_json() + actor.model_dump_json()
+        assert sentinel not in retained + repr(event.call_args) + caplog.text
+        assert "Inert proposal" not in retained and "Inert detail" not in retained

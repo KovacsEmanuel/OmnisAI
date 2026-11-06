@@ -71,7 +71,7 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   if (process.env.OMNIS_E2E_STAGE === 'after') {
     const previous = JSON.parse(await readFile(record, 'utf8'));
     await page.goto(`${origin}/engagements/${previous.engagement}/stream`);
-    await check(page.getByRole('region', { name: 'Inert run' })).toContainText('LIMITED');
+    await check(page.getByRole('region', { name: 'Inert run', exact: true })).toContainText('LIMITED');
     await check(page.getByRole('region', { name: 'Needs you' })).toContainText('CONSUMED');
     const current = await read(`/api/v1/runs/${previous.run}/summary`);
     delete current.as_of;
@@ -81,7 +81,7 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
     delete inspected.as_of;
     assert.deepEqual(inspected, previous.inspection);
     await page.reload();
-    await check(page.getByRole('region', { name: 'Inert run' })).toContainText(previous.run);
+    await check(page.getByRole('region', { name: 'Inert run', exact: true })).toContainText(previous.run);
     await inspectWorker(previous.run, previous.worker);
     assert.deepEqual(writes, [], 'API restart and reload must never start or consume');
     await secretChecks();
@@ -167,7 +167,7 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   assert.equal(answer.status(), 202);
   assert.equal((await answer.json()).state, 'ADMITTED');
   await check(page.getByRole('region', { name: 'Needs you' })).toContainText('CONSUMED');
-  await check(page.getByRole('region', { name: 'Inert run' })).toContainText('LIMITED');
+  await check(page.getByRole('region', { name: 'Inert run', exact: true })).toContainText('LIMITED');
   const selected = await read(`/api/v1/engagements/${engagement}/run`);
   const summary = await read(`/api/v1/runs/${selected.run_id}/summary`);
   const workers = summary.attempts.filter(item => item.role === 'RECON');

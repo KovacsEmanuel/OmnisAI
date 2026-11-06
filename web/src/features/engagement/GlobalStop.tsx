@@ -27,7 +27,7 @@ function pendingStops(scope: string): PendingStop[] {
   return result;
 }
 export function RunStop({ run, label = 'Stop run' }: { run: RunView | null | undefined; label?: string }) {
-  const { session, readPrivate } = useSession();
+  const { session, readPrivate, commitPrivate } = useSession();
   const client = useQueryClient();
   const [scope, setScope] = useState<string | null>(null);
   const key = ['private', 'run-stops', scope];
@@ -46,32 +46,35 @@ export function RunStop({ run, label = 'Stop run' }: { run: RunView | null | und
     try { stored = sessionStorage.getItem(pointer) !== null; }
     catch { setStorageFailed(true); setMessage(recoveryUnavailable); }
     if (csrf && (hasRun || stored)) void sessionScope(csrf).then(value => {
-      if (controller.signal.aborted) return;
-      const old = pendingStops(value);
-      client.setQueryData(['private', 'run-stops', value], old);
-      setScope(value);
-    }).catch(() => { if (!controller.signal.aborted) { setStorageFailed(true); setMessage(recoveryUnavailable); } });
+      commitPrivate(() => {
+        const old = pendingStops(value);
+        client.setQueryData(['private', 'run-stops', value], old);
+        setScope(value);
+      }, controller.signal);
+    }).catch(() => { commitPrivate(() => { setStorageFailed(true); setMessage(recoveryUnavailable); }, controller.signal); });
     return () => controller.abort();
-  }, [session.data?.csrf_token, hasRun, client]);
+  }, [session.data?.csrf_token, hasRun, client, commitPrivate]);
   function savePending(value: PendingStop[]) {
     if (!scope) return;
-    remember(pointer, scope, value.length ? value : null);
-    client.setQueryData(key, value);
+    return commitPrivate(() => {
+      remember(pointer, scope, value.length ? value : null);
+      client.setQueryData(key, value);
+    }, lifetime.current.signal);
   }
   function clearPending(target: PendingStop) {
     if (!scope) return false;
-    try { savePending(pendingStops(scope).filter(item => item.command !== target.command || item.run !== target.run)); return true; }
+    try { return savePending(pendingStops(scope).filter(item => item.command !== target.command || item.run !== target.run)); }
     catch { setStorageFailed(true); setMessage(recoveryUnavailable); return false; }
   }
   async function settle(target: PendingStop, send: (() => ReturnType<typeof api.runCommand>) | null) {
-    if (!scope || busy.current.has(target.command)) return;
+    if (!scope || busy.current.has(target.command) || !commitPrivate(() => {}, lifetime.current.signal)) return;
     // Read shared storage at the click, before awaiting, so competing controls cannot resend this run.
     if (send) {
       try {
         const current = pendingStops(scope);
-        client.setQueryData(key, current);
+        if (!commitPrivate(() => { client.setQueryData(key, current); }, lifetime.current.signal)) return;
         if (current.some(item => item.run === target.run)) return;
-        savePending([...current, target]);
+        if (!savePending([...current, target])) return;
       } catch { setStorageFailed(true); setMessage(recoveryUnavailable); return; }
     }
     busy.current.add(target.command); setSending(current => [...current, target.command]);
@@ -79,17 +82,21 @@ export function RunStop({ run, label = 'Stop run' }: { run: RunView | null | und
     try {
       if (send) setMessage(`Stop pending · run ${target.run} · command ${target.command}`);
       const receipt = await readPrivate(send ?? (() => api.runCommandReceipt(target.command, signal)), signal);
-      if (signal.aborted) return;
-      if (receipt.run_id !== target.run) throw new ApiError('INVALID_RESPONSE');
-      if (!clearPending(target)) return;
-      setMessage(`${receipt.state} · Stop run ${target.run} · command ${target.command}. Read run state; this is not confirmation of STOPPED.`);
+      let cleared = false;
+      if (!commitPrivate(() => {
+        if (receipt.run_id !== target.run) throw new ApiError('INVALID_RESPONSE');
+        cleared = !!clearPending(target);
+        if (!cleared) return;
+        setMessage(`${receipt.state} · Stop run ${target.run} · command ${target.command}. Read run state; this is not confirmation of STOPPED.`);
+      }, signal) || !cleared) return;
       await client.invalidateQueries({ queryKey: ['private'] });
     } catch (error) {
-      if (signal.aborted) return;
-      const refused = send && error instanceof ApiError && ['REVISION_CONFLICT', 'GENERATION_CONFLICT', 'AUTHORITY_DENIED', 'OPERATION_FINISHED', 'INVALID_INPUT'].includes(error.code);
-      if (refused && !clearPending(target)) return;
-      setMessage(refused ? `Stop refused · run ${target.run} · command ${target.command}. Read the run; no automatic retry.` : `Stop outcome unknown · run ${target.run} · command ${target.command}. Read this receipt; no resend. Use local CLI omnis stop if needed.`);
-    } finally { busy.current.delete(target.command); if (!signal.aborted) setSending(current => current.filter(command => command !== target.command)); }
+      commitPrivate(() => {
+        const refused = send && error instanceof ApiError && ['REVISION_CONFLICT', 'GENERATION_CONFLICT', 'AUTHORITY_DENIED', 'OPERATION_FINISHED', 'INVALID_INPUT'].includes(error.code);
+        if (refused && !clearPending(target)) return;
+        setMessage(refused ? `Stop refused · run ${target.run} · command ${target.command}. Read the run; no automatic retry.` : `Stop outcome unknown · run ${target.run} · command ${target.command}. Read this receipt; no resend. Use local CLI omnis stop if needed.`);
+      }, signal);
+    } finally { busy.current.delete(target.command); commitPrivate(() => { setSending(current => current.filter(command => command !== target.command)); }, signal); }
   }
   function stop() {
     const csrf = session.data?.csrf_token;

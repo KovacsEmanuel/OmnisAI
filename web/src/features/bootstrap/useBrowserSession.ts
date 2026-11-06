@@ -110,9 +110,21 @@ export function useBrowserSession() {
     }
   }
 
+  const sessionEpoch = epoch.current;
+  const privateCurrent = useCallback((signal: AbortSignal) => {
+    const current = client.getQueryData<Awaited<ReturnType<typeof api.session>>>(['session']);
+    return sessionEpoch === epoch.current && transition === 'idle' && phase.current === 'idle' && !signal.aborted &&
+      !!session.data && !session.isError && client.getQueryState(['session'])?.status === 'success' && current?.csrf_token === session.data.csrf_token;
+  }, [client, sessionEpoch, session.data, session.isError, transition]);
+  const commitPrivate = useCallback((commit: () => void, signal: AbortSignal) => {
+    if (!privateCurrent(signal)) return false;
+    // The captured auth life must still own the synchronous local commit; no await in between.
+    commit();
+    return true;
+  }, [privateCurrent]);
   async function readPrivate<T>(read: () => Promise<T>, signal: AbortSignal): Promise<T> {
     const observed = epoch.current;
-    const cancelled = () => observed !== epoch.current || signal.aborted || phase.current !== 'idle';
+    const cancelled = () => observed !== epoch.current || !privateCurrent(signal);
     if (!session.data || session.isError || cancelled()) throw new CancelledError({ silent: true });
     try {
       const value = await read();
@@ -133,5 +145,5 @@ export function useBrowserSession() {
     }
   }, [session.isError, client]);
 
-  return { session, transition, notice, logoutError, pair, logout, expire, readPrivate };
+  return { session, transition, notice, logoutError, pair, logout, expire, readPrivate, commitPrivate };
 }

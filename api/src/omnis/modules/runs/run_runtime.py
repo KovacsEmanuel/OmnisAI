@@ -264,18 +264,23 @@ class AgentRunOwner:
     ) -> RunView:
         pending = await store.inbox(db, run) if role == "BRAIN" else []
         inputs = [ref for ref, _ in pending] if role == "BRAIN" else [snapshot.context_ref]
-        input_text = json.dumps(
-            {
-                "brief": brief,
-                "context_ref": snapshot.context_ref.model_dump(mode="json"),
-                "inbox": [
-                    {"ref": ref.model_dump(mode="json"), "result": payload}
-                    for ref, payload in pending
-                ],
-            },
-            ensure_ascii=False,
-            separators=(",", ":"),
-        )
+        input_payload: dict[str, object] = {
+            "brief": brief,
+            "context_ref": snapshot.context_ref.model_dump(mode="json"),
+            "inbox": [
+                {"ref": ref.model_dump(mode="json"), "result": payload} for ref, payload in pending
+            ],
+        }
+        if role == "BRAIN":
+            input_payload["completion_contract"] = {
+                "consumed_refs": [ref.model_dump(mode="json") for ref in inputs],
+                "rule": (
+                    "Copy exactly this consumed_refs list into the decision, each ref once and unchanged. "
+                    "An empty list means []. context_ref is read context, not a consumed result; "
+                    "do not add it or invent refs."
+                ),
+            }
+        input_text = json.dumps(input_payload, ensure_ascii=False, separators=(",", ":"))
         composition = await records.resolve(
             db,
             self.instance,

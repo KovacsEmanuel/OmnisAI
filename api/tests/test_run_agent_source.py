@@ -258,18 +258,27 @@ async def test_owned_sdk_step_stops_after_persisted_tool(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("brain_has_result", [False, True])
 async def test_sdk_initial_post_tool_and_brain_consume_are_separate_steps(
     monkeypatch: pytest.MonkeyPatch,
     storage_seam: AsyncEngine,
     tmp_path: Path,
+    brain_has_result: bool,
 ) -> None:
+    from unittest.mock import AsyncMock
     from uuid import uuid4
 
+    from sqlalchemy.ext.asyncio import AsyncConnection
+
+    from omnis.modules.runs import model_test_store as records
+    from omnis.modules.runs import run_store as store
     from omnis.modules.runs.model_test_contract import Ref
-    from omnis.modules.runs.run_contract import WorkerFinal
+    from omnis.modules.runs.run_contract import Attempt, Setup, WorkerFinal
+    from omnis.modules.runs.run_runtime import AgentRunOwner
     from omnis.modules.settings.catalog_models import ExactRef
     from omnis.modules.tasks.agent_composition import compose_publication
     from omnis.supervisor.agent_runner import Exchange
+    from test_run_owner_source import fixture_run, fixture_setup_payload
 
     catalog, owner, publication = await publish_core(storage_seam, tmp_path / "catalog")
     async with storage_seam.begin() as db:
@@ -292,12 +301,16 @@ async def test_sdk_initial_post_tool_and_brain_consume_are_separate_steps(
 
     transport = Transport(Path("/nonexistent-s1-sequence"), ssl.create_default_context())
     bridge = AgentStep(transport)
+    run = fixture_run()
     reference = Ref(
-        instance_id=str(uuid4()), id=str(uuid4()), kind="run-tool-result-v1", digest="a" * 64
+        instance_id=run.instance_id, id=str(uuid4()), kind="run-tool-result-v1", digest="a" * 64
     )
     memory: dict[str, str] = {}
     sizes: list[int] = []
     steps: list[StepInput] = []
+    expected_bodies: list[dict[str, object]] = []
+    result_ref = reference.model_copy(update={"id": str(uuid4()), "kind": "run-result-v1"})
+    consumed = [result_ref] if brain_has_result else []
 
     async def sent() -> None:
         assert CURRENT.get(None) is not None
@@ -329,7 +342,8 @@ async def test_sdk_initial_post_tool_and_brain_consume_are_separate_steps(
         raw = b"".join([part async for part in request.stream])
         sizes.append(len(raw))
         body = json.loads(raw)
-        assert body == bridge.projection(steps[-1])
+        assert body == expected_bodies[-1]
+        assert len(raw) <= 32768
         index = len(sizes)
         message: dict[str, object] = {"role": "assistant"}
         if index == 1:
@@ -350,11 +364,13 @@ async def test_sdk_initial_post_tool_and_brain_consume_are_separate_steps(
                 summary="Read selected context", consumed_refs=[reference], gaps=[]
             ).model_dump_json()
         else:
-            assert reference.id in body["messages"][-1]["content"]
+            assert json.loads(body["messages"][-1]["content"])["completion_contract"][
+                "consumed_refs"
+            ] == [ref.model_dump(mode="json") for ref in consumed]
             message["content"] = BrainDecision(
                 action="finish",
                 summary="Consumed the stored result",
-                consumed_refs=[reference],
+                consumed_refs=consumed,
                 detail="S1 inert only",
             ).model_dump_json()
         return httpcore.Response(
@@ -392,6 +408,7 @@ async def test_sdk_initial_post_tool_and_brain_consume_are_separate_steps(
     )
     try:
         steps.append(initial)
+        expected_bodies.append(bridge.projection(initial))
         first = await bridge.run(initial, "synthetic-not-a-key", guard, tool, observed, sent)
         assert first.kind == "tool"
         second = initial.model_copy(
@@ -400,22 +417,54 @@ async def test_sdk_initial_post_tool_and_brain_consume_are_separate_steps(
             }
         )
         steps.append(second)
+        expected_bodies.append(bridge.projection(second))
         result = await bridge.run(second, "synthetic-not-a-key", guard, tool, observed, sent)
         assert WorkerFinal.model_validate_json(result.text).consumed_refs == [reference]
+        snapshot = Setup.model_validate(fixture_setup_payload()).model_copy(
+            update={
+                "context_ref": reference.model_copy(
+                    update={"id": str(uuid4()), "kind": "run-context-v1"}
+                ),
+                "brain_instructions": brain_composition.text,
+            }
+        )
+        run_owner = object.__new__(AgentRunOwner)
+        run_owner.instance = run.instance_id
+        attempts: list[Attempt] = []
+
+        async def save(db: AsyncConnection, value: Attempt, *, initial: bool = False) -> None:
+            assert initial
+            attempts.append(value)
+
+        monkeypatch.setattr(store, "save_attempt", save)
+        monkeypatch.setattr(
+            store,
+            "inbox",
+            AsyncMock(
+                return_value=[(result_ref, json.loads(result.text))] if brain_has_result else []
+            ),
+        )
+        monkeypatch.setattr(records, "resolve", AsyncMock(return_value={"skill_refs": []}))
+        async with storage_seam.begin() as db:
+            await run_owner.new_attempt(
+                db, run, snapshot, role="BRAIN", brief="Consume supplied inbox refs.", parent=None
+            )
+        assert len(attempts) == 1 and attempts[0].input_refs == consumed
         brain = StepInput(
             role="BRAIN",
             model="fixture/brain",
             output_tokens=256,
             provider="openrouter",
-            instructions=brain_composition.text,
-            input_text=result.text,
+            instructions=attempts[0].instructions,
+            input_text=attempts[0].input_text,
             history=[],
         )
         steps.append(brain)
+        expected_bodies.append(bridge.projection(brain))
         decision = await bridge.run(brain, "synthetic-not-a-key", guard, tool, observed, sent)
-        assert BrainDecision.model_validate_json(decision.text).consumed_refs == [reference]
+        assert BrainDecision.model_validate_json(decision.text).consumed_refs == consumed
         assert len(sizes) == 3 and CURRENT.get(None) is None
-        print("S1_SCRIPTED_SDK_BYTES", sizes)
+        print("S1_SCRIPTED_SDK_BYTES", {"brain_has_result": brain_has_result, "bytes": sizes})
     finally:
         await transport.aclose()
 

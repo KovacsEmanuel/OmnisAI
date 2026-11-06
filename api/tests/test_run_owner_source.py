@@ -1,6 +1,7 @@
 """SOURCE owner decisions only. No database/lease/drain proof is claimed here."""
 
 import asyncio
+import json
 from uuid import UUID, uuid4
 
 import pytest
@@ -292,6 +293,71 @@ def fixture_setup_payload() -> dict[str, object]:
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "role,kinds",
+    [("BRAIN", ()), ("BRAIN", ("run-result-v1", "run-answer-v1")), ("RECON", ())],
+)
+async def test_new_attempt_brain_completion_contract_matches_exact_inputs(
+    monkeypatch: pytest.MonkeyPatch, role: str, kinds: tuple[str, ...]
+) -> None:
+    from unittest.mock import AsyncMock
+
+    from omnis.modules.runs import model_test_store as records
+    from omnis.modules.runs.run_contract import Attempt, Setup
+
+    run = fixture_run()
+    context = run.setup_ref.model_copy(update={"kind": "run-context-v1"})
+    snapshot = Setup.model_validate(fixture_setup_payload()).model_copy(
+        update={"context_ref": context}
+    )
+    refs = [
+        Ref(instance_id=run.instance_id, id=str(uuid4()), kind=kind, digest="b" * 64)
+        for kind in kinds
+    ]
+    pending = [(ref, {"summary": "Retained inert result"}) for ref in refs]
+    inbox = AsyncMock(return_value=pending)
+    saved: list[Attempt] = []
+    db = object.__new__(AsyncConnection)
+    owner = object.__new__(AgentRunOwner)
+    owner.instance = run.instance_id
+
+    async def save(connection: AsyncConnection, value: Attempt, *, initial: bool = False) -> None:
+        assert connection is db and initial
+        saved.append(value)
+
+    monkeypatch.setattr(store, "inbox", inbox)
+    monkeypatch.setattr(store, "save_attempt", save)
+    monkeypatch.setattr(records, "resolve", AsyncMock(return_value={"skill_refs": []}))
+    updated = await owner.new_attempt(
+        db, run, snapshot, role=role, brief="Inert selected context", parent=None
+    )
+    assert len(saved) == 1 and updated.active_attempt_id == saved[0].attempt_id
+    attempt = saved[0]
+    expected: dict[str, object] = {
+        "brief": "Inert selected context",
+        "context_ref": context.model_dump(mode="json"),
+        "inbox": [
+            {"ref": ref.model_dump(mode="json"), "result": payload} for ref, payload in pending
+        ],
+    }
+    if role == "BRAIN":
+        inbox.assert_awaited_once_with(db, run)
+        assert attempt.input_refs == refs and context not in attempt.input_refs
+        expected["completion_contract"] = {
+            "consumed_refs": [ref.model_dump(mode="json") for ref in refs],
+            "rule": (
+                "Copy exactly this consumed_refs list into the decision, each ref once and unchanged. "
+                "An empty list means []. context_ref is read context, not a consumed result; "
+                "do not add it or invent refs."
+            ),
+        }
+    else:
+        inbox.assert_not_awaited()
+        assert attempt.input_refs == [context]
+    assert attempt.input_text == json.dumps(expected, ensure_ascii=False, separators=(",", ":"))
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("start", ["RESULT_READY", "idle", "active"])
 async def test_brain_activation_checkpoint_commits_before_sdk(
     monkeypatch: pytest.MonkeyPatch, start: str
@@ -308,7 +374,7 @@ async def test_brain_activation_checkpoint_commits_before_sdk(
     from omnis.modules.runs.model_test_runtime import ApiKeyModelTest
     from omnis.modules.runs.run_contract import Attempt, Setup
     from omnis.modules.settings.provider_vault import ProviderVault
-    from omnis.supervisor.agent_runner import AgentStep
+    from omnis.supervisor.agent_runner import AgentStep, StepInput
     from omnis.supervisor.model_relay_protocol import Scope
 
     run = fixture_run().model_copy(
@@ -357,6 +423,12 @@ async def test_brain_activation_checkpoint_commits_before_sdk(
 
     async def before_sdk(*args: object, **kwargs: object) -> None:
         assert commits and commits[-1] == run
+        step = args[0]
+        assert isinstance(step, StepInput) and run.active_attempt_id is not None
+        assert step.input_text == actors[run.active_attempt_id].input_text
+        assert json.loads(step.input_text)["completion_contract"]["consumed_refs"] == [
+            result_ref.model_dump(mode="json")
+        ]
         raise BeforeSDK
 
     event = AsyncMock(return_value=6)

@@ -13,7 +13,7 @@ from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from omnis.modules.runs.run_contract import BrainDecision, RunCommand, completion_status
-from omnis.supervisor.agent_runner import AgentStep, ExplicitClient, StepInput
+from omnis.supervisor.agent_runner import AgentStep, Exchange, ExplicitClient, StepInput
 from omnis.supervisor.model_relay_protocol import Authority
 from omnis.supervisor.model_sender import CURRENT, Transport
 from test_agent_core_publication import publish_core
@@ -69,11 +69,16 @@ def test_answer_bounds_the_complete_command() -> None:
     "mode",
     [
         "read",
+        "direct_without_read",
+        "repeated_read",
         "finish",
         "multiple",
         "foreign_tool",
         "overflow",
         "altered",
+        "altered_tool_choice",
+        "omitted_tool_choice",
+        "post_read_tool_choice",
         "ambient",
         "foreign_header",
         "truncated",
@@ -151,6 +156,11 @@ async def test_owned_sdk_step_stops_after_persisted_tool(
                 tool["function"] = {"name": "shell", "arguments": "{}"}
             if mode == "whitespace_arguments":
                 tool["function"] = {"name": "read_context", "arguments": " { } "}
+            content = None
+            if mode == "secret_echo":
+                content = "synthetic-not-a-key"
+            elif mode == "direct_without_read":
+                content = '{"summary":"I will read the context","consumed_refs":[],"gaps":[]}'
             raw = json.dumps(
                 {
                     "id": "scripted",
@@ -160,11 +170,19 @@ async def test_owned_sdk_step_stops_after_persisted_tool(
                     "choices": [
                         {
                             "index": 0,
-                            "finish_reason": "length" if mode == "truncated" else "tool_calls",
+                            "finish_reason": "length"
+                            if mode == "truncated"
+                            else "stop"
+                            if mode == "direct_without_read"
+                            else "tool_calls",
                             "message": {
                                 "role": "assistant",
-                                "content": "synthetic-not-a-key" if mode == "secret_echo" else None,
-                                "tool_calls": [tool, tool] if mode == "multiple" else [tool],
+                                "content": content,
+                                "tool_calls": []
+                                if mode == "direct_without_read"
+                                else [tool, tool]
+                                if mode == "multiple"
+                                else [tool],
                             },
                         }
                     ],
@@ -198,16 +216,28 @@ async def test_owned_sdk_step_stops_after_persisted_tool(
         instructions="Only read the selected inert context.",
         input_text="Selected context ref",
         provider="openrouter",
-        history=[],
+        history=[Exchange(call_id="prior-read", arguments="{}", result="inert receipt")]
+        if mode in {"repeated_read", "post_read_tool_choice"}
+        else [],
     )
     if mode == "overflow":
         step = step.model_copy(update={"input_text": "\t" * 20000})
     bridge = AgentStep(transport)
-    if mode == "altered":
+    if mode in {"altered", "altered_tool_choice", "omitted_tool_choice", "post_read_tool_choice"}:
         original = bridge.projection
 
         def altered(value: StepInput) -> dict[str, object]:
-            return {**original(value), "model": "fixture/other"}
+            body = original(value)
+            if mode == "altered":
+                body["model"] = "fixture/other"
+            elif mode == "omitted_tool_choice":
+                body.pop("tool_choice")
+            else:
+                body["tool_choice"] = {
+                    "type": "function",
+                    "function": {"name": "finish"},
+                }
+            return body
 
         monkeypatch.setattr(bridge, "projection", altered)
     if mode in {"exact_32768", "overflow_32769"}:
@@ -225,9 +255,13 @@ async def test_owned_sdk_step_stops_after_persisted_tool(
     try:
         if mode in {
             "multiple",
+            "repeated_read",
             "foreign_tool",
             "overflow",
             "altered",
+            "altered_tool_choice",
+            "omitted_tool_choice",
+            "post_read_tool_choice",
             "foreign_header",
             "truncated",
             "secret_echo",
@@ -235,13 +269,31 @@ async def test_owned_sdk_step_stops_after_persisted_tool(
             "response_over",
             "provider_error",
         }:
-            with pytest.raises(ValueError):
+            with pytest.raises(ValueError) as error:
                 await bridge.run(step, "synthetic-not-a-key", guard, persist, observed, sent)
+            if mode in {"altered_tool_choice", "omitted_tool_choice", "post_read_tool_choice"}:
+                assert str(error.value) == "FINAL_DATA_DENIED"
             assert receipts == []
             assert len(calls) == (
-                0 if mode in {"overflow", "altered", "foreign_header", "overflow_32769"} else 1
+                0
+                if mode
+                in {
+                    "overflow",
+                    "altered",
+                    "altered_tool_choice",
+                    "omitted_tool_choice",
+                    "post_read_tool_choice",
+                    "foreign_header",
+                    "overflow_32769",
+                }
+                else 1
             )
             assert len(sent_calls) == len(calls)
+        elif mode == "direct_without_read":
+            result = await bridge.run(step, "synthetic-not-a-key", guard, persist, observed, sent)
+            assert result.kind == "final" and result.call_id is None and result.arguments is None
+            assert receipts == [] and len(calls) == len(sent_calls) == 1
+            assert completion_status("direct", bool(receipts)) == "INCONCLUSIVE"
         else:
             result = await bridge.run(step, "synthetic-not-a-key", guard, persist, observed, sent)
             assert (
@@ -259,11 +311,13 @@ async def test_owned_sdk_step_stops_after_persisted_tool(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("brain_has_result", [False, True])
+@pytest.mark.parametrize("mixed_content", [False, True])
 async def test_sdk_initial_post_tool_and_brain_consume_are_separate_steps(
     monkeypatch: pytest.MonkeyPatch,
     storage_seam: AsyncEngine,
     tmp_path: Path,
     brain_has_result: bool,
+    mixed_content: bool,
 ) -> None:
     from unittest.mock import AsyncMock
     from uuid import uuid4
@@ -277,7 +331,6 @@ async def test_sdk_initial_post_tool_and_brain_consume_are_separate_steps(
     from omnis.modules.runs.run_runtime import AgentRunOwner
     from omnis.modules.settings.catalog_models import ExactRef
     from omnis.modules.tasks.agent_composition import compose_publication
-    from omnis.supervisor.agent_runner import Exchange
     from test_run_owner_source import fixture_run, fixture_setup_payload
 
     catalog, owner, publication = await publish_core(storage_seam, tmp_path / "catalog")
@@ -306,6 +359,7 @@ async def test_sdk_initial_post_tool_and_brain_consume_are_separate_steps(
         instance_id=run.instance_id, id=str(uuid4()), kind="run-tool-result-v1", digest="a" * 64
     )
     memory: dict[str, str] = {}
+    tool_calls: list[str] = []
     sizes: list[int] = []
     steps: list[StepInput] = []
     expected_bodies: list[dict[str, object]] = []
@@ -319,6 +373,8 @@ async def test_sdk_initial_post_tool_and_brain_consume_are_separate_steps(
         raise AssertionError("SOURCE never connects relay")
 
     async def tool(name: str, arguments: str, call_id: str) -> str:
+        assert name == "read_context" and arguments == "{}" and call_id == "call-1"
+        tool_calls.append(call_id)
         memory[reference.id] = json.dumps(
             {"ref": reference.model_dump(mode="json"), "text": "selected inert context"}
         )
@@ -347,8 +403,17 @@ async def test_sdk_initial_post_tool_and_brain_consume_are_separate_steps(
         index = len(sizes)
         message: dict[str, object] = {"role": "assistant"}
         if index == 1:
+            print("S1_INITIAL_TOOL_CHOICE", body.get("tool_choice"))
+            assert body.get("tool_choice") == {
+                "type": "function",
+                "function": {"name": "read_context"},
+            }
             message.update(
-                content=None,
+                content=WorkerFinal(
+                    summary="I will read the context", consumed_refs=[], gaps=[]
+                ).model_dump_json()
+                if mixed_content
+                else None,
                 tool_calls=[
                     {
                         "id": "call-1",
@@ -358,12 +423,14 @@ async def test_sdk_initial_post_tool_and_brain_consume_are_separate_steps(
                 ],
             )
         elif index == 2:
+            assert "tool_choice" not in body
             assert body["response_format"]["json_schema"]["schema"]["title"] == "WorkerFinal"
             assert body["messages"][-1]["content"] == memory[reference.id]
             message["content"] = WorkerFinal(
                 summary="Read selected context", consumed_refs=[reference], gaps=[]
             ).model_dump_json()
         else:
+            assert "tool_choice" not in body
             assert json.loads(body["messages"][-1]["content"])["completion_contract"][
                 "consumed_refs"
             ] == [ref.model_dump(mode="json") for ref in consumed]
@@ -410,7 +477,8 @@ async def test_sdk_initial_post_tool_and_brain_consume_are_separate_steps(
         steps.append(initial)
         expected_bodies.append(bridge.projection(initial))
         first = await bridge.run(initial, "synthetic-not-a-key", guard, tool, observed, sent)
-        assert first.kind == "tool"
+        assert first.kind == "tool" and first.call_id == "call-1" and first.arguments == "{}"
+        assert first.text == memory[reference.id] and tool_calls == ["call-1"]
         second = initial.model_copy(
             update={
                 "history": [Exchange(call_id="call-1", arguments="{}", result=memory[reference.id])]
@@ -464,7 +532,11 @@ async def test_sdk_initial_post_tool_and_brain_consume_are_separate_steps(
         decision = await bridge.run(brain, "synthetic-not-a-key", guard, tool, observed, sent)
         assert BrainDecision.model_validate_json(decision.text).consumed_refs == consumed
         assert len(sizes) == 3 and CURRENT.get(None) is None
-        print("S1_SCRIPTED_SDK_BYTES", {"brain_has_result": brain_has_result, "bytes": sizes})
+        assert tool_calls == ["call-1"]
+        print(
+            "S1_SCRIPTED_SDK_BYTES",
+            {"brain_has_result": brain_has_result, "mixed_content": mixed_content, "bytes": sizes},
+        )
     finally:
         await transport.aclose()
 

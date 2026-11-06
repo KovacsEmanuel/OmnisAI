@@ -179,6 +179,8 @@ class AgentStep:
                     },
                 },
             ]
+            if not step.history:
+                body["tool_choice"] = {"type": "function", "function": {"name": "read_context"}}
         body["response_format"] = {
             "type": "json_schema",
             "json_schema": {
@@ -411,6 +413,9 @@ class AgentStep:
                         model=OpenAIChatCompletionsModel(model=step.model, openai_client=client),
                         model_settings=ModelSettings(
                             max_tokens=step.output_tokens,
+                            tool_choice="read_context"
+                            if step.role == "RECON" and not step.history
+                            else None,
                             parallel_tool_calls=False,
                             store=False,
                             extra_body={"provider": ROUTING},

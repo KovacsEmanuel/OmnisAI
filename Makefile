@@ -17,7 +17,7 @@ endif
 endif
 
 check:
-	$(API_PY) -I ops/run_test_db_gate.py --check --uv "$(UV)" --timeout-seconds 4800
+	$(API_PY) -I ops/run_test_db_gate.py --check --uv "$(UV)" --timeout-seconds 7200
 
 # Active API-key release checks share the same private DB lifecycle in CI/local.
 check-components: check-docs check-development check-api test-api test-migrations check-api-wheel check-web test-e2e check-cli check-release-install

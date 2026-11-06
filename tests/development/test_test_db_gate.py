@@ -76,7 +76,7 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
                 "--uv",
                 "/pinned/uv",
                 "--timeout-seconds",
-                "4800",
+                "7200",
             ],
         )
         module = runpy.run_path(str(SCRIPT))
@@ -86,7 +86,7 @@ class SafeTestDatabaseGateTests(unittest.TestCase):
             patch.dict(main.__globals__, {"prove_private_fixture": lambda *args: args}),
             patch.object(module["signal"], "signal"),
         ):
-            self.assertEqual(main(), ("check-components", "/pinned/uv", 4800))
+            self.assertEqual(main(), ("check-components", "/pinned/uv", 7200))
 
     def test_gate_environment_preserves_only_explicit_native_source(self) -> None:
         module = runpy.run_path(str(SCRIPT))

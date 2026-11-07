@@ -1,0 +1,96 @@
+{
+  "reviewed_commit": "83f65f968f1fae709da3c2f3dd97cab442e439db",
+  "base_commit": "9a3447f11435fe6066949732eb2736a20ee7f8e3",
+  "scope": {
+    "checkpoint": "UX-B: optional validity and calendar, producer/API/decoder/editor/persistence-readback fidelity",
+    "method": "Reviewed the immutable base-to-commit diff and supporting definitions from git show at the full reviewed commit, not changing worktree files. The sixteen changed paths exactly equal ux-b-result.json.source_sha256; all sixteen Git-blob SHA256 values match that record, including a final readback after review.",
+    "governing_contract": "The frozen README/UIUX section0/architecture section9 amendment already reviewed in A1 governs: explicit null/null or a real ordered UTC pair; no fabricated dates, backfill or runtime authority from null. A1 approval is reused without reopening it. Agent-inspector read-only remains the mandate; inspector implementation and UX-C are outside this diff.",
+    "supporting_definitions_read_at_same_commit": [
+      "api/src/omnis/modules/engagements/routes.py:59-169",
+      "api/src/omnis/modules/engagements/service.py:30-243",
+      "web/src/shared/api/client.ts:274-300",
+      "web/src/features/engagement/WizardFields.tsx"
+    ],
+    "source_assessment": [
+      {
+        "requirement": "Coherent null meaning, strict finite UTC and legacy precision",
+        "evidence": "schemas.py:27-57,130-143,283-317; drafts.ts:39-47,80-98; Authorization-only OpenAPI and two-field generated TS delta",
+        "assessment": "Both fields remain required, with no default. The API accepts only both null or two strictly typed patterned UTC strings, validates real dates and strict ordering, and forbids extra fields. The frontend performs exact timestamp roundtrip validation and the same pair/order rule rather than allowing Date rollover. It returns original values rather than normalizing them. Shared Authorization is used by full and legacy DTOs; finite timestamps remain strings, and null is not turned into a far-future date or an execution grant. No runtime/lease/Stop behavior was changed."
+      },
+      {
+        "requirement": "Producer to API, durable representation and exact readback/history oracle",
+        "evidence": "Wizard.tsx:19-47,95-117,134-167,239-248; client.ts:274-300; routes.py:59-169; service.py:30-51,58-80,104-132,134-243; both new test_engagements.py nodes",
+        "assessment": "New forms produce real null/null. Explicitly enabling the period creates empty choices and Save is blocked until a valid ordered pair exists; disabling explicitly clears both. Hydration uses the received payload without date rewriting. Existing JSON serialization, POST/PUT, exact GET confirmation, CAS/revision/digest/command checks and append-only JSONB persistence paths remain unchanged. The service reads committed data, verifies each revision digest and reads the exact committed edit receipt rather than a potentially newer head. The new PG positive test checks null create, finite CAS edit, null CAS edit, fresh-app readback, exact ordered historical envelopes and direct stored payload/digest values. The negative test requires create/update422 plus an unchanged head and both table counts. These are meaningful persistence oracles, but are collected source only until parent execution."
+      },
+      {
+        "requirement": "True finite-history preservation, not a replacement digest computed from rewritten values",
+        "evidence": "test_engagement_validity.py:13-25,63-97; test_optional_validity_roundtrips_null_finite_and_immutable_history",
+        "assessment": "Source tests compare parsed full/legacy payloads with the original authored objects and compare revision_digest with a raw original envelope, independently of the changed model serializer. canonical_json itself is unchanged; this is not a separate implementation of its algorithm. The PG history oracle compares older API envelopes captured before subsequent edits and direct JSONB rows, rather than deriving all expected revisions from the newest head. Existing revision/digest checking and persistence code were not changed. No backfill or old-reader forward-compatibility is claimed."
+      },
+      {
+        "requirement": "Readable date-only presentation with deliberate UTC time changes",
+        "evidence": "DatePicker.tsx:9-22,36-45,80-109; WizardSections.tsx ReviewStep; Wizard.test.tsx new controls",
+        "assessment": "Trigger and saved summary show UTC day/month/year without technical ISO/time text. Exact stored seconds remain accessible and editable inside the same popup. New choices use the explicit start/end-of-day defaults, while existing valid times are retained when choosing/navigating dates; navigation and theme do not write a new value. Only day selection, explicit time edit or period disable changes it. The component controls cover exact finite12:34:56 retention through non-date save, an explicit13:45:06 edit, and a later real null/null save."
+      },
+      {
+        "requirement": "Keyboard, nonmodal popup, focus, month bounds and plausible narrow layout",
+        "evidence": "DatePicker.tsx:47-112; DatePicker.module.css:1-15; Wizard.module.css and WizardFields.tsx",
+        "assessment": "The labelled native button opens a native nonmodal dialog, without inert state, a focus trap or a body lock. Day buttons use a single roving Tab stop; arrows, Home/End and PageUp/PageDown with shifted-year movement alter the cursor only. Month/day movement is clamped to years1-9999 and month-end length. Opening focuses the cursor day; selection/Escape/Done restore the trigger; outside pointer/focus departure closes without stealing focus from another control. Error associations are retained through Field. The popup reuses light/dark tokens, bounded scrolling and narrow fixed centering; its specific button rules override Wizard defaults. Geometry is plausible from source, not rendered-browser proof."
+      },
+      {
+        "requirement": "Preserve existing recovery and real-journey assertions",
+        "evidence": "ReceiptRecovery.test.tsx and the two three-line E2E setup diffs",
+        "assessment": "ReceiptRecovery removes only obsolete ISO-entry setup, asserting unchecked period and actual POST null/null instead. Its network/BODY_TOO_LARGE receipt barriers, disabled Save, subsequent edits, request counts, exact GET, CAS/reconcile and cache assertions remain. B04/S1 E2E changes only the obsolete date-entry prerequisite to the new unchecked default; other journey assertions are unchanged. No old S1 execution or broader audit was performed."
+      }
+    ]
+  },
+  "reviewed_paths": [
+    "api/src/omnis/modules/engagements/schemas.py",
+    "api/tests/test_engagement_validity.py",
+    "api/tests/test_engagements.py",
+    "contracts/omnis.openapi.json",
+    "web/src/app/ReceiptRecovery.test.tsx",
+    "web/src/app/Wizard.test.tsx",
+    "web/src/features/engagement/DatePicker.module.css",
+    "web/src/features/engagement/DatePicker.tsx",
+    "web/src/features/engagement/Wizard.module.css",
+    "web/src/features/engagement/Wizard.tsx",
+    "web/src/features/engagement/WizardSections.tsx",
+    "web/src/shared/api/drafts.test.ts",
+    "web/src/shared/api/drafts.ts",
+    "web/src/shared/api/generated.ts",
+    "web/tests/e2e/b04.mjs",
+    "web/tests/e2e/s1-run.mjs"
+  ],
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "findings": [],
+  "evidence_read": {
+    "record": "ux-b-result.json",
+    "final_commands_and_exits": "ux-b-final-checks.json",
+    "actual_logs_read": [
+      "ux-b-schema-red.log",
+      "ux-b-schema-green-final.log",
+      "ux-b-web-red.log (bounded failure/count excerpts)",
+      "ux-b-final-date-only-red.log",
+      "ux-b-final-affected.log",
+      "ux-b-final-lint.log",
+      "ux-b-final-typecheck.log",
+      "ux-b-final-full-web.log",
+      "ux-b-web-full-post-mount-fix.log (bounded failure/count excerpts)",
+      "ux-b-api-lint.log",
+      "ux-b-api-typecheck.log",
+      "ux-b-contract-check.log",
+      "ux-b-pg-collection.log",
+      "ux-b-build.log (bounded historical build excerpts)"
+    ],
+    "results": "Retained schema RED16PASS/1FAIL on null rejection, final SOURCE18PASS; initial decoder/Wizard RED41PASS/11FAIL; later date-only RED25PASS/2FAIL at actual displayed time text; final affected66PASS/4files, full601PASS/28files and lint/typecheck exit0. Contract generation/drift checks and tooling10PASS are retained scoped evidence; API Ruff/mypy logs report success. All are prior executions, not R1 reruns.",
+    "failure_disposition": "The prior full-web599PASS/2FAIL remains a FAIL on obsolete ReceiptRecovery POST date setup, before the admitted minimal setup adaptation. Other intermediate failures remain in the original record/logs at their actual boundaries; no timeout/runner/assertion weakening or retrospective PASS is inferred. Final date-only GREEN does not prove persistence by itself.",
+    "persistence_gate": "The two new exact PG nodes were collected, not executed. Their actual authenticated API/PostgreSQL execution through parent-owned test-p1-api is the next QA gate, not a prerequisite that must already have passed before this source approval."
+  },
+  "limits": [
+    "Approval is bound to the immutable reviewed commit and these sixteen deltas, with all sixteen recorded hashes matched. UX-C/current worktree bytes and unrelated files were not inspected or used to invalidate the snapshot. Prior A1 coverage remains scoped; no general or old-S1 audit was reopened.",
+    "No tests/builds, DB/browser/services, provider/target effects or runtime probes were executed. PG durability/fresh-app behavior and native browser calendar geometry/focus/keyboard remain NOT_RUN by R1 and parent-owned next-stage QA. No universal gap-free, accessibility or aesthetic certification is claimed.",
+    "The recorded build predates the final date-only formatter change. There is no current-distribution or real-browser PASS transferred from that build. Source approval is not final product integration, canonical acceptance or completion of all ux-* work.",
+    "Only this requested private review-b-r1.json was written. No product edit, stage/commit/push, new worktree/profile, child agent or successor task. Protected files, .env/vault/keys, private profiles/operator data/raw private logs and the Strix checkout were not enumerated, read or hashed. Parent retains integration, tracking, QA and acceptance."
+  ]
+}

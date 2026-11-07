@@ -1,0 +1,208 @@
+{
+  "reviewed_commit": "83f65f968f1fae709da3c2f3dd97cab442e439db",
+  "reviewed_base": "9a3447f11435fe6066949732eb2736a20ee7f8e3",
+  "review_type": "READ_ONLY_INDEPENDENT_SOURCE_AUTHORITY_SECURITY_COMPATIBILITY",
+  "reviewed_paths": [
+    "api/src/omnis/modules/engagements/schemas.py",
+    "api/tests/test_engagements.py",
+    "api/tests/test_engagement_validity.py",
+    "contracts/omnis.openapi.json",
+    "web/src/shared/api/generated.ts",
+    "web/src/shared/api/drafts.ts",
+    "web/src/shared/api/drafts.test.ts",
+    "web/src/features/engagement/Wizard.tsx",
+    "web/src/features/engagement/WizardSections.tsx",
+    "web/src/features/engagement/Wizard.module.css",
+    "web/src/features/engagement/DatePicker.tsx",
+    "web/src/features/engagement/DatePicker.module.css",
+    "web/src/app/Wizard.test.tsx",
+    "web/src/app/ReceiptRecovery.test.tsx",
+    "web/tests/e2e/b04.mjs",
+    "web/tests/e2e/s1-run.mjs"
+  ],
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "findings": [],
+  "blocking_findings": [],
+  "summary": "No concrete blocking or nonblocking defect identified in the admitted diff. Approval is solely for these frozen source bytes against the current optional-validity amendment; it is not PG/browser/runtime acceptance or an instruction to integrate.",
+  "snapshot_integrity": {
+    "method": "For each ux-b-result.json.source_sha256 entry, SHA-256 of git show <reviewed_commit>:<path>; changed-path set from git diff <reviewed_base> <reviewed_commit> --name-only. Product review used immutable Git blobs/diffs, not worktree file contents.",
+    "manifest_paths": 16,
+    "changed_paths": 16,
+    "path_sets_equal": true,
+    "all_sha256_match": true,
+    "mismatches": [],
+    "verified_sha256": {
+      "api/src/omnis/modules/engagements/schemas.py": "5af4bd432aa8c0f4bd14caf7d952bbec6d58079a185a680d34ccf40be18e181d",
+      "api/tests/test_engagements.py": "d8373b2ab13508f6bd0b31b70e3003b86daa832df19b713d1d6f55af04605182",
+      "api/tests/test_engagement_validity.py": "c3b9c056785f915e8116f4a8396af46275d97018ad4583d5d4a53fdefd5da16f",
+      "contracts/omnis.openapi.json": "7e68057391526084c69cd63f91d78df5d4b7972921cc7c7fbe1e6c5f4f88926a",
+      "web/src/shared/api/generated.ts": "34bc285849ec91985243c26bed899b30a7ed0c2e1e8e2296240839b047833aaf",
+      "web/src/shared/api/drafts.ts": "afee0130aa1c26ec6a2a9942209da9d3faa37f4f25bfb703457380917bfa86b9",
+      "web/src/shared/api/drafts.test.ts": "f4e2d907bd486b815d8973d8a354f03efbb8b5c2d19a0f6081e05bc63180ca5d",
+      "web/src/features/engagement/Wizard.tsx": "6dcb40d1c4e72ec5d70ee9084ae9cbbb7c815e67cf7e76ad8e2924a0d3e6aba0",
+      "web/src/features/engagement/WizardSections.tsx": "44c7afa7ac4b473c48781638018fcdf24f07da53c9177c2c0f92162a0f107761",
+      "web/src/features/engagement/Wizard.module.css": "64c1de3cfd5de441fd55a88ad6019723e75d9c7d9aa34340bc400d7265c49dd4",
+      "web/src/features/engagement/DatePicker.tsx": "72ffef0ce6f766fa5042a5237f4ffdd3a64d1665fc7aca3f00b88eb5ea277e3b",
+      "web/src/features/engagement/DatePicker.module.css": "20f2241d66012ba4d860c5d41a4612217e26c3d742348633c413a2db28a725c8",
+      "web/src/app/Wizard.test.tsx": "0dffec58666593c2a98171e4e86307de62f4c7a7f965869c6e8eb9484bff6074",
+      "web/src/app/ReceiptRecovery.test.tsx": "dd53494f6211ddb7ac3c1a39176f92d3de538e40574d6f9af98e59268919a7da",
+      "web/tests/e2e/b04.mjs": "c75640e9d24d8fade4721fcfeb843a9a2cb42c440f4b725e2b7c2212576cf166",
+      "web/tests/e2e/s1-run.mjs": "edf941b8bba78959c9ca207b6c9fd83220ffc7a582cb980845b3a18bf10e083c"
+    }
+  },
+  "authority_read": [
+    "83f65f968f1fae709da3c2f3dd97cab442e439db:README.md, current amendment and compatibility/operation limits",
+    "83f65f968f1fae709da3c2f3dd97cab442e439db:documents/Omnis_UI_UX_Spec.md:11-58, especially current amendment at 46",
+    "83f65f968f1fae709da3c2f3dd97cab442e439db:documents/Omnis_MVP_Architecture.md:561-595, especially required-null pair at 580",
+    "83f65f968f1fae709da3c2f3dd97cab442e439db:documents/verification/ui-reference-light-dark.md:4-27, operator decisions, contract, JSONB/old-reader boundary and ownership"
+  ],
+  "source_assessment": [
+    {
+      "criterion": "Strict required explicit null/null or strictly ordered real UTC strings; mixed/missing/extra/type/invalid/order refusal",
+      "references": [
+        "api/src/omnis/modules/engagements/schemas.py:27-57",
+        "web/src/shared/api/drafts.ts:7-9,39-47,80-98",
+        "web/src/features/engagement/Wizard.tsx:19-27,41-47,149-153,239-252",
+        "api/tests/test_engagement_validity.py:13-97",
+        "web/src/shared/api/drafts.test.ts:29-57"
+      ],
+      "assessment": "The nullable fields have no defaults and remain required. Strict/extra-forbid validation is inherited. Both-null exits explicitly; mixed values are refused before parsing; finite dates must match seconds/Z syntax, parse as real calendar instants, and have end strictly after start. The decoder checks the exact key set and uses ISO roundtrip plus strict order, rejecting rollover/year-zero/hour24/leap-second inputs. Wizard enabling uses empty choices rather than invented dates and checks locally before writing. No normalization of valid saved timestamps is introduced."
+    },
+    {
+      "criterion": "Unbounded declarative state must not grant implicit execution, authority or lease extension",
+      "references": [
+        "api/src/omnis/modules/engagements/routes.py:59-71,117-169",
+        "api/src/omnis/modules/engagements/service.py:58-80,134-240",
+        "web/src/features/engagement/Wizard.tsx:134-182",
+        "web/src/features/engagement/WizardSections.tsx:121"
+      ],
+      "assessment": "The new state feeds the existing draft-only create/update/readback path. This diff does not change run admission, runtime leases, DATA, Stop, Resume, scope or authorization guards. There is no new effectful callback, scheduling or implicit runtime grant in the added calendar/nullable branches. Operator's read-only inspector choice remains untouched by this slice."
+    },
+    {
+      "criterion": "Finite history, CAS, exact digest and JSONB/no-DDL compatibility",
+      "references": [
+        "api/src/omnis/modules/engagements/schemas.py:130-184,283-317",
+        "api/src/omnis/modules/engagements/service.py:30-51,104-132,134-240",
+        "api/src/omnis/migrations/versions/0007_engagement_drafts.py:21-55",
+        "api/src/omnis/migrations/versions/0008_engagement_edit.py:11-23",
+        "api/tests/test_engagements.py:108-240"
+      ],
+      "assessment": "Finite fields remain authored strings; validation does not assign parsed datetime values back into them. Canonical serializer, digest envelope, checked readers, append-only revisions, locking/CAS and idempotent command logic are unchanged. Existing JSONB CHECK requires an object, not non-null nested timestamps, and no DDL/backfill is present. This supports source-level storage compatibility. It does not make an older strict-string API reader forward-compatible with newly saved null rows. Installed DEVELOPMENT mounts/CLI behavior stated in the canon were not independently inspected or exercised here."
+    },
+    {
+      "criterion": "Generated input/output contract and decoder parity",
+      "references": [
+        "contracts/omnis.openapi.json:495-554",
+        "web/src/shared/api/generated.ts:851-862",
+        "api/tests/test_engagement_validity.py:92-97",
+        "ux-b-schema-green-final.log",
+        "ux-b-generate-contracts-final.log",
+        "ux-b-contract-check.log"
+      ],
+      "assessment": "Programmatic immutable-JSON comparison confirms OpenAPI is unchanged outside Authorization; its required set and additionalProperties=false are retained. TS delta is exactly the two required string|null properties, without optional properties or Input/Output schema-name split. Calendar validity and pair/order relations are runtime validator responsibilities; the generated field types alone are not claimed to enforce them. Existing evidence reports identical validation/serialization schemas and canonical generator/check/tooling success."
+    },
+    {
+      "criterion": "Calendar accessibility/Stop effects and preserved recovery oracle",
+      "references": [
+        "web/src/features/engagement/DatePicker.tsx:47-112",
+        "web/src/features/engagement/DatePicker.module.css:1-15",
+        "web/src/features/engagement/WizardFields.tsx:9-22",
+        "web/src/app/App.tsx:28-49",
+        "web/src/features/engagement/GlobalStop.tsx",
+        "web/src/app/ReceiptRecovery.test.tsx:10-64",
+        "web/src/app/Wizard.test.tsx:11-121"
+      ],
+      "assessment": "The calendar is a nonmodal native dialog with labeled native controls, roving day focus, UTC keyboard movement, Escape/Done focus return, and cleaned-up outside/focus-leave listeners. It installs no inert/backdrop/focus trap over GlobalStop; leaving it does not prevent the outside action. Global box-sizing is border-box. Actual geometry, browser focus, touch and Stop reachability still need real-browser QA. Recovery diff removes obsolete POST ISO-input setup only and adds unchecked/null-pair assertions; original network/BODY_TOO_LARGE, disabled-save, no-resend, local-edit, exact-GET, conflict/cache and second-save assertions remain. B04/S1 changes are limited to obsolete setup adaptation, not a relaxation of their other journey oracles."
+    },
+    {
+      "criterion": "Actual PG test strength, without promoting collection to execution",
+      "references": [
+        "api/tests/test_engagements.py:108-175",
+        "api/tests/test_engagements.py:179-240",
+        "ux-b-pg-collection.log"
+      ],
+      "assessment": "The positive node uses real service/API/PG fixtures, null create plus exact GET, CAS null-to-finite-to-null updates, independent finite-envelope digest computation, a fresh app/session readback, exact ordered history and direct JSONB rows. The negative node checks both POST and CAS PUT refusals, unchanged GET head and unchanged engagement/revision counts for mixed, missing, wrong-type, invalid-date, equal-order and extra-field cases. The source is meaningful for the next gate, but only two-node collection is evidenced. Fresh create_app is not an installed process/DB restart; finite history created in this test is not a fixture written by an old installed reader; stale/replay races are not newly exercised by these two nodes. These are limits of proof, not circular SOURCE blockers."
+    }
+  ],
+  "evidence_read": {
+    "root": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/",
+    "manifests": [
+      "ux-b-result.json",
+      "ux-b-checks.json",
+      "ux-b-post-mount-checks.json",
+      "ux-b-final-checks.json"
+    ],
+    "logs": [
+      "ux-b-schema-red.log",
+      "ux-b-web-red.log",
+      "ux-b-web-green-initial.log",
+      "ux-b-lint-initial.log",
+      "ux-b-lint-corrected.log",
+      "ux-b-typecheck-initial.log",
+      "ux-b-typecheck-corrected.log",
+      "ux-b-schema-green-corrected.log",
+      "ux-b-python-style-initial.log",
+      "ux-b-schema-green-final.log",
+      "ux-b-generate-contracts-final.log",
+      "ux-b-affected-final.log",
+      "ux-b-lint-final.log",
+      "ux-b-typecheck-final.log",
+      "ux-b-api-lint.log",
+      "ux-b-api-format.log",
+      "ux-b-api-typecheck.log",
+      "ux-b-contract-check.log",
+      "ux-b-web-full.log",
+      "ux-b-pg-collection.log",
+      "ux-b-b04-syntax.log",
+      "ux-b-s1-syntax.log",
+      "ux-b-diff-check.log",
+      "ux-b-affected-post-mount-fix.log",
+      "ux-b-lint-post-mount-fix.log",
+      "ux-b-web-full-post-mount-fix.log",
+      "ux-b-build.log",
+      "ux-b-final-date-only-red.log",
+      "ux-b-final-affected.log",
+      "ux-b-final-lint.log",
+      "ux-b-final-typecheck.log",
+      "ux-b-final-full-web.log",
+      "ux-b-final-diff-check.log"
+    ],
+    "reading_boundary": "Exact referenced test/tooling artifacts were read; large logs were reduced to relevant failure diagnostics and result summaries for review. No private operator/runtime raw logs were opened. No command listed inside evidence was executed by this reviewer.",
+    "observed_results": {
+      "final_affected": "66 passed / 4 files; exit 0 in ux-b-final-checks.json",
+      "final_web": "601 passed / 28 files; exit 0 in ux-b-final-checks.json",
+      "final_web_lint_typecheck": "exit 0 in ux-b-final-checks.json; corresponding logs read",
+      "reused_schema": "18 passed; exit 0 in ux-b-checks.json",
+      "reused_api_quality": "Ruff check/format and mypy clean; exit 0 in ux-b-checks.json",
+      "reused_contracts": "canonical export/check and 10 tooling tests passed; exit 0 in ux-b-checks.json",
+      "pg": "2 tests collected; NOT_RUN",
+      "build": "Prior build succeeded with retained chunk-size warning; historical, not final presentation bytes or browser evidence",
+      "retained_failures": "Original schema 16PASS/1FAIL, decoder/Wizard 41PASS/11FAIL, intermediate schema-mode 17PASS/1FAIL, affected 56PASS/1FAIL, full web 597PASS/4FAIL, post-mount full web 599PASS/2FAIL, date-only 25PASS/2FAIL and initial lint/typecheck failures remain separate retained records, not retroactive PASS."
+    }
+  },
+  "supporting_source_read": [
+    "Immutable supporting sections of api/src/omnis/modules/engagements/service.py and routes.py",
+    "Immutable 0007_engagement_drafts.py and 0008_engagement_edit.py persistence definitions; targeted migration references",
+    "Immutable web/src/features/engagement/WizardFields.tsx and web/src/app/App.tsx",
+    "Immutable web/src/features/engagement/GlobalStop.tsx and web/src/app/Shell.module.css; global.css box-sizing definition",
+    "Immutable web/package.json for affected command/dependency context",
+    "Targeted validity-field references in engagements/runs/tasks and CLI sources; no additional field-level consumer found in those searched paths"
+  ],
+  "next_gate": {
+    "owner": "Parent orchestrator",
+    "status": "QA_PENDING_NOT_A_SOURCE_BLOCKER",
+    "required": [
+      "Execute the two collected PG nodes through the existing admitted disposable-PG owner.",
+      "Exercise the affected final artifact in the real browser/API/persistence path, including finite/non-date preservation, explicit null-pair save/readback, calendar keyboard/close/focus, narrow viewport/light-dark and reachable Stop.",
+      "Perform integration/remaining gates under the parent's mandate; do not transfer old installed/S1/canonical PASS to this candidate."
+    ]
+  },
+  "limits": [
+    "No tests, build, DB, browser, service, provider or target operation was run. Source approval does not establish runtime persistence, installed compatibility, visual approval or absence of every possible defect.",
+    "Current canonical amendment and the supplied operator null/null versus ordered UTC and read-only choices govern; obsolete mandatory-date assumptions were not used as findings.",
+    "No protected files, credentials, vault/key data, Strix checkout, UX-C WIP or historical S1 evidence were inspected, read or hashed. s1-run.mjs was reviewed only as the admitted immutable setup diff and adjacent caller context.",
+    "No product/source edits, staging, commits, pushes, worktrees, profiles or child agents. The only intentional output write is this review JSON.",
+    "The evidence records are existing local artifacts rather than independently reproduced executions. Their source manifest was independently matched to all sixteen frozen Git blobs.",
+    "Old readers remain incompatible with newly persisted null authorization pairs; reverting Git alone is not a safe data downgrade."
+  ]
+}

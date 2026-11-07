@@ -1,0 +1,24 @@
+{
+  "candidate": "83f65f968f1fae709da3c2f3dd97cab442e439db",
+  "head_at_admission": "f0417a5ee68ea784b7bba2d1e9a403d206416bb6",
+  "command": "existing run_test_db_gate --check --target test-p1-api --timeout-seconds900",
+  "outer_exit": 0,
+  "gate_receipt": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "test_summaries": [
+    "29 passed in 73.42s"
+  ],
+  "input_count": 349,
+  "drift": [],
+  "root": "/home/kali/.hermes/cache/scratch/db-addad54f535c46e9",
+  "project": "omnis-p01-3c8c11fb58a84455a740af23b9a1521e",
+  "cid": "5d4601c45677ea2b04d733c0c86401b00883767c5cf1313bc310429fad6856e5",
+  "runner_cleanup_readback": {"absent": true, "networks_absent": true, "socket_absent": true, "uncertain": false},
+  "reader_note": "The initial cleanup_marker searched a nonexistent DISPOSABLE_REMOVED spelling. The actual original OWNED_DB_READBACK is successful; this corrects only the result projection, without rerunning the gate or teardown.",
+  "data_root_retained": true,
+  "owned_containers_absent": true,
+  "owned_networks_absent": true
+}

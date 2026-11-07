@@ -1,0 +1,35 @@
+{
+  "reviewed_commit": "11c09d6c8609bccb601c93dcfc16a48ca1878e23",
+  "base_commit": "83f65f968f1fae709da3c2f3dd97cab442e439db",
+  "reviewed_paths": [
+    "documents/verification/ui-reference-light-dark.md",
+    "web/scripts/design.test.mjs",
+    "web/src/app/Engagement.test.tsx",
+    "web/src/app/Wizard.test.tsx",
+    "web/src/features/engagement/Engagement.tsx",
+    "web/src/shared/styles/global.css",
+    "web/tests/e2e/b04.mjs"
+  ],
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "findings": [],
+  "source_assessment": {
+    "integrity": "Immutable git show/diff only. The changed-path set is exactly the six source/test paths in the cumulative C2 hash map plus the one registry paragraph. All four C1 and six cumulative C2 hashes match the frozen blobs, including final verification. Changing C3 worktree bytes were not read or judged.",
+    "C1": "Engagement.tsx:14-15,51 removes both ModelTest mounts and only its unused import, retaining Wizard identity/key and selected-draft behavior. Existing App journeys now assert absence on New, selected Setup, actual post-Save route remount and Overview-to-Setup re-entry, plus no model-test API reads. The B04 additions strengthen absence checks on New, confirmed Setup and restart-stage Setup; they delete no previous date/readback/CAS/recovery/secret oracle. ModelTest implementation, Settings Models and its receiveOnly mount at SettingsModelsPage.tsx:495 remain unchanged. ReceiptRecovery and DatePicker sources are unchanged; prior B behavior is reused, not re-reviewed.",
+    "C2": "global.css:31-45 changes only native scrollbar styling; the entire pre-existing CSS prefix is byte-identical. Standards fallback uses thin themed native scrollbars. Engines supporting the WebKit selector reset standard width/color to auto before custom12px parts, preventing the standard properties from suppressing those parts. html:root selectors outrank the existing catalog class rule. Transparent track/corner, the reference4px inset and house rounded radius preserve the native scroll owners, with secondary-token hover emphasis. Forced-colors excludes custom parts and resets standard width/color to native auto, including catalog. Unsupported enhancements fall back to native behavior. No overflow owner, focus/input rule, scroll interception, hidden scrollbar, smooth scrolling, JavaScript or dependency was added.",
+    "contrast_and_reference": "Read the exact frozen palette/global rules, existing catalog scrollbar rule and retained source contrast tests, plus reference HTML:81-82 as inert style data. Independent token arithmetic gives border-thumb/surface contrast3.589 dark and3.822 light; hover secondary/surface8.453 and6.008. Neutral and elevated background comparisons also remain above3 for these thumb tokens. These are token calculations, not assertions about actual platform painting or every possible backdrop.",
+    "registry": "The changed paragraph at ui-reference-light-dark.md:27 agrees with both original B reports: APPROVED_SOURCE_SCOPED on83f65f968f1fae709da3c2f3dd97cab442e439db, without findings. ux-b-pg-result.json records the later first real test-p1-api execution:29PASS73.42s, outer0, inner code0, family_drained,349inputs/no drift and retained PGDATA. The finite outer OWNED_DB_READBACK independently reports absent=true, networks_absent=true, socket_absent=true, uncertain=false. The paragraph correctly separates fresh create_app readback from an actual process restart, keeps native calendar/browser QA and the new canonical open, retains earlier FAILs and does not claim delivery, READY or aesthetic approval. PGDATA retention is the supplied result's assertion; R1 did not inspect data directories."
+  },
+  "evidence_read": {
+    "records": ["ux-c1-result.json", "ux-c2-result.json", "ux-c1-checks.json", "ux-c2-checks.json"],
+    "actual_source_logs": ["ux-c1-red.log", "ux-c1-green.log", "ux-c1-lint.log", "ux-c1-typecheck.log", "ux-c2-red.log", "ux-c2-green.log", "ux-c2-lint.log"],
+    "observed_results": "C1 intentional RED33PASS/2FAIL at selected-Setup and New absence checks, then173PASS/6files and recorded lint/typecheck0. The later post-Save assertions were not reached in RED and are not represented as having failed there. C2 intentional source-rule RED2PASS/1FAIL, then existing tooling11PASS/0FAIL and recorded lint0. Existing palette/export assertions remain. The added regex regression proves source presence/branches, not actual cascade execution or native painting.",
+    "registry_sources": ["review-b-r1.json (original review reused; identity/verdict read back)", "review-b-r2.json", "ux-b-pg-result.json", "ux-b-pg.stdout: finite outer OWNED_DB_READBACK boolean fields only"],
+    "finite_outer_readback": {"absent":true,"networks_absent":true,"socket_absent":true,"uncertain":false}
+  },
+  "limits": [
+    "SOURCE approval for C1/C2 and the one progress paragraph only. A1/B approvals remain scoped. No C3, authorization/S1 re-audit, whole-UI delivery, aesthetic acceptance or universal absence-of-defects claim.",
+    "No tests/build, browser/native painting, DB/Docker/services or model/provider/target operation was executed. Platform/overlay scrollbar behavior, forced-colors rendering, actual input/hit geometry and final composition remain parent native QA, not circular prerequisites for this source approval.",
+    "B PG execution is retained parent evidence, not a new R1 run and not proof of an installed process restart. Only sanitized summary and finite outer cleanup fields were inspected; raw child PG logs/receipts, credentials and operator data were not opened.",
+    "Only this authorized review-c12-r1.json was written. No product edits, Git mutations, new agents/profile/worktree, protected-file access or Strix inspection. Parent owns integration, current tracking, real QA and acceptance."
+  ]
+}

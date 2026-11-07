@@ -1,0 +1,53 @@
+{
+  "scope": {
+    "checkpoint": "UX-A1 plus documentary UX mandate amendment only",
+    "base_commit": "13f0b19a1d81d5b16448cd0627552083175183bf",
+    "admission_commit": "f1bb956581193e37cd39b2149c2c8542d853289c",
+    "method": "Read immutable blobs with git show at the full reviewed commit and the base-to-reviewed diff of the twelve owned paths. Working-tree product bytes, including the next developer increment, were not used or judged.",
+    "mandate_assessment": "The top amendment in ui-reference-light-dark.md, UI/UX section0, architecture section9 and their plan/README/status projections explicitly admit implementation before S2. Optional validity means both declared fields null, or a strictly valid ordered UTC pair; missing/mixed fields and fabricated defaults remain refused. DTO/API/editor/persistence/readback and preservation of existing finite revisions/digests are requirements for the subsequent increment, not functionality claimed by this snapshot. Declarative null does not grant unbounded runtime authority. Agent inspection is explicitly READ-ONLY. Minimal private diagnostic implementation is admitted separately from the reused read-only analysis; neither is declared implemented. Prior canonical/review/PASS is labelled historical at its earlier bytes, and current corrections remain IMPLEMENTING/NOT_YET_VERIFIED/VISUAL_CHANGES_REQUESTED. S2/target/product-provider inference/live S1/push, implicit upgrade/migration, Models-flow rewrite and new profile/worktree remain excluded.",
+    "theme_assessment": "ThemeToggle.tsx:16-24 uses the reference's exact moon path and sun circle/rays, current-theme glyph convention,24-unit viewBox,19px dimensions and final reference stroke1.4. Reference navicon/themeToggle/toggleTheme fragments were read as data only. No template script, transition timer or remote asset is imported. ThemeToggle.module.css:2-21 provides a neutral44px circular target with no border, padding or shadow; its class-plus-attribute selector outranks the frozen Shell desktop/mobile nav-button selectors and its hover/focus selector outranks the global hover rule. Fixed/minimum dimensions prevent pill expansion or flex shrink. The existing focus-visible outline remains intact. Native type=button, exact Light theme/Dark theme action names, decorative nonfocusable SVG, global state/layout effect, preference-only storage and denied-storage fallback remain correct. App/Shell DOM placement and tab order are unchanged.",
+    "supporting_snapshot_reads": [
+      "web/src/app/App.tsx",
+      "web/src/app/Shell.module.css",
+      "web/src/app/Shell.test.tsx",
+      "web/src/shared/styles/global.css",
+      "web/src/shared/styles/tokens.css"
+    ],
+    "reference": "/home/kali/OTPen/omnis/brand/omnis-cockpit-v5.html:134-136,407,1076-1078,2184-2194",
+    "evidence_readback": {
+      "source_hashes_match_frozen_blobs": {
+        "web/src/app/ThemeToggle.tsx": "3e794710f86a96ea0770d908eddbb0fe44f8a38ff696b938e255bec19140cf51",
+        "web/src/app/ThemeToggle.module.css": "2b4abf4067dbd4c03efdc449569aa4bc699fb8a1cd0e621de537a33499f8d95c",
+        "web/src/app/Theme.test.tsx": "396ee93929457516c5921b7dfcad7f1057899f6a7a62478dbeb9c3ea2a6c2457"
+      },
+      "record": "ux-a1-result.json",
+      "actual_logs_read": ["ux-a1-red.log", "ux-a1-green.log", "ux-a1-lint.log", "ux-a1-typecheck.log", "admission-docs.log", "admission-docs-green.log", "admission-render.log"],
+      "component_results": "Retained actual Theme/Shell RED6PASS/2FAIL at icon-only text and persisted-light sun assertions, then GREEN8PASS/2files; recorded lint/typecheck exit0. Existing storage denial, invalid preference, unsent draft/no-extra-request and Shell tab-order assertions remain. The ByRole typing correction to an anchored accessible name does not weaken the requirement.",
+      "document_results": "Actual final documentation log records87tests/OK. The earlier retirement-marker failure remains in admission-docs.log; no documentation test file is changed in this snapshot. Render/check exit0 is recorded by the admission commit and supplied evidence; no renderer was executed by R1. All three changed HTML readers contain the SHA256 footer of their exact frozen Markdown sources.",
+      "boundary": "Readback of recorded executions, not independent test execution. Component/source and documentary evidence only."
+    }
+  },
+  "reviewed_commit": "9a3447f11435fe6066949732eb2736a20ee7f8e3",
+  "reviewed_paths": [
+    "README.md",
+    "documents/Omnis_Implementation_Plan.html",
+    "documents/Omnis_Implementation_Plan.md",
+    "documents/Omnis_MVP_Architecture.html",
+    "documents/Omnis_MVP_Architecture.md",
+    "documents/Omnis_UI_UX_Spec.html",
+    "documents/Omnis_UI_UX_Spec.md",
+    "documents/verification/implementation-status.md",
+    "documents/verification/ui-reference-light-dark.md",
+    "web/src/app/ThemeToggle.tsx",
+    "web/src/app/ThemeToggle.module.css",
+    "web/src/app/Theme.test.tsx"
+  ],
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "findings": [],
+  "limits": [
+    "Approval covers only the documentary amendment and UX-A1 on the exact immutable commit above. The next optional-validity/calendar increment and other changing worktree bytes were neither inspected nor accepted; their changes do not invalidate this frozen review.",
+    "Actual rendered geometry, neutral hover/focus appearance, native-browser keyboard behavior and operator aesthetic approval remain parent-owned integration QA. Their pending status is not a circular blocker of this source review.",
+    "Optional-validity implementation, diagnostic logging and the rest of ux-* are not delivered or passed by this verdict. Historical product/canonical PASS was not transferred to new bytes. No universal absence-of-defects or whole-product acceptance is claimed.",
+    "No source edits, tests/builds, services/browser/Docker/DB, installs, commits/push, extra agents or successor work. Only this authorized review-a1.json was written. Protected files, private profiles/storage, .env/vault/keys/raw private logs and the Strix checkout were not accessed. Reference HTML was not executed. Parent owns tracking, integration, QA and acceptance."
+  ]
+}

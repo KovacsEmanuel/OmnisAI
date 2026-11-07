@@ -10,6 +10,26 @@ test('design export produces local tokens/fonts with provenance and detects drif
   assert.equal(run.status, 0, 'Design assets must be generated from the accepted local baseline');
 });
 
+test('native document and inner scrollbars use theme tokens with rounded hover enhancement and forced-colors fallback', () => {
+  const css = readFileSync(new URL('../src/shared/styles/global.css', import.meta.url), 'utf8');
+  assert.match(css, /@media \(forced-colors: none\)/);
+  assert.match(css, /@media \(forced-colors: active\)/);
+  const themed = css.slice(css.indexOf('@media (forced-colors: none)'), css.indexOf('@media (forced-colors: active)'));
+  const forced = css.slice(css.indexOf('@media (forced-colors: active)'));
+  assert.match(themed, /html, html \*\s*\{[^}]*scrollbar-width: thin;[^}]*scrollbar-color: var\(--color-border\) transparent;/);
+  assert.match(themed, /@supports selector\(::-webkit-scrollbar\)/);
+  // Native standard properties must not override WebKit parts, including the existing catalog rule.
+  const native = /html:root, html:root \*\s*\{[^}]*scrollbar-width: auto;[^}]*scrollbar-color: auto;/;
+  assert.match(themed, native);
+  assert.match(forced, native);
+  assert.match(themed, /::-webkit-scrollbar\s*\{[^}]*width: 12px;[^}]*height: 12px;/);
+  assert.match(themed, /::-webkit-scrollbar-track\s*\{[^}]*background: transparent;/);
+  assert.match(themed, /::-webkit-scrollbar-thumb\s*\{[^}]*background: var\(--color-border\);[^}]*border: 4px solid transparent;[^}]*background-clip: padding-box;[^}]*border-radius: var\(--radius-pill\);/);
+  assert.match(themed, /::-webkit-scrollbar-thumb:hover\s*\{[^}]*background-color: var\(--color-secondary\);/);
+  assert.doesNotMatch(forced, /::-webkit-scrollbar/);
+  assert.doesNotMatch(css, /scrollbar-width:\s*none|::-webkit-scrollbar\s*\{[^}]*display:\s*none|scroll-behavior:\s*smooth/);
+});
+
 test('both palettes export the same roles and keep text, states and focus readable', () => {
   const colors = JSON.parse(readFileSync(new URL('../../documents/Omnis_Design.tokens.json', import.meta.url))).color;
   const css = readFileSync(new URL('../src/shared/styles/tokens.css', import.meta.url), 'utf8');

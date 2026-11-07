@@ -1,0 +1,153 @@
+{
+  "review_id": "UX-SECONDARY-FINAL-R2-04283683",
+  "language": "ro",
+  "role": "Reviewer complementar 2, read-only; siguranță Stop/focus extern și frontierele failure-control nativ",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "summary": "Niciun finding nou concret în delta exactă de3căi. UX-CORRECTIONS-R1-01 este remediat SOURCE-scoped; propunere pentru adjudecarea părintelui, nu acceptare runtime sau estetică.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "da7101f896aba88a8da761ecaa6f17e833ae01c9",
+    "candidate": "04283683c697c7ecf85335600fed2ea8f28c5306",
+    "branch": "checkpoint/ux-d-pause-20261107",
+    "scope": {
+      "web/src/features/engagement/RunPanel.tsx": {
+        "blob": "16eec49c7b7c10595e24926a369304c7b1cb01c1",
+        "sha256": "9350e9d1df7067e8343e32fb2e20c94de58034a3944bd56a1e737041c9d15acf",
+        "matches_frozen": true,
+        "worktree_equal": true
+      },
+      "web/src/app/RunStream.test.tsx": {
+        "blob": "fc628ef60674efb141cc0442627b8ae53fb60e95",
+        "sha256": "0f6854790c6b05d9a8460fd99b5b7a07e102c0b7bdc4187d06e83cbfb212d46a",
+        "matches_frozen": true,
+        "worktree_equal": true
+      },
+      "web/tests/e2e/s1-run.mjs": {
+        "blob": "a1eb5d4850e1f4744662bb8b8acccf4c846bb0bd",
+        "sha256": "3367f9f1fc87e0057750b11aa548f52d85a078c64f6eff64c85c35abac79db85",
+        "matches_frozen": true,
+        "worktree_equal": true
+      }
+    },
+    "diff_command": "git diff --binary --full-index da7101f896aba88a8da761ecaa6f17e833ae01c9 04283683c697c7ecf85335600fed2ea8f28c5306 -- web/src/features/engagement/RunPanel.tsx web/src/app/RunStream.test.tsx web/tests/e2e/s1-run.mjs",
+    "diff_sha256": "f804b4860f66cb0e63ed891f2c8adc218f8d7c7d032912f65877ec5729ecacde",
+    "freeze_default_diff_sha256": "fcbce4dc296cb6f8a263d0ab8288bd9c1f8ce64f84300e60b7edbc9311069313",
+    "freeze_diff_matches_default_index": true,
+    "source_method": "git show exact-candidate:path și git diff exact-base exact-candidate; toate3bloburi coincid cu freeze și checkoutul înainte/după probe. Cele6căi auth/D din freeze sunt byte-identice cu baza și hashurile aprobate.",
+    "final_git_status": "## checkpoint/ux-d-pause-20261107\n?? documents/Omnis_Notite_Originale.html\n?? tempkey.txt\n",
+    "tracked_or_staged_changes": false
+  },
+  "findings": [],
+  "secondary_disposition": {
+    "id": "UX-CORRECTIONS-R1-01",
+    "original_report": "review-corrections-final-r1.json",
+    "original_verdict_preserved": "CHANGES_REQUESTED_SOURCE_SCOPED",
+    "disposition": "RESOLVED_SOURCE_SCOPED_ON_04283683; parent_adjudication_required",
+    "code": [
+      "web/src/features/engagement/RunPanel.tsx:120-133",
+      "web/src/features/engagement/RunPanel.tsx:315-345",
+      "web/src/app/RunStream.test.tsx:303-344"
+    ],
+    "reproducer_checked": "Inspector cauzal deja încărcat, intrare prin trigger sau deep link; refetch al consumerului întoarce503 ori rosterul Brain devine decoder-valid dar inconsistent. Headingul eliminat trebuie înlocuit prin focus pe Close; detaliul invalid rămâne absent. Aceleași tranziții cu Stop focalizat trebuie să păstreze Stop.",
+    "minimal_fix_observed": "Effectul existent tratează apariția și retragerea detail.attempt_id; heading sau Close ca fallback numai când activeElement este body ori în popup. Nicio schimbare a validării, selecției, restaurării ori autorității.",
+    "result": "Toate8controale noi și controlul existent pending-settlement/refetch→Stop au trecut independent. Escape în popup închide/curăță attempt+source și restaurează triggerul conectat sau Brain stream; Escape din Stop nu închide popupul. GET-only, Stop enabled/non-inert, dialog nonmodal. Fără focus trap, inert, listener Escape global sau workaround de reafișare a detaliului invalid.",
+    "historical_red": "Raportul autorului păstrează4FAIL/4PASS înaintea fixului; nu a fost rerulat sau înlocuit. Controalele părintelui8GREEN sunt context, nu execuție proprie."
+  },
+  "focused_assessment": [
+    {
+      "requirement": "No focus theft / Stop accesibil",
+      "code": "RunPanel.tsx:127-153,315-345",
+      "assessment": "PASS_SOURCE_SCOPED",
+      "evidence": "Condiția exclude orice control extern încă focalizat; branchurile negative Stop sunt executate pe ambele faults/entries. Nici closeInspector, handlerul Escape scoped, restaurarea trigger/fallback sau markupul nonmodal nu sunt schimbate."
+    },
+    {
+      "requirement": "Auth/autoritate/DATA/retained records nu regresează",
+      "code": "RunPanel.tsx:93-122; delta exactă și cele6căi auth/D neschimbate",
+      "assessment": "PRESERVED_APPROVED_SCOPE",
+      "evidence": "Singura schimbare de produs este focus condition/target și comentariul. Validarea run/instance/roster, worker→consumer/ref equality, retragerea detaliului invalid, readPrivate/commitPrivate, comenzi/consimțământ/Stop, caps/deadline/selection nu sunt modificate. Nu există scriere de domeniu nouă sau fallback ce ar accepta recordul invalid."
+    },
+    {
+      "requirement": "Failure-control nativ numai receive-only și cleanup owned",
+      "code": "web/tests/e2e/s1-run.mjs:217-280,294; api/tests/test_run_runtime_pg.py:272-343,747-759",
+      "assessment": "APPROVED_SOURCE_SCOPED_NATIVE_NOT_RUN",
+      "evidence": "failureURL folosește originul owned, selected.run_id și consumer.attempt_id citite prin consumerul real după refurile worker/decision. Route exactă, numai GET; celelalte metode continuă normal și sunt detectabile de writes. Gateul permite focalizarea înaintea settlementului, status503 este explicit asserted. finally eliberează gateul și elimină exact handlerul URL/function. Snapshotul writes trebuie neschimbat; numai reporterul existent POST /diagnostics/ui-events este exclus explicit, nu comenzi. secretChecks și readbackul workerInspection după reload rămân. Censusul PG existent assert_checkpoint verifică toate RUN_COLUMNS, stări terminale, records, counts/dispatch/inbox și sink_calls; nu este slăbit sau executat aici."
+    },
+    {
+      "requirement": "Producer/selector actual și clasificare onestă",
+      "code": "RunPanel.tsx:295-320,331,345,350; ThemeToggle.tsx:18; s1-run.mjs:198-272",
+      "assessment": "PASS_SOURCE_SHAPE_ONLY",
+      "evidence": "Headingul/regionul și butonul Close există în ramurile reale încărcat/fără detail; Spawned agents expune data-attempt-id pentru finish; Refresh run refetchuiește inspectorul selectat; ThemeToggle produce exact Light theme/Dark theme. Fixtureul S1 este LIMITED în această etapă, deci controlul nativ extern este theme, nu un Stop inexistent. Stop activ rămâne în controalele SOURCE și în verificările native anterioare neschimbate. Nu s-au introdus harness nou persistent, DB fault/seeding sau deadline/selection mai permisive."
+    }
+  ],
+  "original_finding_dispositions": [
+    {
+      "id": "UI-INSPECTOR-PENDING-ERROR-FOCUS-01",
+      "disposition": "PRESERVED_RESOLVED_SOURCE_SCOPED_ORIGINAL_REPRODUCER; cazul secundar este tratat separat mai sus"
+    },
+    {
+      "id": "S1-LOGIC-AUTH-COMMIT-01",
+      "disposition": "PRESERVED_APPROVED_SOURCE_SCOPED; fără reauditurile/certificările globale ale auth"
+    },
+    {
+      "id": "UX-D-R1-01",
+      "disposition": "PRESERVED_RESOLVED_SOURCE_SCOPED; uncertainty ERROR/UNCONFIRMED neschimbată"
+    },
+    {
+      "id": "UX-D-R1-02",
+      "disposition": "PRESERVED_RESOLVED_SOURCE_SCOPED; corelarea GET command_receipt și privacy/caps neschimbate"
+    }
+  ],
+  "evidence_reuse": {
+    "report_hashes": {
+      "review-corrections-final-r1.json": "e74fc5d4601d6994c148c8c8e333f63e780c0faf2f041739d04d1b77f8a13e75",
+      "review-corrections-final-r2.json": "38c9fb7600ea71d15e57b1dc6d8d7a2ff632f9d4e1e095bfb8827ecdef2ed1e1",
+      "ux-inspector-secondary-result.json": "2dff5bbf1b82eeb91d289c81464b6adae0907796cf707b5ec4aa882cbf56fd29",
+      "ux-inspector-secondary-freeze.json": "9b2b00ffa2ad69f081093e6b5407f74c6f635b57a89257cf43bca7cae1f2d090"
+    },
+    "unchanged_auth_D": {
+      "web/src/features/engagement/Wizard.tsx": true,
+      "web/src/features/engagement/SettingsModelsPage.tsx": true,
+      "web/src/app/PrivatePublicationAuth.test.tsx": true,
+      "web/src/shared/uiDiagnostics.ts": true,
+      "web/src/shared/api/client.ts": true,
+      "web/src/app/UiDiagnostics.test.tsx": true
+    },
+    "review-corrections-final-r2.json": "APPROVED_SOURCE_SCOPED păstrat numai la scope-ul său; nu șterge findingul secundar R1 prin findings=[] anterior.",
+    "author_checks_not_rerun": "ux-inspector-secondary-result.json:49 RunStream /161 affected /668 web PASS; lint/typecheck/build/syntax/collect exit0 raportate. Acestea sunt probe ale autorului, nu noi execuții proprii. Warningul build chunk>500kB și RED-urile istorice rămân; QA nativă nu este dedusă din ele."
+  },
+  "executed_checks": [
+    {
+      "command": "git status --short --branch; git diff --stat; git diff --cached --stat; git rev-parse HEAD; git show --stat --oneline 04283683c697c7ecf85335600fed2ea8f28c5306; git diff --name-status da7101f896aba88a8da761ecaa6f17e833ae01c9 04283683c697c7ecf85335600fed2ea8f28c5306; git diff --check <base> <candidate>; exact git show source și SHA256 pentru3bloburi/4rapoarte permise; compare6căi auth/D",
+      "exit": 0,
+      "result": "Exact3căi schimbate, hashuri freeze identice, zero tracked/staged drift; repo/HEAD neschimbate final. Numele untracked protejate doar observate în status."
+    },
+    {
+      "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin NODE_ENV=test TMPDIR=/home/kali/.hermes/cache/scratch node --input-type=module -e 'import { createRequire } from '\"'\"'node:module'\"'\"';\nimport { execFileSync } from '\"'\"'node:child_process'\"'\"';\nconst require=createRequire('\"'\"'/home/kali/OmnisAI/web/package.json'\"'\"');\nconst { startVitest }=await import(require.resolve('\"'\"'vitest/node'\"'\"'));\nconst { default: react }=await import(require.resolve('\"'\"'@vitejs/plugin-react'\"'\"'));\nconst repo='\"'\"'/home/kali/OmnisAI'\"'\"', head='\"'\"'04283683c697c7ecf85335600fed2ea8f28c5306'\"'\"';\nconst frozen={name:'\"'\"'review-frozen-source'\"'\"',enforce:'\"'\"'pre'\"'\"',load(id){const path=id.split('\"'\"'?'\"'\"')[0];if((path.endsWith('\"'\"'.ts'\"'\"')||path.endsWith('\"'\"'.tsx'\"'\"'))&&(path.startsWith(repo+'\"'\"'/web/src/'\"'\"')||path.startsWith(repo+'\"'\"'/web/tests/'\"'\"')))return execFileSync('\"'\"'git'\"'\"',['\"'\"'show'\"'\"',head+'\"'\"':'\"'\"'+path.slice(repo.length+1)],{cwd:repo,encoding:'\"'\"'utf8'\"'\"'});}};\nconst ctx=await startVitest('\"'\"'test'\"'\"',['\"'\"'src/app/RunStream.test.tsx'\"'\"'],{root:repo+'\"'\"'/web'\"'\"',config:false,run:true,watch:false,cache:false,environment:'\"'\"'jsdom'\"'\"',setupFiles:['\"'\"'./tests/setup.ts'\"'\"'],restoreMocks:true,clearMocks:true,fileParallelism:false,testNamePattern:'\"'\"'causal detail is withdrawn|does not steal focus from Stop'\"'\"'},{configFile:false,envDir:false,publicDir:false,plugins:[frozen,react()],server:{watch:null},test:{include:['\"'\"'src/**/*.test.{ts,tsx}'\"'\"'],deps:{optimizer:{client:{enabled:false},ssr:{enabled:false}}}}});\nif(!ctx) throw new Error('\"'\"'Vitest context absent'\"'\"');\nawait ctx.close();\n'",
+      "exit": 0,
+      "result": "RUN  v4.1.12 /home/kali/OmnisAI/web\n\n ✓ src/app/RunStream.test.tsx (49 tests | 40 skipped) 2604ms\n   ✓ does not steal focus from Stop when a pending inspection settles or its retained detail refetches  543ms\n   ✓ keeps 'inside' focus usable when loaded 'trigger' causal detail is withdrawn by '503'  346ms\n\n Test Files  1 passed (1)\n      Tests  9 passed | 40 skipped (49)\n   Start at  01:17:10\n   Duration  4.46s (transform 854ms, setup 134ms, import 1.01s, tests 2.60s, environment 587ms)",
+      "scope": "9PASS/40filtrate din49; matricea nouă8 + Stop pending/refetch existent. Runnerul SOURCE frozen în memorie reutilizează abordarea R2 anterioară; TS/TSX git-show pe candidate, configFile/envDir/cache/optimizer/watch dezactivate. App/RunPanel/client/decoders/QueryClient reale în jsdom, răspunsuri sintetice; fără browser/API/PG/provider."
+    },
+    {
+      "command": "git show 04283683c697c7ecf85335600fed2ea8f28c5306:web/tests/e2e/s1-run.mjs | env -i PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin node --input-type=module --check",
+      "exit": 0,
+      "result": "PASS sintaxă pe bytes exacți; nu execută runS1."
+    }
+  ],
+  "auxiliary_issues": "O extragere intermediară din outputul reținut a eșuat ValueError: substring not found înaintea oricărei comenzi/probe. Sursa necesară a fost recitită direct prin git show; nu a existat FAIL de produs în această execuție. Outputul larg anterior a fost trunchiat și nu a fost folosit ca substitut pentru lectura source necesară.",
+  "effects_and_limits": {
+    "only_created_file": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/review-secondary-final-r2.json",
+    "absence": "Verificat absent la început și imediat înaintea scrierii; ultimul check folosește os.path.lexists (inclusiv symlink).",
+    "repo_product_tests_docs_git_changes": "NONE",
+    "agents_profiles_worktrees_dependencies_installs_services_browser_PG_provider_target_effects": "NONE",
+    "protected_files_env_keys_vault_raw_operator_logs_Strix": "NOT_READ_NOT_HASHED_NOT_CHANGED",
+    "reticle": "NOT_APPLICABLE execuției SOURCE fără runtime UI admis",
+    "chisel": "BLOCKED_NO_GO; neexecutat",
+    "not_claimed": "Native browser/keyboard/screen-reader PASS, API/provider503 real, DB fault, lifecycle READY/STOPPED nou, acceptare vizuală, closure global UI/S1/D, canonical nou, main/push/CI sau S2. synthetic503 este exclusiv INJECTED_UI_HTTP_FAILURE_ONLY; recordurile reale ale fixtureului sunt reutilizate, nu fabricate."
+  },
+  "handoff": {
+    "code": "Implementat pe candidatul exact; niciun blocker SOURCE nou în mandatul complementar2.",
+    "proof": "9SOURCE controale independente PASS/exit0 și sintaxă nativă exit0; probele complete anterioare sunt refolosite scoped.",
+    "review": "APPROVED_SOURCE_SCOPED; dispoziția secondary UX-CORRECTIONS-R1-01 este explicită, fără anularea aprobărilor auth/D neschimbate.",
+    "next": "Părintele adjudecă ambele reviewuri pe exact04283683 și execută QA nativă admisă prin consumerul existent test-s1-run-ui-pg, apoi porțile finale aplicabile. Lipsa QA este gate ulterior, nu prerequisite circular al aprobării SOURCE. Acceptarea și orice efecte ulterioare aparțin părintelui."
+  }
+}

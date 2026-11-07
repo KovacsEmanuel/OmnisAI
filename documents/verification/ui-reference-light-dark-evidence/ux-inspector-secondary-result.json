@@ -1,0 +1,145 @@
+{
+  "status": "SOURCE_CANDIDATE_FROZEN_PENDING_PARENT_COMMIT_AND_FOCUSED_RE_REVIEW",
+  "finding": "UX-CORRECTIONS-R1-01",
+  "base": "da7101f896aba88a8da761ecaa6f17e833ae01c9",
+  "head_at_freeze": "da7101f896aba88a8da761ecaa6f17e833ae01c9",
+  "branch": "checkpoint/ux-d-pause-20261107",
+  "writer_stopped": true,
+  "freeze_manifest": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-inspector-secondary-freeze.json",
+  "paths": {
+    "web/src/features/engagement/RunPanel.tsx": {
+      "before_sha256": "720ad766ce3f2c6e5c6f75ccd7a421e7f4d82db23b403565e6e3c52b4775a097",
+      "after_sha256": "9350e9d1df7067e8343e32fb2e20c94de58034a3944bd56a1e737041c9d15acf"
+    },
+    "web/src/app/RunStream.test.tsx": {
+      "before_sha256": "e84b5fd6eba2ea521ee1caf6a0c240766720a18f20b3134b2ea1bf39278d0683",
+      "after_sha256": "0f6854790c6b05d9a8460fd99b5b7a07e102c0b7bdc4187d06e83cbfb212d46a"
+    },
+    "web/tests/e2e/s1-run.mjs": {
+      "before_sha256": "62279c0f6aed0897005fc141d24a45269722fc7819ef849434dd5b0678f3e99f",
+      "after_sha256": "3367f9f1fc87e0057750b11aa548f52d85a078c64f6eff64c85c35abac79db85"
+    }
+  },
+  "diff_sha256": "fcbce4dc296cb6f8a263d0ab8288bd9c1f8ce64f84300e60b7edbc9311069313",
+  "change": "Existing settlement focus effect now handles both appearance and withdrawal of detail, choosing existing heading or Close fallback only when focus is in the popup or was lost to body. No change to detail validation/withdrawal, opening effect, Escape handler, restoration, nonmodal markup or Stop authority.",
+  "scope": {
+    "product_diff": "One focus-effect condition/target and explanatory comment; no new focus manager, trap, inert, global Escape, invalid-detail fallback or dependency",
+    "tests": "Existing RunStream setup/callers and existing native S1 driver only",
+    "auth_D": "Six explicit auth/D source/test paths compared byte-for-byte with base and unchanged; exact preserved hashes are in freeze manifest. No reopening of approved unchanged scopes.",
+    "git": "No stage/commit/push; only three allowed tracked files modified"
+  },
+  "review_disposition": {
+    "review-corrections-final-r1.json": {
+      "preserved_verdict": "CHANGES_REQUESTED_SOURCE_SCOPED",
+      "sha256": "e74fc5d4601d6994c148c8c8e333f63e780c0faf2f041739d04d1b77f8a13e75",
+      "secondary_finding": "Implemented and SOURCE-tested; pending independent focused re-review, not self-closed"
+    },
+    "review-corrections-final-r2.json": {
+      "preserved_verdict": "APPROVED_SOURCE_SCOPED",
+      "sha256": "38c9fb7600ea71d15e57b1dc6d8d7a2ff632f9d4e1e095bfb8827ecdef2ed1e1"
+    },
+    "original_four_findings": "Original opening focus, auth publication and both D findings retain their SOURCE-scoped resolved dispositions; this secondary transition is separate. Original reports/reproduction evidence untouched.",
+    "parent_repro": "parent-inspector-refetch-repro.log records2 PASS asserting violation/control, not contract GREEN"
+  },
+  "source_controls": {
+    "matrix": "8 new cases:503 versus decoder-valid changed roster, inside heading versus Stop focus, trigger versus causal deep link",
+    "failure": "Real causal selection with exact refs is loaded first. A selected attempt503 or mismatched Brain roster withdraws the detail; invalid cached detail must remain absent.",
+    "focus_escape": "Inside focus moves to existing Close; Escape closes and restores original connected Recon trigger or deep-link Brain stream heading; attempt/source removed from URL.",
+    "stop_control": "Identical transitions retain focus on enabled non-inert Stop. Escape from Stop does not close popup (no global handler); explicit Close focus then Escape uses existing restoration. All new inspection requests are GET/implicit GET.",
+    "boundary": "Actual App/RunPanel/client/decoders/QueryClient in jsdom using existing synthetic fetch fixtures, not native browser/API/PG evidence"
+  },
+  "checks": [
+    {
+      "phase": "RED before product fix",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/RunStream.test.tsx -t 'causal detail is withdrawn'",
+      "exit": 1,
+      "result": "4 failed/4 passed/41 skipped: four inside-popup transition failures, four unchanged Stop controls pass",
+      "log": "ux-inspector-secondary-red.log"
+    },
+    {
+      "phase": "GREEN complete RunStream",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/RunStream.test.tsx",
+      "exit": 0,
+      "result": "49 passed in8.37s",
+      "log": "ux-inspector-secondary-green.log"
+    },
+    {
+      "phase": "affected suites",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/Run.test.tsx src/app/RunCommandAuth.test.tsx src/app/RunStopAuth.test.tsx src/app/RunStopObserver.test.tsx src/app/RunStream.test.tsx src/app/UiDiagnostics.test.tsx src/app/PrivatePublicationAuth.test.tsx",
+      "exit": 0,
+      "result": "161 passed in7 files,13.78s",
+      "log": "ux-inspector-secondary-affected.log"
+    },
+    {
+      "command": "npm --prefix web test",
+      "exit": 0,
+      "result": "668 passed in30 files,44.38s",
+      "log": "ux-inspector-secondary-full-web.log"
+    },
+    {
+      "command": "npm --prefix web run lint",
+      "exit": 0,
+      "result": "Final three paths pass, no warnings/errors",
+      "log": "ux-inspector-secondary-lint-final.log"
+    },
+    {
+      "command": "npm --prefix web run typecheck",
+      "exit": 0,
+      "result": "TypeScript passes",
+      "log": "ux-inspector-secondary-typecheck.log"
+    },
+    {
+      "command": "npm --prefix web run build",
+      "exit": 0,
+      "result": "Contract/design drift checks, tsc and production build pass; trusted manifest4 files. Existing >500kB chunk warning retained, no threshold change.",
+      "log": "ux-inspector-secondary-build.log"
+    },
+    {
+      "command": "node --check web/tests/e2e/s1-run.mjs",
+      "exit": 0,
+      "result": "Final native driver syntax PASS",
+      "log": "ux-inspector-secondary-native-syntax-final.log"
+    },
+    {
+      "command": "api/.venv/bin/python -I -B -m pytest -p no:cacheprovider -c api/pyproject.toml 'api/tests/test_run_runtime_pg.py::test_run_api_pg_three_causal_tasks_and_receive_only_replay[True]' --collect-only -q",
+      "exit": 0,
+      "result": "1 existing native-consumer test collected in2.37s; no fixture execution/provisioning",
+      "log": "ux-inspector-secondary-native-collect.log"
+    },
+    {
+      "command": "git diff --check; exact3-path tracked scope check; compare base..HEAD and unchanged auth/D source; SHA256 source/diff",
+      "exit": 0,
+      "result": "No unrelated tracked changes or committed drift; auth/D source preserved"
+    }
+  ],
+  "evidence_reuse": "After full affected/web/type/build checks, only two lines in the native-only mjs driver were added to await/assert the intercepted503 response status. Node syntax and complete web lint were rerun on final driver. TS/TSX product/tests and built app bytes remained unchanged; Vitest does not execute the native mjs driver.",
+  "native_oracle_prepared": {
+    "status": "NOT_RUN_BY_DEVELOPER; parent executes only after focused review",
+    "existing_owner": "Makefile test-s1-run-ui-pg -> existing owned PG/browser fixture test_run_api_pg_three_causal_tasks_and_receive_only_replay[True], OMNIS_S1_RUN_UI=1 -> existing settings_models_browser scenario=s1-run -> runS1",
+    "parent_command_under_existing_attested_fixture": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH make --no-print-directory test-s1-run-ui-pg",
+    "prerequisites": "Parent-owned admitted OMNIS_TEST_FIXTURE and existing scripted SDK/relay/owned API/browser setup; no new runner, selection, deadline or domain seeding. Developer only traced/collected the existing consumer.",
+    "placement": "Already reached actual causal inspector after retained worker result/ref/consuming Brain checks; existing pending-run Stop reachability and prior success assertions remain intact.",
+    "injection": "Exact selected consumer attempt URL on the owned origin, GET only. Temporary page route holds that request while actual Refresh run initiates refetch and heading/external theme focus is restored, then fulfills synthetic503/API_UNAVAILABLE. Browser response status503 is explicitly asserted.",
+    "classification": "INJECTED_UI_HTTP_FAILURE_ONLY, not actual API/provider503, not fabricated run/attempt data. Real fixture identities/retained records are reused; no domain faults or DB seeding.",
+    "inside_control": "Detail/heading must disappear, existing Close must receive focus, Escape closes/restores the real worker trigger and clears attempt/source URL.",
+    "external_control": "Re-enter the same real causal deep link; focused theme control must retain focus through identical503, Escape outside leaves popup open, then Close/Escape restores Brain stream heading. Current fixture run is LIMITED here, so native external control is theme; actual Stop retention is covered by8 Source controls and original earlier native Stop checks remain.",
+    "cleanup_and_census": "Handler removed and hold released in finally. Existing writes snapshot must remain unchanged, existing secretChecks are reused. Existing restart/receipt/retained-data/no-replay/success journey assertions are not removed or weakened.",
+    "evidence": "Existing s1-run-record.json adds injectedUiHttp503Focus:true only after controls complete; after-stage existing result carries this explicit injected-UI marker. Two screenshots use s1-inspector-injected-ui-http-503-inside/external names. No screenshots or native result claimed produced by developer."
+  },
+  "limits": {
+    "independent_secondary_review": "PENDING_PARENT",
+    "native_failure_transition": "NOT_RUN; syntax/collect-only/Source PASS do not certify browser focus or real API/provider failures",
+    "unchanged_auth_D_review": "Preserved within its previously approved scope, not reopened or silently promoted to native acceptance",
+    "canonical_READY_main_CI_lifecycle_cleanup": "Parent-owned, not completed here",
+    "installation": "Parent reports STOPPED56; no developer lifecycle action",
+    "S2": "NOT_STARTED_OR_PREPARED"
+  },
+  "effects": {
+    "git_stage_commit_push": "NONE",
+    "services_browser_PG_operator_provider_target": "NONE",
+    "agents_profiles_worktrees_installs": "NONE",
+    "protected_files_secrets_env_vault_raw_operator_logs_Strix": "NOT_READ_OR_CHANGED",
+    "evidence": "New ux-inspector-secondary logs/manifest/result only; collision checks performed; originals preserved"
+  },
+  "next": "Parent verifies hashes and commits this coherent three-path candidate, obtains focused re-review of the secondary transition and executes admitted existing native consumer. Same developer remains available for focused fixes."
+}

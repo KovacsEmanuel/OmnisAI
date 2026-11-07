@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "audit": "Independent read-only UI/S1 logic/security review",
+  "language": "ro",
+  "snapshot": "e06ef06fdf4eb6ba51dcbbbcacff1069757992ca",
+  "verdict": "CHANGES_REQUESTED_SOURCE_SCOPED",
+  "scope": [
+    "UI callers pentru Stop/run/recovery și identități receive-only",
+    "auth cutover și commituri explicite de cache/pointer după await",
+    "hidratare, consimțământ și proiecții persistente relevante UI/S1"
+  ],
+  "findings": [
+    {
+      "id": "S1-LOGIC-AUTH-COMMIT-01",
+      "severity": "MEDIUM",
+      "title": "Wizard și Reload Models pot recrea cache privat după expirarea vieții auth",
+      "primary_location": "web/src/features/engagement/Wizard.tsx:135-147",
+      "additional_demonstrated_location": "web/src/features/engagement/SettingsModelsPage.tsx:182-191",
+      "invariant": "După expire/401/logout și purjarea cache-ului, o continuare a vieții auth vechi nu poate publica din nou date private. readPrivate protejează citirea, nu și commitul explicit al callerului după await; commitPrivate existent verifică sincron exact această frontieră.",
+      "mechanism": "Wizard.confirm face await readPrivate, apoi setSaved/setForm și două client.setQueryData fără commitPrivate. Models.readCurrent face await readPrivate(load), verifică numai AbortSignal-urile componentei și apoi șterge pointerul și publică settings-model-library. expire avansează epoch-ul și purjează sincron cache-ul; cleanupul React care abortează lifetime-ul poate urma continuării Promise. Sonda a observat sesiunea null și commitPrivate al ownerului vechi refuzat, dar cache-urile explicit recreate de caller.",
+      "valid_prerequisites": [
+        "Sesiune autentificată validă și citire privată admisă înainte de cutover.",
+        "Pentru Wizard: receipt și GET de confirmare identice ca id/revision/digest/payload; nu răspuns invalid sau foreign.",
+        "Pentru Models: Reload curent, fără mutație/pending/continuation concurentă; load întoarce snapshot valid.",
+        "Expirarea/401 concurentă intervine după ultimul check al readPrivate și înainte de commitul callerului, înaintea cleanupului React; același seam de programare este deja folosit de RunCommandAuth.test.tsx:25-33."
+      ],
+      "reproducer": [
+        "Încărcați bytes prin git show e06ef06fdf4eb6ba51dcbbbcacff1069757992ca:<path>. Extrageți AST funcțiile confirm/equal, respectiv readCurrent; nu rescrieți corpurile lor.",
+        "Executați useBrowserSession real cu QueryClient real în memorie; hooks React fără randare și API/load sintetice, fără HTTP/DB. Legați funcțiile extrase de owner.readPrivate și același QueryClient.",
+        "Control pozitiv: owner.readPrivate întoarce normal. Wizard publică engagement/draft; Reload Models publică settings-model-library.",
+        "Control negativ: expire înainte de citire. Wizard este anulat, iar ambele cazuri lasă zero cache privat.",
+        "Programare defect: wrapperul await owner.readPrivate(read, signal); owner.expire(); return value. Apoi callerul original continuă înainte de unmount. Verificați session=null și owner.commitPrivate refuzat.",
+        "Observat: Wizard recreează două chei private și state saved; Reload Models recreează cheia privată și anunță Settings reloaded. Acesta este SOURCE controlat, nu reproducere live în browser."
+      ],
+      "real_consumers": [
+        "NewEngagement/Engagement Setup → Wizard.save → confirm și Retry exact GET readback → reconcile → confirm",
+        "Settings → Models → Reload settings / Recover exact receipt → SettingsModelsPage.readCurrent"
+      ],
+      "minimal_repair": "Reutilizați commitPrivate existent la commitul sincron al readbackului în ambii calleri, cu semnalul propriei componente. Dacă refuză, nu publicați cache/state de succes și nu lăsați callerul să navigheze ca Save confirmat. Nu introduceți alt owner/epoch/TTL. În SettingsModelsPage, verificați focused și writerii frați expliciți ai aceluiași consumer (mutate:209, startTest:267, readTest:280, connectEntries:314): au aceeași protecție abort-only; aceștia au fost identificați în sursă, nu executați separat de sondă.",
+      "affected_regressions": [
+        "Wizard.test.tsx: păstrați controlul existent late GET după re-pair și adăugați seamul post-readPrivate/pre-commit, inclusiv lipsa cheilor private după expire.",
+        "SettingsModels.test.tsx / regresie mică existentă a consumerului Models: Reload și Recover la același seam, sănătos și expire/401, fără curățarea neautorizată a pointerelor."
+      ],
+      "impact_limit": "Încălcarea purjării și a publicării din aceeași viață auth este demonstrată SOURCE. Nu s-a demonstrat divulgare live către o persoană neautorizată, utilizare de credentiale sau efect provider. Severitatea MEDIUM nu înlocuiește adjudecarea părintelui privind blocarea acceptării frontierei auth."
+    }
+  ],
+  "verification": {
+    "source_probe": {
+      "command": "node -e <sondă în memorie: git show snapshot:path → TypeScript AST/transpileModule → funcțiile originale și useBrowserSession + QueryClient real; API/load și hooks fără efecte>",
+      "exit_code": 0,
+      "classification": "SOURCE_IN_MEMORY_NOT_LIVE",
+      "read_private_wrapper_for_defect_schedule": "async (read, signal) => { const value = await owner.readPrivate(read, signal); owner.expire(); return value; }",
+      "results": [
+        { "consumer": "Wizard.confirm", "boundary": "healthy", "session_null": false, "private_keys": ["engagement", "draft"], "error": null },
+        { "consumer": "Wizard.confirm", "boundary": "expire-before-read", "session_null": true, "private_keys": [], "error": "CancelledError" },
+        { "consumer": "Wizard.confirm", "boundary": "expire-after-read-before-commit", "session_null": true, "private_keys": ["engagement", "draft"], "old_commit_private_admitted": false, "error": null },
+        { "consumer": "Models.readCurrent", "boundary": "healthy", "session_null": false, "private_keys": ["settings-model-library"], "notice": "Settings reloaded." },
+        { "consumer": "Models.readCurrent", "boundary": "expire-before-read", "session_null": true, "private_keys": [], "notice": "readback unavailable" },
+        { "consumer": "Models.readCurrent", "boundary": "expire-after-read-before-commit", "session_null": true, "private_keys": ["settings-model-library"], "old_commit_private_admitted": false, "notice": "Settings reloaded.", "storage_call": ["omnis-settings-command-v1", "synthetic-scope", null] }
+      ],
+      "limitations": [
+        "Nu este suită manifest, randare React, test live sau QA de integrare.",
+        "Nu s-au rulat browser, server, PostgreSQL, provider sau teste care creează fixture-uri.",
+        "Părintele reproduce/adjudecă prin callerul real; același developer desemnat remediază și adaugă regresia."
+      ]
+    },
+    "parallel_owner_read_probe": {
+      "command": "node -e <git show → AST functions + original useBrowserSession; direct owner.readPrivate, successful deferred read and parallel deferred UNAUTHENTICATED read>",
+      "exit_code": 0,
+      "classification": "SOURCE_REAL_PARALLEL_OWNER_READS_NOT_LIVE",
+      "important_distinction": "Follow-up fără wrapperul post-readPrivate: ambii calleri folosesc direct owner.readPrivate original. Nu se injectează expire între owner și caller; o a doua citire privată eșuează cu ApiError UNAUTHENTICATED și ownerul real execută expire.",
+      "schedule": [
+        "Lansați confirm cu api.draft → success Promise pending, respectiv readCurrent cu load → success Promise pending.",
+        "Rezolvați success cu readback valid; înaintea flushului microtaskurilor, lansați în paralel owner.readPrivate(() => unauthorizedPromise, signal) și respingeți unauthorizedPromise cu ApiError UNAUTHENTICATED.",
+        "Așteptați ambele promisiuni. AbortSignalul componentei rămâne neabortat în această sondă fără cleanup React."
+      ],
+      "observed": [
+        {
+          "consumer": "Wizard.confirm",
+          "order": ["real owner sets session=null", "parallel private read UNAUTHENTICATED", "caller sets saved", "caller writes engagement", "caller writes draft"],
+          "retained_private_keys": ["engagement", "draft"],
+          "old_commit_private_admitted": false,
+          "signal_aborted": false
+        },
+        {
+          "consumer": "Models.readCurrent",
+          "order": ["real owner sets session=null", "parallel private read UNAUTHENTICATED", "caller clears recovery pointer", "caller writes settings-model-library", "Settings reloaded."],
+          "retained_private_keys": ["settings-model-library"],
+          "old_commit_private_admitted": false,
+          "signal_aborted": false
+        }
+      ],
+      "limits": "Date/API sintetice, hooks React fără randare; owner și QueryClient reale, corpurile callerilor extrase byte-exact din snapshot. Fără HTTP/DB/provider sau certificare live."
+    },
+    "frozen_source_sha256": {
+      "web/src/features/bootstrap/useBrowserSession.ts": "11f9451b6f3676314a07d9beeb28211d70e1a4d4d2bb9bebfbad7309e2648d65",
+      "web/src/features/engagement/Wizard.tsx": "f25bf5c6d39d813d70d7f2f9bf6e052c052757e278e8108c8313791a04d13635",
+      "web/src/features/engagement/SettingsModelsPage.tsx": "7f17b00cba2e9d4f7959b35181bf1976e0503bc8294fdfe18527fa8aceb72b6a",
+      "web/src/features/engagement/RunPanel.tsx": "40d3766e83ff3e7b4fcb6792c3560c830101718d8bb87e343a24d4b1058fcd25",
+      "web/src/features/engagement/GlobalStop.tsx": "1895e5f44602fa5501eef44ab264b126ce8820fd79b6d9fcd0a695e03ac705e8"
+    },
+    "git_readback": {
+      "initial_head": "e06ef06fdf4eb6ba51dcbbbcacff1069757992ca",
+      "initial_tracked_diff": "empty",
+      "concurrent_change_observed_at_handoff": "api/tests/test_ui_diagnostics.py modified by other work; not read as current source or changed by this audit",
+      "git_mutations": false,
+      "report_absence_checked_before_creation": true
+    }
+  },
+  "disposition_of_accepted_paths": "Stop/run receipt identity, RunPanel commitPrivate, URL inspector și DATA/preflight au fost urmărite numai prin callerii relevanți; nu s-au redeschis acceptările istorice sau creat un audit global. Niciun alt finding confirmat în acest scope, nu o certificare de absență a defectelor.",
+  "explicit_exclusions": [
+    "Diagnostic D incomplet: NOT_REVIEWED_NOT_CERTIFIED; reviewurile finale pe bytes exacți sunt separate.",
+    "Nu au fost citite fișierele protejate, credentiale/.env/secrete/seif, loguri private brute ori checkoutul Strix.",
+    "Nu efecte service/browser/PG/provider/target, instalări, profile, worktrees ori mutații Git.",
+    "Reticle NOT_APPLICABLE pentru această sondă SOURCE fără runtime; Chisel BLOCKED_NO_GO.",
+    "Nu implementare/remediere, acceptare estetică, runtime PASS sau aprobare globală S1."
+  ],
+  "artifact": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/resume-s1-logic-audit.json"
+}

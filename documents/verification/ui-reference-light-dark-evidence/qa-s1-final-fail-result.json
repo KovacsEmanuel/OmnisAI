@@ -1,0 +1,33 @@
+{
+  "product_head": "04283683c697c7ecf85335600fed2ea8f28c5306",
+  "target": "test-s1-run-ui-pg",
+  "status": "FAIL_RETAINED_NO_RETRY",
+  "outer_exit": 2,
+  "inner": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "test_summary": "1 failed in61.51s",
+  "failure": "S1 native keyboard re-entry: heading expected focus remained inactive at s1-run.mjs:288;1440 screenshot exists,390 is next width. Actual active receiver NOT_RETAINED, cause UNKNOWN.",
+  "prior_503_controls": "Code reached later re-entry only after both injected UI503 controls; screenshots retained, not whole S1 QA PASS.",
+  "runtime_absent": true,
+  "container": "9ccd6971ee0d4bb6524ef1c5ac15e81b918f55ed90308bf577e24eecc9d0402f",
+  "project": "omnis-p01-14028ec99c34451192452de474507207",
+  "data_retained": true,
+  "input_count": 2450,
+  "input_drift": [],
+  "retention_root": "/home/kali/.hermes/cache/scratch/us-2loyt_ff/db-aef88ac42d4d4a09",
+  "retained_artifacts": [
+    "s1-inspector-injected-ui-http-503-external.png",
+    "s1-inspector-injected-ui-http-503-inside.png",
+    "s1-controls-1440.png",
+    "s1-controls-390.png",
+    "s1-inspector-1440.png",
+    "s1-controls-320.png",
+    "settings-browser.log"
+  ],
+  "harness_only_cycles_since_current_product_progress": 0,
+  "historical_S1_exact_selector_cycle": 1,
+  "decision": "same developer diagnose actual focused receiver/cause, minimal repair and focusedreview; no identical retry or altered limits"
+}

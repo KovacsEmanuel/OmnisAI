@@ -1,0 +1,34 @@
+{
+  "product_head": "04283683c697c7ecf85335600fed2ea8f28c5306",
+  "target": "test-settings-models-ui-pg",
+  "outer_exit": 0,
+  "inner": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "input_count": 2450,
+  "input_drift": [],
+  "container": "5543d8ebd22a17998fb469e55979043698041da8a2f217f3b72569e04ac10e2c",
+  "project": "omnis-p01-967a5c7c96954931a7c1224fdeaba87a",
+  "runtime_absent": true,
+  "data_retained": true,
+  "test_summary": [
+    "1 passed in 136.76s (0:02:16)"
+  ],
+  "browser": {
+    "passed": true,
+    "scenario": "settings-models",
+    "secretChecks": true,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "cleanup_verified": null,
+    "apiRestartReadback": null,
+    "backend_restart_verified": null
+  },
+  "browser_artifacts": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/qa-models-final",
+  "copied_count": 46,
+  "retention_root": "/home/kali/.hermes/cache/scratch/um-_qpcuv92/db-04eedfdaf0e3496e",
+  "classification": "REAL_BROWSER_API_PG_SCRIPTED_SDK_TLS_NOT_LIVE_PROVIDER",
+  "readback_note": "First glob counted pytest-current symlink twice; resolved-path dedupe on same originals, no QA replay."
+}

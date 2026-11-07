@@ -1,0 +1,98 @@
+{
+  "status": "SOURCE_CANDIDATE_FROZEN_FOR_PARENT_INTEGRATION_AND_FOCUSED_REVIEW",
+  "finding": "UI-INSPECTOR-PENDING-ERROR-FOCUS-01",
+  "base": "f0cbd3989e879bff12f9a69a1a8e16c51ffcaad9",
+  "head_at_freeze": "f0cbd3989e879bff12f9a69a1a8e16c51ffcaad9",
+  "branch": "checkpoint/ux-d-pause-20261107",
+  "writer_stopped": true,
+  "candidate_committed_by_developer": false,
+  "integration_review_qa_owner": "parent",
+  "scope": {
+    "product": "web/src/features/engagement/RunPanel.tsx",
+    "test": "web/src/app/RunStream.test.tsx",
+    "callers": "All existing selected-attempt openings in RunPanel (agent/event/causal selection and deep link) share the selection focus effect; Escape/close restoration remains the existing closeInspector path.",
+    "fixtures_config_exports_dependencies": "No changes; existing RunStream setup gains only an optional attempt-GET gate.",
+    "data_risk": "No persisted data, command, validation, identity or auth changes. Only initial inspector focus and focus retention on asynchronous detail settlement.",
+    "excluded": "D sink/reporter/API/fixture and all auth/Wizard/Models repairs untouched; no S2 preparation"
+  },
+  "implementation": {
+    "opening": "Focus the existing heading if already loaded, otherwise the existing Close button, when selected identity opens. Pending/error no longer depend on successful detail readback for keyboard focus.",
+    "loaded": "Preserve loaded heading focus. After pending Close is replaced, recover focus from document body or within-popup focus only; never take focus back from Stop or another background control.",
+    "refetch": "Focus effects depend on selected/attempt identity rather than polling data changes. Operator focus on Stop is retained across pending settlement and changed-detail refetch.",
+    "preserved": "Nonmodal dialog, no focus trap/inert background, unchanged Escape handler and trigger/Brain stream heading restoration, URL selection identity, read-only inspection and no replay. No rendered markup, labels, layout, or dependencies added."
+  },
+  "paths": {
+    "web/src/features/engagement/RunPanel.tsx": {
+      "before_sha256": "40d3766e83ff3e7b4fcb6792c3560c830101718d8bb87e343a24d4b1058fcd25",
+      "after_sha256": "720ad766ce3f2c6e5c6f75ccd7a421e7f4d82db23b403565e6e3c52b4775a097"
+    },
+    "web/src/app/RunStream.test.tsx": {
+      "before_sha256": "51581790ba70f09da3e27969a93fce550f79e11f24fd2efacaaf7cd621a74bf8",
+      "after_sha256": "e84b5fd6eba2ea521ee1caf6a0c240766720a18f20b3134b2ea1bf39278d0683"
+    }
+  },
+  "diff_sha256": "62f68ee7cb80a3d92c5e14de5a2e51fe563f9eded7d24c4ffd2fb0e542396327",
+  "freeze_manifest": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-inspector-freeze.json",
+  "toolchain": {
+    "PATH_prefix": "/home/kali/.local/share/omnis-toolchains/bin:",
+    "NODE_ENV_for_tests": "test",
+    "node_pin": "24.21.0, same pinned toolchain verified during preceding D source work"
+  },
+  "checks": [
+    {
+      "phase": "RED before product edit",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/RunStream.test.tsx -t 'focuses the|does not steal focus'",
+      "exit": 1,
+      "result": "5 failed,2 passed,34 skipped. Four failures independently reproduce trigger/deep-link pending and valid404 focus outside popup. Fifth reproduces loaded detail stealing focus from Stop after pending settlement. Loaded success controls pass before fix.",
+      "log": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-inspector-red.log"
+    },
+    {
+      "phase": "GREEN affected real component consumers",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/Run.test.tsx src/app/RunCommandAuth.test.tsx src/app/RunStopAuth.test.tsx src/app/RunStopObserver.test.tsx src/app/RunStream.test.tsx src/app/UiDiagnostics.test.tsx",
+      "exit": 0,
+      "result": "117 passed in6 files,14.31s",
+      "log": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-inspector-green.log"
+    },
+    {
+      "command": "npm --prefix web run lint",
+      "exit": 0,
+      "result": "No warnings/errors",
+      "log": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-inspector-lint.log"
+    },
+    {
+      "command": "make --no-print-directory typecheck-web build-web",
+      "exit": 0,
+      "result": "TypeScript, contract/design drift checks and production Vite build pass; trusted manifest4 files. Existing >500kB JS chunk warning preserved, no threshold changes.",
+      "log": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-inspector-type-build.log"
+    },
+    {
+      "command": "git diff --check; compare git diff --name-only against exact two allowed paths; git diff f0cbd3989e879bff12f9a69a1a8e16c51ffcaad9 HEAD -- <two paths>; SHA256 source and diff",
+      "exit": 0,
+      "result": "Only RunPanel.tsx and RunStream.test.tsx changed. No committed source drift from base. Product diff is one effect replaced by opening effect plus guarded detail focus and one explanatory comment."
+    }
+  ],
+  "controls": {
+    "opening_matrix": "Six independent cases: trigger Enter/deep link crossed with pending/valid404/loaded. Focus inside visible popup; pending/error Close focused, loaded heading focused.",
+    "escape": "Closes in all six cases; restores connected trigger or deep-link Brain stream heading; attempt/source absent from resulting URL.",
+    "stop": "Global Stop remains enabled/non-inert/reachable. Pending detail completion and changed-data refetch retain operator focus on Stop. New inspection journeys issue only GET requests.",
+    "existing_regressions": "Loaded Close restoration, narrow-screen heading focus, historical-other-engagement exact Stop binding, causal source/ref matching, URL rejection, receive-only reload, auth/Stop recovery and actual diagnostics controls all pass in affected suite.",
+    "no_dispatch": "New cases assert every captured request is GET or implicit GET; existing positive Stop command test remains a separately explicit command control."
+  },
+  "remaining": {
+    "focused_independent_review": "PENDING_PARENT, not self-approved",
+    "real_browser_keyboard_focus_and_stop": "NOT_RUN_BY_DEVELOPER; parent must exercise admitted existing UI consumer against integrated bytes after review. jsdom focus assertions are not native browser, screen-reader or visual acceptance.",
+    "D_reviews_and_real_B04": "OPEN_PARENT_OWNED; this increment does not close them",
+    "auth_wizard_models_repair": "NOT_STARTED; separate adjudicated increment after parent integrates this coherent candidate",
+    "canonical_main_publication_CI": "NOT_RUN_PARENT_OWNED",
+    "S2": "NOT_STARTED_OR_PREPARED"
+  },
+  "effects": {
+    "git_stage_commit_push": "NONE",
+    "services_browser_DB_operator_provider_target": "NONE",
+    "new_agents_profiles_worktrees_installs": "NONE",
+    "protected_files_secrets_env_vault_raw_operator_logs_strix": "NOT_READ_OR_CHANGED",
+    "installation": "Parent reports STOPPED56; no developer lifecycle probe or action",
+    "extra_features": "No modal conversion, focus trap, global Escape handler, new abstraction, metadata/reporting layer or dependency"
+  },
+  "next": "Parent commits/integrates this two-path candidate separately and performs focused review/native QA. Same developer remains available for fixes; no auth edits before that checkpoint."
+}

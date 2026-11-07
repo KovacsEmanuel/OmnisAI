@@ -1,0 +1,172 @@
+{
+  "review_id": "UX-CORRECTIONS-FINAL-R1",
+  "language": "ro",
+  "role": "Review independent read-only: comportament operator, stări/publicare/persistență și continuări. Părintele reproduce/adjudecă; developerul desemnat remediază.",
+  "verdict": "CHANGES_REQUESTED_SOURCE_SCOPED",
+  "summary": "Cele patru reproduceri originale sunt remediate SOURCE în scope-ul lor explicit. Am reprodus un singur caz secundar înrudit rămas: inspectorul încărcat pierde focusul și Escape când o recitire cauzală eșuează sau rosterul invalidează detaliul. Auth și remediile D sunt APPROVED_SOURCE_SCOPED în frontierele inspectate. Nu am repetat auditul D global și nu transform QA reală lipsă într-un blocker circular SOURCE.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "f0cbd3989e879bff12f9a69a1a8e16c51ffcaad9",
+    "candidate": "da7101f896aba88a8da761ecaa6f17e833ae01c9",
+    "branch": "checkpoint/ux-d-pause-20261107",
+    "reviewed_path_count": 8,
+    "diff_sha256": "6e0a645d93af51354d0ba741f4fa4fafdad0db39a6f7eec4f481f5f93dcab681",
+    "diff_command": "git diff --binary --full-index f0cbd3989e879bff12f9a69a1a8e16c51ffcaad9 da7101f896aba88a8da761ecaa6f17e833ae01c9 -- <cele8 paths în ordinea path_sha256>",
+    "path_sha256": {
+      "web/src/app/PrivatePublicationAuth.test.tsx": "643e284c778db0e680a550d9f3783ccf76690c0466377982592baae9f9f96ae1",
+      "web/src/app/RunStream.test.tsx": "e84b5fd6eba2ea521ee1caf6a0c240766720a18f20b3134b2ea1bf39278d0683",
+      "web/src/app/UiDiagnostics.test.tsx": "a15bc190a80011d53de5734e0b0b9ec8f2e96296b531812918868f40bd39b5ef",
+      "web/src/features/engagement/RunPanel.tsx": "720ad766ce3f2c6e5c6f75ccd7a421e7f4d82db23b403565e6e3c52b4775a097",
+      "web/src/features/engagement/SettingsModelsPage.tsx": "9dd00dd56e95972d218fc7b3eacb146f6965859d50eb3db9e527d0da74b54635",
+      "web/src/features/engagement/Wizard.tsx": "3e6595dd67474d5a251cc5a5fe76f2acec018bac64a2aeb52be8f3fe1b0e49da",
+      "web/src/shared/api/client.ts": "d8fad2d9c3ecbb4423da754c0d0d2f19cd7c5b29cb836b6aede31a58e076046c",
+      "web/src/shared/uiDiagnostics.ts": "f86d4bdcb895459bc2a4e0dd3e7072022af45e14966c55a505dced80735f134c"
+    },
+    "identity_verification": "Toate8 hashurile din rapoartele autorului coincid cu git show candidate:path; checkoutul pentru cele8 coincide înainte/după teste. HEAD neschimbat, zero modificări tracked/staged inițiale/finale. Conținutul sursei de review este citit prin git show, nu dintr-un writer concurent.",
+    "unchanged_D_reused": "Cele22 paths din manifestul review-d-final-r2 care nu apar în această deltă au fost comparate prin SHA256 pe bloburile candidatului: identice. Refolosesc numai scope-ul neschimbat al reviewurilor D anterioare; nu reauditez API/sink/reader/DTO/driverii.",
+    "preexisting_untracked": ["documents/Omnis_Notite_Originale.html", "tempkey.txt"],
+    "protected_untracked_disposition": "Doar numele din git status; nu citite, hashate, copiate sau modificate."
+  },
+  "evidence_identity": {
+    "ux-inspector-fix-result.json": "44af58a20ba361da1600d17ca425d9f3f41088f4745c7e0b6e06aee757c5e468",
+    "ux-auth-fix-result.json": "54965156ebde13f26ea6e4169820fa360f2cfa3ee75ed87d1d27f7a11426f0ef",
+    "ux-d-r1-fixes-result.json": "926d2f282282b7e4c3b2b7e2f5bf5d376b67622dc12a7bf1541e17e77ed36855",
+    "review-d-final-r1.json": "dc2c08f9225a0f7e40ae6ccf765cf17c41ee49fcf40b398c80f30629f596d705",
+    "review-d-final-r2.json": "35508c3c9d4ab346320d7239b99c1dedc23958d17fe74b34b3f43ca03f886081"
+  },
+  "findings": [
+    {
+      "id": "UX-CORRECTIONS-R1-01",
+      "severity": "MEDIUM / P2",
+      "source_blocker": true,
+      "file": "web/src/features/engagement/RunPanel.tsx",
+      "line": 133,
+      "related_locations": ["web/src/features/engagement/RunPanel.tsx:122", "web/src/features/engagement/RunPanel.tsx:315", "web/src/features/engagement/RunPanel.tsx:344-345"],
+      "title": "Inspectorul încărcat pierde focusul și Escape la trecerea în eroare fără detaliu",
+      "scope_justification": "Caz secundar concret al aceluiași consumer/focus lifecycle, nu feature nou sau audit universal. Nu îl atribui ca regresie nou introdusă: rămâne neacoperit de remediul inițial.",
+      "reproducer": [
+        "Folosește setupul existent din RunStream.test.tsx pe bytes da7101f8. Deschide deep linkul cauzal ?run=<run.run_id>&attempt=<instance.instance_id>&source=<id>, așteaptă Agent inspector și focalizează headingul h3 din popup.",
+        "Păstrează run/summary valide. La următoarea citire /attempts/ întoarce Response.json({error:{code:'API_UNAVAILABLE',correlation_id:id}},{status:503}); restul fetchului rămâne fixture-ul existent. Execută view.client.refetchQueries({queryKey:['private','run-attempt']}) în act.",
+        "Apare Selected record unavailable or inconsistent. No linked result was accepted.; detaliul cauzal cached este corect retras. Headingul focalizat este eliminat; document.activeElement devine document.body, popup.contains(activeElement) este false.",
+        "Apasă Escape cu userEvent.setup().keyboard('{Escape}'). Popupul rămâne deschis: handlerul este numai pe dialog și nu primește evenimentul pornit din body.",
+        "Control negativ pe același canal: pune focus pe Stop active run înaintea aceluiași503; Stop rămâne focalizat. Toate cererile sunt GET/implicit GET. O variantă independentă schimbă configured_model în rosterul Brain deja încărcat și refetchuiește run-summary: aceeași pierdere de focus/Escape, același control Stop PASS."
+      ],
+      "observed": {
+        "causal_refetch_503": {"focus_inside_popup": false, "focus_is_body": true, "popup_remains_after_escape": true},
+        "roster_invalidation": {"focus_inside_popup": false, "focus_is_body": true, "popup_remains_after_escape": true},
+        "stop_focus_control_both_variants": "PASS; focus retained",
+        "domain_mutations_in_503_probe": 0
+      },
+      "criterion": "Contractul curent UI04/UI05 și omnis-accessibility Procedure3/4: inspectorul contextual rămâne utilizabil din tastatură în error și la schimbări reale de stare; Close/Escape și restaurarea focusului nu depind de succesul readbackului. Stop trebuie păstrat accesibil fără focus theft.",
+      "root_cause": "Effectul de deschidere depinde numai de selected, neschimbat aici. Effectul de settlement rulează când detail.attempt_id dispare, dar condiția if(detail?.attempt_id) îl oprește tocmai când headingul eliminat pierde focusul. Butonul Close alternativ există, însă nu îl focalizează nimeni.",
+      "minimal_remedy": "În focus settlementul existent, tratează și dispariția detaliului către fallbackul Close, numai dacă focusul pierdut aparținea popupului/body și nu unui control extern. Păstrează condiția de nefurt al focusului de la Stop; fără focus trap, inert, Escape global sau manager nou. Adaugă un mic regression loaded causal→503→Close/Escape plus controlul Stop; nu afișa din nou detaliul invalid ca workaround.",
+      "parent_action": "Reproduce/adjudecă acest caz; același developer repară minimal RunPanel/RunStream, apoi affected checks și re-review focalizat."
+    }
+  ],
+  "original_finding_dispositions": [
+    {
+      "id": "UI-INSPECTOR-PENDING-ERROR-FOCUS-01",
+      "original": "resume-functional-ui-audit.json; findingul original a fost citit, inclusiv reproducerea și controalele",
+      "disposition": "RESOLVED_SOURCE_SCOPED_ORIGINAL_REPRODUCER; RELATED_SECONDARY_OPEN_UX-CORRECTIONS-R1-01",
+      "code": "RunPanel.tsx:131-133",
+      "evidence": "RunStream.test.tsx:256-300: trigger/deep-link × pending/404/loaded dau focus în popup, Escape închide/curăță attempt/source și restaurează trigger/Brain stream; pending→loaded/refetch nu fură focusul Stop. Toate7 controale noi și toate41 RunStream au trecut în invocarea proprie de300 teste.",
+      "limit": "Închiderea reproducerii originale nu pretinde acoperirea oricărei tranziții de focus. Cazul loaded→error retras demonstrat mai sus rămâne un blocker separat explicit, nu este ascuns de verdictul acestei reproduceri."
+    },
+    {
+      "id": "S1-LOGIC-AUTH-COMMIT-01",
+      "original": "resume-s1-logic-audit.json; mecanismul post-readPrivate/pre-commit și callerii frați au fost comparați cu bytes actuali",
+      "disposition": "RESOLVED_SOURCE_SCOPED",
+      "code": ["Wizard.tsx:137-158,169-212", "SettingsModelsPage.tsx:191-241,277-377,437-443", "useBrowserSession.ts:114-138"],
+      "evidence": "PrivatePublicationAuth32 PASS proprii: Save/reconcile/Reload/recover/mutation cu healthy/expire/401/expired-before; cache QueryClient real fără republicare după purge, fără navigare Save sau ștergere pointer neautorizată. Start/status și secvența de2 modele au healthy versus cutover la status/latest: prima identitate rămâne, al doilea send nu pornește. Healthy Wizard acoperit și StrictMode.",
+      "semantic_readback": "CommitPrivate sincron din viața capturată protejează cache/state/pointer/succes; confirm refuzat nu întoarce verified și nu navighează. Mutate revalidează după invalidarea awaited, iar connectEntries înaintea următorului model. Nu s-au schimbat comparațiile receipt/id/revision/digest/payload, generation/consent/exactCheck sau read-only recovery.",
+      "limit": "401 este livrat printr-o a doua readPrivate reală respinsă cu ApiError UNAUTHENTICATED, nu HTTP401 live. Nu revendic un schedule adversarial separat pentru fiecare handler; siblingii și callerii direcți au fost inspectați în scope."
+    },
+    {
+      "id": "UX-D-R1-01",
+      "original": "review-d-final-r1.json:64-75; verdictul și probele originale sunt păstrate",
+      "disposition": "RESOLVED_SOURCE_SCOPED",
+      "code": "uiDiagnostics.ts:88-90",
+      "evidence": "UiDiagnostics12 PASS proprii: App Stop lost reply emite ERROR/API_UNAVAILABLE/UNCONFIRMED, apoi receipt ADMITTED; exact1 Stop POST și1 receipt GET. Malformed JSON păstrează corelația validă și UNCONFIRMED, nu REFUSED.",
+      "policy": "Clasificarea conservatoare UNCONFIRMED pentru toate typed errors la seamul comun este admisibilă: acesta nu dovedește refuzul de domeniu. UI-ul de refuz explicit Stop rămâne separat și neschimbat."
+    },
+    {
+      "id": "UX-D-R1-02",
+      "original": "review-d-final-r1.json:78-89; nu închis printr-un raport ulterior gol",
+      "disposition": "RESOLVED_SOURCE_SCOPED",
+      "code": "client.ts:31-42,90-94; uiDiagnostics.ts:82-85",
+      "evidence": "App seeded-recovery fără Stop nou:1GET/0POST și command_receipt REQUEST/RESPONSE corelat; lost-reply recovery:1GET/1POST. Clientul real filtrează GET țintit după prefix+suffix UUID complet, păstrează corelația validă, transformă headerul invalid în null și nu loghează successful active-run poll. REQUEST/RESPONSE rămân UNCONFIRMED, niciodată STOPPED.",
+      "preserved": "Reporterul, caps/backpressure/timeout/dedup/auth binding și lipsa retry-ului nu sunt schimbate; canalele outage și sănătos sunt testate distinct."
+    }
+  ],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Modele: search/selection/consent/recovery și secvență nestrimisă neschimbate",
+      "code": "SettingsModelsPage.tsx plus callerii direcți SettingsModelWizard, SettingsAssignments, ProviderSettings și helpers SettingsModels",
+      "assessment": "APPROVED_SOURCE_SCOPED",
+      "evidence": "Nu se schimbă argumentele căutării locale/paginării, batchingul4/cap64, selecția/rolurile, generația consimțământului, exactCheck sau deadline-ul300s. Reviewul sursei a urmărit admission/publication după awaits și retornarea succesului către copil. Regresiile SettingsWizard111/SettingsModels43/ModelTest13/ReceiptRecovery9 PASS în aceeași invocare, fără slăbirea testelor."
+    },
+    {
+      "requirement": "Inspector read-only: identități URL, refs exacte, Stop independent",
+      "code": "RunPanel.tsx, GlobalStop.tsx și RunStream.test.tsx",
+      "assessment": "ORIGINAL_OPENING_FIXED; SECONDARY_ERROR_TRANSITION_CHANGES_REQUESTED",
+      "evidence": "41 teste RunStream PASS, inclusiv causal link/reload/roster checks, istoric cu alt run activ, Stop legat exact și nonmodal. Probele suplimentare nu relaxează validarea detaliului; detectează numai focusul pierdut când validarea corectă retrage detaliul."
+    },
+    {
+      "requirement": "D: rezultat incert onest și recovery HTTP corelat, fără poll logging/resend",
+      "code": "uiDiagnostics.ts:88-90; client.ts:31-44,90-94; UiDiagnostics.test.tsx:66-155",
+      "assessment": "APPROVED_SOURCE_SCOPED_DELTA",
+      "evidence": "Cele două reproduceri originale sunt verificate explicit. Refolosesc restul review-d-final-r1/r2 numai pentru sursa D neschimbată hash-exact. Nu atribui testelor jsdom verdict asupra sinkului privat real."
+    }
+  ],
+  "tests_actually_run": [
+    {
+      "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin NODE_ENV=test node --input-type=module -e <startVitest cu opțiunile și selecția de mai jos>",
+      "entrypoint": "web/node_modules/vitest/dist/node.js:startVitest('test', selection, options, viteOverrides)",
+      "selection": ["src/app/PrivatePublicationAuth.test.tsx", "src/app/RunStream.test.tsx", "src/app/UiDiagnostics.test.tsx", "src/app/Wizard.test.tsx", "src/app/SettingsModels.test.tsx", "src/app/SettingsWizard.test.tsx", "src/app/ModelTest.test.tsx", "src/app/ReceiptRecovery.test.tsx", "src/app/RunCommandAuth.test.tsx", "src/app/RunStopAuth.test.tsx", "src/app/RunStopObserver.test.tsx"],
+      "options": {"root": "/home/kali/OmnisAI/web", "config": false, "run": true, "watch": false, "cache": false, "environment": "jsdom", "setupFiles": ["/home/kali/OmnisAI/web/tests/setup.ts"], "restoreMocks": true, "clearMocks": true, "maxWorkers": 1},
+      "viteOverrides": "configFile:false, envDir:false, plugins:[react()] importat din @vitejs/plugin-react instalat; același config de test existent, cu rulare serială/no-cache și fără încărcarea .env/config loader temporar",
+      "exit": 0,
+      "result": "300 passed,11 files,71.36s; Vitest4.1.12. Fără test ori produs editat. Sursa tracked și cele8 bloburi frozen coincid înainte și după execuție.",
+      "limit": "React/App/owner/QueryClient/client/decodere reale în jsdom; fetch/SDK sunt doubles. Nu browser/HTTP/PG/provider live."
+    },
+    {
+      "command": "Aceeași invocare startVitest în memorie, selecție RunStream.test.tsx, testNamePattern='review-only loaded inspector'; plugin load enforce:pre livrează git show da7101f8:path numai pentru web/src și web/tests .ts/.tsx și adaugă2 it.each în memoria testului existent",
+      "exit": 1,
+      "result": "1 failed/1 passed/41 skipped,2.35s;45 module frozen. Roster invalidation: inside→body și Escape lasă popup; Stop control PASS.",
+      "failure_interpretation": "FAIL contractual real, nu eșec de harness. Nicio modificare de produs pentru a-l face verde."
+    },
+    {
+      "command": "Aceeași invocare/plugin frozen, selecție RunStream.test.tsx, testNamePattern='review-only loaded causal inspector';2 controale în memorie cu attempt refetch503 descrise în finding",
+      "exit": 1,
+      "result": "1 failed/1 passed/41 skipped,2.25s. Loaded causal→503: focus body, popup prezent după Escape; Stop control PASS și numai GET.",
+      "failure_interpretation": "Același defect reprodus prin eșec normal de citire, independent de invalidarea rosterului. Nu sunt două findings și nu însumez teste suprapuse ca acoperire distinctă."
+    },
+    {
+      "command": "git diff --check f0cbd3989e879bff12f9a69a1a8e16c51ffcaad9 da7101f896aba88a8da761ecaa6f17e833ae01c9 -- <exact8 paths>; git rev-parse HEAD; git diff --name-only; git diff --cached --name-only; SHA256 bloburile8 și comparația22 D neschimbate",
+      "exit": 0,
+      "result": "Fără whitespace errors, drift HEAD sau modificări tracked/staged;8paths frozen identice rapoartelor autorului,22D neschimbate identice reviewului anterior. Absența destinației raportului verificată înainte de creare."
+    }
+  ],
+  "evidence_read_not_rerun": {
+    "author_red_green": "Rapoartele autorului păstrează inspector RED5FAIL/2PASS→GREEN117, auth RED10FAIL/10PASS→GREEN32 și diagnostics RED5FAIL/7PASS→GREEN12; citite, nu revendicate ca execuție proprie RED.",
+    "parent_reported": "Contextul părintelui declară7inspector/32auth/12diagnostic și full660/lint/type/contracts/tooling11/build0. Nu am rerulat full660 sau buildul și nu le convertesc în verdict live.",
+    "original_D": "review-d-final-r1 CHANGES_REQUESTED și review-d-final-r2 APPROVED_SOURCE_SCOPED rămân byte-exact; fiecare dintre UX-D-R1-01/02 primește mai sus propria dispoziție, nu este șters de verdictul agregat."
+  },
+  "effects_and_limits": {
+    "product_test_docs_git_writes": "NONE",
+    "services_PG_browser_provider_target_calls": "NONE",
+    "new_agents_profiles_worktrees_dependencies_installs": "NONE",
+    "protected_tempkey_original_html_env_keys_vault_raw_operator_logs_Strix": "EXCLUDED; NOT_READ_NOT_HASHED_NOT_CHANGED",
+    "reticle": "NOT_APPLICABLE acestei execuții SOURCE fără sesiune runtime admisă; nu pretind QA vizuală",
+    "chisel": "BLOCKED_NO_GO; neîncărcat/neexecutat",
+    "only_created_file": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/review-corrections-final-r1.json",
+    "source_logs": "Doar stdout din tool results; fără log/harness/test nou pe disc creat de reviewer.",
+    "scope_limit": "Nu audit D global nou, nu features/S2 și nu certificat universal de auth/accessibility. Acceptarea estetică rămâne umană."
+  },
+  "handoff": {
+    "code": "Corecțiile originale implementate SOURCE; un caz secundar inspector error-transition rămâne deschis",
+    "proof": "300SOURCE PASS;2 probe înguste au fiecare1FAIL contractual și1PASS Stop; real QA NOT_RUN aici",
+    "review": "CHANGES_REQUESTED_SOURCE_SCOPED pe da7101f896aba88a8da761ecaa6f17e833ae01c9 exclusiv pentru UX-CORRECTIONS-R1-01; auth și diagnostic delta APPROVED_SOURCE_SCOPED în frontierele descrise",
+    "next": "Părintele reproduce/adjudecă și solicită aceluiași developer remediul minim al tranziției loaded→error, affected checks și focused re-review. După blocantele SOURCE și reviewurile complementare, QA reală pe artifactul final: browser keyboard/Stop/auth, B04 browser→API→stderr→reader și transportul privat admis. Lipsa acestei QA rămâne gate ulterior, nu constatare SOURCE circulară. Canonical/READY/publicare/CI și acceptarea finală aparțin părintelui."
+  }
+}

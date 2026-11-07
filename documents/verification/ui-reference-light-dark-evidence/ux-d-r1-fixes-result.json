@@ -1,0 +1,129 @@
+{
+  "status": "SOURCE_CANDIDATE_FROZEN_PENDING_PARENT_COMMIT_AND_COMPLEMENTARY_FOCUSED_REVIEWS",
+  "base": "fc60e67a4714f499855527503483c6f4aae147a8",
+  "head_at_freeze": "fc60e67a4714f499855527503483c6f4aae147a8",
+  "branch": "checkpoint/ux-d-pause-20261107",
+  "writer_stopped": true,
+  "scope": "Only UX-D-R1-01/02 in existing reporter/shared client/UiDiagnostics tests; inspector and auth bytes preserved",
+  "freeze_manifest": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-d-r1-fixes-freeze.json",
+  "path_sha256": {
+    "web/src/shared/uiDiagnostics.ts": "f86d4bdcb895459bc2a4e0dd3e7072022af45e14966c55a505dced80735f134c",
+    "web/src/shared/api/client.ts": "d8fad2d9c3ecbb4423da754c0d0d2f19cd7c5b29cb836b6aede31a58e076046c",
+    "web/src/app/UiDiagnostics.test.tsx": "a15bc190a80011d53de5734e0b0b9ec8f2e96296b531812918868f40bd39b5ef"
+  },
+  "diff_sha256": "56ba3cc3299acf10843deb5686fb0566eb1b3b91e0961377557a1488f63e620f",
+  "original_review_disposition": {
+    "review-d-final-r1.json": {
+      "verdict_preserved": "CHANGES_REQUESTED_SOURCE_SCOPED",
+      "sha256": "dc2c08f9225a0f7e40ae6ccf765cf17c41ee49fcf40b398c80f30629f596d705",
+      "findings": {
+        "UX-D-R1-01": "Implemented and SOURCE-tested in this candidate; NOT independently closed/approved by developer",
+        "UX-D-R1-02": "Implemented and SOURCE-tested in this candidate; NOT independently closed/approved by developer"
+      }
+    },
+    "review-d-final-r2.json": {
+      "verdict_preserved": "APPROVED_SOURCE_SCOPED",
+      "sha256": "35508c3c9d4ab346320d7239b99c1dedc23958d17fe74b34b3f43ca03f886081",
+      "limit": "Existing security approval retains its exact unchanged scope; not approval of this repair or later inspector/auth changes"
+    },
+    "parent_reproduction": "parent-d-review-repro.log preserved; its exit0 observes original violations, not a GREEN contract result",
+    "review_writes": "NONE; no new empty verdict replaces either original review"
+  },
+  "repairs": {
+    "UX-D-R1-01": {
+      "code": "reportTypedError now emits ERROR/UNCONFIRMED, including API_UNAVAILABLE and INVALID_RESPONSE, rather than inferring REFUSED from an error code.",
+      "conservative_policy": "The shared typed-error seam does not retain an authoritative refusal classification for any code. Explicit domain refusal UI remains unchanged; this helper lacks sufficient command-outcome evidence and conservatively leaves diagnostic outcome UNCONFIRMED.",
+      "proof": "Actual App lost Stop reply emits API_UNAVAILABLE/UNCONFIRMED with correlation null, then explicit receipt GET returns ADMITTED. Exactly one Stop POST, one receipt GET, no retry/resend. Existing malformed JSON test now requires UNCONFIRMED while preserving valid response-header correlation."
+    },
+    "UX-D-R1-02": {
+      "code": "The existing request helper observes REQUEST/RESPONSE for GET only when the exact /api/v1/runs/commands/ prefix is followed by an isUuid-validated complete suffix. Existing non-GET observation is preserved. No general successful GET/poll logging.",
+      "metadata": "command_id remains extracted by the existing finite HTTP classifier, not from body/header contents. RESPONSE retains existing validated X-Correlation-ID extraction. Invalid header becomes null and is never emitted as text. HTTP receipt response stays UNCONFIRMED, not STOPPED/domain success.",
+      "proof": "Distinct actual App healthy explicit recovery from an existing pointer yields one GET and correlated command_receipt REQUEST/RESPONSE without a new Stop POST. Lost-reply recovery similarly records command_id/header correlation with Stop POST=1. Direct shared-client cases verify valid/invalid response headers and successful active-run polling produces no observations."
+    }
+  },
+  "preserved_boundaries": {
+    "reporter": "Unchanged2 pending/64 attempts/750ms timeout/dedup/session binding/admission/cutover/no retry/no replay. Diagnostic transport remains direct and cannot recursively report itself.",
+    "privacy": "Finite metadata only, no request body or request-header capture. Tests retain token/form/record-content exclusions and reject invalid correlation text. Response UUID correlation is the existing explicit allowlisted field.",
+    "domain": "Stop admission, exact identities, receipt validation, auth owner, no-resend recovery, consent/model semantics and per-instance generation unchanged.",
+    "API_sink_reader": "No source edits and no unnecessary Python/API test rerun. DTO/record schemas and limits, private sink/reader access and current-process/container retention unchanged. Prior395B/673B maximum sizing scope still applies because schemas/enums/bounds did not change.",
+    "inspector_auth": "Byte equality to fc60e67a verified for RunPanel.tsx, RunStream.test.tsx, Wizard.tsx, SettingsModelsPage.tsx and PrivatePublicationAuth.test.tsx. Exact hashes retained in freeze manifest.",
+    "frameworks_dependencies": "No new owner, taxonomy, abstraction, service, framework or dependency"
+  },
+  "toolchain": {
+    "PATH_prefix": "/home/kali/.local/share/omnis-toolchains/bin:",
+    "UV": "/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+    "node_observed": "v24.21.0",
+    "npm_observed": "11.19.0",
+    "test_environment": "NODE_ENV=test"
+  },
+  "checks": [
+    {
+      "phase": "RED before product edits",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/UiDiagnostics.test.tsx",
+      "exit": 1,
+      "result": "5 failed/7 passed. Separate failures reproduce malformed-error false REFUSED, App lost-Stop false REFUSED, healthy App receipt missing HTTP observations, and direct client receipt observations missing with valid/invalid headers.",
+      "log": "ux-d-r1-fixes-red.log"
+    },
+    {
+      "phase": "GREEN dedicated",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/UiDiagnostics.test.tsx",
+      "exit": 0,
+      "result": "12 passed,2.82s",
+      "log": "ux-d-r1-fixes-green.log"
+    },
+    {
+      "phase": "affected suite",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/Run.test.tsx src/app/RunCommandAuth.test.tsx src/app/RunStopAuth.test.tsx src/app/RunStopObserver.test.tsx src/app/RunStream.test.tsx src/app/UiDiagnostics.test.tsx src/app/PrivatePublicationAuth.test.tsx",
+      "exit": 0,
+      "result": "153 passed in7 files,12.61s",
+      "log": "ux-d-r1-fixes-affected.log"
+    },
+    {
+      "phase": "full shared-client caller regression",
+      "command": "npm --prefix web test",
+      "exit": 0,
+      "result": "660 passed in30 files,42.67s",
+      "log": "ux-d-r1-fixes-full-web.log"
+    },
+    {
+      "command": "npm --prefix web run lint",
+      "exit": 0,
+      "result": "No warnings/errors",
+      "log": "ux-d-r1-fixes-lint.log"
+    },
+    {
+      "command": "make --no-print-directory test-contracts typecheck-web build-web",
+      "exit": 0,
+      "result": "Contract/exporter drift, tooling11/11, TypeScript, design drift and production build PASS. Trusted manifest4 files. Existing >500kB chunk warning retained; threshold unchanged.",
+      "log": "ux-d-r1-fixes-contracts-type-build.log"
+    },
+    {
+      "command": "git diff --check; compare tracked changes with exact3 allowed paths; compare base..HEAD; SHA256 changed paths and preserved inspector/auth source",
+      "exit": 0,
+      "result": "Only the3 allowed files changed, no committed drift, inspector/auth byte-identical to base"
+    }
+  ],
+  "test_interpretation": {
+    "boundary": "Actual client/reporter and App Stop/recovery owner in jsdom; fetch responses and transport failures are synthetic. No live API/admission claim.",
+    "capacity_control": "Controlled domain responses yield one task so successful diagnostic acknowledgements settle before the response/error under inspection. Production caps/timers unchanged; no bypass of backpressure.",
+    "outage_controls": "Existing hanging and unavailable diagnostic variants still exercise exact Stop; unavailable transport still permits receipt recovery with one Stop POST. Healthy/correlated cases are separate from outage cases.",
+    "healthy_recovery_counts": "Seeded existing receipt pointer:0 new Stop POST/1 explicit GET. Lost reply:1 Stop POST/1 explicit GET with receipt ADMITTED. A received response never becomes diagnostic proof of STOPPED.",
+    "recursion_and_polling": "Existing cutover/pending/dedup/attempt cap/no-retry tests still pass; successful active-run GET explicitly asserts zero diagnostic observations before receipt request."
+  },
+  "remaining_acceptance": {
+    "complementary_focused_reviews": "PENDING_PARENT across this repair and integrated inspector/auth deltas, reusing D unchanged scope",
+    "real_B04_and_private_sink_reader": "NOT_RUN_BY_DEVELOPER; parent must exercise actual existing consumer and selected private log capture/access after review blockers clear",
+    "native_UI_Stop_and_auth_QA": "PENDING_PARENT; Source tests do not certify native keyboard behavior or live session/provider effects",
+    "canonical_READY_lifecycle_cleanup_main_CI": "Parent-owned, not completed by this source increment",
+    "S2": "NOT_STARTED_OR_PREPARED"
+  },
+  "effects_exclusions": {
+    "git_stage_commit_push": "NONE",
+    "services_PG_browser_operator_provider_target_actions": "NONE",
+    "agents_profiles_worktrees_installs_dependencies": "NONE",
+    "protected_files_secrets_env_vault_raw_operator_logs_Strix": "NOT_READ_OR_CHANGED",
+    "installation": "Parent reports STOPPED56; no developer lifecycle probe or action",
+    "original_evidence": "Existing reviews/repro logs preserved; new files/logs use ux-d-r1-fixes prefix and collision checks"
+  },
+  "next": "Parent commits the coherent three-path repair, obtains complementary focused reviews and executes admitted real QA. Same sole developer remains available for focused fixes; writer stopped at this candidate."
+}

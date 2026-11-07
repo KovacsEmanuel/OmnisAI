@@ -1,0 +1,203 @@
+{
+  "review": "UX-D R2 — review independent complementar: auth/input/privacy/volume/concurrency/epoch/failure/private reader",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "conclusion_ro": "Nu am reprodus un finding nou blocant D în frontierele și controalele enumerate. Aprobarea privește exclusiv sursa frozen, nu integrarea finală, runtime PASS, QA Docker/browser/current-Stop ori absența universală a defectelor.",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "4b61de9971a3eccd9216ae6d43e5ce4d96881854",
+    "candidate": "f0cbd3989e879bff12f9a69a1a8e16c51ffcaad9",
+    "preserved_wip": "27f95fdfd835d541e1ccad27c1dd5aafdfff68a8",
+    "manifest": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-d-resume-freeze.json",
+    "manifest_sha256": "a252205ffe10949ac1d2fd3fa35b17e89e50c3ba564554f6dcc55b04d9b24d63",
+    "manifest_head_annotation": "8992ac6bffc742fe635b234c1834fb0bd99e1ec4 este nota de precommit; identitatea sursei este verificată prin toate cele 27 de hashuri pe candidatul f0cbd398.",
+    "full_d_diff_sha256": "e3a09becf4c37653909dc85c7f9ca7bbb20ffb3a13edf403650e22b80713fdd5",
+    "diff_hash_command": "git diff --binary --full-index 4b61de9971a3eccd9216ae6d43e5ce4d96881854 f0cbd3989e879bff12f9a69a1a8e16c51ffcaad9 -- <cele 27 de chei paths, în ordinea manifestului>",
+    "verified_paths": 27,
+    "matching_frozen_blob_hashes": 27,
+    "coverage": "Delta D completă față de bază, inclusiv WIP-ul inițial de 27 de căi, nu doar corecția ulterioară de 10 căi. Cele trei modificări documentare suplimentare ale intervalului Git sunt în afara verdictului de cod D.",
+    "path_sha256": {
+      "api/src/omnis/api.py": "158931ec45322c92bc623c41508cd86e447d43e42b1a712af7b3ece91865940f",
+      "api/src/omnis/modules/diagnostics/__init__.py": "9b300a3f8703b0e33716037d3e7a5bb760f296561b81b7df4f209dc29293819c",
+      "api/src/omnis/modules/diagnostics/reader.py": "070cca25d5129c621d07a02d0b0ee9c1ad8aeb1431a6318c607884684cd67764",
+      "api/src/omnis/modules/diagnostics/routes.py": "84d8f5ee908d58646840d58a835babcbcdfd2dcdd5a683a8465028af386e3e19",
+      "api/src/omnis/modules/diagnostics/schemas.py": "829a0b97802f449e8476351c7ffc181a4d10beb891162c4d9f09db9c54f77f73",
+      "api/src/omnis/modules/diagnostics/service.py": "e1aca05d4dbf962d2888bd0c30fecd9a4e274c6eda65f25fdeed06c22d6a1007",
+      "api/src/omnis/security/host_origin.py": "5f2c1b6aab4da1413a102358a12c72235c12facba7e055989f1e48ccc0c6a06a",
+      "api/tests/test_ui_diagnostics.py": "737a4f25f1f34300cd7c26604bd54349cc75aa1adf2f66be73cb60fcfefeb16a",
+      "api/tests/test_web_e2e.py": "0ae5fc2215888d51c3e9d345e22a43b6b623d425b48d927badd91444c9c32a33",
+      "contracts/omnis.openapi.json": "7543d8c26712cbd9b5b2d1490efb16a5e93de848a2dafce5a6fd10bb1ab0bfa4",
+      "scripts/read_ui_diagnostics.py": "049cf1df2b4cb293e0c1f7f4c212cf698bd6284a0d10555a1e4fbddd4d35b313",
+      "web/src/app/App.tsx": "c6a5443e42c5edd344e3ba40e57119af71e4532ea127637e64db18698057feae",
+      "web/src/app/ThemeToggle.tsx": "559848901cf1122ca47bb17667da0b286b84c74520910af6934091fa26dcf330",
+      "web/src/app/UiDiagnostics.test.tsx": "3ebfa4aea1679e5b85bfd7056f183225d6dcc8cd471f3773a725f5d07fab6da0",
+      "web/src/features/bootstrap/BrowserSession.tsx": "97a0dc376548918c0ed0c20d320ab73b7a4a749c6ac1621be9828b6f980da3b4",
+      "web/src/features/bootstrap/useBrowserSession.ts": "11f9451b6f3676314a07d9beeb28211d70e1a4d4d2bb9bebfbad7309e2648d65",
+      "web/src/features/engagement/DatePicker.tsx": "1c90cf1169eda5dfcf8d6c7e9b985051f3e348b75373895e332d579ccceecf40",
+      "web/src/features/engagement/GlobalStop.tsx": "1895e5f44602fa5501eef44ab264b126ce8820fd79b6d9fcd0a695e03ac705e8",
+      "web/src/features/engagement/RunPanel.tsx": "40d3766e83ff3e7b4fcb6792c3560c830101718d8bb87e343a24d4b1058fcd25",
+      "web/src/features/engagement/Wizard.tsx": "f25bf5c6d39d813d70d7f2f9bf6e052c052757e278e8108c8313791a04d13635",
+      "web/src/shared/api/client.ts": "0ba5be3ff03a77a4bb5ceb0dfc4af14c4cfd5e2e459e0a2cc7eaad458b5b29dc",
+      "web/src/shared/api/generated.ts": "78e201321dcc04a5fac3eca2aea72dbdc98f97ac46bbd11bb5fa87752e12d084",
+      "web/src/shared/uiDiagnostics.ts": "cb748952033b66e9d383b9aa9ce739a074d3f499788e178f2df45e2f6d26f873",
+      "web/tests/e2e/b03.mjs": "2c87707c40e959870d917527c8b809f7a32a0ce454956c6a9708990d387b9d49",
+      "web/tests/e2e/run.mjs": "42ef405614211544796aa5c0406f6637aca565468a39e924e2150e9eabe5f8ce",
+      "web/tests/e2e/s1-run.mjs": "62279c0f6aed0897005fc141d24a45269722fc7819ef849434dd5b0678f3e99f",
+      "web/tests/setup.ts": "2267f5c3aed3a8f4f516cc6eab64d205bdd313c0270c3de440a91d1e6955154c"
+    },
+    "checkout_at_handoff": {
+      "head_unchanged": true,
+      "concurrent_tracked_changes_observed": [
+        "web/src/app/RunStream.test.tsx",
+        "web/src/features/engagement/RunPanel.tsx"
+      ],
+      "disposition": "Neatinse; nu sunt adoptate sau aprobate de acest review. Lectura de review și probele Node folosesc git show pe candidat. Suita API rulată are sursele API/teste neschimbate; verdictul pentru RunPanel se aplică numai blobului frozen, nu editărilor concurente.",
+      "preexisting_protected_untracked": "Doar numele au apărut în git status; conținutul și hashurile nu au fost citite."
+    }
+  },
+  "contract": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/telemetry-implementation-task.md",
+  "findings_new_d": [],
+  "finding_format_if_present": ["severity", "file:line", "reproducer", "violated_requirement", "minimal_remedy"],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Host/Origin/session/CSRF; strict duplicate/type/extra/missing input; 4096 bytes, fără excepție de query",
+      "code": ["api/src/omnis/security/host_origin.py:105-234", "api/src/omnis/modules/diagnostics/schemas.py:19-67", "api/src/omnis/modules/diagnostics/routes.py:14-21"],
+      "assessment": "Ruta folosește LocalBoundary existentă; parserul duplicate/nonfinite este extins numai la calea diagnostic exactă. DTO extra-forbid/strict și toate metadatele obligatorii, cu identități UUID validate. Limita obișnuită de 4096 rămâne.",
+      "evidence": "35 teste SOURCE executate independent plus 20 refuzuri ASGI suplimentare și control pozitiv exact4096. Niciun apel de sink în controalele refuzate. Readiness/auth sunt doubles explicite în proba diagnostic, nu autentificare PG live."
+    },
+    {
+      "requirement": "Privacy: doar metadate finite; nici formulare/Models/prompts/tokens/headers/bodies/DOM în datele diagnostice",
+      "code": ["api/src/omnis/modules/diagnostics/schemas.py:47-60", "web/src/shared/uiDiagnostics.ts:27-44", "web/src/shared/uiDiagnostics.ts:72-89", "web/src/shared/api/client.ts:26-61"],
+      "assessment": "Reporterul construiește explicit cele 11 câmpuri; CSRF este numai header de transmisie. Clasificarea HTTP citește metoda și template-ul de cale, nu payloadul/headers. Serverul nu reflectă extra-input în eroarea diagnostic. Fără schimbări de implementare Models sau semantică de model în delta D.",
+      "evidence": "Refuzuri ASGI pentru prompt/token/headers/message/stack/form/request_body/response_body și ne-reflectarea sentinelului; proba Node frozen verifică CSRF header-only, lipsa query/message din DTO și setul exact de chei. Testele App calendar/inspector și malformed-correlation sunt citite și refolosite din dovada autorului pe aceleași hashuri."
+    },
+    {
+      "requirement": "Sizing complet DTO+record; volum total, burst și tentativă finite",
+      "code": ["api/src/omnis/modules/diagnostics/service.py:12-16", "api/src/omnis/modules/diagnostics/service.py:48-88", "api/src/omnis/modules/diagnostics/schemas.py:70-102"],
+      "assessment": "256 tentative admise per sink, burst8/fereastră60s, record1024 bytes, byte-charge262144. Eșecul consumă tentativă/buget; busy nu așteaptă și pierderea lui rămâne explicit necunoscută.",
+      "evidence": "Recalcul independent pe schemele reale: request395 bytes, record maxim673 bytes cu newline, toate cele 256 perechi attempt/remaining și dropped_before maxim. Suita SOURCE exercită rate/budget/concurrency/backpressure."
+    },
+    {
+      "requirement": "Concurență și eșec: writer nonblocking, OFD stderr operațional nealterat, close failure fără lock pierdut",
+      "code": ["api/src/omnis/modules/diagnostics/service.py:19-35", "api/src/omnis/modules/diagnostics/service.py:48-90"],
+      "assessment": "Reopen O_NONBLOCK/O_CLOEXEC, nu schimbare de flags pe OFD-ul existent; scriere numai FIFO și cel mult PC_PIPE_BUF, un singur write. Lock acquire(False), eliberare în finally inclusiv când close ridică OSError. RECORDED nu este întors la eșec de close.",
+      "evidence": "Testele reale cu pipe, verificarea flags independente, concurență, BUSY, pipe plin, open unavailable și close-error au trecut în invocarea independentă de 35 teste. Nu am scris în stderr-ul operațional al produsului."
+    },
+    {
+      "requirement": "Epoch/session rebind și interdicția adoptării observațiilor stale",
+      "code": ["web/src/features/bootstrap/BrowserSession.tsx:7-16", "web/src/features/bootstrap/useBrowserSession.ts:114-138", "web/src/shared/uiDiagnostics.ts:22-62", "web/src/shared/api/client.ts:26-60"],
+      "assessment": "Transmisia trece prin commitPrivate al vieții capturate; abort+detach taie bindingul vechi. Observația HTTP și WeakMap<Response,...> rețin bindingul original, nu caută bindingul nou la răspuns. Noul binding nu reautorizează observația veche.",
+      "evidence": "Proba Node pe git-show frozen: admit=false nu transmite; callback HTTP păstrat înainte de detach/abort nu transmite prin noul binding; eroarea curentă se transmite, eroarea identică este deduplicată. Limite verificate:64 tentative și2 pending, fără rețea reală."
+    },
+    {
+      "requirement": "Diagnostic best-effort nu blochează și nu retrimite Stop ori operații incerte",
+      "code": ["web/src/shared/uiDiagnostics.ts:35-69", "web/src/features/engagement/GlobalStop.tsx:72-109", "web/src/shared/api/client.ts:31-61", "web/src/app/UiDiagnostics.test.tsx:65-120"],
+      "assessment": "Nu există await al diagnosticului în Stop. Eșecul reporterului este izolat; pointerul de recuperare și lookup-ul receiptului rămân în ownerul existent, fără resend introdus. REQUEST/RESPONSE sunt UNCONFIRMED, nu confirmări semantice.",
+      "evidence": "Citire exactă și dovada autorului8 teste App, inclusiv diagnostic hanging/unavailable și lost Stop reply→receipt fără a doua mutație. Probe independente pentru pending cap și abort. QA current-Stop real rămâne părintelui; nu este prerechizit circular pentru acest verdict SOURCE."
+    },
+    {
+      "requirement": "Reader privat: endpoint local explicit, owner/role/attempt exacte, stderr framing, output/time/memory bounded",
+      "code": ["api/src/omnis/modules/diagnostics/reader.py:18-58", "api/src/omnis/modules/diagnostics/reader.py:72-154", "scripts/read_ui_diagnostics.py:17-41"],
+      "assessment": "Fără discovery/fallback. Parametrii owner au regexuri finite; socket Unix absolut fără '..', nod socket non-symlink final și UID root/operator. Inspect Id/project/service=api/start-attempt/Tty=false/log-driver sunt verificate înainte de log read. GET-only, stderr=1/stdout=0, tail256; inspect65536 și transport262144 bytes,1024/linie,256 records. Frame stream2 și lungimile sunt validate, doar UiRecord strict este tipărit. Deadline6s și restaurarea timerului; complete=false, pierderile rămân UNKNOWN.",
+      "evidence": "În plus față de suita SOURCE:5 refuzuri record,3 refuzuri owner și5 cazuri framing, inclusiv record valid împărțit în două frame-uri; timer restaurat după fiecare rezultat. Bucla _get reală a fost exercitată cu transport în memorie: limită exactă acceptată, plus1 refuzat, response+connection închise. Niciun endpoint/socket Docker real nu a fost accesat."
+    },
+    {
+      "requirement": "Factory/import/export obișnuit inert și contracte coerente",
+      "code": ["api/src/omnis/api.py:45-81", "api/src/omnis/modules/diagnostics/service.py:38-46", "contracts/omnis.openapi.json", "web/src/shared/api/generated.ts"],
+      "assessment": "Factory-ul creează numai sinkul în memorie; nu deschide stderr/reader ori serviciu. Ruta și tipurile generate sunt aditive.",
+      "evidence": "create_app().openapi() comparat independent în memorie cu întregul contract frozen: egalitate exactă. Testul create_app/export inert a trecut independent. Dovada autorului pentru contract drift/types/build a fost citită, nu înlocuită cu o simulare de build."
+    },
+    {
+      "requirement": "Doar excepția exactă POST diagnostic în census; păstrarea denial/secret/restart/domain oracles",
+      "code": ["web/tests/e2e/b03.mjs:35", "web/tests/e2e/s1-run.mjs:10", "web/tests/e2e/run.mjs:41-64", "web/tests/e2e/run.mjs:110-135", "web/tests/e2e/run.mjs:162-181", "api/tests/test_web_e2e.py:636-677", "web/tests/setup.ts:5-9"],
+      "assessment": "Excluderile de census cer simultan POST și URL same-origin literal exact. Driverul validează separat DTO/ack/correlation și controlul negativ secret. Oracle-urile de domeniu existente nu sunt relaxate de delta. B04 leagă ack RECORDED de record complet în stderr-ul API-ului deținut, separat pe generații. Mockul legacy izolează numai bindDiagnostics și testul dedicat îl dezactivează; cele617 unit tests nu sunt prezentate ca integrare browser/API.",
+      "evidence": "Delta completă a runnerelor și a fixture-ului a fost citită frozen; pregătirea consumerului este evaluată SOURCE. B04 efectiv și Docker transport rămân NOT_RUN în acest review."
+    }
+  ],
+  "executed_checks": [
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --stat; git diff --cached --stat; git show <candidate>:<path>; git diff <base> <candidate> -- <owned paths>",
+      "exit": 0,
+      "result": "Snapshot și delta integrală inspectate read-only; toate cele27 hashuri frozen verificate de două ori; diferența păstrată include27 căi WIP și10 căi de remediu ulterior."
+    },
+    {
+      "command": "env -i HOME=/home/kali PATH=/usr/bin:/bin PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 api/.venv/bin/python -I -B -m pytest -p pytest_asyncio.plugin -p no:cacheprovider --assert=plain api/tests/test_ui_diagnostics.py api/tests/test_http_security.py::test_mutations_require_exact_unambiguous_origin api/tests/test_http_security.py::test_foreign_reads_duplicate_host_and_pairing_url_are_refused api/tests/test_http_security.py::test_http_port_is_explicit_and_loopback_only api/tests/test_http_security.py::test_error_correlations_are_generated_server_side_per_request -q",
+      "exit": 0,
+      "result": "35 passed in 1.54s",
+      "limit": "SOURCE ASGI/pipe, fără lifespan DB ori servicii; fără pytest cache sau bytecode writes. Nu am rerulat cele3 cazuri provider-source cu fixture de fișiere/UDS, incompatibile cu mandatul write-only-report."
+    },
+    {
+      "command": "env -i HOME=/home/kali PATH=/usr/bin:/bin api/.venv/bin/python -I -B - <probe stdin ASGI/scheme/reader>",
+      "exit": 0,
+      "result": {
+        "maximum_request_utf8": 395,
+        "maximum_record_utf8_including_newline": 673,
+        "valid_counter_pairs": 256,
+        "canonical_openapi_equal": true,
+        "additional_asgi_refusals": 20,
+        "positive_exact4096_state": "UNAVAILABLE",
+        "sink_calls_for_refused_cases": 0,
+        "reader_record_denials": 5,
+        "reader_owner_denials": 3,
+        "reader_frame_cases": 5,
+        "split_frame_positive": true,
+        "timer_restored": true,
+        "get_exact_limit_and_plus_one": "PASS",
+        "response_connection_cleanup": "PASS"
+      },
+      "limit": "Probele suplimentare sunt în memorie, nu integration Docker. Nu am așteptat expirarea unui transport real de6s."
+    },
+    {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin node --input-type=module <probe stdin reporter compilat în memorie din git show f0cbd398>",
+      "exit": 0,
+      "result": "DTO finit/CSRF header-only/query+message excluded/admission cutoff/old-binding refusal/lifetime error dedup/no recursion PASS;70 observații solicitate→64 transmise; maximum2 pending; cutover abortează semnalele și detach nu transmite.",
+      "limit": "Fetch double exclusiv în memorie; nu browser, provider sau rețea reală. Configurația timeout750ms este verificată în testul dedicat existent; proba nouă verifică abortul de cutover."
+    },
+    {
+      "command": "git diff --check 4b61de9971a3eccd9216ae6d43e5ce4d96881854 f0cbd398 -- <exact27 owned paths>",
+      "exit": 0,
+      "result": "Fără erori whitespace în delta D completă."
+    }
+  ],
+  "existing_exact_byte_evidence_read_not_rerun": [
+    {"artifact": "ux-d-resume-sealed-api-source.log", "reported_command_manifest": "ux-d-result.json checks[0]", "result": "38 passed in1.90s; parent independently38API este și context explicit al delegării, nu o execuție proprie revendicată aici."},
+    {"artifact": "ux-d-resume-sealed-api-quality.log", "result": "Ruff lint/format JSON [][] și mypy fără diagnostice; make lint-api/typecheck-api exit0 în manifest. Makefile confirmă semantica outputului și gate-urile întregi api/src+api/tests."},
+    {"artifact": "ux-d-resume-targeted-web.log", "result": "8 tests PASS,1 file; actual App SOURCE controls și Stop/recovery outage."},
+    {"artifact": "ux-d-resume-final-web-full.log", "result": "617 tests PASS,29 files,43.66s."},
+    {"artifact": "ux-d-resume-final-web-lint.log", "result": "npm lint fără diagnostice; exit0 în manifest."},
+    {"artifact": "ux-d-resume-web-contracts-type-build.log", "result": "Contract drift,11 tooling tests,tsc --noEmit,design check și production build PASS; manifest4 fișiere. Mesajele negative ale fixture-urilor generatorului sunt așteptate, tooling fail0. Warningul chunk>500kB rămâne, fără prag slăbit."},
+    {"artifacts": ["ux-d-resume-reader-quality.log", "ux-d-resume-reader-format.log", "ux-d-resume-reader-types.log"], "result": "Ruff check/format și mypy strict reader PASS."},
+    {"artifact": "ux-d-resume-sizing.json", "result": "395/673 bytes pe schema reală, confirmate independent în acest review."}
+  ],
+  "carryover_non_d_findings": [
+    {
+      "id": "UI-INSPECTOR-PENDING-ERROR-FOCUS-01",
+      "status": "OPEN_SEPARATE_PARENT_REPRODUCED",
+      "disposition": "Finding non-D cunoscut; nu îl redenumesc sau atribui noii instrumentări. Modificările concurente RunPanel/RunStream nu sunt re-reviewuite aici."
+    },
+    {
+      "id": "S1-LOGIC-AUTH-COMMIT-01",
+      "status": "OPEN_SEPARATE_PARENT_REPRODUCED",
+      "disposition": "Auth-commit sincron Wizard/Models cunoscut în sursa preexistentă; verdictul reporterului nu îl închide și nu aprobă acei calleri ca global auth-safe."
+    }
+  ],
+  "pending_real_consumer_qa": {
+    "b04_browser_api_private_stderr_reader": "PENDING_PARENT; sursa oracle-ului este pregătită și reviewuită, nu executată live aici.",
+    "owned_docker_endpoint_labels_log_driver_transport": "PENDING_PARENT; proces-stderr/codec SOURCE nu certifică Docker real.",
+    "current_stop_s1_native": "PENDING_PARENT; actual App SOURCE nu certifică efectul current-Stop nativ.",
+    "source_approval_dependency": "Acestea sunt porți reale ulterioare, nu prerequisite circulare de SOURCE approval. Orice defect concret observat la QA cere adjudecare și remediu pe bytes curenți.",
+    "canonical_ready_publication_ci": "NOT_RUN/NOT_APPROVED de acest reviewer."
+  },
+  "effects_and_limits": {
+    "source_tests_docs_git_writes": "NONE",
+    "services_pg_browser_provider_target_io": "NONE; doar ASGI în memorie și pipe-uri anonime SOURCE.",
+    "docker_socket_io": "NONE",
+    "installs_profiles_worktrees_extra_agents": "NONE",
+    "protected_files_env_keys_vault_raw_operator_logs_strix": "NOT_READ_NOT_HASHED_NOT_CHANGED",
+    "new_files": ["/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/review-d-final-r2.json"],
+    "artifact_creation_precondition": "Absența verificată imediat înaintea scrierii; raport nou, fără overwrite de raport anterior.",
+    "reticle": "NOT_APPLICABLE pentru reviewul SOURCE fără sesiune UI runtime admisă",
+    "chisel": "BLOCKED_NO_GO; nu încărcat/rulat",
+    "not_claimed": "Absență universală de vulnerabilități, aprobare estetică, QA live, closure UI/S1 sau acceptarea editărilor concurente."
+  },
+  "handoff_ro": "Părintele reproduce/adjudecă eventualele observații și conduce QA reală pe artifactul final. Niciun remediu D nou nu este cerut de acest raport. Cele două findinguri separate rămân deschise; același developer desemnat păstrează ownershipul remedierilor."
+}

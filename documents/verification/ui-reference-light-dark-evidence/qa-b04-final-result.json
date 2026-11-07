@@ -1,0 +1,40 @@
+{
+  "product_head": "04283683c697c7ecf85335600fed2ea8f28c5306",
+  "target": "test-b04-e2e",
+  "outer_exit": 0,
+  "inner": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "inputs_verified": 2450,
+  "input_drift": [],
+  "container": "e234d1f2aa6fe0ff61114baf29c4a3b0fee17a270e59342388183be5d6ded432",
+  "project": "omnis-p01-fe162aa6a2dd4aab84abb4913235fd1b",
+  "runtime_absent": true,
+  "data_retained": true,
+  "browser_summary": {
+    "passed": true,
+    "secretChecks": true,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "backend_restart_verified": true,
+    "ui_diagnostic_sink_reader_verified": true,
+    "cleanup_verified": true
+  },
+  "test_summary": [
+    "1 passed, 9 deselected in 31.04s"
+  ],
+  "retained_artifacts": [
+    "b04-review-390.png",
+    "b04-review-1440.png",
+    "b04-create-390.png",
+    "b04-create-viewport-390.png",
+    "result.json",
+    "browser-result.json",
+    "ui-diagnostics-before.json",
+    "ui-diagnostics-after.json"
+  ],
+  "retention_root": "/home/kali/.hermes/cache/scratch/ub-tfzwesx9/db-358135fb175b4818",
+  "classification": "REAL_BROWSER_API_PG_PROCESS_STDERR_READER_NOT_LIVE_PROVIDER_NOT_DOCKER_TRANSPORT"
+}

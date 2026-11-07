@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "report_id": "RESUME_FUNCTIONAL_UI_AUDIT_20261107",
+  "language": "ro",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "commit": "e06ef06fdf4eb6ba51dcbbbcacff1069757992ca",
+    "branch_observed": "checkpoint/ux-d-pause-20261107",
+    "source_access": "git show <commit>:<path>; produsul nu a fost citit din fișierele de lucru concurente",
+    "tracked_changes_at_entry_and_exit": false,
+    "preexisting_untracked_protected_paths_seen_in_status_only": [
+      "tempkey.txt",
+      "documents/Omnis_Notite_Originale.html"
+    ]
+  },
+  "verdict": "CHANGES_REQUESTED_SOURCE_SCOPED",
+  "finding_count": 1,
+  "acceptance": "Propunere independentă de finding pentru reproducere/adjudecare de către părinte; nu acceptare D, nu QA live, nu aprobare estetică sau închidere UI/S1.",
+  "scope": {
+    "mandate": "Audit funcțional/UI read-only al fluxurilor existente UI/S1; fără S2 sau efecte de țintă.",
+    "requirements_to_consumers": [
+      "UI03 / ux-overview → Overview și RunPanel: valori persistente, UNKNOWN și context",
+      "UI04 / ux-brain-activity / ux-agent-hierarchy / ux-agent-chat-inspector → Brain stream, roster bounded, selecție URL, inspector read-only și focus/recovery",
+      "UI01 / UI05 / UI06 → temă, shell/navigare, calendar/wizard și stări secundare"
+    ],
+    "inspected_product_paths": [
+      "web/src/app/App.tsx",
+      "web/src/main.tsx",
+      "web/src/features/dashboard/Dashboard.tsx",
+      "web/src/features/engagement/Engagement.tsx",
+      "web/src/features/engagement/RunPanel.tsx",
+      "web/src/features/engagement/GlobalStop.tsx",
+      "web/src/features/engagement/Engagement.module.css",
+      "web/src/features/engagement/DatePicker.tsx",
+      "web/src/app/ThemeToggle.tsx",
+      "web/src/features/engagement/Wizard.tsx",
+      "web/src/features/engagement/WizardFields.tsx",
+      "web/src/features/bootstrap/BrowserSession.tsx",
+      "web/src/features/bootstrap/useBrowserSession.ts",
+      "web/src/shared/useObservationClock.ts",
+      "web/src/shared/api/client.ts",
+      "web/src/shared/api/runs.ts"
+    ],
+    "tests_and_configuration_read_full_or_targeted": [
+      "web/package.json",
+      "web/README.md",
+      "web/tests/setup.ts",
+      "web/tests/run-fixtures.ts",
+      "web/src/app/RunStream.test.tsx",
+      "web/src/app/Run.test.tsx",
+      "web/src/app/ProjectionStates.test.tsx"
+    ],
+    "governance_and_current_contract": [
+      "AGENTS.md",
+      "CONTRIBUTING.md",
+      "README.md (CURRENT)",
+      "documents/verification/implementation-status.md (CURRENT și rânduri afectate)",
+      "documents/verification/ui-reference-light-dark.md (contract afectat; nu istoric integral)",
+      ".hermes/skills/omnis-review-qa/SKILL.md",
+      ".hermes/skills/omnis-delivery/templates/team-slice.md"
+    ],
+    "evidence_reuse": "A1/B/C12/C3 existente nu au fost reauditate ca acceptări; citirea callerilor existenți a urmărit numai scenarii secundare omise. Nu se invalidează retroactiv probele scoped.",
+    "decision": "Findingul schimbă decizia privind comportamentul keyboard/focus al inspectorului în pending/error. Nu justifică redesign, dependențe sau features noi."
+  },
+  "source_identity": {
+    "web/src/features/engagement/RunPanel.tsx": "5bc9e4546b215873407065c16f2082f628e659e6",
+    "web/src/app/RunStream.test.tsx": "c38f47b8dfbbca50f54204e0494d45eb160da46e",
+    "web/src/shared/api/client.ts": "2737758939ac4a0b98f9dc00b84e223ce6e5f330",
+    "web/src/shared/api/runs.ts": "5057d903305ed9e628ba1c955118bb50c5ab4ce4",
+    "web/tests/run-fixtures.ts": "783a8033c04b0621eec3e4ec73cffa9fd2b32090",
+    "web/src/features/engagement/GlobalStop.tsx": "1b95e8a5100e6b120a652bb8c021e340ab1479b6",
+    "documents/verification/ui-reference-light-dark.md": "d9778c5e04dec60430bbcc7bfec47971d58cfc68"
+  },
+  "findings": [
+    {
+      "id": "UI-INSPECTOR-PENDING-ERROR-FOCUS-01",
+      "severity": "P2",
+      "confidence": "CONFIRMED_SOURCE_COMPONENT_REPRO",
+      "title": "Inspectorul deschis din tastatură nu primește focus în loading/error; Escape nu îl închide",
+      "locations": [
+        {
+          "file": "web/src/features/engagement/RunPanel.tsx",
+          "line": 131,
+          "detail": "Mută focusul numai când există detail.attempt_id; pending/error nu au acest detaliu."
+        },
+        {
+          "file": "web/src/features/engagement/RunPanel.tsx",
+          "line": 313,
+          "detail": "Escape este ascultat numai pe dialog; evenimentul de pe triggerul rămas în arbore nu traversează dialogul."
+        },
+        {
+          "file": "web/src/features/engagement/RunPanel.tsx",
+          "line": 343,
+          "detail": "Close există și în lipsa detaliului, dar nu primește focus la deschidere."
+        }
+      ],
+      "scenario": "Operatorul intră în Brain stream, focalizează un agent real din roster și apasă Enter. GET-ul attemptului întârzie sau returnează un NOT_FOUND valid. Popupul este vizibil, dar focusul rămâne în spatele lui, pe agent; Escape este ignorat. Nu este blocare totală: Close se poate căuta prin Tab sau apăsa cu mouse-ul.",
+      "reproducer": [
+        "Pe snapshotul exact, ruta /engagements/<engagement>/stream cu run/summary valide și un RECON INCONCLUSIVE în roster.",
+        "Întârzie numai GET /api/v1/runs/<run>/attempts/<attempt>; nu modifica run/summary. Focalizează triggerul RECON și Enter.",
+        "Așteaptă Loading selected agent…; verifică dialog.contains(document.activeElement) === false și document.activeElement === trigger. Escape lasă dialogul deschis.",
+        "Completează același GET cu 404 și envelope NOT_FOUND valid; alerta apare, dar focusul este tot triggerul și Escape tot nu închide.",
+        "Control negativ: click Close închide și restaurează triggerul; cu răspuns de succes, headingul primește focus și Escape închide corect."
+      ],
+      "violated_current_contract": [
+        {
+          "file": "documents/verification/ui-reference-light-dark.md",
+          "line": 51,
+          "criterion": "QA afectată: keyboard/focus și stări UI reale pentru inspector; nu doar happy path."
+        },
+        {
+          "file": "documents/verification/ui-reference-light-dark.md",
+          "line": 75,
+          "criterion": "UI04: inspector contextual selectabil cu selecție URL și citire fără dispatch."
+        },
+        {
+          "file": "documents/verification/ui-reference-light-dark.md",
+          "line": 76,
+          "criterion": "UI05: loading/error/empty/stale sunt stări susținute, nu excepții de la interacțiune."
+        },
+        {
+          "file": ".hermes/skills/omnis-accessibility/SKILL.md",
+          "section": "Procedure 1, 3, 4",
+          "criterion": "Parcurs keyboard complet și focus inițial/close/restaurare pe stările afectate."
+        }
+      ],
+      "root_cause": "Focusul inițial depinde de succesul citirii asincrone, nu de deschiderea suprafeței. Nonmodal <dialog open> nu execută automat show()/showModal() și nu mută singur focusul în popup.",
+      "smallest_remedy": "În RunPanel, dă inspectorului un target de focus stabil / Close și focalizează-l o singură dată la deschiderea selecției dacă detaliul nu este încă disponibil; păstrează focusul pe heading la succes și restaurarea existentă. Nu adăuga focus trap, inert pentru fundal sau Escape global care ar interfera cu Stop. Nu muta focusul la fiecare poll/refetch.",
+      "affected_consumer": "Brain stream → selectare agent/eveniment → inspector read-only în loading/error; tastatură și tehnologie asistivă. Nu schimbă API/DB, autoritate, selecții Models sau dispatch.",
+      "fix_scope": {
+        "product": [
+          "web/src/features/engagement/RunPanel.tsx"
+        ],
+        "tests": [
+          "web/src/app/RunStream.test.tsx"
+        ],
+        "fixtures": "Reutilizează setupul și fixture-urile existente; adaugă numai gate/reject pentru citirea attemptului.",
+        "config_exports_dependencies": "Niciuna.",
+        "regression_risks": [
+          "Nu fura focusul de la Stop/Refresh/theme la polling.",
+          "Păstrează inspectorul nonmodal și Stop accesibil.",
+          "Restabilește triggerul sau headingul Brain stream la Close/Escape; selecția URL trebuie eliminată fără POST."
+        ]
+      },
+      "decisive_tests": {
+        "red_test_to_add": "În RunStream.test.tsx parametrizat pending / 404: Enter pe trigger; popupul conține focusul înainte de detail; Escape închide popupul, șterge attempt/source din URL și restabilește triggerul. Varianta deep-link revine la headingul Brain stream.",
+        "negative_controls": [
+          "Succesul existent focalizează headingul și Close/Escape restaurează triggerul.",
+          "Stop global rămâne accesibil/non-inert și nu primește al doilea send.",
+          "Pollingul unei selecții deja deschise nu recapturează focusul după ce operatorul a trecut la Stop.",
+          "Zero cereri de mutație în traseul de inspectare/închidere."
+        ],
+        "executed_boundary": "Sursă TS/TSX exactă, transpilată numai în memorie, React + React Query + MemoryRouter + jsdom și client/decodere reale; BrowserSession/diagnostics au doubles inerte și fetch este sintetic. Nu browser/API/PG live.",
+        "observations": [
+          {
+            "scenario": "pending",
+            "dialogVisible": true,
+            "focusInside": false,
+            "focusOnTrigger": true
+          },
+          {
+            "scenario": "pending-after-Escape",
+            "dialogStillPresent": true
+          },
+          {
+            "scenario": "error",
+            "focusInside": false,
+            "focusOnTrigger": true
+          },
+          {
+            "scenario": "error-after-Escape",
+            "dialogStillPresent": true
+          },
+          {
+            "scenario": "negative-control-explicit-close",
+            "closed": true,
+            "restoredTrigger": true
+          },
+          {
+            "scenario": "negative-control-loaded",
+            "closed": true,
+            "restoredTrigger": true,
+            "nonGET": 0
+          }
+        ],
+        "exit_code": 0,
+        "interpretation": "Exit0 înseamnă că proba observă defectul și controalele; NU test de acceptare GREEN pentru contractul dorit. Asserțiile contractuale noi trebuie să fie RED înaintea fixului și GREEN după."
+      },
+      "disposition": "OPEN_FOR_PARENT_REPRODUCTION_AND_ADJUDICATION"
+    }
+  ],
+  "execution": {
+    "final_probe_command": "node -e <script_in_memory_below>, cwd=/home/kali/OmnisAI; process.env.NODE_ENV=test setat înainte de imports",
+    "node_observed": "v24.21.0",
+    "final_probe_script": "process.env.NODE_ENV='test';\nconst cp = require('node:child_process');\nconst path = require('node:path');\nconst Module = require('node:module');\nconst root='/home/kali/OmnisAI';\nconst sha='e06ef06fdf4eb6ba51dcbbbcacff1069757992ca';\nconst req=Module.createRequire(root+'/web/package.json');\nconst ts=req('typescript');\nconst {JSDOM}=req('jsdom');\nconst dom=new JSDOM('<!doctype html><html><body></body></html>',{url:'http://localhost'});\nfor(const key of ['window','document','HTMLElement','Element','Node','HTMLDialogElement','MutationObserver','Event','KeyboardEvent','FocusEvent']) globalThis[key]=dom.window[key];\nObject.defineProperty(globalThis,'navigator',{value:dom.window.navigator, configurable:true});\nglobalThis.IS_REACT_ACT_ENVIRONMENT=true;\nglobalThis.sessionStorage=dom.window.sessionStorage;\nglobalThis.localStorage=dom.window.localStorage;\nwindow.scrollTo=()=>{};\nconst originalLoad=Module._load;\nModule._load=function(name,parent,isMain){\n if(name.endsWith('/bootstrap/BrowserSession')) return {useSession(){return {session:{data:session,isError:false},transition:'idle',readPrivate:async read=>read(),commitPrivate:(commit,signal)=>{if(signal.aborted)return false;commit();return true}}}};\n if(name.endsWith('.css')) return new Proxy({},{get:(_,key)=>key==='__esModule'?false:String(key)});\n if(name.endsWith('/shared/uiDiagnostics') || name==='../../shared/uiDiagnostics' || name==='../shared/uiDiagnostics') return {observeControl(){},bindDiagnostics(){return ()=>{}},captureObservation(){},httpObservation(){},reportTypedError(){},diagnosticSurface(){return 'BRAIN'}};\n return originalLoad.apply(this,arguments);\n};\nfor(const ext of ['.ts','.tsx']) Module._extensions[ext]=(mod,file)=>{\n const relative=path.relative(root,file);\n if(!relative.startsWith('web/') || relative.includes('node_modules')) throw new Error('Out of scope '+relative);\n const src=cp.execFileSync('git',['show',sha+':'+relative],{cwd:root,encoding:'utf8'});\n const out=ts.transpileModule(src,{fileName:file,compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;\n mod._compile(out,file);\n};\nconst React=req('react');\nconst {render,screen,within,waitFor,act,cleanup}=req('@testing-library/react');\nconst userEvent=req('@testing-library/user-event').default;\nconst {QueryClient,QueryClientProvider}=req('@tanstack/react-query');\nconst {MemoryRouter}=req('react-router');\nconst {RunPanel}=req('./src/features/engagement/RunPanel.tsx');\nconst {session,instance,health}=req('./tests/fixtures.ts');\nconst {draft,id}=req('./tests/projection-fixtures.ts');\nconst {syntheticRun:run,syntheticSummary:summary,inspection}=req('./tests/run-fixtures.ts');\nconst calls=[];\nlet mode='pending';let release;\nconst held=new Promise(resolve=>release=resolve);\nglobal.fetch=async(input,init)=>{\n const p=String(input);calls.push({p,method:init?.method??'GET'});\n if(init?.method && init.method!=='GET') throw new Error('Non-read forbidden');\n if(p.includes('/attempts/')) {if(mode==='pending') await held; if(mode==='error') return Response.json({error:{code:'NOT_FOUND',correlation_id:id}},{status:404}); return Response.json(inspection());}\n if(p.endsWith('/summary')) return Response.json(summary);\n if(p.includes('/events?')) {const after=Number(p.split(':').at(-1));return Response.json({run_id:run.run_id,through_cursor:after,has_more:false,events:[],as_of:summary.as_of});}\n return Response.json(p==='/api/session'?session:p==='/health/ready'?health:p==='/api/instance'?instance:p===`/api/v1/engagements/${id}`?draft:p.endsWith('/run')||p==='/api/v1/runs/active'?run:null);\n};\n(async()=>{\n const client=new QueryClient({defaultOptions:{queries:{retry:false}}});\n const view=render(React.createElement(QueryClientProvider,{client},React.createElement(MemoryRouter,{initialEntries:[`/engagements/${id}/stream`]},React.createElement(RunPanel,{draft,stream:true}))));\n const user=userEvent.setup();\n const trigger=await screen.findByRole('button',{name:/RECON.*INCONCLUSIVE/});\n trigger.focus();await user.keyboard('{Enter}');\n await screen.findByText('Loading selected agent…');\n const dialog=screen.getByRole('dialog',{name:'Recorded agent activity'});\n console.log(JSON.stringify({scenario:'pending',dialogVisible:!!dialog,focusInside:dialog.contains(document.activeElement),focusOnTrigger:document.activeElement===trigger}));\n await user.keyboard('{Escape}');\n console.log(JSON.stringify({scenario:'pending-after-Escape',dialogStillPresent:!!screen.queryByRole('dialog',{name:'Recorded agent activity'})}));\n mode='error'; await act(async()=>{release();});\n await screen.findByText('Selected record unavailable or inconsistent. No linked result was accepted.');\n const failedDialog=screen.getByRole('dialog',{name:'Recorded agent activity'});\n console.log(JSON.stringify({scenario:'error',focusInside:failedDialog.contains(document.activeElement),focusOnTrigger:document.activeElement===trigger}));\n await user.keyboard('{Escape}');\n console.log(JSON.stringify({scenario:'error-after-Escape',dialogStillPresent:!!screen.queryByRole('dialog',{name:'Recorded agent activity'})}));\n await user.click(within(failedDialog).getByRole('button',{name:'Close inspector'}));\n console.log(JSON.stringify({scenario:'negative-control-explicit-close',closed:!screen.queryByRole('dialog',{name:'Recorded agent activity'}),restoredTrigger:document.activeElement===trigger}));\n mode='success';trigger.focus();await user.keyboard('{Enter}');\n const inspector=await screen.findByRole('region',{name:'Agent inspector'});\n await waitFor(()=>{if(document.activeElement!==within(inspector).getByRole('heading',{level:3}))throw Error('Not yet focused')});\n await user.keyboard('{Escape}');\n console.log(JSON.stringify({scenario:'negative-control-loaded',closed:!screen.queryByRole('dialog',{name:'Recorded agent activity'}),restoredTrigger:document.activeElement===trigger,nonGET:calls.filter(c=>c.method!=='GET').length}));\n view.unmount();client.clear();cleanup();dom.window.close();\n})().catch(err=>{console.error(err);process.exitCode=1;dom.window.close();});",
+    "observations_verified_programmatically": true,
+    "non_get_fetch_calls": 0,
+    "failed_probe_attempts_retained": [
+      {
+        "boundary": "App complet în jsdom, numai sursă înghețată",
+        "exit_code": 1,
+        "cause": "transpileModule fără fileName interpretează genericile din .ts ca TSX; nicio concluzie de produs."
+      },
+      {
+        "boundary": "App complet în jsdom, corecție fileName",
+        "exit_code": 1,
+        "cause": "Loaderul generic nu rezolvă importul Vite fonts-OFL.txt?url. Frontiera App a fost abandonată după două eșecuri, nu încă un loader/harness pentru bundle."
+      },
+      {
+        "boundary": "Restrâns la RunPanel, fără bootstrap/settings/font assets",
+        "exit_code": 1,
+        "cause": "NODE_ENV implicit production nu expune React.act. Prerechizitul a fost corectat explicit la test; proba componentă a fost apoi executată cu exit0."
+      }
+    ],
+    "effects": "Nicio cerere reală de rețea, browser nou, serviciu, profil/worktree, provider, DB, țintă sau Git write. DOM-ul și QueryClient au fost închise/curățate în proces.",
+    "repository_final_observation": "HEAD e06ef06fdf4eb6ba51dcbbbcacff1069757992ca, tracked diff și staged diff goale; aceleași două nume protejate untracked, fără citire/hash.",
+    "report_path_checked_absent_before_creation": true
+  },
+  "limits": [
+    "Auditul este scoped, nu o dovadă universală a absenței altor defecte.",
+    "Nu este acceptare a diagnosticului D aflat în lucru și nu verifică bytes ulteriori snapshotului.",
+    "Nu am executat Vitest/canonicalul complet, browserul real, API/PG, ecranele operatorului, efecte de model, ținte sau CI.",
+    "Nu am reevaluat estetica/baseline-ul, nu am comparat bitmapuri și nu am dedus aprobare umană.",
+    "Nu am reauditat A1/B/C12/C3 ori întreaga istorie; am folosit contractul actual și callerii afectați pentru o omisiune pending/error.",
+    "Chisel BLOCKED_NO_GO; Reticle NOT_RUN (fără mandat de runtime în această delegare).",
+    "Fișierele protejate, .env/chei/seif/loguri private brute și checkoutul Strix separat nu au fost citite/copiate/hash-uite/modificate.",
+    "Nicio editare de produs/teste/skill/config/Git; singura scriere explicită este acest raport nou."
+  ],
+  "next_action": "Părintele reproduce findingul pe bytes curenți, îl adjudecă și îl trimite aceluiași developer pentru fix minim + RED/GREEN + re-review focalizat; apoi QA browser admisă. Nu se redeschide checklistul neschimbat și nu se pornește S2."
+}

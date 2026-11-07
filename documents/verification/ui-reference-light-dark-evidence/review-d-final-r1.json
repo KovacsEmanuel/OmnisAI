@@ -1,0 +1,228 @@
+{
+  "review_id": "UX-D-FINAL-R1",
+  "limba": "ro",
+  "rol": "review independent read-only; părintele reproduce/adjudecă, același developer remediază",
+  "verdict": "CHANGES_REQUESTED_SOURCE_SCOPED",
+  "rezumat": "Două defecte SOURCE reproduse: rezultatul incert al unui transport este etichetat REFUSED și recuperarea reușită a receiptului Stop nu produce niciun rezultat/corelație HTTP diagnostică. Frontiera DTO/API/sink/reader și dimensionarea sunt coerente în scope-ul inspectat. QA runtime este o poartă separată a părintelui, nu motiv circular de respingere SOURCE.",
+  "snapshot": {
+    "repo": "/home/kali/OmnisAI",
+    "candidate": "f0cbd3989e879bff12f9a69a1a8e16c51ffcaad9",
+    "base": "4b61de9971a3eccd9216ae6d43e5ce4d96881854",
+    "preserved_wip": "27f95fdfd835d541e1ccad27c1dd5aafdfff68a8",
+    "wip_ancestor_verified": true,
+    "range_reviewed": "Toate schimbările D base..candidate, inclusiv WIP păstrat; nu numai ultimul commit.",
+    "branch_observed": "checkpoint/ux-d-pause-20261107",
+    "manifest": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-d-resume-freeze.json",
+    "manifest_sha256": "a252205ffe10949ac1d2fd3fa35b17e89e50c3ba564554f6dcc55b04d9b24d63",
+    "developer_result": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-d-result.json",
+    "contract": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/telemetry-implementation-task.md",
+    "contract_sha256": "bd9e1850ef225469b659d4988772f203aa961355c284d667b2e4e30e53834fb5",
+    "owned_path_count": 27,
+    "manifest_result_and_candidate_hashes_match": true,
+    "manifest_header_note": "Manifestul și raportul autorului au head8992ac6b anterior integrării; toate cele27 SHA256 de conținut coincid cu bloburile candidatului cerut. Identitatea comportamentală a fost verificată, nu presupusă din header.",
+    "owned_diff_sha256": "6a4b39e4774b9acc7c1775e1e0bdbd3398b3ca3c624780172b9ca487476b3b6f",
+    "owned_diff_command": "git diff --binary --no-ext-diff 4b61de9971a3eccd9216ae6d43e5ce4d96881854 f0cbd3989e879bff12f9a69a1a8e16c51ffcaad9 -- <cele27 chei din manifest, în ordinea manifestului>",
+    "full_diff_sha256": "562799d8ba5fcf71bb7e809a44cf562b548e6628a1032d6d9951f4a38e56f769",
+    "checkout_initial": "HEAD=candidate; toate27 căile identice manifestului; fără modificări tracked inițiale. Cele două fișiere untracked protejate au fost doar observate în git status, nu citite/hashuite/modificate.",
+    "checkout_concurrent_drift": {
+      "head_last_observed": "f0cbd3989e879bff12f9a69a1a8e16c51ffcaad9",
+      "tracked_changes_observed": ["web/src/app/RunStream.test.tsx", "web/src/features/engagement/RunPanel.tsx"],
+      "disposition": "Modificări străine apărute în timpul reviewului, excluse. Nu au fost revertuite ori evaluate ca remedii D. Inspecția finală RunPanel a folosit git show candidate:path. Testul UI a fost repetat cu sursele TS/TSX încărcate direct din Git la SHA candidat, fără scrierea unui checkout nou."
+    },
+    "path_sha256": {
+      "api/src/omnis/api.py": "158931ec45322c92bc623c41508cd86e447d43e42b1a712af7b3ece91865940f",
+      "api/src/omnis/modules/diagnostics/__init__.py": "9b300a3f8703b0e33716037d3e7a5bb760f296561b81b7df4f209dc29293819c",
+      "api/src/omnis/modules/diagnostics/reader.py": "070cca25d5129c621d07a02d0b0ee9c1ad8aeb1431a6318c607884684cd67764",
+      "api/src/omnis/modules/diagnostics/routes.py": "84d8f5ee908d58646840d58a835babcbcdfd2dcdd5a683a8465028af386e3e19",
+      "api/src/omnis/modules/diagnostics/schemas.py": "829a0b97802f449e8476351c7ffc181a4d10beb891162c4d9f09db9c54f77f73",
+      "api/src/omnis/modules/diagnostics/service.py": "e1aca05d4dbf962d2888bd0c30fecd9a4e274c6eda65f25fdeed06c22d6a1007",
+      "api/src/omnis/security/host_origin.py": "5f2c1b6aab4da1413a102358a12c72235c12facba7e055989f1e48ccc0c6a06a",
+      "api/tests/test_ui_diagnostics.py": "737a4f25f1f34300cd7c26604bd54349cc75aa1adf2f66be73cb60fcfefeb16a",
+      "api/tests/test_web_e2e.py": "0ae5fc2215888d51c3e9d345e22a43b6b623d425b48d927badd91444c9c32a33",
+      "contracts/omnis.openapi.json": "7543d8c26712cbd9b5b2d1490efb16a5e93de848a2dafce5a6fd10bb1ab0bfa4",
+      "scripts/read_ui_diagnostics.py": "049cf1df2b4cb293e0c1f7f4c212cf698bd6284a0d10555a1e4fbddd4d35b313",
+      "web/src/app/App.tsx": "c6a5443e42c5edd344e3ba40e57119af71e4532ea127637e64db18698057feae",
+      "web/src/app/ThemeToggle.tsx": "559848901cf1122ca47bb17667da0b286b84c74520910af6934091fa26dcf330",
+      "web/src/app/UiDiagnostics.test.tsx": "3ebfa4aea1679e5b85bfd7056f183225d6dcc8cd471f3773a725f5d07fab6da0",
+      "web/src/features/bootstrap/BrowserSession.tsx": "97a0dc376548918c0ed0c20d320ab73b7a4a749c6ac1621be9828b6f980da3b4",
+      "web/src/features/bootstrap/useBrowserSession.ts": "11f9451b6f3676314a07d9beeb28211d70e1a4d4d2bb9bebfbad7309e2648d65",
+      "web/src/features/engagement/DatePicker.tsx": "1c90cf1169eda5dfcf8d6c7e9b985051f3e348b75373895e332d579ccceecf40",
+      "web/src/features/engagement/GlobalStop.tsx": "1895e5f44602fa5501eef44ab264b126ce8820fd79b6d9fcd0a695e03ac705e8",
+      "web/src/features/engagement/RunPanel.tsx": "40d3766e83ff3e7b4fcb6792c3560c830101718d8bb87e343a24d4b1058fcd25",
+      "web/src/features/engagement/Wizard.tsx": "f25bf5c6d39d813d70d7f2f9bf6e052c052757e278e8108c8313791a04d13635",
+      "web/src/shared/api/client.ts": "0ba5be3ff03a77a4bb5ceb0dfc4af14c4cfd5e2e459e0a2cc7eaad458b5b29dc",
+      "web/src/shared/api/generated.ts": "78e201321dcc04a5fac3eca2aea72dbdc98f97ac46bbd11bb5fa87752e12d084",
+      "web/src/shared/uiDiagnostics.ts": "cb748952033b66e9d383b9aa9ce739a074d3f499788e178f2df45e2f6d26f873",
+      "web/tests/e2e/b03.mjs": "2c87707c40e959870d917527c8b809f7a32a0ce454956c6a9708990d387b9d49",
+      "web/tests/e2e/run.mjs": "42ef405614211544796aa5c0406f6637aca565468a39e924e2150e9eabe5f8ce",
+      "web/tests/e2e/s1-run.mjs": "62279c0f6aed0897005fc141d24a45269722fc7819ef849434dd5b0678f3e99f",
+      "web/tests/setup.ts": "2267f5c3aed3a8f4f516cc6eab64d205bdd313c0270c3de440a91d1e6955154c"
+    }
+  },
+  "findings": [
+    {
+      "id": "UX-D-R1-01",
+      "severity": "MEDIUM",
+      "source_blocker": true,
+      "file": "web/src/shared/uiDiagnostics.ts",
+      "lines": "88-90",
+      "related": ["web/src/shared/api/client.ts:42-44", "web/src/features/engagement/GlobalStop.tsx:97-101"],
+      "title": "Transportul cu rezultat incert este raportat ca REFUSED",
+      "reproducer": "Cu bindDiagnostics real și fetch dublat numai în memorie, api.runCommand(stop) primește o excepție de transport; api.runCommandReceipt pentru același command_id returnează apoi un receipt sintetic ADMITTED valid. Sursa reală emite run_command/ERROR/API_UNAVAILABLE/outcome=REFUSED, correlation_id=null. POST-ul de domeniu rămâne unul singur. Este exact situația de reply pierdut pe care callerul GlobalStop o tratează drept outcome unknown, nu refuz.",
+      "observed": {"transport_error": "API_UNAVAILABLE", "diagnostic_action": "ERROR", "diagnostic_outcome": "REFUSED", "subsequent_receipt_fixture": "ADMITTED", "domain_post_count": 1},
+      "criterion": "Contract UX-D §3 și cerința de error semantics oneste: observația browserului nu decide rezultatul comenzii; timeout/reply pierdut nu dovedește refuz. Site-ul real Stop păstrează explicit diferența refused versus unknown.",
+      "impact": "Readerul strict păstrează o clasificare eronată a rezultatului pentru o comandă care poate fi deja admisă. Nu am constatat resend sau modificarea autorității Stop: defectul este în diagnosticul cerut.",
+      "minimal_remedy": "Folosește outcome=UNCONFIRMED, deja permis, pentru API_UNAVAILABLE/INVALID_RESPONSE și celelalte erori fără dovadă de refuz. Rezervă REFUSED motivelor pentru care callerul poate demonstra refuzul. Nu adăuga retry, text liber sau semantica unui succes de domeniu. Test mic lost-reply→receipt ADMITTED și control de refuz explicit."
+    },
+    {
+      "id": "UX-D-R1-02",
+      "severity": "MEDIUM",
+      "source_blocker": true,
+      "file": "web/src/shared/api/client.ts",
+      "lines": "34-40",
+      "related": ["web/src/shared/api/client.ts:88-92", "web/src/shared/uiDiagnostics.ts:82-85", "web/src/features/engagement/GlobalStop.tsx:86-94", "web/src/features/engagement/RunPanel.tsx:220-228"],
+      "title": "Recuperarea reușită a receiptului nu are eveniment de răspuns sau corelație",
+      "reproducer": "Pe o binding nouă, observeControl(stop_receipt_lookup,{run_id,command_id}) urmat de api.runCommandReceipt(command_id), cu răspuns200/receipt ADMITTED valid și X-Correlation-ID UUID valid. Reporterul este funcțional și are capacitate. Rezultatul complet conține un singur OBSERVE/OBSERVED cu corelație null; zero REQUEST/RESPONSE și zero evenimente cu corelația răspunsului. GET-ul a fost executat exact o dată. Am inspectat callerul real GlobalStop; după await acesta doar confirmă/afișează receiptul, fără alt emit. Același seam este folosit de Read command receipt din RunPanel.",
+      "observed": {"receipt_http_method": "GET", "receipt_fixture_state": "ADMITTED", "diagnostic_events": 1, "only_event_site": "stop_receipt_lookup", "only_event_action": "OBSERVE", "correlated_response_events": 0},
+      "criterion": "Contract UX-D §3 cere conectarea la Save/Stop/recovery request outcomes și corelații reale. Nu este suficientă existența enumului command_receipt ori evenimentul clickului. Filtrul method!==GET elimină întotdeauna răspunsurile recovery200, nu numai pollurile sau evenimentele pierdute din cauza limitelor.",
+      "impact": "După o recuperare reușită, diagnosticul privat nu poate distinge clickul fără răspuns de răspunsul primit și nu poate lega lectura de corelația reală a API-ului, deși datele sunt disponibile.",
+      "minimal_remedy": "Include țintit GET-ul allowlisted de command_receipt în seam-ul REQUEST/RESPONSE, cu command_id deja extras și corelația validată din răspuns; rezultatul rămâne UNCONFIRMED, nu STOPPED. Nu activa logging pentru toate GET/pollurile. Extinde testul actual App Stop/recovery: în condiții cu capacitate disponibilă verifică evenimentul corelat și păstrează POST Stop=1 inclusiv la outage diagnostic."
+    }
+  ],
+  "requirement_code_evidence": [
+    {
+      "requirement": "DTO finit, endpoint exact autentificat, date neîncrezătoare",
+      "code": ["api/src/omnis/modules/diagnostics/schemas.py:47-67", "api/src/omnis/modules/diagnostics/routes.py:14-21", "api/src/omnis/security/host_origin.py:165-234"],
+      "assessment": "COERENT_SOURCE_SCOPED",
+      "evidence": "ASGI real cu autentificare/readiness dublate, pipe OS real și reader real: record=event, correlation API identică; Host/Origin/CSRF/query/duplicate/oversize/free-text/unauth refuzate. Body4096 păstrat."
+    },
+    {
+      "requirement": "Instrumentare prin callerii reali",
+      "code": ["web/src/app/App.tsx:20-27", "web/src/app/ThemeToggle.tsx:11-15", "web/src/features/engagement/Wizard.tsx:240-244", "web/src/features/engagement/DatePicker.tsx:97-100", "web/src/features/engagement/RunPanel.tsx:86-89", "web/src/features/engagement/GlobalStop.tsx:86-94", "web/src/shared/api/client.ts:31-62"],
+      "assessment": "PARTIAL_SOURCE; UX-D-R1-01/02",
+      "evidence": "Hooks efective pentru navigation/theme/period/calendar/inspector/Stop; draft_save și provider/model prin clientul comun. Cele8 teste dedicate folosesc App/reporter real pe doubles. Nu deduc completitudinea din diagrama enumurilor."
+    },
+    {
+      "requirement": "Dimensionare completă DTO și sink",
+      "code": ["api/src/omnis/modules/diagnostics/schemas.py", "api/src/omnis/modules/diagnostics/service.py:12-16,62-78"],
+      "assessment": "VERIFIED_SOURCE",
+      "evidence": {"request_utf8_bytes": 395, "complete_record_utf8_bytes_with_newline": 673, "valid_counter_pairs_measured": 256, "ordinary_body_cap": 4096, "record_cap": 1024, "capture_byte_charge_cap": 262144, "method": "Instanțiere UiEvent/UiRecord reale, enumuri maxime derivate din tipuri, UUIDuri non-null, timestamp9999-12-31T23:59:59Z și toate perechile attempt/remaining cu dropped_before maxim. Șirurile admise sunt ASCII fără expansiune JSON-escape."}
+    },
+    {
+      "requirement": "Writer bounded nonblocking și ack onest",
+      "code": ["api/src/omnis/modules/diagnostics/service.py:19-35,48-90", "api/src/omnis/modules/diagnostics/routes.py:19-21"],
+      "assessment": "COERENT_SOURCE_SCOPED",
+      "evidence": "Pipe OS real, un singur write atomic, FIFO/O_NONBLOCK/PIPE_BUF verificat, lock nonblocking,8/60s,256 attempts și byte-charge; rate/budget/busy/backpressure/close failure testate.202 accepted este separat de RECORDED; indisponibilitatea nu pretinde record. Nu există worker/retry/file nou."
+    },
+    {
+      "requirement": "Owner auth/cutover, bounded best-effort, Stop independent",
+      "code": ["web/src/features/bootstrap/BrowserSession.tsx:9-16", "web/src/features/bootstrap/useBrowserSession.ts:114-137", "web/src/shared/uiDiagnostics.ts:22-62"],
+      "assessment": "SOURCE_CONTROLS_PASS; runtime NOT_RUN",
+      "evidence": "Bind pe ownerul existent commitPrivate, capture vechi păstrat de observațiile HTTP, abort/detach, pending2,64 attempts,timeout750ms,dedup fără retry; testul App verifică Stop exact și recovery fără resend când diagnosticul atârnă/este indisponibil."
+    },
+    {
+      "requirement": "Reader privat strict și retenție explicită",
+      "code": ["api/src/omnis/modules/diagnostics/reader.py:22-58,100-154", "scripts/read_ui_diagnostics.py:17-41"],
+      "assessment": "COERENT_SOURCE_SCOPED; Docker real NOT_RUN",
+      "evidence": "Schema reală comună producer/reader; exact container/project/service/start-attempt, Unix local,stderr-only,frame/byte/record/time bounds. Complete=false; current-container only și pierderi necunoscute declarate. Testele SOURCE ale transportului sunt dublate, nu acces Docker real."
+    },
+    {
+      "requirement": "Oracle B04 browser→API→stderr→reader, restart și control negativ",
+      "code": ["web/tests/e2e/run.mjs:41-58,110-135,162-181,403-407", "api/tests/test_web_e2e.py:554-568,583-588,636-677", "web/tests/e2e/b03.mjs:35", "web/tests/e2e/s1-run.mjs:10"],
+      "assessment": "SOURCE_ORACLE_COHERENT; EXECUTION_PARENT_NOT_RUN",
+      "evidence": "Proba404 reală are corelație colectată din răspuns, nu inventată; free-text sentinel este refuzat422 și intră în canalul existent secretChecks. Python consumă stderr separat pe PID înainte/după restart, cere fiecare ack RECORDED egal cu evenimentul complet și correlation exact o dată, capture_id distinct între generații, fără istoric complet. Excepția de write census este numai POST+URL diagnostic exact. Cleanup_all/_stop comunică și pentru primul proces deja încheiat; păstrarea stderr este compatibilă cu ownerul existent. Collect-only și syntax PASS nu sunt QA live. B04 certifică codec/process capture, nu transportul Docker privat."
+    }
+  ],
+  "tests_actually_run": [
+    {
+      "command": "git diff --check 4b61de9971a3eccd9216ae6d43e5ce4d96881854 f0cbd398",
+      "exit": 0,
+      "result": "Fără whitespace errors pe întregul range."
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 api/.venv/bin/python -B -I -m pytest -p no:cacheprovider api/tests/test_ui_diagnostics.py api/tests/test_provider_settings_api_source.py api/tests/test_http_security.py::test_mutations_require_exact_unambiguous_origin api/tests/test_http_security.py::test_foreign_reads_duplicate_host_and_pairing_url_are_refused api/tests/test_http_security.py::test_http_port_is_explicit_and_loopback_only api/tests/test_http_security.py::test_error_correlations_are_generated_server_side_per_request -q",
+      "exit": 0,
+      "result": "38 passed in1.79s;26diagnostics. Fără servicii/PG."
+    },
+    {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/UiDiagnostics.test.tsx --no-cache",
+      "exit": 0,
+      "result": "8 passed,1file,2.87s. Checkoutul era ulterior modificat concurent în RunPanel; repetarea de mai jos fixează explicit sursa candidatului."
+    },
+    {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH NODE_ENV=test node --input-type=module; stdin apelează startVitest('test',['src/app/UiDiagnostics.test.tsx'],{root:'/home/kali/OmnisAI/web',run:true,watch:false,cache:false},{plugins:[plugin load pre care livrează git show f0cbd3989e879bff12f9a69a1a8e16c51ffcaad9:<path> numai pentru .ts/.tsx în web/src și web/tests]})",
+      "exit": 0,
+      "result": "8 passed,1file,3.05s;45module TS/TSX încărcate din candidatul exact. RunPanel SHA256=40d3766e83ff3e7b4fcb6792c3560c830101718d8bb87e343a24d4b1058fcd25; test SHA256=3ebfa4aea1679e5b85bfd7056f183225d6dcc8cd471f3773a725f5d07fab6da0. Fără fișiere de harness noi/worktree/editări produs.",
+      "limit": "Teste jsdom/App cu fetch doubles, nu browser/HTTP/PG live. Asseturile și configul existent nu au fost înlocuite."
+    },
+    {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH node --input-type=module; stdin transpilează modulele TS reale în memorie cu TypeScript instalat și apelează bindDiagnostics/observeControl/api.runCommand/api.runCommandReceipt cu fetch dublat",
+      "exit": 0,
+      "result": "Reproduse UX-D-R1-01 și02 prin asserturi. Observație suplimentară nepromovată la finding: decoderul unui receipt200 cu JSON{} respinge INVALID_RESPONSE fără corelație/event în apelul API direct. Nu am evaluat această variantă separat pe întregul caller UI.",
+      "reproducer_setup": "window.location.pathname='/'; binding nouă cu csrf sintetic de64hex, admit sincron true; endpointul diagnostic returnează202 UiAck valid/RECORDED; run_id=00000000-0000-4000-8000-000000000001, command_id=00000000-0000-4000-8000-000000000002, header correlation=00000000-0000-4000-8000-000000000003. Receipt={command_id,run_id,setup_ref:null,state:'ADMITTED',revision:8}. F02: control stop_receipt_lookup apoi api.runCommandReceipt; F01: POST aruncă TypeError sintetic, apoi GET returnează receipt. Se așteaptă setImmediate pentru settlement. Asserturi: F02 events.length===1 și niciun correlation_id egal headerului; F01 ERROR.outcome==='REFUSED' și exact un POST.",
+      "limit": "SOURCE/doubles explicit; nu susține o admitere Stop live sau trafic real."
+    },
+    {
+      "command": "api/.venv/bin/python -B -I; stdin instanțiază UiEvent/UiRecord reale cu enumuri maxime și toate256perechi attempt/remaining",
+      "exit": 0,
+      "result": "Assert395B request și673B record cu newline; fără modificarea limitelor."
+    },
+    {
+      "command": "api/.venv/bin/python -B -I; stdin assert create_app().openapi()==json.loads(Path('contracts/omnis.openapi.json').read_text())",
+      "exit": 0,
+      "result": "Contractul OpenAPI complet este identic exporterului real; import/create_app/export fără efecte sink."
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 api/.venv/bin/python -B -I -m pytest -p no:cacheprovider api/tests/test_web_e2e.py --collect-only -q -k b04",
+      "exit": 0,
+      "result": "test_built_web_against_real_control_plane[b04];1/10collected,9deselected,0.23s; fără fixture effects."
+    },
+    {
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH node --check web/tests/e2e/run.mjs; node --check web/tests/e2e/b03.mjs; node --check web/tests/e2e/s1-run.mjs",
+      "exits": [0, 0, 0],
+      "result": "Syntax PASS pentru cei3driveri, nu execuție E2E."
+    }
+  ],
+  "failed_review_checks_preserved": [
+    {
+      "check": "Reverificare finală strictă de egalitate checkout/manifest",
+      "exit": 1,
+      "cause": "AssertionError deoarece alt writer schimbase RunPanel. Reinterogarea a confirmat HEAD identic și toate27bloburile candidatului corecte; nu defect al manifestului. S-a trecut la git show pentru acest fișier și rerulare UI cu source override Git."
+    },
+    {
+      "check": "Prima rerulare Vitest cu source override în memorie",
+      "exit": 1,
+      "result": "0tests; pluginul de review a interceptat prea larg și assetul fonts-OFL.txt?url a fost tratat greșit drept JavaScript. Nu defect produs. Restrângerea la .ts/.tsx a păstrat loaderul nativ de assets; rerularea exactă8PASS de mai sus. Fără schimbare de produs sau gate."
+    }
+  ],
+  "evidence_reused_not_rerun": {
+    "developer_source": "ux-d-result.json declară617web, quality Python strict, lint/contracts/type/build PASS; citit și legat de cele27hashuri, nu declarat rerulat de reviewer.",
+    "unchanged_prior_acceptances": "A1/B/C12/C3 se refolosesc numai pe scope neschimbat; nu sunt acceptare D.",
+    "separately_open_non_D_findings": ["inspector pending/error focus", "Wizard/Models synchronous auth commit"],
+    "non_D_disposition": "Rămân explicit deschise pentru părinte; nu sunt duplicate, închise sau confundate cu findings D din acest raport. Modificările concurente nu au fost evaluate drept închidere a lor."
+  },
+  "parent_acceptance_gates_not_source_findings": [
+    "După adjudecare/remediu și reviewuri complementare: B04 real pe bytes finali, pozitiv404corelat și negativ422sentinel, stderr/read_records înainte/după restart și cleanup exact.",
+    "Readerul Docker privat real pe endpoint/container/project/start-attempt furnizate și atestate de owner; read_records din B04 nu dovedește transportul/log-driver/access real.",
+    "QA nativă actuală Stop/S1 și UI afectată, regresiile admise, canonical/READY și acceptarea vizuală umană rămân ale părintelui. Absența lor nu este un al treilea defect SOURCE."
+  ],
+  "effects_and_limits": {
+    "product_or_document_edits": "NONE",
+    "git_writes": "NONE",
+    "services_PG_browser_provider_target_calls": "NONE",
+    "installs_profiles_worktrees_extra_agents": "NONE",
+    "protected_files_env_keys_vault_raw_operator_logs_Strix": "EXCLUDED; nu citite/copiate/hashuite/modificate",
+    "reticle": "NOT_APPLICABLE la această execuție SOURCE fără browser runtime autorizat; nu pretind QA vizuală",
+    "chisel": "BLOCKED_NO_GO; neîncărcat/neexecutat",
+    "only_created_file": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/review-d-final-r1.json",
+    "output_absent_checked_before_creation": true,
+    "new_log_files": "NONE; stdoutul comenzilor este în rezultatele tool ale sesiunii",
+    "global_audit": "NOT_PERFORMED; numai contractul/callerii/testele D afectate și contextul procedural necesar"
+  },
+  "handoff": {
+    "code": "D candidat implementat; incomplet pe error outcome și corelarea recovery",
+    "proof": "SOURCE targeted PASS; cele două reproducers confirmă defectele; QA reală NOT_RUN",
+    "review": "CHANGES_REQUESTED_SOURCE_SCOPED pentru f0cbd3989e879bff12f9a69a1a8e16c51ffcaad9",
+    "next": "Părintele reproduce/adjudecă cele două findings; același developer face remedii minime și affected checks, apoi re-review focalizat. Reviewul nu integrează și nu aprobă produsul/runtimeul ori schimbările concurente."
+  }
+}

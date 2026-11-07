@@ -1,0 +1,157 @@
+{
+  "status": "SOURCE_CANDIDATE_FROZEN_FOR_PARENT_COMMIT_AND_TWO_FOCUSED_REVIEWS",
+  "finding": "S1-LOGIC-AUTH-COMMIT-01",
+  "base": "7e36669eee05e5b9bcf68085dd5971e24df287ad",
+  "head_at_freeze": "7e36669eee05e5b9bcf68085dd5971e24df287ad",
+  "branch": "checkpoint/ux-d-pause-20261107",
+  "writer_stopped": true,
+  "developer_git_mutations": false,
+  "freeze_manifest": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-auth-freeze.json",
+  "owned_paths": {
+    "web/src/features/engagement/Wizard.tsx": {
+      "before_sha256": "f25bf5c6d39d813d70d7f2f9bf6e052c052757e278e8108c8313791a04d13635",
+      "after_sha256": "3e6595dd67474d5a251cc5a5fe76f2acec018bac64a2aeb52be8f3fe1b0e49da"
+    },
+    "web/src/features/engagement/SettingsModelsPage.tsx": {
+      "before_sha256": "7f17b00cba2e9d4f7959b35181bf1976e0503bc8294fdfe18527fa8aceb72b6a",
+      "after_sha256": "9dd00dd56e95972d218fc7b3eacb146f6965859d50eb3db9e527d0da74b54635"
+    },
+    "web/src/app/PrivatePublicationAuth.test.tsx": {
+      "before_sha256": null,
+      "after_sha256": "643e284c778db0e680a550d9f3783ccf76690c0466377982592baae9f9f96ae1"
+    }
+  },
+  "change": "Reuse existing commitPrivate at synchronous publication/pointer/success boundaries and admission after awaited work. Preserve readPrivate, exact receipt validation, pending IDs and receive-only recovery. Refused old auth life returns without cache/state success, pointer clearing, navigation or further model continuation. No new owner/epoch/TTL/wrapper/dependency/API/runtime changes.",
+  "sibling_dispositions": {
+    "Wizard.confirm": "Exact id/revision/digest/payload comparison unchanged. One commitPrivate group clears local pending, publishes saved/form/status and engagement/draft caches and invalidates dashboard; refused guard returns no verified revision.",
+    "Wizard.save": "Existing controller ref supplies a live signal for admission/hydration while idle and aborts on cleanup; ordinary effect setup also works under StrictMode. Guard admission, post-receipt pending publication, post-confirm navigation/step advancement and error state. Finally releases only local resource flag; no stale success.",
+    "Wizard.reconcile": "Guard admission and latest-read comparison/state. Confirm return must be present before guarded new-draft navigation. Existing conflict and uncertainty/read-only recovery remain.",
+    "Wizard.hydration_and_conflict_buttons": "Guard synchronous saved/form/server/cache publication using existing owner and component signal. No compare/discard/rebase semantics changed.",
+    "Models.load": "Owner checks at existing local-read boundaries and before successor cached catalog search/batch dispatch. CancelledError from installed TanStack is used for invalid auth life. Existing readLibrary helper, bounded batches, local catalog search arguments, model matching and caps unchanged.",
+    "Models.readCurrent": "Guard initial admission, exact receipt-to-load continuation, and atomic pointer-clear/cache/status publication. Refused guard leaves pending recovery identity intact. Error/final UI publication and deferred focus restoration also owner-fenced.",
+    "Models.mutate": "Guard admission before pending retention, post-cancelQueries admission and final receipt/load publication. Receipt equality unchanged. Recheck after awaited invalidation before returning success to callers. Failure states/pointer-clearing and final sending state use same owner; resource busy flag is still released.",
+    "Models.saveKeys_saveModels_removeModel_saveKey_callback": "Guard returned receipt/success/child continuation after awaits. Removal/connection-choice admission also checks owner before constructing command identity. Existing entry/revision/generation/consent matching remains; no new success or catalog/model continuation after cutover.",
+    "Models.refresh_readCatalog_catalogRead": "Guard admission and post-read catalog notice/pointer/invalidation publication; recheck after awaited invalidation. Existing cancellation, retained connection revision, state/definitive-error rules and search/selection semantics unchanged.",
+    "Models.startTest": "Guard initial and post-cancelQueries admission before test identity retention/send; atomically guard returned test/cache/check/choice publication. Keep retained admitted operation on cutover; no resend.",
+    "Models.readTest_readCheck_updateCheck": "Guard status publication, refused/not-found identity clearing, selection and shared check updater. Existing observed cancellation revision and receive-only latest read remain.",
+    "Models.connectEntries": "Owner checks before each entry, after Start, each status read, completed/latest verification and final success. Refused old life exits before next model. Existing AbortSignals, Stop remaining checks, exactCheck,300-second operation budget and consent/generation remain unchanged.",
+    "Models.projection_effects_notification_focus": "Guard existing cache promotion/operation adoption and success notification/focus callbacks; no new effect, watcher, manager or private cache namespace. Cleanup of local controllers/listeners remains allowed.",
+    "unchanged_external_callers": "No edits to SettingsModelWizard, SettingsAssignments, Models helper/decoders, BrowserSession/useBrowserSession, API, runtime, D reporter/sink/fixture, locks/manifests or runner selections."
+  },
+  "source_controls": {
+    "boundary": "Actual App components, real useBrowserSession owner and QueryClient, existing client/decoders and settings fixture. Established RunCommandAuth post-readPrivate/pre-caller seam. Network responses are synthetic, not live API/provider evidence.",
+    "main_matrix": "20 cases: Wizard Save/reconcile and Models Reload/recover/mutation crossed with healthy, expire after successful read, second actual owner.readPrivate rejected with ApiError UNAUTHENTICATED, and expired-before-click. Every old-life guard is observed refusing. Healthy Wizard controls additionally run StrictMode.",
+    "publication_oracle": "Subscribe to actual QueryCache success updates while session cache is null, assert no private republication or surviving private data, no Save navigation, no unauthorized recovery pointer removal, no resend and no mutation after expired-before admission.",
+    "model_siblings": "12 additional cases: Start/status read and two-entry connection sequence status/latest boundaries crossed with healthy/expire/401 seam. Healthy sequence admits both entries; cutover retains first operation and never starts second. Original per-instance generation remains1 in synthetic intents.",
+    "limitations": "401 seam exercises the real owner's UNAUTHENTICATED handling via a second rejected private read; it is not a real HTTP401 exchange. Catalog/status/error effects were inspected and owner-fenced; not every individual sibling has a separately enumerated adversarial schedule. Existing positive/denial/Stop/receipt/consent/cap regressions remain and pass the full suite."
+  },
+  "toolchain": {
+    "PATH_prefix": "/home/kali/.local/share/omnis-toolchains/bin:",
+    "UV_for_manifest_commands": "/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+    "node_observed": "v24.21.0",
+    "npm_observed": "11.19.0",
+    "test_environment": "NODE_ENV=test"
+  },
+  "checks": [
+    {
+      "phase": "RED before product edits",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/PrivatePublicationAuth.test.tsx",
+      "exit": 1,
+      "result": "10 failed,10 passed. Independently reproduces stale engagement/draft or settings-model-library publications for both expire/401 in all five original caller scenarios. Healthy and expired-before controls pass.",
+      "log": "ux-auth-red.log"
+    },
+    {
+      "phase": "GREEN expanded regression",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/PrivatePublicationAuth.test.tsx",
+      "exit": 0,
+      "result": "32 passed in5.17s; later strengthened401 error-cause assertions also covered by final full suite",
+      "log": "ux-auth-green-siblings.log"
+    },
+    {
+      "phase": "affected suite",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/PrivatePublicationAuth.test.tsx src/app/Wizard.test.tsx src/app/SettingsModels.test.tsx src/app/SettingsWizard.test.tsx src/app/ModelTest.test.tsx src/app/ReceiptRecovery.test.tsx src/app/RunCommandAuth.test.tsx",
+      "exit": 0,
+      "result": "241 passed in7 files,35.64s. Product bytes identical to freeze; only subsequent test-only change asserts exact UNAUTHENTICATED cause instead of silently consuming expected rejection, covered by final full suite.",
+      "log": "ux-auth-affected-serial.log"
+    },
+    {
+      "phase": "full suite on final exact bytes",
+      "command": "npm --prefix web test",
+      "exit": 0,
+      "result": "656 passed in30 files,42.26s",
+      "log": "ux-auth-sealed-full-web.log"
+    },
+    {
+      "command": "npm --prefix web run lint",
+      "exit": 0,
+      "result": "No warnings/errors on final bytes",
+      "log": "ux-auth-sealed-lint.log"
+    },
+    {
+      "command": "npm --prefix web run typecheck",
+      "exit": 0,
+      "result": "Final bytes pass tsc --noEmit",
+      "log": "ux-auth-sealed-typecheck.log"
+    },
+    {
+      "command": "make --no-print-directory test-contracts typecheck-web build-web",
+      "exit": 0,
+      "result": "Contract/exporter drift, tooling11/11, design check, TypeScript and production build pass. Product bytes unchanged afterward; later test-only rejection-cause assertions pass final full suite/lint/typecheck. Existing >500kB JS chunk warning retained without changing threshold; trusted manifest4 files.",
+      "log": "ux-auth-contracts-type-build-final.log"
+    },
+    {
+      "command": "git diff --check; exact tracked scope check; compare base..HEAD on owned paths; SHA256 all three final paths",
+      "exit": 0,
+      "result": "Only Wizard.tsx and SettingsModelsPage.tsx tracked modifications plus new focused PrivatePublicationAuth.test.tsx. No committed drift or unrelated tracked edits."
+    }
+  ],
+  "nonpass_attempts_preserved": [
+    {
+      "log": "ux-auth-green-first.log",
+      "exit": 1,
+      "result": "89 pass/1 fail: new healthy control checked navigation immediately after Saved rendered, before next caller microtask. Changed only new test to await existing navigation; no assertion weakened or production workaround."
+    },
+    {
+      "log": "ux-auth-affected-final.log",
+      "exit": 1,
+      "result": "240 pass/1 calendar test timeout under concurrent affected/full runs; no timeout or fixture changed. Same command serial later241 PASS."
+    },
+    {
+      "log": "ux-auth-full-web-final.log",
+      "exit": 1,
+      "result": "651 pass/5 fail during overlapping Vitest processes: existing DOM waits/timeouts in Engagement, ProjectionStates, Run, SettingsModels and Wizard. No existing tests edited."
+    },
+    {
+      "log": "ux-auth-full-web-serial.log",
+      "exit": 1,
+      "result": "655 pass/1 unchanged Engagement initial Run accounting DOM wait failure. Isolated unchanged Engagement suite8 PASS; subsequent unchanged full suite656 PASS, and final full suite after new-test assertion strengthening656 PASS. Root cause of this intermittent timing failure is not proven."
+    },
+    {
+      "log": "ux-auth-engagement-isolated.log",
+      "exit": 0,
+      "result": "8 passed in2.44s; narrow check after full-suite failure, not a replacement for full gate"
+    },
+    {
+      "log": "ux-auth-full-web-confirmation.log",
+      "exit": 0,
+      "result": "656 passed in42.29s before final test-only assertion strengthening; final exact-byte run separately656 PASS"
+    }
+  ],
+  "remaining": {
+    "two_complementary_focused_reviews": "PENDING_PARENT on frozen candidate, not self-approved",
+    "real_browser_API_provider_QA": "NOT_RUN_BY_DEVELOPER; Source doubles do not prove live effects or absence of all gaps",
+    "D": "Remains frozen review/real-B04 responsibility of parent; no D change in this increment",
+    "inspector": "Previous integrated fix untouched; independent/native acceptance remains parent-owned",
+    "canonical_READY_cleanup_main_CI": "Parent-owned, not completed here",
+    "S2": "NOT_STARTED_OR_PREPARED",
+    "residual_test_risk": "Intermittent unchanged existing DOM waits/timeouts were observed and preserved even though final suite passes; do not describe repeated green as proof they cannot recur."
+  },
+  "effects_and_exclusions": {
+    "services_browser_PG_operator_provider_target_actions": "NONE",
+    "agents_profiles_worktrees_installs_git_mutations": "NONE",
+    "protected_files_secrets_env_vault_raw_operator_logs_Strix": "NOT_READ_OR_CHANGED",
+    "installation": "Parent reports STOPPED56; developer performed no lifecycle action",
+    "source_scope": "Exactly two approved product consumers plus one dedicated corresponding regression file; no changes after freeze"
+  },
+  "next": "Parent verifies hashes and integrates one coherent auth increment, then runs two complementary focused reviews and admitted real QA. Same sole developer remains available for minimally scoped review fixes."
+}

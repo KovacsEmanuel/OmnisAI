@@ -1,0 +1,179 @@
+{
+  "review_id": "review-secondary-final-r1",
+  "language": "ro",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "snapshot": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "da7101f896aba88a8da761ecaa6f17e833ae01c9",
+    "candidate": "04283683c697c7ecf85335600fed2ea8f28c5306",
+    "branch": "checkpoint/ux-d-pause-20261107",
+    "changed_path_count": 3,
+    "paths": {
+      "web/src/features/engagement/RunPanel.tsx": {
+        "base_sha256": "720ad766ce3f2c6e5c6f75ccd7a421e7f4d82db23b403565e6e3c52b4775a097",
+        "candidate_sha256": "9350e9d1df7067e8343e32fb2e20c94de58034a3944bd56a1e737041c9d15acf",
+        "checkout_matches": true,
+        "candidate_blob": "16eec49c7b7c10595e24926a369304c7b1cb01c1"
+      },
+      "web/src/app/RunStream.test.tsx": {
+        "base_sha256": "e84b5fd6eba2ea521ee1caf6a0c240766720a18f20b3134b2ea1bf39278d0683",
+        "candidate_sha256": "0f6854790c6b05d9a8460fd99b5b7a07e102c0b7bdc4187d06e83cbfb212d46a",
+        "checkout_matches": true,
+        "candidate_blob": "fc628ef60674efb141cc0442627b8ae53fb60e95"
+      },
+      "web/tests/e2e/s1-run.mjs": {
+        "base_sha256": "62279c0f6aed0897005fc141d24a45269722fc7819ef849434dd5b0678f3e99f",
+        "candidate_sha256": "3367f9f1fc87e0057750b11aa548f52d85a078c64f6eff64c85c35abac79db85",
+        "checkout_matches": true,
+        "candidate_blob": "a1eb5d4850e1f4744662bb8b8acccf4c846bb0bd"
+      }
+    },
+    "plain_diff_command": "git diff da7101f896aba88a8da761ecaa6f17e833ae01c9 04283683c697c7ecf85335600fed2ea8f28c5306 -- web/src/features/engagement/RunPanel.tsx web/src/app/RunStream.test.tsx web/tests/e2e/s1-run.mjs",
+    "plain_diff_sha256": "fcbce4dc296cb6f8a263d0ab8288bd9c1f8ce64f84300e60b7edbc9311069313",
+    "full_index_binary_diff_command": "git diff --binary --full-index da7101f896aba88a8da761ecaa6f17e833ae01c9 04283683c697c7ecf85335600fed2ea8f28c5306 -- web/src/features/engagement/RunPanel.tsx web/src/app/RunStream.test.tsx web/tests/e2e/s1-run.mjs",
+    "full_index_binary_diff_sha256": "f804b4860f66cb0e63ed891f2c8adc218f8d7c7d032912f65877ec5729ecacde",
+    "freeze_identity": "Toate cele3 perechi before/after SHA256 și diff-ul plain coincid cu ux-inspector-secondary-freeze.json; diferența hashului full-index este numai serializarea indexului Git, nu drift de sursă.",
+    "checkout_matches_candidate_at_review_end": true,
+    "tracked_staged_changes_at_start_and_end": false,
+    "preexisting_untracked": "Doar numele protejate din git status observate; niciun conținut/hash citit."
+  },
+  "scope": "Exclusiv remediul secundar UX-CORRECTIONS-R1-01, cele8 controale de tranziție și oracle-ul injected UI503 din driverul nativ S1 existent; callerii direcți ai selecției/refetchului, markupului și restart/readbackului. Nu audit global auth/D/S1.",
+  "findings": [],
+  "remaining_source_blockers": [],
+  "finding_dispositions": [
+    {
+      "id": "UX-CORRECTIONS-R1-01",
+      "original_severity": "MEDIUM / P2",
+      "disposition": "CLOSED_SOURCE_CURRENT_SCOPE; propunere pentru adjudecarea părintelui, nu closure runtime",
+      "locations": [
+        "web/src/features/engagement/RunPanel.tsx:120-133",
+        "web/src/features/engagement/RunPanel.tsx:315-345",
+        "web/src/app/RunStream.test.tsx:303-345"
+      ],
+      "cause_and_fix": "Effectul de settlement nu mai refuză dispariția detail.attempt_id. La eliminarea headingului, alege Close existent dacă activeElement este body sau în popup; controlul extern focalizat nu este revendicat. Nu există manager/trap/inert/Escape global nou.",
+      "independent_reproducer": "Aceleași8 teste noi pe snapshotul candidatului, dar numai RunPanel.tsx încărcat din baza da7101f8:503 și roster-model invalidation × trigger/deep-link × focus heading/Stop. Cele4 cazuri inside eșuează la Close focus primit body; cele4 Stop trec.",
+      "green": "RunStream complet49/49 pe04283683. Invalid detail este retras; Close primește focus; Escape închide și restaurează triggerul conectat sau headingul Brain stream; attempt/source dispar din URL. Stop enabled/non-inert păstrează focus; Escape de la Stop lasă popupul deschis. Cele8 controale noi cer GET-only.",
+      "minimal_remedy_remaining": null,
+      "native_acceptance": "NOT_RUN aici; părintelui îi revine proba reală pregătită în consumerul existent."
+    }
+  ],
+  "requirement_code_evidence": [
+    {
+      "requirement": "Retragere detail invalid fără pierderea accesului Close/Escape",
+      "code": "RunPanel.tsx:122,127-133,315-345",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "RED4FAIL/4PASS contra implementării vechi; GREEN49/49 candidat."
+    },
+    {
+      "requirement": "Stop și focus extern fără furt de focus, popup nonmodal și restaurare/URL corecte",
+      "code": "RunPanel.tsx:127-133,147-150,315; RunStream.test.tsx:303-345",
+      "result": "PASS_SOURCE_SCOPED",
+      "evidence": "Matricea8 și controalele RunStream existente trec; Escape rămâne local dialogului."
+    },
+    {
+      "requirement": "Oracle nativ cauzal real cu eșec HTTP UI explicit injectat",
+      "code": "web/tests/e2e/s1-run.mjs:198-272",
+      "result": "APPROVED_PREPARED_SOURCE_NOT_RUNTIME",
+      "evidence": "Worker finish și consumption/decision refs sunt citite/verificate înaintea injecției. data-attempt-id confirmă consumerul real. Ruta exactă pe originul fixture-ului afectează doar GET-ul attemptului ales. Waiters sunt înregistrați înainte de Refresh run; după cerere headingul/theme sunt focalizate și verificate înainte de release; răspunsul503 este await/assert."
+    },
+    {
+      "requirement": "Oracle Close/Escape/restaurare și control extern prin aceeași tranziție",
+      "code": "web/tests/e2e/s1-run.mjs:231-270; RunPanel.tsx:237,262,318; ThemeToggle.tsx:18-20",
+      "result": "APPROVED_PREPARED_SOURCE_NOT_RUNTIME",
+      "evidence": "Selectori verificați contra markupului real: Agent inspector/data-attempt-id, Close inspector, button[data-attempt-id] în Spawned agents, heading Brain stream și Light/Dark theme. Inside revine la triggerul worker; deep-link nou nu are trigger și revine la Brain stream. External theme își păstrează focusul; Escape exterior nu închide dialogul. Runul este LIMITED aici, deci nu se pretinde Stop nativ în această nouă tranziție."
+    },
+    {
+      "requirement": "Cleanup rută, read-only fără replay și restart/success oracles neschimbate",
+      "code": "web/tests/e2e/s1-run.mjs:8-10,78-95,167-184,270-295; api/tests/test_web_e2e.py:284-395; api/tests/test_run_runtime_pg.py:747-758",
+      "result": "APPROVED_PREPARED_SOURCE_NOT_RUNTIME",
+      "evidence": "finally eliberează gate-ul idempotent și elimină exact handlerul. Snapshotul writes nu se schimbă, cu excepția diagnostic POST exclus explicit și preexistent. Reloadul compară inspection complet; after-stage recitește summary/inspection și cere zero writes. Consumerul existent restartează API pe același PG și compară census provider/model/RUN_COLUMNS/engagement/relay. Oracle-urile success/Stop/native worker/checkpoint existente nu sunt slăbite. Markerul injectedUiHttp503Focus este scris numai după controale și transportat în after-stage."
+    }
+  ],
+  "executed_checks": [
+    {
+      "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin NODE_ENV=test TMPDIR=/home/kali/.hermes/cache/scratch node --input-type=module <stdin: startVitest frozen Git source; RED new8 on base RunPanel, GREEN candidate RunStream>",
+      "exit": 0,
+      "result": [
+        {
+          "phase": "RED_BASE_PRODUCT_WITH_NEW_TESTS",
+          "modules": 45,
+          "passed": 4,
+          "failed": [
+            "keeps 'inside' focus usable when loaded 'trigger' causal detail is withdrawn by '503'",
+            "keeps 'inside' focus usable when loaded 'deep-link' causal detail is withdrawn by '503'",
+            "keeps 'inside' focus usable when loaded 'trigger' causal detail is withdrawn by 'roster'",
+            "keeps 'inside' focus usable when loaded 'deep-link' causal detail is withdrawn by 'roster'"
+          ],
+          "skipped": 41
+        },
+        {
+          "phase": "GREEN_CANDIDATE_RUNSTREAM",
+          "modules": 45,
+          "passed": 49,
+          "failed": [],
+          "skipped": 0
+        }
+      ],
+      "red_semantics": "RED este un control deliberat via startVitest programmatic, nu un exit1 separat: wrapperul rulează ambele faze și închide cu exit0; rezultatele RED4fail/4pass sunt păstrate explicit, nu declarate GREEN.",
+      "durations": "RED8.19s total/6.31s teste; GREEN8.92s total/7.08s teste.",
+      "runner": "Node24.21.0/Vitest4.1.12 instalate; root web, filtre RunStream, config:false/configFile:false/envDir:false/publicDir:false/cache:false/watch:false, server.watch:null, optimizers disabled, jsdom, tests/setup.ts, restoreMocks/clearMocks. Plugin load pre citește45 module TS/TSX prin git show candidate:path; faza RED substituie numai RunPanel.tsx cu baza. Sursele/configul/harnessul nu sunt scrise.",
+      "limit": "Actual App/QueryClient/client/decoders/RunPanel cu fetch doubles în jsdom; nu browser/API/PG/provider live."
+    },
+    {
+      "command": "env -i HOME=/home/kali PATH=/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin TMPDIR=/home/kali/.hermes/cache/scratch node --check web/tests/e2e/s1-run.mjs",
+      "exit": 0,
+      "result": "Syntax PASS; nu importă sau execută driverul."
+    },
+    {
+      "command": "git diff --check da7101f896aba88a8da761ecaa6f17e833ae01c9 04283683c697c7ecf85335600fed2ea8f28c5306 -- web/src/features/engagement/RunPanel.tsx web/src/app/RunStream.test.tsx web/tests/e2e/s1-run.mjs",
+      "exit": 0,
+      "result": "Whitespace PASS."
+    },
+    {
+      "command": "git status --short --branch; git rev-parse HEAD; git diff --name-only; git diff --cached --name-only; git show și SHA256 numai scope/freeze/reviews admise",
+      "exit": 0,
+      "result": "Exact3 paths; toate bloburile corespund candidatului/freeze;6 paths auth/D neschimbate; ambele rapoarte originale hash-exact; HEAD exact și zero tracked/staged changes înainte/după."
+    }
+  ],
+  "evidence_reused_not_rerun": {
+    "prior_reviews": {
+      "review-corrections-final-r1.json": {
+        "sha256": "e74fc5d4601d6994c148c8c8e333f63e780c0faf2f041739d04d1b77f8a13e75",
+        "verdict": "CHANGES_REQUESTED_SOURCE_SCOPED"
+      },
+      "review-corrections-final-r2.json": {
+        "sha256": "38c9fb7600ea71d15e57b1dc6d8d7a2ff632f9d4e1e095bfb8827ecdef2ed1e1",
+        "verdict": "APPROVED_SOURCE_SCOPED"
+      }
+    },
+    "unchanged_auth_D_paths": {
+      "web/src/features/engagement/Wizard.tsx": "3e6595dd67474d5a251cc5a5fe76f2acec018bac64a2aeb52be8f3fe1b0e49da",
+      "web/src/features/engagement/SettingsModelsPage.tsx": "9dd00dd56e95972d218fc7b3eacb146f6965859d50eb3db9e527d0da74b54635",
+      "web/src/app/PrivatePublicationAuth.test.tsx": "643e284c778db0e680a550d9f3783ccf76690c0466377982592baae9f9f96ae1",
+      "web/src/shared/uiDiagnostics.ts": "f86d4bdcb895459bc2a4e0dd3e7072022af45e14966c55a505dced80735f134c",
+      "web/src/shared/api/client.ts": "d8fad2d9c3ecbb4423da754c0d0d2f19cd7c5b29cb836b6aede31a58e076046c",
+      "web/src/app/UiDiagnostics.test.tsx": "a15bc190a80011d53de5734e0b0b9ec8f2e96296b531812918868f40bd39b5ef"
+    },
+    "original_four_findings": "Dispozițiile SOURCE anterioare pentru opening-focus/auth publication/D01/D02 se păstrează la scope-ul lor. Doar findingul secundar UX-CORRECTIONS-R1-01 este închis prin acest re-review; raportul original CHANGES_REQUESTED rămâne intact.",
+    "developer_report": "ux-inspector-secondary-result.json/freeze: RED4FAIL/4PASS, RunStream49, affected161, full668, lint/type/build, syntax și collect-only. Aceste rezultate declarate se refolosesc calificat; independent aici am executat numai controalele enumerate.",
+    "parent_report": "8GREEN și reproducerea originală sunt context furnizat, nu execuții proprii."
+  },
+  "effects_and_limits": {
+    "only_explicit_created_file": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/review-secondary-final-r1.json",
+    "absence_checked_before_write": true,
+    "source_test_docs_git_changes": "NONE",
+    "agents_profiles_worktrees_installs_services_browser_PG_provider_target_effects": "NONE",
+    "protected_files_env_keys_vault_raw_operator_logs_Strix": "EXCLUDED_NOT_READ_NOT_HASHED_NOT_CHANGED",
+    "reticle": "NOT_APPLICABLE acestei execuții SOURCE fără UI runtime admis; nu certifică UI.",
+    "chisel": "BLOCKED_NO_GO; neexecutat.",
+    "not_checked": "Nu rerulare full668/lint/type/build/PG collect, audit auth/D global sau provider/API503 real. Nu browser nativ/screenshots/screen-reader/estetică/READY/canonical/main/CI/S2.",
+    "native_label": "INJECTED_UI_HTTP_FAILURE_ONLY; nu API/provider503 real și nu rezultat/record/run fabricat.",
+    "remaining_risk": "Corectitudinea efectivă a focusului în browser și finalizarea driverului/cleanupului trebuie stabilite de QA reală a părintelui; SOURCE și syntax nu o substituie."
+  },
+  "handoff": {
+    "code": "Implementat/comis pe candidatul04283683; niciun blocker SOURCE rămas în scope.",
+    "proof": "RED reprodus independent și GREEN49/49; native failure controls pregătite, NOT_RUN aici.",
+    "review": "APPROVED_SOURCE_SCOPED; UX-CORRECTIONS-R1-01 CLOSED_SOURCE_CURRENT_SCOPE.",
+    "next": "Părintele adjudecă și execută consumerul nativ existent test-s1-run-ui-pg pe același snapshot, conform autorizării/preflightului propriu; fără a cere acea dovadă ca prerequisite circular pentru review SOURCE."
+  }
+}

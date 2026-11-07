@@ -71,7 +71,7 @@ function stepFor(path: string) {
   return 0;
 }
 export function Wizard({ id }: { id?: string }) {
-  const { session, transition, readPrivate } = useSession();
+  const { session, transition, readPrivate, commitPrivate } = useSession();
   const client = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
@@ -89,10 +89,10 @@ export function Wizard({ id }: { id?: string }) {
   const [server, setServer] = useState<Revision | null>(null);
   const saving = useRef(false);
   const pending = useRef<Revision | null>(null);
-  const abort = useRef<AbortController | null>(null);
+  const abort = useRef(new AbortController());
   const lastObserved = useRef<string | null>(null);
   const summaryRef = useRef<HTMLDivElement>(null);
-  useEffect(() => () => { abort.current?.abort(); }, []);
+  useEffect(() => { abort.current = new AbortController(); return () => { abort.current.abort(); }; }, []);
   const query = useQuery({ queryKey: ['private', 'draft', id], queryFn: ({ signal }) => readPrivate(() => api.draft(id ?? '', signal), signal),
     enabled: !!id && !!session.data && !session.isError && transition === 'idle', retry: false, networkMode: 'always',
     refetchOnWindowFocus: false, refetchOnMount: 'always' });
@@ -100,6 +100,7 @@ export function Wizard({ id }: { id?: string }) {
   useEffect(() => {
     if (!query.data || query.isFetching || query.isError || phase === 'saving' || phase === 'checking' ||
       (hydrated && lastObserved.current === query.data.id)) return;
+    if (!commitPrivate(() => {}, abort.current.signal)) return;
     lastObserved.current = query.data.id;
     if (!hydrated) {
       if (isFullDraft(query.data.payload)) { setForm(query.data.payload); setDefaultUntouched(false); }
@@ -115,7 +116,7 @@ export function Wizard({ id }: { id?: string }) {
         setSaved(query.data);
       }
     }
-  }, [hydrated, query.data, query.isFetching, query.isError, saved, dirty, phase]);
+  }, [hydrated, query.data, query.isFetching, query.isError, saved, dirty, phase, commitPrivate]);
   function change(next: Draft, field?: string) {
     setForm(next);
     if (field === 'objective_text') setDefaultUntouched(false);
@@ -136,19 +137,22 @@ export function Wizard({ id }: { id?: string }) {
     const verified = await readPrivate(() => api.draft(receipt.engagement_id, signal), signal);
     if (verified.id !== receipt.id || verified.revision !== receipt.revision || verified.digest !== receipt.digest ||
       !equal(verified.payload, snapshot)) throw new ApiError('INVALID_RESPONSE');
-    pending.current = null;
-    setSaved(verified);
-    setForm(snapshot);
-    setPhase('idle');
-    setErrors([]);
-    setNotice(null);
-    client.setQueryData(['private', 'engagement', verified.engagement_id], verified);
-    client.setQueryData(['private', 'draft', verified.engagement_id], verified);
-    void client.invalidateQueries({ queryKey: ['private', 'dashboard'] });
+    if (!commitPrivate(() => {
+      pending.current = null;
+      setSaved(verified);
+      setForm(snapshot);
+      setPhase('idle');
+      setErrors([]);
+      setNotice(null);
+      client.setQueryData(['private', 'engagement', verified.engagement_id], verified);
+      client.setQueryData(['private', 'draft', verified.engagement_id], verified);
+      void client.invalidateQueries({ queryKey: ['private', 'dashboard'] });
+    }, signal)) return;
     return verified;
   }
   async function save(advance = false) {
     if (saving.current || phase === 'conflict' || phase === 'uncertain' || phase === 'stale' || !session.data) return;
+    if (!commitPrivate(() => {}, abort.current.signal)) return;
     const problems = localErrors(form);
     if (problems.length) { showErrors(problems); return; }
     if (!dirty && saved) { if (advance) setStep(current => Math.min(current + 1, 4)); return; }
@@ -163,12 +167,15 @@ export function Wizard({ id }: { id?: string }) {
       receipt = await readPrivate(() => saved
         ? api.updateDraft(saved.engagement_id, snapshot, saved.revision, saved.digest, crypto.randomUUID(), session.data!.csrf_token, controller.signal)
         : api.createDraft(snapshot, session.data!.csrf_token, controller.signal), controller.signal);
-      pending.current = receipt;
+      if (!commitPrivate(() => { pending.current = receipt; }, controller.signal)) return;
       const verified = await confirm(receipt, snapshot, controller.signal);
-      if (!id) navigate(`/engagements/${verified.engagement_id}/setup`, { state: { step: advance ? Math.min(step + 1, 4) : step } });
-      else if (advance) setStep(current => Math.min(current + 1, 4));
+      if (!verified) return;
+      commitPrivate(() => {
+        if (!id) navigate(`/engagements/${verified.engagement_id}/setup`, { state: { step: advance ? Math.min(step + 1, 4) : step } });
+        else if (advance) setStep(current => Math.min(current + 1, 4));
+      }, controller.signal);
     } catch (error) {
-      if (controller.signal.aborted) return;
+      if (!commitPrivate(() => {}, controller.signal)) return;
       if (error instanceof ApiError && error.code === 'ENGAGEMENT_CONFLICT') {
         setPhase('conflict'); setNotice('Conflict: this draft has a newer revision. Local edits are preserved. Compare the server revision before choosing how to reconcile.');
       } else if (receipt) {
@@ -180,10 +187,11 @@ export function Wizard({ id }: { id?: string }) {
       } else {
         setPhase('uncertain'); setNotice(error instanceof ApiError ? error.message : 'Save outcome uncertain. No success was confirmed.');
       }
-    } finally { saving.current = false; abort.current = null; }
+    } finally { saving.current = false; }
   }
   async function reconcile() {
     if (!session.data || saving.current) return;
+    if (!commitPrivate(() => {}, abort.current.signal)) return;
     const target = id ?? pending.current?.engagement_id;
     if (!target) return;
     const priorPhase = phase;
@@ -193,16 +201,17 @@ export function Wizard({ id }: { id?: string }) {
     abort.current = controller;
     try {
       const latest = await readPrivate(() => api.draft(target, controller.signal), controller.signal);
+      if (!commitPrivate(() => {}, controller.signal)) return;
       if (pending.current && latest.id === pending.current.id && latest.digest === pending.current.digest && equal(latest.payload, form)) {
-        await confirm(pending.current, form, controller.signal);
-        if (!id) navigate(`/engagements/${target}/setup`, { state: { step } });
+        const verified = await confirm(pending.current, form, controller.signal);
+        if (verified) commitPrivate(() => { if (!id) navigate(`/engagements/${target}/setup`, { state: { step } }); }, controller.signal);
       } else { setServer(latest); setPhase('conflict'); setNotice('Server revision loaded. Choose explicitly whether to discard or keep your local edits.'); }
     } catch (error) {
-      if (!controller.signal.aborted) {
+      if (commitPrivate(() => {}, controller.signal)) {
         setPhase(priorPhase);
         setNotice(error instanceof ApiError ? error.message : 'Readback unavailable.');
       }
-    } finally { saving.current = false; abort.current = null; }
+    } finally { saving.current = false; }
   }
   const lock = phase === 'saving' || phase === 'checking' || transition !== 'idle';
   if (id && !hydrated && !query.isError) return <section aria-busy="true"><p>Loading draft…</p></section>;
@@ -293,11 +302,12 @@ export function Wizard({ id }: { id?: string }) {
         {phase === 'conflict' && <div className={styles.warning}>
           <button type="button" onClick={() => { void reconcile(); }}>Compare server revision</button>
           {server && <><p>Server revision {server.revision} · digest {server.digest}. Local edits remain unsaved.</p>
-            <button type="button" onClick={() => { if (isFullDraft(server.payload)) {
+            <button type="button" onClick={() => { if (commitPrivate(() => {}, abort.current.signal) && isFullDraft(server.payload)) {
               setForm(server.payload); setSaved(server); setServer(null); setPhase('idle'); setErrors([]); setNotice(null);
               client.setQueryData(['private', 'draft', server.engagement_id], server);
             } }}>Discard local edits and load server revision</button>
             <button type="button" onClick={() => {
+              if (!commitPrivate(() => {}, abort.current.signal)) return;
               setSaved(server); setServer(null); setPhase('idle'); setNotice(null);
               client.setQueryData(['private', 'draft', server.engagement_id], server);
             }}>Use server revision as base, keep local edits (Save separately)</button>

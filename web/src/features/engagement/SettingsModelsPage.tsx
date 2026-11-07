@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { CancelledError, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../shared/api/client';
 import { ApiError, isUuid } from '../../shared/api/errors';
 import type { KeyCommand, KeySettings } from '../../shared/api/providerKeys';
@@ -19,7 +19,7 @@ import styles from './SettingsModels.module.css';
 const definitive = (error: unknown) => error instanceof ApiError && ['MODEL_IN_USE', 'NOT_FOUND', 'REVISION_CONFLICT', 'CONNECTION_UNAVAILABLE', 'MODEL_NOT_REGISTERED', 'REGISTRY_FULL', 'CAPABILITIES_REQUIRED', 'OPERATION_ACTIVE', 'INVALID_INPUT', 'INVALID_CSRF', 'BODY_TOO_LARGE'].includes(error.code);
 const confirmations = ['Model removed.', 'Key saved.', 'Connection disabled.', 'Assignments saved.', 'Settings reloaded.', 'Models saved.', 'Models connected.', 'Settings recovered.', 'Test was not admitted. A new test requires new consent.'];
 export function SettingsModelsPage({ scope }: { scope: string }) {
-  const { session, readPrivate } = useSession();
+  const { session, readPrivate, commitPrivate } = useSession();
   const client = useQueryClient();
   const [pending, setPending] = useState<Pending | null>(() => readPending(remembered(pendingStorage, scope)));
   const [catalogOperation, setCatalogOperation] = useState<CatalogOperation | null>(() => readCatalogOperation(remembered(catalogStorage, scope)));
@@ -55,22 +55,28 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   const queryKey = ['private', 'settings-model-library', scope];
   const authReady = !!session.data;
   async function load(signal: AbortSignal) {
+    if (!commitPrivate(() => {}, signal)) throw new CancelledError({ silent: true });
     let instance: Awaited<ReturnType<typeof api.instance>> | null = null;
     try { instance = await api.instance(signal); }
     catch (error) { if (signal.aborted || !(error instanceof ApiError) || error.code === 'UNAUTHENTICATED') throw error; }
+    if (!commitPrivate(() => {}, signal)) throw new CancelledError({ silent: true });
     const settings = await api.providerKeys(null, signal);
+    if (!commitPrivate(() => {}, signal)) throw new CancelledError({ silent: true });
     const library = await readLibrary(signal);
+    if (!commitPrivate(() => {}, signal)) throw new CancelledError({ silent: true });
     const evidence: Record<string, Evidence> = {};
     const checks: Record<string, EntryCheck> = {};
     const catalogs: Record<string, CatalogRead> = {};
     // Cached, local reads only. Batches bound local concurrency; no refresh on boot.
     for (let index = 0; index < library.entries.length; index += 4) {
       signal.throwIfAborted();
+      if (!commitPrivate(() => {}, signal)) throw new CancelledError({ silent: true });
       await Promise.all(library.entries.slice(index, index + 4).map(async entry => {
         try { checks[entry.entry_id] = await api.latestEntryModelTest(entry.entry_id, signal); }
         catch (error) { if (signal.aborted || (error instanceof ApiError && error.code === 'UNAUTHENTICATED')) throw error; checks[entry.entry_id] = error instanceof ApiError && error.code === 'NOT_FOUND' ? null : 'UNKNOWN'; }
         signal.throwIfAborted();
         if (!currentConnection(entry, settings)) return;
+        if (!commitPrivate(() => {}, signal)) throw new CancelledError({ silent: true });
         try {
           const catalog = await api.providerCatalog({ action: 'search', connection_id: entry.connection_id, connection_revision: entry.connection_revision, query: entry.model, offset: 0, catalog_command_id: null }, session.data!.csrf_token, signal);
           catalogs[entry.entry_id] = catalog;
@@ -110,6 +116,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   // Fresh tabs recover the admitted operation from the existing latest-entry projection, never from consent.
   useEffect(() => {
     if (operationPending || sending || connecting) return;
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     // Retain the newer terminal read before switching away from a delayed library snapshot.
     const previous = observed && data?.checks[observed.entry_id];
     if (observed?.state === 'FINISHED' && previous && previous !== 'UNKNOWN' && previous.operation_id === observed.operation_id && previous.state_revision != null && observed.state_revision != null && previous.state_revision < observed.state_revision) {
@@ -121,14 +128,15 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       client.setQueryData(['private', 'settings-entry-test', scope, active.operation_id], active);
       setOperation(active.operation_id ?? null);
     }
-  }, [data, observed, operation, operationPending, sending, connecting, client, scope]);
+  }, [data, observed, operation, operationPending, sending, connecting, client, scope, commitPrivate]);
   useEffect(() => {
     const controller = new AbortController(); lifetime.current = controller;
     return () => { controller.abort(); continuation.current?.abort(); readController.current?.abort(); wizardGeneration.current += 1; };
   }, []);
   useEffect(() => {
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     setNotification(confirmations.includes(notice) ? notice : '');
-  }, [notice]);
+  }, [notice, commitPrivate]);
   useEffect(() => {
     if (!notification) return;
     let remaining = 5000, shownAt = 0, timer: number | undefined, disposed = false;
@@ -156,14 +164,15 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(place); observer?.observe(document.body);
     return () => { disposed = true; window.clearTimeout(timer); window.removeEventListener('scroll', place, true); window.removeEventListener('resize', place); document.removeEventListener('focusin', place); document.removeEventListener('focusout', focusOut); observer?.disconnect(); };
   }, [notification]);
-  function updateCheck(id: string, value: EntryCheck) { client.setQueryData<Awaited<ReturnType<typeof load>>>(queryKey, previous => previous ? { ...previous, checks: { ...previous.checks, [id]: value } } : previous); }
+  function updateCheck(id: string, value: EntryCheck) { return commitPrivate(() => { client.setQueryData<Awaited<ReturnType<typeof load>>>(queryKey, previous => previous ? { ...previous, checks: { ...previous.checks, [id]: value } } : previous); }, lifetime.current.signal); }
   useEffect(() => {
     if (!observed || connecting) return;
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     client.setQueryData<Awaited<ReturnType<typeof load>>>(['private', 'settings-model-library', scope], previous => {
       const latest = previous?.checks[observed.entry_id];
       return previous && latest && latest !== 'UNKNOWN' && latest.operation_id === observed.operation_id ? { ...previous, checks: { ...previous.checks, [observed.entry_id]: testUnknown || test.isError ? 'UNKNOWN' : observed } } : previous;
     });
-  }, [observed, connecting, testUnknown, test.isError, client, scope]);
+  }, [observed, connecting, testUnknown, test.isError, client, scope, commitPrivate]);
   function closeWizard(restore = true) { const inside = document.activeElement?.closest('[aria-label="Add models wizard"]'); wizardGeneration.current += 1; setWizard(null); if (restore && inside) addButton.current?.focus({ preventScroll: true }); }
   function open(provider: Connection['provider'] = 'openrouter', replace = false) {
     if (blocked || sending) return;
@@ -176,112 +185,129 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     document.addEventListener('focusin', observe);
     return () => requestAnimationFrame(() => {
       document.removeEventListener('focusin', observe);
-      if (!lifetime.current.signal.aborted && !moved && origin && !origin.isConnected && document.activeElement === document.body) addButton.current?.focus();
+      if (!moved && origin && !origin.isConnected && document.activeElement === document.body) commitPrivate(() => addButton.current?.focus(), lifetime.current.signal);
     });
   }
   async function readCurrent(recover = false) {
     if (!authReady || reading || mutationBusy.current || continuation.current || (pending && !recover)) return;
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     const settleFocus = removedControlFocus();
     setReading(true); setNotice(''); if (!recover) setNoticeTarget(null); const abort = new AbortController(); readController.current = abort;
     try {
       if (recover && pending) await readPrivate(async () => { if (pending.kind === 'keys') await api.providerKeys(pending.id, abort.signal); else await api.providerModels(pending.id, abort.signal); }, abort.signal);
+      if (!commitPrivate(() => {}, abort.signal) || lifetime.current.signal.aborted) return;
       const value = await readPrivate(() => load(abort.signal), abort.signal);
-      if (abort.signal.aborted || lifetime.current.signal.aborted) return;
-      remember(pendingStorage, scope, null); setPending(null); setStale(false); client.setQueryData(queryKey, value);
-      setNotice(recover ? 'Settings recovered.' : 'Settings reloaded.');
-    } catch (error) { if (!abort.signal.aborted && !lifetime.current.signal.aborted) { setStale(true); setNotice(recover ? 'Receipt not confirmed. Do not repeat this command.' : message(error)); } }
-    finally { if (!lifetime.current.signal.aborted) setReading(false); settleFocus(); }
+      if (lifetime.current.signal.aborted) return;
+      commitPrivate(() => {
+        remember(pendingStorage, scope, null); setPending(null); setStale(false); client.setQueryData(queryKey, value);
+        setNotice(recover ? 'Settings recovered.' : 'Settings reloaded.');
+      }, abort.signal);
+    } catch (error) { if (!lifetime.current.signal.aborted) commitPrivate(() => { setStale(true); setNotice(recover ? 'Receipt not confirmed. Do not repeat this command.' : message(error)); }, abort.signal); }
+    finally { commitPrivate(() => setReading(false), lifetime.current.signal); settleFocus(); }
   }
   async function mutate<T>(kind: Pending['kind'], id: string, send: () => Promise<T>, target: string | null = null): Promise<T | undefined> {
     if (blocked || reading || current.isFetching || mutationBusy.current) return;
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     mutationBusy.current = true; setSending(true); setNotice(''); setNoticeTarget(target); let submitted = false;
     try {
       remember(pendingStorage, scope, { kind, id }); setPending({ kind, id });
       await client.cancelQueries({ queryKey });
-      if (lifetime.current.signal.aborted) return;
+      if (!commitPrivate(() => {}, lifetime.current.signal)) return;
       submitted = true;
       const receipt = await readPrivate(send, lifetime.current.signal);
       // Read the exact durable receipt, independently of the mutation reply.
       const confirmed = await readPrivate(async () => kind === 'keys' ? await api.providerKeys(id, lifetime.current.signal) : await api.providerModels(id, lifetime.current.signal), lifetime.current.signal);
       if (JSON.stringify(confirmed) !== JSON.stringify(receipt)) throw new ApiError('INVALID_RESPONSE');
       const value = await readPrivate(() => load(lifetime.current.signal), lifetime.current.signal);
-      if (lifetime.current.signal.aborted) return;
-      remember(pendingStorage, scope, null); setPending(null); client.setQueryData(queryKey, value);
+      if (!commitPrivate(() => {
+        remember(pendingStorage, scope, null); setPending(null); client.setQueryData(queryKey, value);
+      }, lifetime.current.signal)) return;
       await client.invalidateQueries({ queryKey: ['private', 'model-test'] });
+      if (!commitPrivate(() => {}, lifetime.current.signal)) return;
       return receipt;
     } catch (error) {
-      if (lifetime.current.signal.aborted) return;
+      if (!commitPrivate(() => {}, lifetime.current.signal)) return;
       if (!submitted || definitive(error)) {
         remember(pendingStorage, scope, null); setPending(null); setStale(true);
         setNotice(!submitted ? 'Command identity could not be retained. No save submitted.' : message(error));
       } else setNotice('Recover the exact receipt; no mutation retry is sent.');
-    } finally { mutationBusy.current = false; if (!lifetime.current.signal.aborted) setSending(false); }
+    } finally { mutationBusy.current = false; commitPrivate(() => setSending(false), lifetime.current.signal); }
   }
   async function saveKeys(command: KeyCommand) {
     continuation.current?.abort();
     const result = await mutate('keys', command.command_id, () => api.saveProviderKeys(command, session.data!.csrf_token, lifetime.current.signal), 'connection_id' in command ? command.connection_id : 'assignments');
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     if (result) setNotice(command.action === 'save_connection' ? 'Key saved.' : command.action === 'revoke_connection' ? 'Connection disabled.' : 'Assignments saved.');
     return result;
   }
   async function refresh(connection: Connection): Promise<CatalogView | undefined> {
     if (blocked || mutationBusy.current || catalogOperation) return;
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     const operation = { id: crypto.randomUUID(), connection: connection.connection_id, revision: connection.revision };
     mutationBusy.current = true; setSending(true); setCatalogNotice(null);
     try {
       remember(catalogStorage, scope, operation); setCatalogOperation(operation);
       const value = await readPrivate(() => api.refreshProviderCatalog({ action: 'refresh', command_id: operation.id, connection_id: operation.connection, connection_revision: operation.revision }, session.data!.csrf_token, lifetime.current.signal), lifetime.current.signal);
+      if (!commitPrivate(() => {}, lifetime.current.signal)) return;
       if (value.state !== 'PENDING') { remember(catalogStorage, scope, null); setCatalogOperation(null); void client.invalidateQueries({ queryKey }); }
       return value;
-    } catch (error) { if (!lifetime.current.signal.aborted) { if (definitive(error)) { remember(catalogStorage, scope, null); setCatalogOperation(null); setStale(true); } setCatalogNotice({ connection: connection.connection_id, revision: connection.revision, text: definitive(error) ? 'Models could not be loaded. Reload settings before trying again.' : 'Model list update is unconfirmed. Read its status before refreshing again.', detail: error instanceof ApiError ? error.code : 'API_UNAVAILABLE' }); } }
-    finally { mutationBusy.current = false; if (!lifetime.current.signal.aborted) setSending(false); }
+    } catch (error) { if (commitPrivate(() => {}, lifetime.current.signal)) { if (definitive(error)) { remember(catalogStorage, scope, null); setCatalogOperation(null); setStale(true); } setCatalogNotice({ connection: connection.connection_id, revision: connection.revision, text: definitive(error) ? 'Models could not be loaded. Reload settings before trying again.' : 'Model list update is unconfirmed. Read its status before refreshing again.', detail: error instanceof ApiError ? error.code : 'API_UNAVAILABLE' }); } }
+    finally { mutationBusy.current = false; commitPrivate(() => setSending(false), lifetime.current.signal); }
   }
   async function readCatalog(cancel = false) {
     if (!catalogOperation || !session.data) return;
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     const snapshot = catalogOperation, signal = lifetime.current.signal;
     try {
       const value = await readPrivate(() => cancel ? api.cancelProviderCatalog({ action: 'cancel', connection_id: snapshot.connection, connection_revision: snapshot.revision, catalog_command_id: snapshot.id, command_id: crypto.randomUUID() }, session.data!.csrf_token, signal) : api.providerCatalog({ action: 'search', connection_id: snapshot.connection, connection_revision: snapshot.revision, catalog_command_id: snapshot.id, query: '', offset: 0 }, session.data!.csrf_token, signal), signal);
+      if (!commitPrivate(() => {}, signal)) return;
       setCatalogNotice(value.state === 'READY' && value.reason === null ? null : { connection: snapshot.connection, revision: snapshot.revision, text: value.state === 'PENDING' ? 'Loading models…' : value.state === 'PARTIAL' ? 'Some models could not be loaded. Open Add models to inspect the available list.' : 'Models could not be loaded. Open Add models to refresh the list or enter an exact model ID.', detail: `${value.state}${value.reason ? ' · ' + value.reason : ''}` });
       if (value.state !== 'PENDING') { remember(catalogStorage, scope, null); setCatalogOperation(null); }
       await client.invalidateQueries({ queryKey: ['private', 'settings-catalog'] });
+      if (!commitPrivate(() => {}, signal)) return;
       if (value.state !== 'PENDING') void client.invalidateQueries({ queryKey });
-    } catch (error) { if (!signal.aborted) setCatalogNotice({ connection: snapshot.connection, revision: snapshot.revision, text: 'Model list update is unconfirmed. Read its status before refreshing again.', detail: error instanceof ApiError ? error.code : 'API_UNAVAILABLE' }); }
+    } catch (error) { if (commitPrivate(() => {}, signal)) setCatalogNotice({ connection: snapshot.connection, revision: snapshot.revision, text: 'Model list update is unconfirmed. Read its status before refreshing again.', detail: error instanceof ApiError ? error.code : 'API_UNAVAILABLE' }); }
   }
   function catalogRead(value: CatalogView) {
     if (!catalogOperation || value.catalog_command_id !== catalogOperation.id || value.connection_id !== catalogOperation.connection || value.connection_revision !== catalogOperation.revision || value.state === 'PENDING') return;
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     remember(catalogStorage, scope, null); setCatalogOperation(null); setCatalogNotice(null);
     void client.invalidateQueries({ queryKey });
   }
   async function startTest(entry: ModelEntry, catalog: string, expectedGeneration: number, sequence?: AbortSignal) {
     if (!session.data || (!sequence && activeTest) || mutationBusy.current || lifetime.current.signal.aborted || sequence?.aborted) return;
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     mutationBusy.current = true; setSending(true); setConsent(false); setNotice('');
     const id = crypto.randomUUID(); let submitted = false;
     try {
       readController.current?.abort();
       await client.cancelQueries({ queryKey });
-      if (lifetime.current.signal.aborted || sequence?.aborted) return;
+      if (sequence?.aborted || !commitPrivate(() => {}, lifetime.current.signal)) return;
       remember(testStorage, scope, id); remember(testStorage + '-refused', scope, null); setRefusedTest(null); setOperation(id); setOperationEntry(entry.entry_id); setTestUnknown(false); setTestNotice('');
       updateCheck(entry.entry_id, 'UNKNOWN');
       submitted = true;
       const value = await readPrivate(() => api.startEntryModelTest({ operation_id: id, expected_generation: expectedGeneration, entry_id: entry.entry_id, expected_entry_revision: entry.revision, expected_connection_revision: entry.connection_revision, catalog_command_id: catalog, consent: true }, session.data!.csrf_token, lifetime.current.signal), lifetime.current.signal);
-      if (lifetime.current.signal.aborted) return;
-      client.setQueryData(['private', 'settings-entry-test', scope, id], value); updateCheck(entry.entry_id, value);
-      setTestChoice(null);
+      if (!commitPrivate(() => {
+        client.setQueryData(['private', 'settings-entry-test', scope, id], value); updateCheck(entry.entry_id, value);
+        setTestChoice(null);
+      }, lifetime.current.signal)) return;
       return value;
-    } catch (error) { if (!lifetime.current.signal.aborted) { setTestUnknown(submitted); if (definitive(error)) { remember(testStorage + '-refused', scope, id); setRefusedTest(id); setStale(true); setTestChoice(null); } setTestNotice(submitted ? `Test outcome unconfirmed. Read the same operation. ${message(error)}` : 'Test identity could not be retained. No test submitted.'); } }
-    finally { mutationBusy.current = false; if (!lifetime.current.signal.aborted) setSending(false); }
+    } catch (error) { if (commitPrivate(() => {}, lifetime.current.signal)) { setTestUnknown(submitted); if (definitive(error)) { remember(testStorage + '-refused', scope, id); setRefusedTest(id); setStale(true); setTestChoice(null); } setTestNotice(submitted ? `Test outcome unconfirmed. Read the same operation. ${message(error)}` : 'Test identity could not be retained. No test submitted.'); } }
+    finally { mutationBusy.current = false; commitPrivate(() => setSending(false), lifetime.current.signal); }
   }
   async function readTest(cancel = false) {
     if (cancel) continuation.current?.abort();
     if (!operation || !session.data) return;
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     const id = operation, signal = lifetime.current.signal;
     try {
       const value = await readPrivate(() => cancel && observed?.state_revision ? api.cancelEntryModelTest(id, crypto.randomUUID(), observed.state_revision, session.data!.csrf_token, signal) : api.entryModelTest(id, signal), signal);
-      if (signal.aborted) return;
+      if (!commitPrivate(() => {}, signal)) return;
       client.setQueryData(['private', 'settings-entry-test', scope, id], value); setTestUnknown(false); setTestNotice('');
       const latest = await readPrivate(() => api.latestEntryModelTest(value.entry_id, signal), signal);
-      if (!signal.aborted) updateCheck(value.entry_id, latest);
+      updateCheck(value.entry_id, latest);
     } catch (error) {
-      if (signal.aborted) return;
+      if (!commitPrivate(() => {}, signal)) return;
       continuation.current?.abort();
       if (!cancel && error instanceof ApiError && error.code === 'NOT_FOUND' && refusedTest === id) {
         remember(testStorage, scope, null); remember(testStorage + '-refused', scope, null); setOperation(null); setOperationEntry(null); setRefusedTest(null); setTestUnknown(false); setTestNotice(''); setNotice('Test was not admitted. A new test requires new consent.');
@@ -292,52 +318,54 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
     return (sending || connecting || operationPending) && !(check && check !== 'UNKNOWN' && check.operation_id === operation);
   }
   function readCheck(check: EntryCheck | undefined) {
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     if (check && check !== 'UNKNOWN' && check.operation_id === operation) { void readTest(); return; }
     if (mutationBusy.current || continuation.current || checkSelectionBlocked(check)) return;
     if (check && check !== 'UNKNOWN') { setOperation(check.operation_id ?? null); setOperationEntry(check.entry_id); setTestUnknown(false); setTestNotice(''); } else void readCurrent();
   }
   async function connectEntries(entries: ModelEntry[], catalog: string, provider: Connection['provider'], expectedGeneration: number) {
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     const controller = new AbortController(); continuation.current = controller; setConnecting(true);
     const signal = AbortSignal.any([controller.signal, lifetime.current.signal]);
     let checking: ModelEntry | undefined;
     try {
       for (const entry of entries) {
-        if (signal.aborted) return;
+        if (!commitPrivate(() => {}, signal)) return;
         checking = entry;
         const started = await startTest(entry, catalog, expectedGeneration, signal);
-        if (!started || signal.aborted) return;
+        if (!started || !commitPrivate(() => {}, signal)) return;
         const deadline = performance.now() + started.wall_seconds * 1000;
         let checked: EntryTestView;
         do {
           checked = await readPrivate(() => api.entryModelTest(started.operation_id!, signal), signal);
-          if (signal.aborted) return;
+          if (!commitPrivate(() => {}, signal)) return;
           client.setQueryData(['private', 'settings-entry-test', scope, checked.operation_id], checked); updateCheck(entry.entry_id, checked);
           if (!exactCheck(entry, provider, checked) || checked.state === 'NEEDS_RECONCILIATION' || checked.state === 'STOPPING' || (checked.result_state && checked.result_state !== 'COMPLETED')) throw new Error('Check did not complete');
           if (checked.state === 'FINISHED') break;
           if (performance.now() >= deadline) throw new Error('Read deadline reached');
           await new Promise<void>(resolve => { const done = () => { clearTimeout(timer); signal.removeEventListener('abort', done); resolve(); }; const timer = setTimeout(done, 750); signal.addEventListener('abort', done, { once: true }); });
         } while (!signal.aborted);
-        if (signal.aborted) return;
+        if (!commitPrivate(() => {}, signal)) return;
         if (checked.state !== 'FINISHED' || checked.result_state !== 'COMPLETED' || checked.finish_reason !== 'COMPLETED') throw new Error('Check did not complete');
         const latest = await readPrivate(() => api.latestEntryModelTest(entry.entry_id, signal), signal);
-        if (signal.aborted) return;
+        if (!commitPrivate(() => {}, signal)) return;
         updateCheck(entry.entry_id, latest);
         if (latest.operation_id !== checked.operation_id || latest.state !== 'FINISHED' || latest.result_state !== 'COMPLETED' || latest.finish_reason !== 'COMPLETED' || !exactCheck(entry, provider, latest)) throw new Error('Check changed');
       }
-      setNotice('Models connected.');
+      commitPrivate(() => setNotice('Models connected.'), signal);
     } catch (error) {
-      if (!signal.aborted) {
+      if (commitPrivate(() => {}, signal)) {
         if (error instanceof ApiError && checking) { updateCheck(checking.entry_id, 'UNKNOWN'); setTestUnknown(true); }
         setTestNotice('Connection checks stopped. Read the current operation; remaining models were not sent. New checks require new consent.');
       }
     } finally {
       if (continuation.current === controller) continuation.current = null;
-      if (!lifetime.current.signal.aborted) setConnecting(false);
+      commitPrivate(() => setConnecting(false), lifetime.current.signal);
     }
   }
   async function saveModels(payload: SaveModels, testIntent: { catalog: string; generation: number } | null, generation: number) {
     const receipt = await mutate('models', payload.command_id, () => api.saveProviderModels(payload, session.data!.csrf_token, lifetime.current.signal));
-    if (!receipt) return;
+    if (!receipt || !commitPrivate(() => {}, lifetime.current.signal)) return;
     const latest = client.getQueryData<Awaited<ReturnType<typeof load>>>(queryKey);
     const entries = latest?.library.entries.filter(item => payload.models.some(request => request.entry_id === item.entry_id && request.model === item.model && item.revision === request.expected_revision + 1 && item.output_tokens === request.output_tokens) && item.connection_id === payload.connection_id && item.connection_revision === payload.connection_revision) ?? [];
     if (latest?.library.revision !== receipt.registry_revision || receipt.registry_revision !== payload.expected_registry_revision + 1 || entries.length !== payload.models.length) { setStale(true); setNotice('Saved entries do not match the requested revisions. Read current settings; no test was sent.'); return; }
@@ -363,11 +391,12 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   function removalKeys(event: KeyboardEvent<HTMLButtonElement>) { if (event.key === 'Escape') { event.stopPropagation(); cancelRemoval(); } }
   async function removeModel() {
     if (!removal || !removalCurrent || blocked || busy || activeTest || mutationBusy.current || lifetime.current.signal.aborted || !data || !expanded.includes(removal.entry.entry_id) || !Object.hasOwn(data.checks, removal.entry.entry_id) || data.checks[removal.entry.entry_id] === 'UNKNOWN' || removeDependencies(removal.entry).length) return;
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     const command = { action: 'remove_model' as const, command_id: crypto.randomUUID(), expected_registry_revision: removal.registry, entry_id: removal.entry.entry_id, expected_revision: removal.entry.revision };
     const settleFocus = removedControlFocus();
     try {
       const receipt = await mutate('models', command.command_id, () => api.saveProviderModels(command, session.data!.csrf_token, lifetime.current.signal), removal.entry.entry_id);
-      if (receipt) { setTestChoice(null); setConsent(false); setNotice('Model removed.'); }
+      if (receipt) commitPrivate(() => { setTestChoice(null); setConsent(false); setNotice('Model removed.'); }, lifetime.current.signal);
     } finally { settleFocus(); }
   }
   function stopRemaining() { continuation.current?.abort(); setTestNotice('Remaining checks stopped. Read the admitted check.'); }
@@ -378,6 +407,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
   function connectionKeys(event: KeyboardEvent<HTMLButtonElement>) { if (event.key === 'Escape') { event.stopPropagation(); cancelConnectionChoice(); } }
   async function confirmConnectionChoice() {
     if (!connectionChoice || !connectionChoiceCurrent || blocked || busy || mutationBusy.current || lifetime.current.signal.aborted) return;
+    if (!commitPrivate(() => {}, lifetime.current.signal)) return;
     const { connection, replace } = connectionChoice;
     const settleFocus = removedControlFocus(); setConnectionChoice(null);
     try {
@@ -406,6 +436,7 @@ export function SettingsModelsPage({ scope }: { scope: string }) {
       {generation === null && <p className={styles.hint}>Instance admission is unavailable. Reload current settings before opening new test consent.</p>}
       {wizard && <SettingsModelWizard key={wizard.id} settings={data.settings} library={data.library} provider={wizard.provider} connection={wizard.connection} changeConnection={(provider, connection) => setWizard({ ...wizard, provider, connection })} replace={wizard.replace} blocked={blocked} working={busy} canTest={!activeTest} generation={generation} catalogFeedback={wizardCatalog ? catalogRecovery() : null} catalogRead={catalogRead} close={() => closeWizard()} refresh={refresh} saveKey={async (provider, connection, secret) => {
         const result = await saveKeys({ action: 'save_connection', command_id: crypto.randomUUID(), connection_id: connection?.connection_id ?? crypto.randomUUID(), expected_revision: connection?.revision ?? 0, provider, secret });
+        if (!commitPrivate(() => {}, lifetime.current.signal)) return;
         const saved = result?.connections.find(item => item.provider === provider);
         const latest = client.getQueryData<{ settings: KeySettings }>(queryKey)?.settings.connections.find(item => item.provider === provider);
         if (saved && latest && saved.connection_id === latest.connection_id && saved.revision === latest.revision && latest.enabled && latest.credential_present) return latest;

@@ -282,6 +282,8 @@ try {
     await check(page.locator('main')).toBeFocused();
     assert.equal(await page.locator('main').evaluate(element => getComputedStyle(element).outlineStyle), 'none');
     await page.keyboard.press('Shift+Tab');
+    await check(page.getByRole('button', { name: 'Light theme', exact: true })).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
     await check(page.getByRole('link', { name: 'Settings', exact: true })).toBeFocused();
     await page.keyboard.press('Shift+Tab');
     await page.keyboard.press('Enter');

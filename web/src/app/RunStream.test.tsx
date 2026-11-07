@@ -10,7 +10,7 @@ import { syntheticRun as run, syntheticAttempt, syntheticSummary, inspection, co
 import { decodeAttemptInspection } from '../shared/api/runs';
 
 function Location() { const location = useLocation(); return <output aria-label="View URL">{location.pathname}{location.search}</output>; }
-function setup(query = '', fault = '', summaryGate?: Promise<void>) {
+function setup(query = '', fault = '', summaryGate?: Promise<void>, attemptGate?: Promise<void>) {
   const brain = consumingBrain();
   const worker: ReturnType<typeof inspection> = { ...inspection(), consumption: { held: false, decision_ref: brain.result_ref ?? null, consumer_attempt_id: brain.attempt_id } };
   const parent = { ...syntheticAttempt, role: 'BRAIN' as const, task_id: brain.task_id, attempt_id: brain.attempt_id, parent_task_id: null, state: 'SUCCEEDED' as const, result_ref: brain.result_ref, result_summary: brain.result_summary };
@@ -38,6 +38,7 @@ function setup(query = '', fault = '', summaryGate?: Promise<void>) {
     if (fault === 'other-active' && path === `/api/v1/engagements/${other.engagement_id}`) return Response.json({ ...draft, engagement_id: other.engagement_id, payload: { ...draft.payload, name: 'Other active engagement' } });
     if (path.endsWith('/summary')) { if (summaryGate) await summaryGate; return Response.json(summary); }
     if (path.includes('/attempts/')) {
+      if (attemptGate) await attemptGate;
       if (path.endsWith(worker.attempt_id) && fault !== 'missing') return Response.json(worker);
       if (path.endsWith(brain.attempt_id)) return Response.json(brain);
       return Response.json({ error: { code: 'NOT_FOUND', correlation_id: id } }, { status: 404 });
@@ -249,6 +250,53 @@ it.each(['trigger', 'deep-link'])('closes the nonmodal inspector to a visible %s
   await user.click(within(inspector).getByRole('button', { name: 'Close inspector' }));
   expect(screen.queryByRole('region', { name: 'Agent inspector' })).not.toBeInTheDocument();
   expect(entry === 'trigger' ? trigger : screen.getByRole('heading', { name: 'Brain stream' })).toHaveFocus();
+  view.unmount();
+});
+
+it.each(['trigger', 'deep-link'].flatMap(entry => ['pending', 'error', 'loaded'].map(state => ({ entry, state }))))('focuses the $entry inspector during $state readback and closes with Escape', async ({ entry, state }) => {
+    let release: (() => void) | undefined;
+    const gate = state === 'pending' ? new Promise<void>(resolve => { release = resolve; }) : undefined;
+    const { view, fetcher } = setup(entry === 'deep-link' ? `?run=${run.run_id}&attempt=${id}` : '', state === 'error' ? 'missing' : '', undefined, gate);
+    const user = userEvent.setup();
+    const trigger = await screen.findByRole('button', { name: /^RECON/ });
+    if (entry === 'trigger') { trigger.focus(); await user.keyboard('{Enter}'); }
+    if (state === 'pending') await screen.findByText('Loading selected agent…');
+    else if (state === 'error') await screen.findByText('Selected record unavailable or inconsistent. No linked result was accepted.');
+    else await screen.findByRole('region', { name: 'Agent inspector' });
+    const popup = screen.getByRole('dialog', { name: 'Recorded agent activity' });
+    await waitFor(() => expect(popup.contains(document.activeElement)).toBe(true));
+    expect(state === 'loaded' ? within(popup).getByRole('heading', { level: 3 }) : within(popup).getByRole('button', { name: 'Close inspector' })).toHaveFocus();
+    expect(popup).not.toHaveAttribute('aria-modal', 'true');
+    expect(screen.getByRole('button', { name: 'Stop active run' }).closest('[inert]')).toBeNull();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog', { name: 'Recorded agent activity' })).not.toBeInTheDocument();
+    expect(entry === 'trigger' ? trigger : screen.getByRole('heading', { name: 'Brain stream' })).toHaveFocus();
+    expect(screen.getByLabelText('View URL')).not.toHaveTextContent('attempt=');
+    expect(screen.getByLabelText('View URL')).not.toHaveTextContent('source=');
+    expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
+    view.unmount();
+    release?.();
+});
+
+it('does not steal focus from Stop when a pending inspection settles or its retained detail refetches', async () => {
+  let release: (() => void) | undefined;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const { view, fetcher, worker } = setup('', '', undefined, gate);
+  const user = userEvent.setup();
+  const trigger = await screen.findByRole('button', { name: /^RECON/ });
+  trigger.focus(); await user.keyboard('{Enter}');
+  await screen.findByText('Loading selected agent…');
+  const stop = screen.getByRole('button', { name: 'Stop active run' });
+  await waitFor(() => expect(stop).toBeEnabled());
+  stop.focus(); expect(stop).toHaveFocus();
+  await act(async () => { release?.(); await gate; });
+  const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
+  expect(stop).toHaveFocus();
+  worker.brief = 'Updated retained brief';
+  await act(async () => { await view.client.invalidateQueries({ queryKey: ['private', 'run-attempt'] }); });
+  expect(await within(inspector).findByRole('heading', { name: /Updated retained brief/ })).toBeVisible();
+  expect(stop).toHaveFocus();
+  expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
   view.unmount();
 });
 

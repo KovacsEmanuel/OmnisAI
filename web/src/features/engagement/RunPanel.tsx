@@ -128,7 +128,9 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
     setSelected(null);
     if (selectionTrigger.current?.isConnected) selectionTrigger.current.focus(); else runHeading.current?.focus();
   }
-  useEffect(() => { if (detail?.attempt_id) inspectorHeading.current?.focus(); }, [detail?.attempt_id]);
+  useEffect(() => { if (selected) (inspectorHeading.current ?? popup.current?.querySelector('button'))?.focus(); }, [selected]);
+  // Loading Close is replaced by the loaded record; do not take focus back from Stop.
+  useEffect(() => { if (detail?.attempt_id && (document.activeElement === document.body || popup.current?.contains(document.activeElement))) inspectorHeading.current?.focus(); }, [detail?.attempt_id]);
   useEffect(() => {
     if (!selected) return;
     const anchor = document.getElementById('global-run-control-anchor');

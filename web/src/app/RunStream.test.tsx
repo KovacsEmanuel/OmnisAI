@@ -300,6 +300,50 @@ it('does not steal focus from Stop when a pending inspection settles or its reta
   view.unmount();
 });
 
+it.each(['503', 'roster'].flatMap(fault => ['inside', 'stop'].flatMap(focus => ['trigger', 'deep-link'].map(entry => ({ fault, focus, entry })))) )('keeps $focus focus usable when loaded $entry causal detail is withdrawn by $fault', async ({ fault, focus, entry }) => {
+  const { view, fetcher, brain, parent } = setup(entry === 'deep-link' ? `?run=${run.run_id}&attempt=${instance.instance_id}&source=${id}` : '');
+  const user = userEvent.setup();
+  const trigger = await screen.findByRole('button', { name: /^RECON/ });
+  if (entry === 'trigger') {
+    trigger.focus(); await user.keyboard('{Enter}');
+    await user.click(await screen.findByRole('button', { name: /Inspect consuming Brain/ }));
+  }
+  const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
+  await waitFor(() => expect(inspector).toHaveAttribute('data-attempt-id', brain.attempt_id));
+  const stop = screen.getByRole('button', { name: 'Stop active run' });
+  await waitFor(() => expect(stop).toBeEnabled());
+  if (focus === 'stop') stop.focus(); else within(inspector).getByRole('heading', { level: 3 }).focus();
+  if (fault === '503') {
+    const original = fetcher.getMockImplementation();
+    if (!original) throw new Error('Missing SOURCE fetch');
+    fetcher.mockImplementation(async (input, init) => String(input) === `/api/v1/runs/${run.run_id}/attempts/${brain.attempt_id}`
+      ? Response.json({ error: { code: 'API_UNAVAILABLE', correlation_id: id } }, { status: 503 }) : original(input, init));
+    await act(async () => { await view.client.refetchQueries({ queryKey: ['private', 'run-attempt'] }); });
+  } else {
+    parent.configured_model = 'fixture/changed-roster-model';
+    await act(async () => { await view.client.refetchQueries({ queryKey: ['private', 'run-summary'] }); });
+  }
+  await screen.findByText('Selected record unavailable or inconsistent. No linked result was accepted.');
+  expect(screen.queryByRole('region', { name: 'Agent inspector' })).not.toBeInTheDocument();
+  const popup = screen.getByRole('dialog', { name: 'Recorded agent activity' });
+  const close = within(popup).getByRole('button', { name: 'Close inspector' });
+  expect(popup).not.toHaveAttribute('aria-modal', 'true');
+  expect(stop.closest('[inert]')).toBeNull();
+  if (focus === 'stop') {
+    expect(stop).toHaveFocus();
+    await user.keyboard('{Escape}');
+    expect(popup).toBeVisible();
+    close.focus();
+  } else await waitFor(() => expect(close).toHaveFocus());
+  await user.keyboard('{Escape}');
+  expect(screen.queryByRole('dialog', { name: 'Recorded agent activity' })).not.toBeInTheDocument();
+  expect(entry === 'trigger' ? trigger : screen.getByRole('heading', { name: 'Brain stream' })).toHaveFocus();
+  expect(screen.getByLabelText('View URL')).not.toHaveTextContent('attempt=');
+  expect(screen.getByLabelText('View URL')).not.toHaveTextContent('source=');
+  expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
+  view.unmount();
+});
+
 it('brings narrow-screen selection to the stacked inspector and returns to its trigger without a modal', async () => {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true })));
   const { view } = setup();

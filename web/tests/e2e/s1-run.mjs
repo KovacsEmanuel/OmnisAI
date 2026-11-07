@@ -92,7 +92,7 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
     await inspectWorker(previous.run, previous.worker);
     assert.deepEqual(writes, [], 'API restart and reload must never start or consume');
     await secretChecks();
-    return { run: previous.run, engagement: previous.engagement, apiRestartReadback: true };
+    return { run: previous.run, engagement: previous.engagement, apiRestartReadback: true, injectedUiHttp503Focus: previous.injectedUiHttp503Focus };
   }
   await page.goto(`${origin}/settings/providers`);
   await check(page.getByRole('region', { name: 'Configured models' })).toContainText('fixture/s1');
@@ -224,6 +224,53 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   await check(inspector).toContainText(`Decision action: ${consumer.decision.action}`);
   await check(inspector).toContainText(consumer.decision.detail);
   await check(inspector).toContainText(workerInspection.result_ref.digest);
+  // Injected UI HTTP failure only: retained records/API/provider outcomes are not changed.
+  const causalURL = page.url();
+  const failureURL = `${origin}/api/v1/runs/${selected.run_id}/attempts/${consumer.attempt_id}`;
+  const beforeInjectedFailure = [...writes];
+  for (const focus of ['inside', 'external']) {
+    if (focus === 'external') await page.goto(causalURL);
+    const popup = page.getByRole('dialog', { name: 'Recorded agent activity', exact: true });
+    const heading = inspector.getByRole('heading', { level: 3 });
+    await check(inspector).toHaveAttribute('data-attempt-id', consumer.attempt_id);
+    const external = page.getByRole('button', { name: /^(Light|Dark) theme$/ });
+    let release;
+    const gate = new Promise(resolve => { release = resolve; });
+    const injected = async route => {
+      if (route.request().method() !== 'GET') return route.continue();
+      await gate;
+      return route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: { code: 'API_UNAVAILABLE', correlation_id: selected.run_id } }) });
+    };
+    await page.route(failureURL, injected);
+    try {
+      const requested = page.waitForRequest(request => request.method() === 'GET' && request.url() === failureURL);
+      const failed = page.waitForResponse(response => response.request().method() === 'GET' && response.url() === failureURL);
+      await page.getByRole('button', { name: 'Refresh run', exact: true }).click();
+      await requested;
+      await (focus === 'inside' ? heading : external).focus();
+      await check(focus === 'inside' ? heading : external).toBeFocused();
+      release();
+      assert.equal((await failed).status(), 503, 'Injected UI HTTP failure status');
+      await check(page.getByText('Selected record unavailable or inconsistent. No linked result was accepted.', { exact: true })).toBeVisible();
+      await check(inspector).toHaveCount(0);
+      const close = popup.getByRole('button', { name: 'Close inspector', exact: true });
+      await check(popup).not.toHaveAttribute('aria-modal', 'true');
+      if (focus === 'external') {
+        await check(external).toBeFocused();
+        await page.keyboard.press('Escape');
+        await check(popup).toBeVisible();
+        await close.focus();
+      } else await check(close).toBeFocused();
+      await screenshot(`s1-inspector-injected-ui-http-503-${focus}`);
+      await page.keyboard.press('Escape');
+      await check(popup).toHaveCount(0);
+      await check(focus === 'inside' ? page.getByLabel('Spawned agents').locator(`button[data-attempt-id="${finish.attempt_id}"]`) : page.getByRole('heading', { name: 'Brain stream', exact: true })).toBeFocused();
+      assert.equal(new URL(page.url()).searchParams.has('attempt'), false);
+      assert.equal(new URL(page.url()).searchParams.has('source'), false);
+      assert.deepEqual(writes, beforeInjectedFailure, 'Injected UI HTTP failure/refetch must remain receive-only');
+      await secretChecks();
+    } finally { release(); await page.unroute(failureURL, injected); }
+  }
   const writesBeforeReload = [...writes];
   await page.reload();
   const reloadedInspection = await inspectWorker(selected.run_id, finish);
@@ -244,6 +291,6 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   }
   await secretChecks();
   delete summary.as_of;
-  await writeFile(record, JSON.stringify({ engagement, run: selected.run_id, summary, savedSelection, worker: { task_id: finish.task_id, attempt_id: finish.attempt_id }, inspection: workerInspection }));
+  await writeFile(record, JSON.stringify({ engagement, run: selected.run_id, summary, savedSelection, worker: { task_id: finish.task_id, attempt_id: finish.attempt_id }, inspection: workerInspection, injectedUiHttp503Focus: true }));
   return { run: selected.run_id, engagement, workerTasks: workers.map(item => item.task_id), needsYou: summary.question.question_id };
 }

@@ -15,6 +15,7 @@ export async function runB04({ page, context, check, paired, fault, output, orig
     await page.goto(`${origin}/engagements/${previous.id}/setup`);
     await check(page.getByLabel('Objective / Brain instructions')).toHaveValue(previous.objective);
     await check(page.getByText(`Saved · revision ${previous.revision}`)).toBeVisible();
+    await check(page.getByRole('region', { name: 'Test model', exact: true })).toHaveCount(0);
     const restored = await page.evaluate(async id => (await fetch(`/api/v1/engagements/${id}`)).json(), previous.id);
     assert.equal(restored.engagement_id, previous.id);
     assert.equal(restored.revision, previous.revision);
@@ -45,6 +46,7 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   await page.setViewportSize({ width: 390, height: 900 });
   await page.goto(`${origin}/engagements/new`);
   await check(page.getByRole('heading', { name: 'New engagement' })).toBeVisible();
+  await check(page.getByRole('region', { name: 'Test model', exact: true })).toHaveCount(0);
   await page.keyboard.press('Tab');
   await check(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
   await page.keyboard.press('Enter');
@@ -81,6 +83,7 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   await check(page.getByText('Saved · revision 1')).toBeVisible();
   const id = page.url().match(/\/engagements\/([0-9a-f-]{36})\/setup$/)?.[1];
   assert.ok(id, 'POST must lead to an authenticated, confirmed engagement readback');
+  await check(page.getByRole('region', { name: 'Test model', exact: true })).toHaveCount(0);
   await check(page.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
   await page.getByRole('button', { name: 'Next' }).click();
   await check(page.getByRole('heading', { name: 'Application context' })).toBeVisible();

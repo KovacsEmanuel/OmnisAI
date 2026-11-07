@@ -208,6 +208,7 @@ it('creates an inert draft and confirms exact saved data with GET before reporti
   render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/engagements/new']}><App /></MemoryRouter></QueryClientProvider>);
   const user = userEvent.setup();
   await user.type(await screen.findByLabelText('Engagement name'), payload.name);
+  expect(screen.queryByRole('region', { name: 'Test model' })).not.toBeInTheDocument();
   await user.type(screen.getByLabelText('Authorization owner'), payload.authorization.owner);
   await user.type(screen.getByLabelText('Authorization statement'), payload.authorization.statement);
   expect(screen.getByRole('checkbox', { name: 'Limit to a period' })).not.toBeChecked();
@@ -219,6 +220,14 @@ it('creates an inert draft and confirms exact saved data with GET before reporti
   await waitFor(() => expect(screen.getByText(/Saved · revision 1/)).toBeVisible());
   await waitFor(() => expect(screen.getByRole('button', { name: 'Start assessment' })).toBeDisabled());
   await waitFor(() => expect(screen.getAllByText(/CATALOG_UNAVAILABLE.*NOT_SELECTED/).length).toBeGreaterThan(0));
+  const selected = await screen.findByRole('region', { name: 'Engagement projection' });
+  expect(await within(selected).findByRole('region', { name: 'Draft setup' })).toBeVisible();
+  expect(screen.queryByRole('region', { name: 'Test model' })).not.toBeInTheDocument();
+  await user.click(screen.getByRole('link', { name: 'Overview' }));
+  await user.click(await screen.findByRole('link', { name: 'Setup' }));
+  expect(await screen.findByLabelText('Engagement name')).toHaveValue(payload.name);
+  expect(screen.queryByRole('region', { name: 'Test model' })).not.toBeInTheDocument();
+  expect(requests.some(request => request.includes('/api/v1/model-test'))).toBe(false);
 });
 
 it('keeps cached Setup controls unavailable until the first readback hydrates the form', async () => {

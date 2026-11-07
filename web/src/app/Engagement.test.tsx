@@ -57,7 +57,7 @@ it('selects a persisted draft, preserves identity and scope, and navigates edita
   expect(screen.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
   await user.click(screen.getByRole('link', { name: 'Setup' }));
   expect(await screen.findByRole('region', { name: 'Draft setup' })).toBeVisible();
-  expect(screen.getByRole('region', { name: 'Test model' })).toBeVisible();
+  expect(screen.queryByRole('region', { name: 'Test model' })).not.toBeInTheDocument();
   expect(await screen.findByLabelText('Engagement name')).toHaveValue(summary.name);
   expect(screen.getByRole('heading', { name: summary.name })).toBeVisible();
   expect(screen.getByRole('button', { name: 'Save draft' })).toBeDisabled();
@@ -68,8 +68,10 @@ it('selects a persisted draft, preserves identity and scope, and navigates edita
   await user.click(screen.getByRole('link', { name: 'Home' }));
   await user.click((await screen.findAllByRole('link', { name: /New engagement/ }))[0]!);
   expect(await screen.findByRole('heading', { name: 'New engagement' })).toBeVisible();
+  expect(screen.queryByRole('region', { name: 'Test model' })).not.toBeInTheDocument();
   expect(screen.getByLabelText('Engagement name')).toHaveValue('');
   expect(screen.getByText('Unsaved changes')).toBeVisible();
+  expect(fetcher.mock.calls.some(([path]) => String(path).startsWith('/api/v1/model-test'))).toBe(false);
   expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
 });
 

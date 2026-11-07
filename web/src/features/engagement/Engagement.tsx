@@ -8,12 +8,11 @@ import { ApiError, isUuid } from '../../shared/api/errors';
 import { useSession } from '../bootstrap/BrowserSession';
 import { engagementCopy as copy } from './copy';
 import { Wizard } from './Wizard';
-import { ModelTest } from './ModelTest';
 import { RunPanel } from './RunPanel';
 import styles from './Engagement.module.css';
 
 export function NewEngagement() {
-  return <><Wizard /><ModelTest /></>;
+  return <Wizard />;
 }
 export function Engagement() {
   const { id = '', surface = 'overview' } = useParams();
@@ -49,7 +48,7 @@ export function Engagement() {
       <nav aria-label="Engagement navigation" className={styles.tabs}>
         {[[copy.overview, 'overview'], [copy.stream, 'stream'], [copy.findings, 'findings'], [copy.coverage, 'coverage'], [copy.reports, 'reports'], [copy.setup, 'setup']].map(([label, path]) => <NavLink key={path} to={{ pathname: `/engagements/${id}/${path}`, search: location.search }}>{label}</NavLink>)}
       </nav>
-      {surface === 'setup' && <><Wizard key={id} id={id} /><ModelTest /></>}
+      {surface === 'setup' && <Wizard key={id} id={id} />}
       {(full || surface === 'stream') && <RunPanel key={id} draft={draft} stream={surface === 'stream'}>
       {full && <>
         <div className={styles.assessmentMetrics} aria-label="Target assessment metrics">{['Confirmed', 'Critical', 'High', 'Coverage', 'Endpoints'].map(label => <section key={label} aria-label={label} className={styles.panel}><div className={styles.core}><p className={styles.metricValue}>—</p><h2>{label}</h2><p className={styles.muted}>Unavailable · not an assessment</p></div></section>)}</div>

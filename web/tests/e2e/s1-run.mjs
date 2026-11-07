@@ -284,8 +284,32 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
     await page.getByRole('button', { name: 'Close inspector', exact: true }).click();
     const selectedAgent = page.getByLabel('Spawned agents').getByRole('button', { name: /^RECON/ }).first();
     await selectedAgent.focus(); await check(selectedAgent).toBeFocused();
-    await page.keyboard.press('Enter');
-    await check(page.getByRole('region', { name: 'Agent inspector' }).getByRole('heading', { level: 3 })).toBeFocused();
+    const observeFocus = () => page.evaluate(() => {
+      const active = document.activeElement;
+      const agent = document.querySelector('[aria-label="Spawned agents"] button[aria-label^="RECON ·"]');
+      const popup = document.querySelector('dialog[aria-label="Recorded agent activity"]');
+      const heading = popup?.querySelector('[aria-label="Agent inspector"] h3');
+      const close = popup?.querySelector('button');
+      const theme = document.querySelector('button[aria-label="Light theme"], button[aria-label="Dark theme"]');
+      const visible = element => !!element && element.getClientRects().length > 0 && getComputedStyle(element).visibility !== 'hidden';
+      return { viewportWidth: innerWidth,
+        receiver: active === document.body ? 'body' : agent && active === agent ? 'selected-agent' : heading && active === heading ? 'heading' : close && active === close ? 'Close' : theme && active === theme ? 'theme' : popup && active === popup ? 'dialog' : 'other',
+        selectedAgentFocused: !!agent && active === agent, expectedHeadingFocused: !!heading && active === heading,
+        popupPresent: !!popup, popupVisible: visible(popup), headingPresent: !!heading, headingVisible: visible(heading) };
+    });
+    const beforeActivation = await observeFocus();
+    let afterActivation = null;
+    try {
+      await page.keyboard.press('Enter');
+      afterActivation = await observeFocus();
+      await check(page.getByRole('region', { name: 'Agent inspector' }).getByRole('heading', { level: 3 })).toBeFocused();
+    } catch (error) {
+      try {
+        const atFailure = await observeFocus();
+        console.error('S1_NATIVE_FOCUS_FIRST_ERROR ' + JSON.stringify({ version: 1, width, beforeActivation, afterActivation, atFailure }));
+      } catch { console.error('S1_NATIVE_FOCUS_OBSERVATION_UNAVAILABLE'); }
+      throw error;
+    }
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `S1 overflow ${width}`);
     await screenshot(`s1-inspector-${width}`);
   }

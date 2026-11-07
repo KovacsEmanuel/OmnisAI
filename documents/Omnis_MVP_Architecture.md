@@ -577,6 +577,8 @@ UUID-uri opace, timp UTC, revizii întregi, enums explicite, schema_version pe p
 
 Relațiile sunt engagement-scoped, cu FK compuse/validare de ownership; fără joins între engagementuri pe baza unui ID ghicit. Normalizarea conservatoare păstrează exemplarele și contextul; nu unifică două obiecte cu politici diferite. Indexuri pe engagement/cursor, task/state, operation/identity și claim queue; paginare keyset, nu offset nelimitat.
 
+**Amendament UX după S1, înainte de S2 — termen declarativ opțional:** operatorul a decis că engagementul poate fi fără termen obligatoriu până la închidere/revocare. `authorization.valid_from` și `valid_until` sunt ambele prezente și fie ambele null (fără interval ales), fie timestampuri UTC strict valide și ordonate; perechile mixte, câmpurile lipsă și datele fictive/defaulturile far-future sunt refuzate. DTO/API/OpenAPI/decoder/editor/persistență/readback se actualizează împreună, păstrând reviziile finite existente și digestul lor fără backfill. Aceasta este o extensie explicită a contractului declarativ, nu polish CSS și nu emitere de grant: autoritatea bounded a runului, scope-ul, lease-urile, DATA, Stop și Resume manual rămân obligatorii. Programul recurent din template nu este introdus. [Registrul UX](verification/ui-reference-light-dark.md) leagă compatibilitatea reală CLI/API/JSONB și porțile acestei schimbări; nu se autorizează S2 ori trafic de țintă.
+
 ### API Omnis v1 (contract propus, nu endpointuri deja existente)
 
 - `/api/v1/engagements`, `/{id}`, `/{id}/revisions`: CRUD draft și validare; update cu `If-Match`/revision, 409 la conflict sau run activ.

@@ -34,7 +34,8 @@ function Shell() {
       <Link to={selected ? `/engagements/${selected}/overview` : '/engagements'} aria-current={scope === 'engagement' ? 'page' : undefined}>{copy.engagement}</Link>
       <Link to="/settings/runtime" aria-current={scope === 'settings' ? 'page' : undefined}>{copy.settings}</Link>
       <ThemeToggle />
-    </nav>{session.data && !session.isError && transition === 'idle' && <GlobalStop key={session.data.csrf_token} />}</header>
+    </nav></header>
+    {session.data && !session.isError && transition === 'idle' && <div id="global-run-control-anchor" className={styles.runAnchor}><GlobalStop key={session.data.csrf_token} /></div>}
     <main ref={main} id="content" tabIndex={-1} className={styles.main}>
       {!session.data || session.isError ? <Bootstrap /> : <Routes>
         <Route path="/settings" element={<Settings />} />

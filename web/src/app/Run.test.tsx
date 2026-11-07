@@ -68,6 +68,7 @@ it.each(['unchanged', 'selection', 'draft', 'context', 'generation', 'lost-prefl
   const renderApp = () => render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${id}/overview`]}><App /></MemoryRouter></QueryClientProvider>);
   let view = renderApp();
   const user = userEvent.setup();
+  await user.click(await screen.findByText('Prepare inert run', { selector: 'summary' }));
   await user.type(await screen.findByLabelText('Selected synthetic inert context'), 'Synthetic chosen input');
   await user.selectOptions(screen.getByLabelText('Qualified core publication'), publication.id);
   await user.click(screen.getByLabelText(/This text is synthetic and non-secret/));
@@ -124,6 +125,33 @@ const setup = { instance_id: instance.instance_id, kind: 'run-setup-v1', id: '00
 function observedRun(): components['schemas']['RunView'] {
   return { schema_version: 1, instance_id: instance.instance_id, engagement_id: id, run_id: runId, setup_ref: { ...setup, revision: 1 }, revision: 7, generation: 3, owner_id: instance.instance_id, owner_epoch: 1, fence: 1, state: 'RUNNING', reason: null, active_attempt_id: null, question_id: null, stagnation: 0, through_cursor: 6 };
 }
+
+it.each(['idle', 'pending', 'storage'] as const)('keeps global idle presentation quiet without losing %s recovery when activeRun is null', async mode => {
+  sessionStorage.clear();
+  const saved = JSON.stringify({ scope: await sessionScope(session.csrf_token), value: { run: runId, command: setup.id } });
+  if (mode === 'pending') sessionStorage.setItem('omnis-run-stop', saved);
+  if (mode === 'storage') {
+    const read = Storage.prototype.getItem;
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(function (this: Storage, key) {
+      if (key === 'omnis-run-stop') throw new Error('Synthetic storage denial');
+      return read.call(this, key);
+    });
+  }
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async input => Response.json(String(input) === '/api/session' ? session : String(input) === '/health/ready' ? health : null));
+  vi.stubGlobal('fetch', fetcher);
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const view = render(<QueryClientProvider client={client}><MemoryRouter><App /></MemoryRouter></QueryClientProvider>);
+  await waitFor(() => expect(client.getQueryData(['private', 'active-run'])).toBeNull());
+  if (mode === 'idle') {
+    expect(screen.queryByRole('region', { name: 'Global run control' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Read active run' })).not.toBeInTheDocument();
+  } else if (mode === 'pending') {
+    expect(await screen.findByRole('button', { name: /^Read Stop receipt/ })).toHaveAccessibleName(new RegExp(setup.id));
+    expect(sessionStorage.getItem('omnis-run-stop')).toBe(saved);
+  } else expect(await screen.findByText(/Stop recovery storage unavailable or invalid/)).toBeVisible();
+  expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
+  view.unmount(); client.clear(); sessionStorage.clear();
+});
 
 it('SOURCE global Stop binds the observed run, survives a lost reply and reload without stopping a newer run', async () => {
   let failRead = false;
@@ -250,7 +278,7 @@ it.each(['OPERATION_FINISHED', 'REVISION_CONFLICT', 'AUTHORITY_DENIED'])('SOURCE
   state.run = { ...state.run, run_id: next, state: 'RUNNING', revision: 2, generation: 4, through_cursor: 1 };
   state.summary = { ...state.summary, run: state.run };
   await user.click(screen.getByRole('button', { name: 'Read active run' }));
-  await waitFor(() => expect(screen.getByRole('region', { name: 'Global run control' })).toHaveTextContent(`Run ${next} · RUNNING · revision 2 · generation 4`));
+  await waitFor(() => expect(within(screen.getByRole('region', { name: 'Global run control' })).getByRole('link')).toHaveAttribute('title', `Run ${next}`));
   expect(writes).toHaveLength(1);
   await user.click(stop);
   await screen.findByText(new RegExp(`ADMITTED.*Stop run ${next}`));
@@ -286,7 +314,7 @@ it.each(['receipt', 'refusal'])('SOURCE a late Stop %s clears only A, not an unr
   state.run = { ...state.run, run_id: next, revision: 1, through_cursor: 1 };
   state.summary = { ...state.summary, run: state.run };
   await user.click(screen.getByRole('button', { name: 'Refresh run' }));
-  await waitFor(() => expect(screen.getByRole('region', { name: 'Inert run' })).toHaveTextContent(`Run ${next}`));
+  await waitFor(() => expect(screen.getByRole('region', { name: 'Run status' })).toHaveAttribute('data-run-id', next));
   await user.click(screen.getByRole('button', { name: 'Stop run' }));
   await within(screen.getByRole('region', { name: 'Inert run' })).findByText(/Stop outcome unknown/);
   const stored = sessionStorage.getItem('omnis-run-stop');
@@ -328,7 +356,7 @@ it('SOURCE lost Stop and receipt NOT_FOUND preserve A while an explicit Stop tar
   state.run = { ...state.run, run_id: next, revision: 1, through_cursor: 1 };
   state.summary = { ...state.summary, run: state.run };
   await user.click(global.getByRole('button', { name: 'Read active run' }));
-  await global.findByRole('link', { name: new RegExp(`Run ${next}`) });
+  await waitFor(() => expect(global.getByRole('link')).toHaveAttribute('title', `Run ${next}`));
   expect(global.getByText(new RegExp(`Unacknowledged Stop · run ${runId}`))).toBeVisible();
   expect(stop).toBeEnabled();
   expect(sessionStorage.getItem('omnis-run-stop')).toBe(stored);
@@ -621,7 +649,7 @@ it('SOURCE pages actual spawn events, inspects only selected attempts and resets
   state.run = { ...state.run, run_id: newRun, revision: 1, through_cursor: 1 };
   state.summary = { ...state.summary, run: state.run, attempts: [], has_more: false };
   await user.click(screen.getByRole('button', { name: 'Refresh run' }));
-  await waitFor(() => expect(within(screen.getByRole('region', { name: 'Inert run' })).getByText(new RegExp(`Run ${newRun}`))).toBeVisible());
+  await waitFor(() => expect(screen.getByRole('region', { name: 'Run status' })).toHaveAttribute('data-run-id', newRun));
   await waitFor(() => expect(screen.queryByRole('region', { name: 'Agent inspector' })).not.toBeInTheDocument());
   expect(fetcher.mock.calls.some(([path]) => String(path) === `/api/v1/runs/${newRun}/events?after=${newRun}:0`)).toBe(true);
   expect(fetcher.mock.calls.some(([path]) => String(path).startsWith(`/api/v1/runs/${newRun}/attempts/`))).toBe(false);
@@ -651,12 +679,12 @@ it('SOURCE roster preserves Brain clarification descendants and selects the exac
   worker.focus();
   await userEvent.setup().keyboard('{Enter}');
   const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
-  expect(inspector).toHaveTextContent(`RECON · ${recon.attempt_id}`);
+  expect(inspector).toHaveAttribute('data-attempt-id', recon.attempt_id);
   expect(inspector).toHaveTextContent(`task ${recon.task_id} · parent ${consumes.task_id}`);
   expect(inspector).toHaveTextContent('Completion kind: finish');
   expect(inspector).toHaveTextContent(recon.result_summary!);
   expect(worker).toHaveAttribute('aria-pressed', 'true');
-  expect(worker).toHaveFocus();
+  expect(within(inspector).getByRole('heading', { level: 3 })).toHaveFocus();
   expect(fetcher.mock.calls.filter(([path]) => String(path).includes('/attempts/')).map(([path]) => String(path))).toEqual([`/api/v1/runs/${runId}/attempts/${recon.attempt_id}`]);
   expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
   expect(screen.getByRole('button', { name: 'Stop run' })).toBeEnabled();
@@ -687,7 +715,7 @@ it('SOURCE roster keeps missing-parent and cyclic attempts selectable once', asy
     const button = within(roster).getByRole('button', { name: `RECON · ${actor.task_id} · INCONCLUSIVE · parent ${actor.parent_task_id}` });
     await user.click(button);
     const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
-    expect(inspector).toHaveTextContent(`RECON · ${actor.attempt_id}`);
+    expect(inspector).toHaveAttribute('data-attempt-id', actor.attempt_id);
     expect(inspector).toHaveTextContent(`parent ${actor.parent_task_id}`);
     expect(button).toHaveAttribute('aria-pressed', 'true');
   }
@@ -722,7 +750,7 @@ it('SOURCE event filters show UTC and exact actors from the loaded page and pres
   expect(list).toHaveTextContent('No actor recorded');
   expect(fetcher.mock.calls.some(([path]) => String(path).includes('/attempts/'))).toBe(false);
   await user.click(within(list).getByRole('button', { name: 'result · First worker result' }));
-  expect(await screen.findByRole('region', { name: 'Agent inspector' })).toHaveTextContent(`RECON · ${attempt.attempt_id}`);
+  expect(await screen.findByRole('region', { name: 'Agent inspector' })).toHaveAttribute('data-attempt-id', attempt.attempt_id);
   expect(fetcher.mock.calls.some(([path]) => String(path) === `/api/v1/runs/${runId}/attempts/${attempt.attempt_id}`)).toBe(true);
   expect(screen.getByText(/Filters apply only to the loaded page, not the whole run/)).toBeVisible();
   const type = screen.getByRole('combobox', { name: 'Event type' });
@@ -762,7 +790,10 @@ it('SOURCE event filters show UTC and exact actors from the loaded page and pres
   await user.click(screen.getByRole('button', { name: 'Refresh run' }));
   await waitFor(() => expect(actor).toHaveValue(''));
   await waitFor(() => expect(within(list).getAllByRole('listitem')).toHaveLength(3));
-  expect(fetcher.mock.calls.filter(([path]) => String(path).includes('/events?')).every(([path]) => new RegExp(`/events\\?after=(${runId}|${next}):(0|3|7)$`).test(String(path)))).toBe(true);
+  const tailReads = [`/api/v1/runs/${runId}/events?after=${runId}:5`, `/api/v1/runs/${next}/events?after=${next}:2`];
+  const eventReads = fetcher.mock.calls.filter(([path]) => String(path).includes('/events?')).map(([path]) => String(path));
+  for (const tail of tailReads) expect(eventReads).toContain(tail);
+  expect(eventReads.every(path => new RegExp(`/events\\?after=(${runId}|${next}):(0|3|7)$`).test(path) || tailReads.includes(path))).toBe(true);
   expect(writes).toHaveLength(0);
   view.unmount(); client.clear();
 });
@@ -788,7 +819,8 @@ it('SOURCE retains the newer run revision when a delayed read regresses', async 
   state.summary = { ...state.summary, run: state.run };
   await userEvent.setup().click(screen.getByRole('button', { name: 'Refresh run' }));
   await screen.findByText('Run readback unavailable or stale; no state or effects are inferred.');
-  expect(screen.getByRole('region', { name: 'Inert run' })).toHaveTextContent('RUNNING · revision 7');
+  expect(screen.getByRole('region', { name: 'Run status' })).toHaveTextContent('RUNNING');
+  expect(screen.getByRole('region', { name: 'Run status' })).toHaveAttribute('data-run-revision', '7');
   expect(screen.getByRole('button', { name: 'Resume run' })).toBeDisabled();
   view.unmount(); client.clear();
 });
@@ -798,8 +830,10 @@ it('SOURCE does not combine newer run state with older owner or phase claims', a
   await waitFor(() => expect(client.getQueryData(['private', 'run-summary', runId])).toBeTruthy());
   state.run = { ...state.run, revision: 8 };
   await act(async () => { await client.invalidateQueries({ queryKey: ['private', 'engagement-run', id] }); });
-  await waitFor(() => expect(screen.getByRole('region', { name: 'Inert run' })).toHaveTextContent('RUNNING · revision 8'));
-  expect(screen.getByRole('region', { name: 'Inert run' })).toHaveTextContent('owner unverified · phase unknown');
+  await waitFor(() => expect(screen.getByRole('region', { name: 'Run status' })).toHaveAttribute('data-run-revision', '8'));
+  expect(screen.getByRole('region', { name: 'Run status' })).toHaveTextContent('RUNNING');
+  expect(screen.getByRole('region', { name: 'Run status' })).toHaveTextContent('Live ownership unverified; showing the last saved state.');
+  expect(screen.queryByText(/phase active/)).not.toBeInTheDocument();
   view.unmount(); client.clear();
 });
 
@@ -815,11 +849,13 @@ it('SOURCE HOLD is read-only until an explicit Resume and stays HOLD until persi
   await user.click(resume);
   await waitFor(() => expect(writes).toHaveLength(1));
   expect(writes[0]).toMatchObject({ action: 'resume', run_id: runId, expected_revision: 7, expected_generation: 3 });
-  expect(screen.getByRole('region', { name: 'Inert run' })).toHaveTextContent('HOLD · revision 7');
+  expect(screen.getByRole('region', { name: 'Run status' })).toHaveTextContent('HOLD');
+  expect(screen.getByRole('region', { name: 'Run status' })).toHaveAttribute('data-run-revision', '7');
   state.run = { ...state.run, state: 'RUNNING', reason: null, revision: 8 };
   state.summary = { ...state.summary, run: state.run };
   await user.click(screen.getByRole('button', { name: 'Refresh run' }));
-  await waitFor(() => expect(screen.getByRole('region', { name: 'Inert run' })).toHaveTextContent('RUNNING · revision 8'));
+  await waitFor(() => expect(screen.getByRole('region', { name: 'Run status' })).toHaveTextContent('RUNNING'));
+  expect(screen.getByRole('region', { name: 'Run status' })).toHaveAttribute('data-run-revision', '8');
   expect(writes).toHaveLength(1);
   view.unmount(); client.clear();
 });
@@ -935,12 +971,17 @@ it('SOURCE inspection reload retains legacy UNKNOWN completion and lost-response
 });
 
 it('SOURCE accounting displays exact whole-run partial subtotals, role attribution and unknown empty usage', async () => {
-  const { state, writes, view, client } = mountedRun();
-  state.summary = { ...state.summary, usage: partialUsage(), has_more: true };
-  const accounting = await screen.findByRole('region', { name: 'Run accounting' });
-  expect(within(accounting).getByText('Exact accounting & provenance')).toBeVisible();
-  expect(within(accounting).getAllByText('input_tokens')[0]).not.toBeVisible();
-  await userEvent.setup().click(within(accounting).getByText('Exact accounting & provenance'));
+  const { state, writes, view, client, fetcher } = mountedRun('stream');
+  state.summary = { ...state.summary, usage: partialUsage(), has_more: true, attempts: [syntheticAttempt] };
+  const original = fetcher.getMockImplementation();
+  if (!original) throw new Error('Missing existing read mock');
+  fetcher.mockImplementation(async (input, init) => String(input) === `/api/v1/runs/${runId}/attempts/${syntheticAttempt.attempt_id}` ? Response.json(inspection(syntheticAttempt)) : original(input, init));
+  await screen.findByRole('region', { name: 'Run accounting' });
+  expect(screen.queryByText('Exact accounting & provenance')).not.toBeInTheDocument();
+  await userEvent.setup().click(await screen.findByRole('button', { name: /^RECON/ }));
+  const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
+  await userEvent.setup().click(within(inspector).getByText('Usage', { exact: true }));
+  const accounting = within(inspector).getByRole('region', { name: 'Run totals' });
   expect(within(accounting).getAllByText('input_tokens')[0]).toBeVisible();
   expect(accounting).toHaveTextContent('MONITOR');
   expect(accounting).toHaveTextContent('18014398509481982');
@@ -968,10 +1009,11 @@ it('SOURCE exposes selected inert input and does not start from a read or reload
   vi.stubGlobal('fetch', fetcher);
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${id}/overview`]}><App /></MemoryRouter></QueryClientProvider>);
+  await userEvent.setup().click(await screen.findByText('Prepare inert run', { selector: 'summary' }));
   const input = await screen.findByLabelText('Selected synthetic inert context');
   await userEvent.setup().type(input, 'Synthetic context chosen by the operator');
   expect(input).toHaveValue('Synthetic context chosen by the operator');
   expect(screen.getByRole('button', { name: 'Preflight inert run' })).toBeDisabled();
   expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
-  expect(screen.getByRole('button', { name: 'Stop active run' })).toBeVisible();
+  expect(screen.queryByRole('button', { name: 'Stop active run' })).not.toBeInTheDocument();
 });

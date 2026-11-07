@@ -16,6 +16,8 @@ function setup(query = '', fault = '', summaryGate?: Promise<void>) {
   const parent = { ...syntheticAttempt, role: 'BRAIN' as const, task_id: brain.task_id, attempt_id: brain.attempt_id, parent_task_id: null, state: 'SUCCEEDED' as const, result_ref: brain.result_ref, result_summary: brain.result_summary };
   const workerRoster = { ...syntheticAttempt };
   const summary = { ...syntheticSummary, attempts: [parent, workerRoster] };
+  if (fault === 'other-active') summary.run = { ...run, state: 'LIMITED' };
+  const other = { ...run, run_id: '00000000-0000-4000-8000-000000000092', engagement_id: '00000000-0000-4000-8000-000000000093' };
   if (fault === 'pending') worker.consumption = { held: false, decision_ref: null, consumer_attempt_id: null };
   if (fault === 'decision') brain.result_ref = { ...brain.result_ref!, digest: 'e'.repeat(64) };
   if (fault === 'result') brain.decision = { ...brain.decision!, consumed_refs: [{ ...syntheticAttempt.result_ref!, digest: 'e'.repeat(64) }] };
@@ -25,8 +27,15 @@ function setup(query = '', fault = '', summaryGate?: Promise<void>) {
   if (fault === 'roster-task') brain.task_id = run.setup_ref.id;
   if (fault === 'bounded') { summary.attempts = []; summary.has_more = true; }
   const fetcher = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
-    if (init?.method && init.method !== 'GET') throw new Error('No command admitted in stream readback');
     const path = String(input);
+    if (fault === 'other-active' && init?.method === 'POST' && path === `/api/v1/runs/${other.run_id}/commands`) {
+      const payload: unknown = JSON.parse(String(init.body));
+      if (!payload || typeof payload !== 'object' || !('command_id' in payload)) throw new Error('Missing synthetic command');
+      return Response.json({ command_id: payload.command_id, run_id: other.run_id, setup_ref: null, revision: 8, state: 'ADMITTED' });
+    }
+    if (init?.method && init.method !== 'GET') throw new Error('No command admitted in stream readback');
+    if (fault === 'other-active' && path === '/api/v1/runs/active') return Response.json(other);
+    if (fault === 'other-active' && path === `/api/v1/engagements/${other.engagement_id}`) return Response.json({ ...draft, engagement_id: other.engagement_id, payload: { ...draft.payload, name: 'Other active engagement' } });
     if (path.endsWith('/summary')) { if (summaryGate) await summaryGate; return Response.json(summary); }
     if (path.includes('/attempts/')) {
       if (path.endsWith(worker.attempt_id) && fault !== 'missing') return Response.json(worker);
@@ -35,9 +44,11 @@ function setup(query = '', fault = '', summaryGate?: Promise<void>) {
     }
     if (path.includes('/events?')) {
       const after = Number(path.split(':').at(-1));
+      if (fault === 'activity' || fault === 'activity-bounded') return Response.json({ run_id: run.run_id, through_cursor: after === 0 ? 1 : run.through_cursor, has_more: after === 0 || fault === 'activity-bounded',
+        events: [{ event_id: id, run_id: run.run_id, task_id: id, attempt_id: id, sequence: after === 0 ? 1 : run.through_cursor, kind: 'result', summary: after === 0 ? 'Old first-page activity' : 'Newest persisted activity', refs: [], call_id: null, created_at: summary.as_of }], as_of: summary.as_of });
       return Response.json({ run_id: run.run_id, through_cursor: after, has_more: false, events: [], as_of: summary.as_of });
     }
-    return Response.json(path === '/api/session' ? session : path === '/health/ready' ? health : path === '/api/instance' ? instance : path === `/api/v1/engagements/${id}` ? draft : path.endsWith('/run') || path === '/api/v1/runs/active' ? run : path.endsWith('/summary') ? summary : null);
+    return Response.json(path === '/api/session' ? session : path === '/health/ready' ? health : path === '/api/instance' ? instance : path === `/api/v1/engagements/${id}` ? draft : path.endsWith('/run') || path === '/api/v1/runs/active' ? fault === 'other-active' ? summary.run : run : path.endsWith('/summary') ? summary : null);
   });
   vi.stubGlobal('fetch', fetcher);
   const mount = (url = `/engagements/${id}/stream${query}`) => {
@@ -47,6 +58,84 @@ function setup(query = '', fault = '', summaryGate?: Promise<void>) {
   };
   return { view: mount(), mount, fetcher, worker, brain, summary, parent, workerRoster };
 }
+
+it('shows latest observed activity independently of an older ascending event page', async () => {
+  const { view, fetcher } = setup('', 'activity');
+  const activity = await screen.findByRole('region', { name: 'Current activity' });
+  expect(await within(activity).findByText('Newest persisted activity')).toBeVisible();
+  expect(activity).not.toHaveTextContent('Old first-page activity');
+  expect(await within(screen.getByRole('list', { name: 'Run events' })).findByText(/Old first-page activity/)).toBeVisible();
+  expect(fetcher.mock.calls.some(([path]) => String(path).endsWith(`:${run.through_cursor - 1}`))).toBe(true);
+  view.unmount();
+});
+
+it('does not promote a bounded activity page to a latest-event claim', async () => {
+  const { view } = setup('', 'activity-bounded');
+  const activity = await screen.findByRole('region', { name: 'Current activity' });
+  expect(await within(activity).findByText('Newer activity is not yet available in this bounded read.')).toBeVisible();
+  expect(activity).not.toHaveTextContent('Newest persisted activity');
+  view.unmount();
+});
+
+it('refuses a decoder-valid regressing tail instead of presenting older activity as current', async () => {
+  const { view, fetcher } = setup('', 'activity');
+  const original = fetcher.getMockImplementation();
+  if (!original) throw new Error('Missing read mock');
+  let sequence = 7;
+  fetcher.mockImplementation(async (input, init) => String(input).endsWith(`:${run.through_cursor - 1}`) ? Response.json({ run_id: run.run_id, through_cursor: sequence, has_more: false, as_of: syntheticSummary.as_of,
+    events: [{ event_id: id, run_id: run.run_id, task_id: id, attempt_id: id, sequence, kind: 'result', summary: `Observed event ${sequence}`, refs: [], call_id: null, created_at: syntheticSummary.as_of }] }) : original(input, init));
+  const activity = await screen.findByRole('region', { name: 'Current activity' });
+  expect(await within(activity).findByText('Observed event 7')).toBeVisible();
+  sequence = 6;
+  await act(async () => { await view.client.invalidateQueries({ queryKey: ['private', 'run-activity'] }); });
+  expect(await within(activity).findByText('Current activity unavailable; no activity inferred.')).toBeVisible();
+  expect(activity).not.toHaveTextContent('Observed event 6');
+  view.unmount();
+});
+
+it('keeps current global Stop bound to another engagement while a historical inspector stays read-only', async () => {
+  const { view, fetcher } = setup(`?run=${run.run_id}&attempt=${id}`, 'other-active');
+  const user = userEvent.setup();
+  const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
+  expect(inspector).toHaveAttribute('data-run-id', run.run_id);
+  expect(within(inspector).queryByRole('textbox')).not.toBeInTheDocument();
+  expect(within(inspector).queryByRole('button', { name: /Send|Execute|Resume|Pause/i })).not.toBeInTheDocument();
+  const global = within(screen.getByRole('region', { name: 'Global run control' }));
+  expect(await global.findByRole('link', { name: /Other active engagement/ })).toHaveAttribute('title', 'Run 00000000-0000-4000-8000-000000000092');
+  const identity = global.getByText('Identity', { selector: 'summary' });
+  identity.focus(); expect(identity).toHaveFocus();
+  // user-event's space activation does not implement native summary; browser journey covers keys.
+  await user.click(identity);
+  expect(global.getByText('Run 00000000-0000-4000-8000-000000000092')).toBeVisible();
+  expect(global.getByText('Engagement 00000000-0000-4000-8000-000000000093')).toBeVisible();
+  await user.click(identity);
+  const stop = global.getByRole('button', { name: 'Stop active run' });
+  expect(stop.closest('[inert]')).toBeNull();
+  await waitFor(() => expect(stop).toBeEnabled());
+  await user.click(stop);
+  await waitFor(() => expect(fetcher.mock.calls.filter(([, init]) => init?.method === 'POST')).toHaveLength(1));
+  const sent = fetcher.mock.calls.find(([, init]) => init?.method === 'POST');
+  expect(sent?.[0]).toBe('/api/v1/runs/00000000-0000-4000-8000-000000000092/commands');
+  expect(JSON.parse(String(sent?.[1]?.body))).toMatchObject({ action: 'stop', run_id: '00000000-0000-4000-8000-000000000092', expected_revision: 7, expected_generation: 3 });
+  expect(screen.getByRole('dialog', { name: 'Recorded agent activity' })).not.toHaveAttribute('aria-modal', 'true');
+  expect(screen.queryByRole('button', { name: 'Confirm Stop' })).not.toBeInTheDocument();
+  // Global Stop keeps native focus; Escape inside the selected record closes only that record.
+  within(inspector).getByRole('heading', { level: 3 }).focus();
+  await user.keyboard('{Escape}');
+  expect(screen.queryByRole('dialog', { name: 'Recorded agent activity' })).not.toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Brain stream' })).toHaveFocus();
+  view.unmount();
+});
+
+it('groups repeated Brain attempts as one actual task rather than several resident agents', async () => {
+  const { view, summary, parent } = setup();
+  summary.attempts.push({ ...parent, attempt_id: run.setup_ref.id });
+  const roster = await screen.findByRole('list', { name: 'Spawned agents' });
+  expect(await within(roster).findByText('2 recorded attempts')).toBeVisible();
+  expect(within(roster).getAllByRole('group', { name: `BRAIN task ${parent.task_id}` })).toHaveLength(1);
+  expect(within(roster).getAllByRole('button', { name: /^BRAIN/ })).toHaveLength(2);
+  view.unmount();
+});
 
 it.each(['healthy', 'roster-model', 'roster-task'])('waits for delayed run summary before accepting decoder-valid %s inspection', async fault => {
   let release: (() => void) | undefined;
@@ -154,7 +243,7 @@ it.each(['trigger', 'deep-link'])('closes the nonmodal inspector to a visible %s
   const trigger = await screen.findByRole('button', { name: /^RECON/ });
   if (entry === 'trigger') { trigger.focus(); await user.keyboard('{Enter}'); }
   const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
-  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  expect(screen.getByRole('dialog', { name: 'Recorded agent activity' })).not.toHaveAttribute('aria-modal', 'true');
   expect(inspector.closest('[inert]')).toBeNull();
   expect(screen.getByRole('button', { name: 'Stop run' })).toBeVisible();
   await user.click(within(inspector).getByRole('button', { name: 'Close inspector' }));
@@ -172,7 +261,7 @@ it('brings narrow-screen selection to the stacked inspector and returns to its t
   const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
   await waitFor(() => expect(within(inspector).getByRole('heading', { level: 3 })).toHaveFocus());
   expect(screen.getByRole('button', { name: 'Stop active run' }).closest('[inert]')).toBeNull();
-  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  expect(screen.getByRole('dialog', { name: 'Recorded agent activity' })).not.toHaveAttribute('aria-modal', 'true');
   await user.click(within(inspector).getByRole('button', { name: 'Close inspector' }));
   expect(trigger).toHaveFocus();
   view.unmount();

@@ -39,33 +39,31 @@ export function Engagement() {
     {query.isError && <div role="alert"><p>{query.error instanceof ApiError ? query.error.message : copy.unavailable}</p><button onClick={() => { void query.refetch(); }}>{copy.retry}</button></div>}
     {stale && <output>{copy.stale}</output>}
     {draft && <>
-      <div className={styles.heading}><div><p>{surface === 'setup' ? 'Persisted draft · Setup' : copy.readOnly}</p><h1>{draft.payload.name}</h1><p>{draft.payload.assessment_mode} · saved revision {draft.revision}</p></div>{surface !== 'setup' && <button disabled aria-describedby="run-reason">{copy.start}</button>}</div>
+      <div className={styles.heading}><div><p>{surface === 'setup' ? 'Persisted draft · Setup' : copy.readOnly}</p><h1>{draft.payload.name}</h1><p>{draft.payload.assessment_mode === 'FOCUSED_TEST' ? 'Focused test' : 'General assessment'}{surface === 'setup' ? ` · saved revision ${draft.revision}` : ''}</p></div>{surface !== 'setup' && <button disabled aria-describedby="run-reason">{copy.start}</button>}</div>
       <button disabled={query.isFetching} onClick={() => {
         void query.refetch();
         if (surface === 'setup') void client.invalidateQueries({ queryKey: ['private', 'draft', id], exact: true });
       }}>{copy.refresh}</button>
-      {surface !== 'setup' && <p id="run-reason">Target assessment is unavailable. The inert S1 run has separate preflight and consent in Overview.</p>}
+      {surface !== 'setup' && <p id="run-reason" className={styles.muted}>Target assessment is not available. Inert runs have separate preflight and consent in Overview.</p>}
       <nav aria-label="Engagement navigation" className={styles.tabs}>
         {[[copy.overview, 'overview'], [copy.stream, 'stream'], [copy.findings, 'findings'], [copy.coverage, 'coverage'], [copy.reports, 'reports'], [copy.setup, 'setup']].map(([label, path]) => <NavLink key={path} to={{ pathname: `/engagements/${id}/${path}`, search: location.search }}>{label}</NavLink>)}
       </nav>
       {surface === 'setup' && <Wizard key={id} id={id} />}
-      {(full || surface === 'stream') && <RunPanel key={id} draft={draft} stream={surface === 'stream'}>
-      {full && <>
-        <div className={styles.assessmentMetrics} aria-label="Target assessment metrics">{['Confirmed', 'Critical', 'High', 'Coverage', 'Endpoints'].map(label => <section key={label} aria-label={label} className={styles.panel}><div className={styles.core}><p className={styles.metricValue}>—</p><h2>{label}</h2><p className={styles.muted}>Unavailable · not an assessment</p></div></section>)}</div>
-      </>}
       {full && <section className={styles.panel} aria-label="Engagement scope"><div className={styles.core}>
         <div className={styles.overviewContext}><div><h2>{copy.objective}</h2><p className={styles.objective}>{draft.payload.objective_text}</p></div>
         <div><h2>{copy.scope}</h2>{draft.payload.scope.map((entry, index) => <article key={index} className={styles.scope}><h3>{entry.origin}</h3><p>{entry.access}</p><dl>
           <div><dt>{copy.port}</dt><dd>{entry.port}</dd></div><div><dt>{copy.prefix}</dt><dd>{entry.path_prefix}</dd></div><div><dt>{copy.exclusions}</dt><dd>{entry.exclusions.length ? entry.exclusions.join('\n') : copy.none}</dd></div>
         </dl></article>)}</div></div>
-        <details className={styles.disclosure}><summary>Draft snapshot details</summary><dl className={styles.details}>
-          {[[copy.identity, draft.engagement_id], [copy.revisionId, draft.id], [copy.revision, draft.revision], [copy.digest, draft.digest], [copy.mode, draft.payload.assessment_mode]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
-        </dl></details>
       </div></section>}
+      {(full || surface === 'stream') && <RunPanel key={id} draft={draft} stream={surface === 'stream'}>
+      {full && <>
+        <div className={styles.assessmentMetrics} aria-label="Target assessment metrics">{['Confirmed', 'Critical', 'High', 'Coverage', 'Endpoints'].map(label => <section key={label} aria-label={label} className={styles.panel}><div className={styles.core}><p className={styles.metricValue}>—</p><h2>{label}</h2></div></section>)}</div>
+        <p className={styles.muted}>Assessment metrics unavailable · no target assessment has run.</p>
+      </>}
       {full && <>
         <div className={styles.overviewContext}>
           <section className={styles.panel}><div className={styles.core}><h2>Top findings</h2><p>No assessment findings producer is available. Inert-run results are not security findings.</p><Link className={styles.back} to={`/engagements/${id}/findings`}>Findings & limitations →</Link></div></section>
-          <section className={styles.panel}><div className={styles.core}><h2>Severity</h2><div className={styles.severityRing} aria-hidden="true">—</div><p className={styles.muted}>Distribution unavailable. No counts or denominator observed.</p></div></section>
+          <section className={styles.panel}><div className={styles.core}><h2>Severity</h2><p className={styles.muted}>Distribution unavailable. No counts or denominator observed.</p></div></section>
         </div>
       </>}
       </RunPanel>}

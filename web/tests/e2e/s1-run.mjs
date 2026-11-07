@@ -23,7 +23,7 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   }
   async function accounting(region, usage) {
     assert.equal(usage.accounting_policy, 'MONITOR');
-    const full = usage.scope === 'RUN' ? await openDisclosure(region, 'Exact accounting & provenance') : region;
+    const full = region;
     await check(full).toContainText(`Allocations: ${usage.totals.dispatches} · without observation: ${usage.totals.unobserved_dispatches}`);
     for (const key of ['input_tokens', 'output_tokens', 'total_tokens', 'cached_tokens', 'reasoning_tokens', 'cache_creation_tokens', 'cost_observed']) {
       const amount = usage.totals[key];
@@ -41,12 +41,19 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
     assert.equal(value.result.completion_kind, 'finish');
     assert.equal(value.consumption.held, false);
     assert.ok(value.consumption.decision_ref && value.consumption.consumer_attempt_id);
-    await page.getByLabel('Spawned agents').getByRole('button', { name: new RegExp(`^RECON · ${worker.task_id} ·`) }).click();
+    const actor = page.getByLabel('Spawned agents').getByRole('button', { name: new RegExp(`^RECON · ${worker.task_id} ·`) });
+    await check(actor).toBeVisible();
+    const close = page.getByRole('button', { name: 'Close inspector', exact: true });
+    if (await close.count()) await close.click();
+    await actor.click();
     const inspector = page.getByRole('region', { name: 'Agent inspector' });
+    await check(inspector).toHaveAttribute('data-attempt-id', worker.attempt_id);
+    await check(inspector).toHaveAttribute('data-run-id', run);
     await check(inspector).toContainText('Configured model: fixture/s1-recon');
     await check(inspector).toContainText('Observed model: fixture/s1-recon');
     await check(inspector).toContainText('Completion kind: finish');
     await check(inspector).toContainText(value.result.summary);
+    await openDisclosure(inspector, 'Record provenance');
     await check(inspector).toContainText(value.result_ref.digest);
     await check(inspector).toContainText('Consumption: CONSUMED');
     await check(inspector).toContainText(value.consumption.decision_ref.digest);
@@ -76,12 +83,12 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
     const current = await read(`/api/v1/runs/${previous.run}/summary`);
     delete current.as_of;
     assert.deepEqual(current, previous.summary);
-    await accounting(page.getByRole('region', { name: 'Run accounting' }), current.usage);
     const inspected = await inspectWorker(previous.run, previous.worker);
+    await accounting(page.getByRole('region', { name: 'Run totals' }), current.usage);
     delete inspected.as_of;
     assert.deepEqual(inspected, previous.inspection);
     await page.reload();
-    await check(page.getByRole('region', { name: 'Inert run', exact: true })).toContainText(previous.run);
+    await check(page.getByRole('region', { name: 'Run status', exact: true })).toHaveAttribute('data-run-id', previous.run);
     await inspectWorker(previous.run, previous.worker);
     assert.deepEqual(writes, [], 'API restart and reload must never start or consume');
     await secretChecks();
@@ -109,7 +116,8 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   assert.equal(savedSelection.recon.output_tokens, 1024);
   assert.equal((savedSelection.brain ?? savedSelection.default).model, 'fixture/s1');
   assert.ok(savedSelection.revision > before.selection.revision);
-  await check(page.getByRole('button', { name: 'Stop active run', exact: true })).toBeVisible();
+  assert.equal(await read('/api/v1/runs/active'), null, 'No run has been started by this fixture');
+  await check(page.getByRole('region', { name: 'Global run control', exact: true })).toHaveCount(0);
   await page.getByRole('link', { name: 'Home', exact: true }).click();
   await page.getByRole('link', { name: /New engagement/ }).first().click();
   await page.getByLabel('Engagement name').fill('S1 synthetic inert run');
@@ -122,6 +130,7 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   const engagement = page.url().match(/\/engagements\/([0-9a-f-]{36})\/setup$/)?.[1];
   assert.ok(engagement);
   await page.getByRole('link', { name: 'Overview', exact: true }).click();
+  await openDisclosure(page.getByRole('region', { name: 'Inert run', exact: true }), 'Prepare inert run');
   const input = 'Selected S1 browser synthetic context 🧪';
   await page.getByLabel('Selected synthetic inert context').fill(input);
   const publication = page.getByLabel('Qualified core publication');
@@ -148,14 +157,33 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   await page.getByLabel(/Confirm model execution/).check();
   await page.getByRole('button', { name: 'Start inert run', exact: true }).click();
   await check(page.getByRole('region', { name: 'Needs you' })).toContainText('PENDING');
+  const pendingRun = await read(`/api/v1/engagements/${engagement}/run`);
+  const pendingSummary = await read(`/api/v1/runs/${pendingRun.run_id}/summary`);
+  const pendingActor = pendingSummary.attempts.find(item => item.role === 'BRAIN');
+  assert.ok(pendingActor, 'Select an actually retained Brain attempt, never a configured future actor');
+  await page.getByRole('link', { name: 'Brain stream', exact: true }).click();
+  await page.getByLabel('Spawned agents').locator(`button[data-attempt-id="${pendingActor.attempt_id}"]`).click();
+  await check(page.getByRole('region', { name: 'Agent inspector' })).toHaveAttribute('data-attempt-id', pendingActor.attempt_id);
+  const currentControl = page.getByRole('region', { name: 'Global run control', exact: true });
+  const identity = currentControl.getByText('Identity', { exact: true });
+  await identity.focus(); await check(identity).toBeFocused();
+  await page.keyboard.press('Enter');
+  await check(currentControl.getByText(`Run ${pendingRun.run_id}`, { exact: true })).toBeVisible();
+  await check(currentControl.getByText(`Engagement ${engagement}`, { exact: true })).toBeVisible();
+  await page.keyboard.press('Space');
+  await check(identity.locator('..')).toHaveJSProperty('open', false);
   for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 });
     const stop = page.getByRole('button', { name: 'Stop active run', exact: true });
     await check(stop).toBeEnabled(); await stop.focus(); await check(stop).toBeFocused();
     const box = await stop.boundingBox(); assert.ok(box && box.width >= 44 && box.height >= 44);
+    assert.ok(await stop.evaluate(element => { const rect = element.getBoundingClientRect(); const target = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2); return target === element || element.contains(target); }), 'Global current Stop is occluded by the read-only inspector');
+    await check(page.getByRole('dialog', { name: 'Recorded agent activity' })).not.toHaveAttribute('aria-modal', 'true');
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `S1 control overflow ${width}`);
     await screenshot(`s1-controls-${width}`);
   }
+  await page.getByRole('button', { name: 'Close inspector', exact: true }).click();
+  await page.getByRole('link', { name: 'Overview', exact: true }).click();
   await page.reload();
   await check(page.getByRole('region', { name: 'Needs you' })).toContainText('PENDING');
   await page.getByLabel('Non-secret clarification').fill('Use only the selected synthetic context');
@@ -182,8 +210,8 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   const finish = completions.find(worker => worker.result.completion_kind === 'finish');
   assert.ok(finish);
   await page.getByRole('link', { name: 'Brain stream', exact: true }).click();
-  await accounting(page.getByRole('region', { name: 'Run accounting' }), summary.usage);
   const workerInspection = await inspectWorker(selected.run_id, finish);
+  await accounting(page.getByRole('region', { name: 'Run totals' }), summary.usage);
   const inspector = page.getByRole('region', { name: 'Agent inspector' });
   await check(inspector).toContainText(input);
   const consumer = await read(`/api/v1/runs/${selected.run_id}/attempts/${workerInspection.consumption.consumer_attempt_id}`);
@@ -205,10 +233,12 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   assert.deepEqual(writes, writesBeforeReload, 'Reload/inspection/consumption navigation must be receive-only');
   for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 });
-    const stop = page.getByRole('button', { name: 'Stop active run', exact: true });
-    await check(stop).toBeDisabled();
+    await check(page.getByRole('button', { name: 'Stop active run', exact: true })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Close inspector', exact: true }).click();
     const selectedAgent = page.getByLabel('Spawned agents').getByRole('button', { name: /^RECON/ }).first();
     await selectedAgent.focus(); await check(selectedAgent).toBeFocused();
+    await page.keyboard.press('Enter');
+    await check(page.getByRole('region', { name: 'Agent inspector' }).getByRole('heading', { level: 3 })).toBeFocused();
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `S1 overflow ${width}`);
     await screenshot(`s1-inspector-${width}`);
   }

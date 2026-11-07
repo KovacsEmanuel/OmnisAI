@@ -44,8 +44,12 @@
 .run textarea, .run select { display: block; width: 100%; max-width: 100%; min-width: 0; }
 .run pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 .run button { max-width: 100%; overflow-wrap: anywhere; }
-.globalControl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; max-width: 1116px; margin: 20px auto 0; padding: 12px 20px; overflow-wrap: anywhere; background: var(--color-surface); border: 1px solid var(--surface-hairline); border-radius: var(--radius-lg); }
-.globalControl a { flex: 1 1 280px; min-width: 0; min-height: 44px; }
+.globalControl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: fit-content; max-width: 100%; margin: 8px auto 0; padding: 8px 12px; overflow-wrap: anywhere; background: var(--color-surface); border: 1px solid var(--surface-hairline); border-radius: var(--radius-lg); box-shadow: var(--shadow-control); }
+.globalControl a { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px; min-width: 0; min-height: 44px; font-size: 13px; }
+.globalControl ul { flex-basis: 100%; max-height: 30dvh; overflow: auto; }
+.runIdentity { min-width: 0; }
+.runIdentity > summary { min-height: 44px; padding: 12px 4px; font-size: 13px; cursor: pointer; }
+.runIdentity[open] { flex-basis: 100%; }
 .globalControl button, .run button { min-width: 44px; min-height: 44px; max-width: 100%; overflow-wrap: anywhere; }
 .globalControl p { flex-basis: 100%; margin: 0; color: var(--color-secondary); font-size: 12px; }
 .overviewContext { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; margin-block: 16px; }
@@ -62,7 +66,7 @@
 .disclosure dl > div { min-width: 0; }
 .disclosure dt { color: var(--color-secondary); }
 .disclosure dd { margin: 0; overflow-wrap: anywhere; font-family: var(--font-mono); }
-.nowBar { border: 1px solid var(--surface-hairline); border-radius: var(--radius-md); background: var(--color-elevated); padding: 12px 16px; }
+.nowBar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; border: 1px solid var(--surface-hairline); border-radius: var(--radius-md); background: var(--color-elevated); padding: 10px 16px; }
 .nowBar p { margin: 0; }
 .nowBar .disclosure { margin-top: 8px; }
 .accounting { border-block: 1px solid var(--color-divider); margin-block: 20px; padding-block: 4px; }
@@ -76,15 +80,20 @@
 .assessmentMetrics .core { padding: 16px; height: 100%; }
 .assessmentMetrics h2 { font-size: 14px; margin: 12px 0 4px; }
 .metricValue { margin: 0; font-size: 36px; line-height: 1; font-weight: 500; }
-.severityRing { display: grid; place-items: center; width: 128px; aspect-ratio: 1; border: 16px solid var(--color-divider); border-radius: 50%; color: var(--color-secondary); font-size: 24px; margin: 16px auto; }
-.streamWorkspace { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); align-items: start; gap: 24px; margin-top: 24px; }
-.streamFeed, .inspectorDock { min-width: 0; }
-.inspectorDock { border: 1px solid var(--surface-hairline); border-radius: var(--radius-md); padding: 16px; background: var(--color-elevated); }
-.inspectorDock h3 { font-size: 16px; font-weight: 500; }
-.inspectorDock p, .inspectorDock li { font-size: 13px; }
-.inspectorDock ul { padding-left: 16px; }
+.streamWorkspace { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 16px; margin-top: 20px; }
+.streamFeed { min-width: 0; }
+.inspectorPopup { position: fixed; inset: var(--inspector-top, 180px) 16px auto auto; z-index: 2; width: min(38rem, calc(100% - 32px)); max-height: min(70dvh, calc(100dvh - var(--inspector-top, 180px) - 16px)); margin: 0; padding: 20px; overflow: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-nav); }
+.inspectorPopup h3 { font-size: 16px; font-weight: 500; }
+.inspectorPopup h3:focus, .run h2:focus { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+.inspectorPopup p, .inspectorPopup li { font-size: 13px; }
+.inspectorPopup pre { max-height: 24dvh; overflow: auto; }
+.inspectorPopup ul { padding-left: 16px; }
+.record { margin-block: 12px; padding: 12px 16px; border: 1px solid var(--surface-hairline); border-radius: var(--radius-md); background: var(--surface-shell); }
+.record h4 { margin-top: 0; color: var(--color-secondary); }
+.activity { margin-block: 12px 20px; padding: 12px 16px; border-inline-start: 3px solid var(--color-border); background: var(--surface-shell); border-radius: var(--radius-sm); }
 .agents, .agents ul, .events { list-style: none; padding: 0; margin: 12px 0; }
 .agents ul { padding-left: 16px; border-left: 1px solid var(--color-divider); }
+.taskGroup { min-width: 0; margin: 0; padding: 0; border: 0; }
 .agents button { display: block; width: 100%; text-align: left; font-size: 12px; font-weight: 400; border-radius: var(--radius-sm); background: var(--color-elevated); margin-block: 8px; box-shadow: none; }
 .agents button[aria-pressed=true] { border-color: var(--color-focus); }
 .events > li { border: 1px solid var(--surface-hairline); border-radius: var(--radius-md); background: var(--color-elevated); padding: 12px 16px; margin-top: 12px; }
@@ -106,7 +115,7 @@
 .agents { max-height: 280px; overflow: auto; scrollbar-gutter: stable; padding: 4px; }
 @media (max-width: 1023px) { .overviewContext, .streamWorkspace { grid-template-columns: minmax(0, 1fr); } .assessmentMetrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .preflight { grid-template-columns: minmax(0, 1fr); padding: 16px; } .needsYou { padding: 16px; } }
-@media (max-width: 600px) { .usageMetrics { grid-template-columns: minmax(0, 1fr); } .globalControl { padding: 12px; } .globalControl a { flex-basis: 100%; } .assessmentMetrics { gap: 8px; } .inspectorDock { padding: 12px; } }
+@media (max-width: 600px) { .usageMetrics { grid-template-columns: minmax(0, 1fr); } .globalControl a { flex-basis: 100%; } .assessmentMetrics { gap: 8px; } .inspectorPopup { padding: 12px; } }
 @media (max-width: 600px) { .core { padding: 20px; } .heading h1 { margin-block: 12px; } }
 @media (max-width: 700px) { .providerSelection, .providerStates { grid-template-columns: minmax(0, 1fr); } .providerActions button { flex: 1 1 100%; } }
 @media (max-width: 1023px) { .heading { flex-direction: column; align-items: start; } .heading h1 { font-size: 30px; } .details { grid-template-columns: minmax(0, 1fr); } }

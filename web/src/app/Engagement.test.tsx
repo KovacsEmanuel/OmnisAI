@@ -20,17 +20,18 @@ it('orders Overview now, Needs you, metrics, context and exact usage without inv
   const view = render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${id}/overview`]}><App /></MemoryRouter></QueryClientProvider>);
   const accounting = await screen.findByRole('region', { name: 'Run accounting' });
   const needs = screen.getByRole('region', { name: 'Needs you' });
-  const now = screen.getByText(new RegExp(`^Run ${syntheticRun.run_id}`));
+  const now = screen.getByRole('region', { name: 'Run status' });
   const metrics = screen.getByLabelText('Target assessment metrics');
   const context = screen.getByRole('region', { name: 'Engagement scope' });
 
-  for (const [before, after] of [[now, needs], [needs, metrics], [metrics, context], [context, accounting]] as const) expect(before.compareDocumentPosition(after) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  for (const [before, after] of [[context, now], [now, needs], [needs, metrics], [metrics, accounting]] as const) expect(before.compareDocumentPosition(after) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(metrics.querySelectorAll('section')).toHaveLength(5);
+  expect(now).not.toHaveTextContent(/owner|fence|generation|revision/);
   expect(metrics.textContent).not.toContain('0');
   expect(screen.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'Submit clarification' })).toBeVisible();
   expect(screen.getByRole('button', { name: 'Stop run' })).toBeVisible();
-  expect(screen.getByText('Exact accounting & provenance').closest('details')).not.toHaveAttribute('open');
+  expect(screen.queryByText('Exact accounting & provenance')).not.toBeInTheDocument();
   expect(screen.getByRole('heading', { name: 'Top findings' })).toBeVisible();
   expect(screen.getByRole('heading', { name: 'Severity' })).toBeVisible();
   expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
@@ -50,9 +51,9 @@ it('selects a persisted draft, preserves identity and scope, and navigates edita
   expect(await screen.findByRole('heading', { name: summary.name })).toBeVisible();
   expect(screen.getByText(draft.payload.objective_text, { normalizer: value => value })).toBeVisible();
   expect(screen.queryByRole('region', { name: 'Test model' })).not.toBeInTheDocument();
-  await user.click(screen.getByText('Draft snapshot details'));
-  expect(screen.getByText(summary.digest)).toBeVisible();
-  expect(screen.getByText(summary.id)).toBeVisible();
+  expect(screen.queryByText('Draft snapshot details')).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Setup' })).toHaveAttribute('href', `/engagements/${id}/setup`);
+  expect(client.getQueryData(['private', 'engagement', id])).toMatchObject({ id: summary.id, digest: summary.digest });
   expect(screen.getByText('https://synthetic.invalid')).toBeVisible();
   expect(screen.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
   await user.click(screen.getByRole('link', { name: 'Setup' }));

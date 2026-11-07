@@ -119,8 +119,46 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
   const inspectorHeading = useRef<HTMLHeadingElement>(null);
   const runHeading = useRef<HTMLHeadingElement>(null);
   const selectionTrigger = useRef<HTMLButtonElement | null>(null);
-  useEffect(() => { if (detail?.attempt_id && (consumptionLink || window.matchMedia?.('(max-width: 1023px)')?.matches)) inspectorHeading.current?.focus(); }, [consumptionLink, detail?.attempt_id]);
+  const popup = useRef<HTMLDialogElement>(null);
+  function closeInspector() {
+    setSelected(null);
+    if (selectionTrigger.current?.isConnected) selectionTrigger.current.focus(); else runHeading.current?.focus();
+  }
+  useEffect(() => { if (detail?.attempt_id) inspectorHeading.current?.focus(); }, [detail?.attempt_id]);
+  useEffect(() => {
+    if (!selected) return;
+    const anchor = document.getElementById('global-run-control-anchor');
+    function place() { popup.current?.style.setProperty('--inspector-top', `${Math.max(0, anchor?.getBoundingClientRect().bottom ?? 0) + 12}px`); }
+    place();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(place);
+    if (anchor) observer?.observe(anchor);
+    window.addEventListener('resize', place);
+    window.addEventListener('scroll', place, { passive: true });
+    return () => { observer?.disconnect(); window.removeEventListener('resize', place); window.removeEventListener('scroll', place); };
+  }, [selected]);
+  useEffect(() => {
+    if (!selected) return;
+    function outside(event: PointerEvent) {
+      if (!(event.target instanceof Element) || popup.current?.contains(event.target)) return;
+      // Background controls (especially Stop/Refresh/theme) keep their native action and URL selection.
+      if (!event.target.closest('button, a, input, select, textarea, summary')) closeInspector();
+    }
+    document.addEventListener('pointerdown', outside);
+    return () => document.removeEventListener('pointerdown', outside);
+  });
   const run = summary.data && summary.data.run.revision >= (currentRun.data?.revision ?? 0) ? summary.data.run : currentRun.data;
+  const latestCursor = run?.through_cursor ?? 0;
+  // /events is ascending and bounded. Read at the saved tail, independently of URL/page filters.
+  const activity = useQuery({ queryKey: ['private', 'run-activity', runId, latestCursor], queryFn: ({ signal }) => {
+    if (!runId) throw new ApiError('INVALID_INPUT');
+    return readPrivate(async () => {
+      const result = await api.runEvents(runId, Math.max(0, latestCursor - 1), signal);
+      const previous = client.getQueryData<EventPage>(['private', 'run-activity', runId, latestCursor]);
+      if (previous && result.through_cursor < previous.through_cursor) throw new ApiError('INVALID_RESPONSE');
+      return result;
+    }, signal);
+  }, enabled: enabled && !!runId && stream && latestCursor > 0, ...polling });
+  const latestEvent = activity.data && !activity.data.has_more && !activity.isError ? activity.data.events.at(-1) : undefined;
   const active = !!run && !runTerminal(run);
   const csrf = session.data?.csrf_token;
   const coherent = summary.data?.run.revision === run?.revision ? summary.data : undefined;
@@ -139,7 +177,7 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
         remember(pointer, scope, commandId);
       }, signal)) return null;
       const receipt = await readPrivate(action, signal);
-      if (!commitPrivate(() => { remember(pointer, scope, null); setPending(null); setMessage(`${receipt.state} · ${receipt.command_id}`); }, signal)) return null;
+      if (!commitPrivate(() => { remember(pointer, scope, null); setPending(null); setMessage(`${receipt.state} · Command recorded; reading saved state.`); }, signal)) return null;
       await client.invalidateQueries({ queryKey: ['private'] });
       return receipt;
     } catch (error) {
@@ -179,7 +217,7 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
     try {
       const signal = lifetime.current.signal;
       const receipt = await readPrivate(() => api.runCommandReceipt(pending, signal), signal);
-      if (!commitPrivate(() => { remember(pointer, scope, null); setPending(null); setReview(null); setConfirmed(false); setMessage(`${receipt.state} · ${receipt.command_id}. Refresh persisted run; a recovered preflight requires fresh review.`); }, signal)) return;
+      if (!commitPrivate(() => { remember(pointer, scope, null); setPending(null); setReview(null); setConfirmed(false); setMessage(`${receipt.state}. Refresh persisted run; a recovered preflight requires fresh review.`); }, signal)) return;
       await client.invalidateQueries({ queryKey: ['private'] });
     }
     catch { commitPrivate(() => { setMessage('Receipt unavailable; command remains unknown. No automatic resend.'); }, lifetime.current.signal); }
@@ -190,37 +228,50 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
   const eventTypes = [...new Set([filter.kind, ...pageEvents.map(event => event.kind)])].filter(Boolean);
   const actors = [...new Set([filter.actor, ...pageEvents.map(event => event.task_id ?? 'none')])].filter(Boolean);
   const filteredEvents = pageEvents.filter(event => (!filter.kind || event.kind === filter.kind) && (!filter.actor || (event.task_id ?? 'none') === filter.actor));
-  const agentButton = (item: Attempt) => <button aria-pressed={selected === item.attempt_id} onClick={event => { selectionTrigger.current = event.currentTarget; setSelected(item.attempt_id); }}><strong>{item.role}</strong> · {item.task_id} · {item.state}{item.parent_task_id ? ` · parent ${item.parent_task_id}` : ''}</button>;
+  const agentButton = (item: Attempt) => <button data-attempt-id={item.attempt_id} aria-label={`${item.role} · ${item.task_id} · ${item.state}${item.parent_task_id ? ` · parent ${item.parent_task_id}` : ''}${(tasks.get(item.task_id)?.length ?? 0) > 1 ? ` · attempt ${item.attempt_id}` : ''}`} aria-pressed={selected === item.attempt_id} onClick={event => { selectionTrigger.current = event.currentTarget; setSelected(item.attempt_id); }}><strong>{item.role}</strong> · {item.brief || 'Recorded task'}<span className={styles.badge}>{item.state}</span></button>;
+  const tasks = new Map<string, Attempt[]>();
+  for (const item of attempts) tasks.set(item.task_id, [...tasks.get(item.task_id) ?? [], item]);
+  const taskParent = (items: Attempt[]) => items[0] && items.every(item => item.parent_task_id === items[0]?.parent_task_id) ? items[0].parent_task_id : null;
   const rendered = new Set<string>();
-  function agentRow(item: Attempt, nested = false): ReactNode {
-    if (rendered.has(item.attempt_id)) return null;
-    rendered.add(item.attempt_id);
-    const children = attempts.filter(child => child.parent_task_id === item.task_id && !rendered.has(child.attempt_id));
-    // Keep real nesting, but cap indentation at the baseline's single child level.
-    const rows = children.map(child => agentRow(child, true));
+  function agentRow(taskId: string, nested = false): ReactNode {
+    if (rendered.has(taskId)) return null;
+    rendered.add(taskId);
+    const items = tasks.get(taskId) ?? [];
+    const item = items[0];
+    if (!item) return null;
+    const rows = [...tasks].filter(([, children]) => taskParent(children) === taskId).map(([childId]) => agentRow(childId, true));
     const hasChildren = rows.some(row => row !== null);
-    const matches = !filter.state || item.state === filter.state;
-    if (!matches && !hasChildren) return null;
-    return <li key={item.attempt_id}>{matches ? agentButton(item) : <p className={styles.muted}>Ancestor context: {item.role} · {item.task_id} · {item.state}</p>}{item.parent_task_id && !attempts.some(parent => parent.task_id === item.parent_task_id) && <p>Parent outside this bounded summary: {item.parent_task_id}</p>}{hasChildren && <ul style={nested ? { paddingInlineStart: 0 } : undefined}>{rows}</ul>}</li>;
+    const matches = items.filter(attempt => !filter.state || attempt.state === filter.state);
+    if (!matches.length && !hasChildren) return null;
+    return <li key={taskId}><fieldset className={styles.taskGroup} aria-label={`${item.role} task ${taskId}`}>
+      {items.length > 1 && <p className={styles.muted}>{items.length} recorded attempts</p>}
+      {matches.map(attempt => <div key={attempt.attempt_id}>{items.length > 1 && <small className={styles.muted}>Record {items.indexOf(attempt) + 1}</small>}{agentButton(attempt)}</div>)}
+      {!matches.length && <p className={styles.muted}>Ancestor context: {item.role} · {item.task_id} · {item.state}</p>}
+      {item.parent_task_id && !tasks.has(item.parent_task_id) && <p>Parent outside this bounded summary: {item.parent_task_id}</p>}
+      {!items.every(attempt => attempt.parent_task_id === item.parent_task_id) && <p>Parent context differs across retained attempts; no single parent inferred.</p>}
+      {hasChildren && <ul style={nested ? { paddingInlineStart: 0 } : undefined}>{rows}</ul>}
+    </fieldset></li>;
   }
   return <section className={`${stream ? styles.panel : ''} ${styles.run}`} aria-label="Inert run"><div className={stream ? styles.core : styles.overviewRun}>
-    <h2 ref={runHeading} tabIndex={-1}>{stream ? 'Brain stream' : 'Inert run · S1'}</h2>
-    <p>Only the selected synthetic context is sent. No target requests, shell or browser tools. Models may make successive calls; 300 seconds per operation, no total LLM cost cap.</p>
+    <h2 ref={runHeading} tabIndex={-1}>{stream ? 'Brain stream' : 'Run status'}</h2>
     {!run && <p>{currentRun.isPending ? 'Reading persisted run…' : currentRun.isError ? 'Run unavailable; no run state inferred.' : 'No run observed.'}</p>}
-    {run && <div className={styles.nowBar}><p>Run {run.run_id} · {run.state} · revision {run.revision} · {run.reason} · owner {coherent?.owner_live ? 'current' : 'unverified'} · phase {coherent ? coherent.phase_active ? 'active' : 'inactive' : 'unknown'} · generation {run.generation}</p><details className={styles.disclosure}><summary>Run snapshot details</summary><p>Setup {run.setup_ref.id} · {run.setup_ref.digest} · owner {run.owner_id} · epoch {run.owner_epoch} · fence {run.fence} · through {run.through_cursor}</p></details></div>}
+    {run && <section className={styles.nowBar} aria-label="Run status" data-run-id={run.run_id} data-run-revision={run.revision}><strong>{run.state}</strong>{run.reason && <span>{run.reason}</span>}<span className={styles.muted}>Isolated synthetic run · no target assessment</span>{active && !coherent?.owner_live && <p>Live ownership unverified; showing the last saved state.</p>}</section>}
     {active && <div className={`${styles.providerActions} ${styles.runControls}`}>
       <button disabled={sending || !!pending || run?.state !== 'RUNNING'} onClick={() => { void command('pause'); }}>Pause run</button>
       <button disabled={sending || !!pending || !run || !['PAUSED', 'HOLD'].includes(run.state)} onClick={() => { void command('resume'); }}>Resume run</button>
       <RunStop run={run} />
     </div>}
-    {question && <section className={styles.needsYou} aria-label="Needs you"><h3>Needs you · {question.state}</h3><p>{question.text}</p><ul>{question.refs.map(ref => <li key={ref.id}>{ref.kind} · {ref.id} · revision {ref.revision} · {ref.digest}</li>)}</ul>{question.answer_ref && <p>Answer {question.answer_ref.id} · {question.answer_ref.digest} · command {question.command_id}</p>}<details className={styles.disclosure}><summary>Clarification provenance</summary><p>{question.cause} · question {question.question_id} · revision {question.revision} · run revision {run?.revision} · task {question.task_id}</p></details>{question.state === 'PENDING' && <><label>Non-secret clarification<textarea maxLength={2048} value={answer} onChange={event => { setAnswerDraft({ identity: answerIdentity, text: event.target.value }); }} /></label><p>Clarification cannot change scope/ROE, supply secrets or resume HOLD. Complete command limit: 3600 UTF-8 bytes including JSON escaping.</p>{answer && !answerFits && <p role="alert">Clarification exceeds the command limit or contains invalid text. Nothing was sent.</p>}<button disabled={!answer.trim() || !answerFits || sending || !!pending || run?.state !== 'RUNNING'} onClick={() => { void command('answer'); }}>Submit clarification</button></>}</section>}
+    {question && <section className={styles.needsYou} aria-label="Needs you"><h3>Needs you · {question.state}</h3><p>{question.text}</p>
+      <details className={styles.disclosure}><summary>Clarification provenance</summary><p>{question.cause} · question {question.question_id} · revision {question.revision} · run revision {run?.revision} · task {question.task_id}</p><ul>{question.refs.map(ref => <li key={ref.id}>{ref.kind} · {ref.id} · revision {ref.revision} · {ref.digest}</li>)}</ul>{question.answer_ref && <p>Answer {question.answer_ref.id} · {question.answer_ref.digest} · command {question.command_id}</p>}</details>
+      {question.state === 'PENDING' && <><label>Non-secret clarification<textarea maxLength={2048} value={answer} onChange={event => { setAnswerDraft({ identity: answerIdentity, text: event.target.value }); }} /></label><p>Clarification cannot change scope/ROE, supply secrets or resume HOLD.</p>{answer && !answerFits && <p role="alert">Clarification exceeds the command limit or contains invalid text. Nothing was sent. Limit: 3600 UTF-8 bytes including JSON escaping.</p>}<button disabled={!answer.trim() || !answerFits || sending || !!pending || run?.state !== 'RUNNING'} onClick={() => { void command('answer'); }}>Submit clarification</button></>}
+    </section>}
     {!stream && !question && <section className={styles.nowBar} aria-label="Needs you"><h3>Needs you</h3><p>{coherent ? 'No clarification recorded in this run snapshot.' : 'Clarifications UNKNOWN until a coherent run snapshot is read.'}</p></section>}
     {children}
-    {summary.data && <section aria-label="Run accounting" className={styles.accounting}><h3>Run accounting <span className={styles.badge}>MONITOR</span></h3><p className={styles.muted}>Snapshot {summary.data.as_of} · run revision {summary.data.run.revision}{summary.isError || !coherent ? ' · stale or unverified' : ''}</p>
+    {summary.data && <section aria-label="Run accounting" className={styles.accounting}><h3>Run accounting <span className={styles.badge}>MONITOR</span></h3><p className={styles.muted}>Observed at <time dateTime={summary.data.as_of}>{summary.data.as_of} UTC</time>{summary.isError || !coherent ? ' · stale or unverified' : ''}</p>
       <dl className={styles.usageMetrics}>{(['total_tokens', 'cost_observed'] as const).map(key => <div key={key}><dt>{key === 'total_tokens' ? 'Total tokens' : 'Observed cost · no inferred currency'}</dt><dd>{summary.data.usage.totals[key].value ?? 'UNKNOWN'} <small>{summary.data.usage.totals[key].state} · {summary.data.usage.totals[key].observed_dispatches}/{summary.data.usage.totals.dispatches} observed</small></dd></div>)}<div><dt>Dispatch allocations · not paid calls</dt><dd>{summary.data.usage.totals.dispatches}<small>{summary.data.usage.totals.unobserved_dispatches} without observation</small></dd></div></dl>
-      <details className={styles.disclosure}><summary>Exact accounting & provenance</summary><UsageReadback usage={summary.data.usage} /></details>
+
     </section>}
-    {!active && !stream && <section className={styles.preflight} aria-label="New inert run setup"><h3>New inert run · explicit preflight</h3>
+    {!active && !stream && <details className={styles.disclosure}><summary>Prepare inert run</summary><section className={styles.preflight} aria-label="New inert run setup"><h3>New inert run · explicit preflight</h3><p>Only the selected synthetic context is sent. No target requests, shell or browser tools. Models may make successive calls; 300 seconds per operation, no total LLM cost cap.</p>
       <label>Qualified core publication<select value={publication} onChange={event => { setPublication(event.target.value); setReview(null); setConsent(false); }}><option value="">Choose an exact published core</option>{publications.data?.map(item => <option key={item.id} value={item.id}>{item.id} · {item.digest}</option>)}</select></label>
       <label>Selected synthetic inert context<textarea value={context} maxLength={1024} onChange={event => { setContext(event.target.value); setReview(null); setConsent(false); }} /></label>
       <label className={styles.fullWidth}><input type="checkbox" checked={consent} onChange={event => { setConsent(event.target.checked); setReview(null); }} />This text is synthetic and non-secret; I approve projecting only this selected context.</label>
@@ -230,13 +281,17 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
       {publications.isError && <p>Published core unavailable. Nothing was started.</p>}
       {publications.data?.length === 0 && <p>No qualified published core is available. Import and Publish are not automatic.</p>}
       {(settings.isError || !selection) && <p>Model selection unavailable. Configure models in Settings before preflight.</p>}
-    </section>}
+    </section></details>}
     {stream && <div className={styles.streamWorkspace}><div className={styles.streamFeed}>
+      <section className={styles.activity} aria-label="Current activity"><h3>Current activity</h3>
+        {latestEvent ? <><p>{latestEvent.summary}</p><small className={styles.muted}>{latestEvent.kind} · <time dateTime={latestEvent.created_at}>{latestEvent.created_at} UTC</time></small></> : <p>{activity.data?.has_more ? 'Newer activity is not yet available in this bounded read.' : activity.isError ? 'Current activity unavailable; no activity inferred.' : activity.isFetching ? 'Reading current activity…' : 'No current event retained in this snapshot.'}</p>}
+      </section>
+      <h3>Delegation tree</h3>
       {hasView && !viewValid && !currentRun.isPending && <p role="alert">Stream URL is invalid or belongs to another run. No linked record was accepted. <button onClick={() => updateView({ attempt: null, source: null, after: null, kind: null, actor: null, 'agent-state': null })}>Reset stream view</button></p>}
       <label>Agent state<select value={filter.state} onChange={event => updateView({ 'agent-state': event.target.value })}><option value="">All states</option>{states.map(state => <option key={state}>{state}</option>)}</select></label>
       <p className={styles.muted}>Agent state filters this bounded roster; ancestor context is retained, not an additional matching agent.</p>
       {/* The second pass retains rootless cycles; each bounded-summary attempt renders once. */}
-      <ul className={styles.agents} aria-label="Spawned agents">{attempts.filter(item => !attempts.some(parent => parent.task_id === item.parent_task_id)).map(item => agentRow(item))}{attempts.map(item => agentRow(item))}</ul>
+      <ul className={styles.agents} aria-label="Spawned agents">{[...tasks].filter(([, items]) => !tasks.has(taskParent(items) ?? '')).map(([taskId]) => agentRow(taskId))}{[...tasks.keys()].map(taskId => agentRow(taskId))}</ul>
       {summary.data?.has_more && <p>Some attempts are omitted from this bounded summary. Page through events to select their exact attempt IDs.</p>}
       {summary.data?.attempts.length === 0 && <p>No spawned agents in this summary.</p>}
       {attempts.length > 0 && filter.state && !attempts.some(item => item.state === filter.state) && <p>No agents match this state in the bounded summary.</p>}
@@ -249,33 +304,40 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
       {after > 0 && <button onClick={() => { setAfter(0); }}>First events</button>}
       {after > 0 && <button onClick={() => { const previous = cursors.slice(0, -1); setPage({ run: runId, cursors: previous }); updateView({ after: String(previous.at(-1) ?? 0) }); }}>Previous events</button>}
       {events.data?.has_more && <button disabled={events.isFetching || events.data.through_cursor <= after} onClick={() => { setAfter(events.data?.through_cursor ?? after); }}>Next events</button>}
-      </div><aside className={styles.inspectorDock} aria-label="Contextual inspection">
-      {!selected && <p className={styles.muted}>Select an agent or event to inspect its persisted result, input and usage.</p>}
+      </div><aside aria-label="Contextual inspection">
+      {!selected && <p className={styles.muted}>Select an agent or event to read its retained instructions and results.</p>}
+      {selected && <dialog open ref={popup} className={styles.inspectorPopup} aria-label="Recorded agent activity" onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeInspector(); } }}>
       {selected && !summaryReady && <p>Waiting for a run-bound summary before inspection.</p>}
       {selected && summaryReady && inspector.isPending && <p>Loading selected agent…</p>}
-      {detail && <section aria-label="Agent inspector">
-        <button onClick={() => { setSelected(null); if (selectionTrigger.current?.isConnected) selectionTrigger.current.focus(); else runHeading.current?.focus(); }}>Close inspector</button>
-        <h3 ref={inspectorHeading} tabIndex={-1}>{detail.role} · {detail.attempt_id}</h3><p>Run {detail.run_id} · task {detail.task_id} · parent {detail.parent_task_id ?? 'none'} · {detail.state}</p>
-        <p>Snapshot {detail.as_of}{inspector.isError ? ' · stale or unavailable' : ''}</p><p>{detail.brief}</p>
+      {detail && <section aria-label="Agent inspector" data-attempt-id={detail.attempt_id} data-run-id={detail.run_id}>
+        <button onClick={closeInspector}>Close inspector</button>
+        <h3 ref={inspectorHeading} tabIndex={-1}>{detail.role} · {detail.brief || 'Recorded task'}</h3><p>{detail.state} · read-only</p>
+        <p className={styles.muted}>Only retained records are shown, not a complete chat transcript.{inspector.isError ? ' Saved snapshot is stale or unavailable.' : ''}</p>
         <p>Configured model: {detail.configured_model} · Observed model: {detail.observed_model ?? 'UNKNOWN'}</p>
-        <h4>Exact persisted completion</h4><p>Final result: {detail.result_ref ? refLabel(detail.result_ref) : 'Not finalized'}</p>
+        <section className={styles.record}><h4>Composed instructions and pinned skills</h4><pre>{detail.instructions || 'No retained instructions'}</pre></section>
+        <section className={styles.record}><h4>Recorded completion</h4>
         {detail.result && <><p>Result status: {detail.result.state} · Completion kind: {detail.result.completion_kind ?? 'UNKNOWN'}</p><pre>{detail.result.summary ?? 'UNKNOWN'}</pre><h4>Retained gaps</h4>{detail.result.gaps.length ? <ul>{detail.result.gaps.map((gap, index) => <li key={index}>{gap}</li>)}</ul> : <p>No retained gaps</p>}<ul>{detail.result.consumed_refs.map(ref => <li key={ref.id}>Consumed input {refLabel(ref)}</li>)}</ul></>}
         {detail.decision && <details className={styles.disclosure} open><summary>Decisions</summary><p>Decision action: {detail.decision.action} · Completion kind: {detail.decision_completion_kind ?? 'UNKNOWN'}</p><pre>{detail.decision.summary}</pre><pre>{detail.decision.detail}</pre><ul>{detail.decision.consumed_refs.map(ref => <li key={ref.id}>Consumed result {refLabel(ref)}</li>)}</ul></details>}
         {!detail.result && !detail.decision && <p>No completion observed</p>}
+        </section>
         <p>Consumption: {detail.consumption ? detail.consumption.decision_ref ? 'CONSUMED' : detail.consumption.held ? 'HELD' : 'PENDING' : 'UNKNOWN / not applicable'}. Read receipt alone is not consumption.</p>
         {detail.consumption?.decision_ref && <p>Consuming decision {refLabel(detail.consumption.decision_ref)}</p>}
         {detail.consumption?.consumer_attempt_id && detail.consumption.decision_ref && detail.result_ref && <button onClick={() => { if (detail.consumption?.consumer_attempt_id && detail.consumption.decision_ref && detail.result_ref) setSelected(detail.consumption.consumer_attempt_id, detail.attempt_id); }}>Inspect consuming Brain · {detail.consumption.consumer_attempt_id}</button>}
-        <details className={styles.disclosure}><summary>Prompt & input</summary><h4>Allowed input actually sent</h4><pre>{detail.input_text}</pre><h4>Composed instructions and pinned skills</h4><pre>{detail.instructions}</pre><ul>{detail.input_refs.map(ref => <li key={ref.id}>Input {refLabel(ref)}</li>)}</ul><ul>{detail.skill_refs.map(ref => <li key={ref.id}>Skill {ref.kind} · {ref.id} · revision {ref.revision} · {ref.digest}</li>)}</ul></details>
+        <details className={styles.disclosure}><summary>Prompt & input</summary><h4>Allowed input actually sent</h4><pre>{detail.input_text}</pre><ul>{detail.input_refs.map(ref => <li key={ref.id}>Input {refLabel(ref)}</li>)}</ul><ul>{detail.skill_refs.map(ref => <li key={ref.id}>Skill {ref.kind} · {ref.id} · revision {ref.revision} · {ref.digest}</li>)}</ul></details>
         <details className={styles.disclosure}><summary>Tools & results</summary><p>Call {detail.call_id ?? 'none'} · tool {detail.tool_arguments ?? 'none'}</p><h4>Persisted tool result</h4><pre>{detail.tool_output ?? 'No tool result'}</pre><p>Read receipt: {detail.read_receipt_ref ? refLabel(detail.read_receipt_ref) : 'Not observed'}</p></details>
         <details className={styles.disclosure}><summary>Usage</summary><section aria-label="Attempt accounting"><h4>Attempt accounting</h4>{detail.usage ? <UsageReadback usage={detail.usage} /> : <p>Usage UNKNOWN</p>}</section>
+        {summary.data && <section aria-label="Run totals"><h4>Run totals</h4><UsageReadback usage={summary.data.usage} /></section>}
         <h4>Bounded dispatch observations</h4><p>{detail.dispatches_has_more ? 'More dispatch details omitted; no next-page endpoint. Full aggregate above is not truncated.' : 'All dispatch details in this snapshot.'} Maximum 20 details.</p>
         <ul aria-label="Dispatch observations">{detail.dispatches?.map(dispatch => <li key={dispatch.dispatch_id}>
           <p>{dispatch.dispatch_id} · {dispatch.state}</p><p>Reserved {dispatch.reserved_at ?? 'UNKNOWN'} · sent {dispatch.sent_at ?? 'UNKNOWN'} · settled {dispatch.settled_at ?? 'UNKNOWN'}</p>
           <p>Usage receipt: {dispatch.usage_ref ? refLabel(dispatch.usage_ref) : 'UNKNOWN / not observed'}</p>
           {dispatch.usage ? <><p>{dispatch.usage.role} · configured {dispatch.usage.configured_model} · observed {dispatch.usage.observed_model ?? 'UNKNOWN'} · connection {dispatch.usage.connection_id} · revision {dispatch.usage.connection_revision} · observed at {dispatch.usage.observed_at}</p><h4>Validated measures</h4><pre>{JSON.stringify(dispatch.usage.measures, null, 2)}</pre><h4>Original validated usage</h4><pre>{JSON.stringify(dispatch.usage.reported, null, 2)}</pre></> : <p>No observation receipt; usage UNKNOWN, not zero.</p>}
         </li>)}</ul></details>
+        <details className={styles.disclosure}><summary>Record provenance</summary><p>Snapshot {detail.as_of} · run {detail.run_id} · task {detail.task_id} · parent {detail.parent_task_id ?? 'none'} · attempt {detail.attempt_id}</p><p>Final result: {detail.result_ref ? refLabel(detail.result_ref) : 'Not finalized'}</p></details>
       </section>}
       {selected && (inspector.isError || rosterMismatch) && <p role="alert">Selected record unavailable or inconsistent. No linked result was accepted.</p>}
+      {!detail && <button onClick={closeInspector}>Close inspector</button>}
+      </dialog>}
       </aside></div>}
     <output aria-live="polite">{message}</output>
     {pending && <button disabled={sending} onClick={() => { void readReceipt(); }}>Read command receipt</button>}

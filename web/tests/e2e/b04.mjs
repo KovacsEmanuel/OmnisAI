@@ -21,6 +21,10 @@ export async function runB04({ page, context, check, paired, fault, output, orig
     assert.equal(restored.revision, previous.revision);
     assert.equal(restored.digest, previous.digest);
     assert.equal(restored.payload.objective_text, previous.objective);
+    assert.equal(restored.payload.authorization.valid_from, null);
+    assert.equal(restored.payload.authorization.valid_until, null);
+    await check(page.getByRole('checkbox', { name: 'Limit to a period', exact: true })).not.toBeChecked();
+    await check(page.getByLabel('Valid from', { exact: true })).toHaveCount(0);
     await page.reload();
     await check(page.getByLabel('Objective / Brain instructions')).toHaveValue(previous.objective);
     await page.getByRole('button', { name: '2. Application context' }).click();
@@ -33,6 +37,7 @@ export async function runB04({ page, context, check, paired, fault, output, orig
     await page.keyboard.press('Enter');
     await check(page.getByRole('heading', { name: 'Review & preflight' })).toBeVisible();
     await check(page.getByText(previous.objective, { exact: true })).toBeVisible();
+    await check(page.getByText('No end date — until closed or revoked', { exact: true })).toBeVisible();
     await check(page.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
     for (const width of [320, 390, 1280, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
@@ -63,6 +68,41 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   await check(page.getByRole('checkbox', { name: 'Limit to a period', exact: true })).not.toBeChecked();
   await page.getByLabel('Scope origin').fill('https://synthetic.invalid');
   await check(page.getByLabel('Scope access')).toHaveValue('BLOCKED');
+  // Real current UTC month, not a fixed future month, patched clock or an ISO-input shortcut.
+  const utc = await page.evaluate(() => { const now = new Date(); return { year: now.getUTCFullYear(), month: now.getUTCMonth(), day: now.getUTCDate() }; });
+  const dayLabel = day => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(Date.UTC(utc.year, utc.month, day)));
+  const finite = { valid_from: new Date(Date.UTC(utc.year, utc.month, 15, 0, 0, 0)).toISOString().replace('.000Z', 'Z'), valid_until: new Date(Date.UTC(utc.year, utc.month, 16, 23, 59, 59)).toISOString().replace('.000Z', 'Z') };
+  let creates = 0;
+  page.on('request', request => { if (request.method() === 'POST' && new URL(request.url()).pathname === '/api/v1/engagements') creates += 1; });
+  await page.getByRole('checkbox', { name: 'Limit to a period', exact: true }).check();
+  const from = page.getByLabel('Valid from', { exact: true });
+  await check(from).toHaveText('Choose date');
+  await from.focus(); await check(from).toBeFocused();
+  const fromBox = await from.boundingBox(); assert.ok(fromBox && fromBox.width >= 44 && fromBox.height >= 44);
+  await page.keyboard.press('Enter');
+  const calendar = page.getByRole('dialog', { name: 'Valid from calendar', exact: true });
+  await check(calendar.getByRole('button', { name: dayLabel(utc.day), exact: true })).toBeFocused();
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    const bounds = await calendar.boundingBox();
+    assert.ok(bounds && bounds.x >= 0 && bounds.x + bounds.width <= width && bounds.y >= 0 && bounds.y + bounds.height <= 900, `Calendar outside ${width}px viewport`);
+    for (const button of await calendar.getByRole('button').all()) {
+      const target = await button.boundingBox();
+      assert.ok(target && target.width >= 44 && target.height >= 44, `Calendar button below 44px at ${width}px`);
+    }
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Calendar overflow ${width}`);
+  }
+  await page.keyboard.press('Escape');
+  await check(calendar).toHaveCount(0); await check(from).toBeFocused();
+  await page.keyboard.press('Enter');
+  await calendar.getByRole('button', { name: dayLabel(15), exact: true }).click();
+  await check(from).toHaveText(dayLabel(15)); await check(from).toBeFocused();
+  await page.getByRole('button', { name: 'Save draft' }).click();
+  await check(page.getByLabel('Valid until', { exact: true })).toHaveAttribute('aria-invalid', 'true');
+  assert.equal(creates, 0, 'An incomplete enabled period must not dispatch POST');
+  await page.getByLabel('Valid until', { exact: true }).click();
+  await page.getByRole('dialog', { name: 'Valid until calendar', exact: true }).getByRole('button', { name: dayLabel(16), exact: true }).click();
+  await check(page.getByLabel('Valid until', { exact: true })).toHaveText(dayLabel(16));
   await check(page.getByLabel('Objective / Brain instructions')).toHaveValue('Assess the authorized Web/API surface within the selected profile.');
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 900 });
@@ -81,8 +121,16 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   await check(save).toBeFocused();
   await page.keyboard.press('Enter');
   await check(page.getByText('Saved · revision 1')).toBeVisible();
+  assert.equal(creates, 1, 'Finite calendar save is one actual create');
   const id = page.url().match(/\/engagements\/([0-9a-f-]{36})\/setup$/)?.[1];
   assert.ok(id, 'POST must lead to an authenticated, confirmed engagement readback');
+  const finiteReadback = await page.evaluate(async target => (await fetch(`/api/v1/engagements/${target}`)).json(), id);
+  assert.equal(finiteReadback.revision, 1);
+  assert.equal(finiteReadback.payload.authorization.valid_from, finite.valid_from);
+  assert.equal(finiteReadback.payload.authorization.valid_until, finite.valid_until);
+  await check(page.getByRole('checkbox', { name: 'Limit to a period', exact: true })).toBeChecked();
+  await check(page.getByLabel('Valid from', { exact: true })).toHaveText(dayLabel(15));
+  await check(page.getByLabel('Valid until', { exact: true })).toHaveText(dayLabel(16));
   await check(page.getByRole('region', { name: 'Test model', exact: true })).toHaveCount(0);
   await check(page.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
   await page.getByRole('button', { name: 'Next' }).click();
@@ -107,6 +155,8 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   await page.getByRole('button', { name: 'Save draft' }).click();
   await check(page.getByLabel('Objective / Brain instructions')).toHaveAttribute('aria-invalid', 'true');
   await page.getByLabel('Objective / Brain instructions').fill(objective);
+  await page.getByRole('checkbox', { name: 'Limit to a period', exact: true }).uncheck();
+  await check(page.getByLabel('Valid from', { exact: true })).toHaveCount(0);
   await check(page.getByText(/code points/).first()).toContainText('8192');
   await page.getByRole('button', { name: '2. Application context' }).click();
   await page.getByLabel('Seed URLs (one per line)').fill('https://synthetic.invalid/api');
@@ -124,8 +174,13 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   await page.getByLabel('Retention days').fill('7');
   await page.getByRole('button', { name: 'Save draft' }).click();
   await check(page.getByText('Saved · revision 2')).toBeVisible();
+  const unboundedReadback = await page.evaluate(async target => (await fetch(`/api/v1/engagements/${target}`)).json(), id);
+  assert.equal(unboundedReadback.revision, 2);
+  assert.equal(unboundedReadback.payload.authorization.valid_from, null);
+  assert.equal(unboundedReadback.payload.authorization.valid_until, null);
   await page.reload();
   await check(page.getByLabel('Objective / Brain instructions')).toHaveValue(objective);
+  await check(page.getByRole('checkbox', { name: 'Limit to a period', exact: true })).not.toBeChecked();
   await page.getByRole('button', { name: '2. Application context' }).click();
   await check(page.getByLabel('Principal 1')).toHaveValue('Visitor');
   await page.getByRole('button', { name: '4. Rules & budgets' }).click();
@@ -156,6 +211,8 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   const session = await page.evaluate(async () => (await fetch('/api/session')).json());
   const latest = await page.evaluate(async target => (await fetch(`/api/v1/engagements/${target}`)).json(), id);
   assert.equal(latest.revision, 3);
+  assert.equal(latest.payload.authorization.valid_from, null);
+  assert.equal(latest.payload.authorization.valid_until, null);
   assert.equal(latest.payload.objective_text, objective + '\nFirst editor');
   assert.equal(latest.payload.scope[0].access, 'BLOCKED', 'BLOCKED declaration is legitimate persisted data');
   assert.equal(latest.payload.business_matrix[0].principal, 'Visitor');

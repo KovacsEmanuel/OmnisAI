@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router';
 import { api } from '../../shared/api/client';
@@ -26,7 +27,8 @@ function pendingStops(scope: string): PendingStop[] {
   if (new Set(result.map(item => item.command)).size !== result.length) throw new Error('Duplicate Stop recovery identity');
   return result;
 }
-export function RunStop({ run, label = 'Stop run' }: { run: RunView | null | undefined; label?: string }) {
+export function RunStop({ run, label = 'Stop run', global }: { run: RunView | null | undefined; label?: string;
+  global?: { context: ReactNode; unavailable: boolean; refresh: () => void } }) {
   const { session, readPrivate, commitPrivate } = useSession();
   const client = useQueryClient();
   const [scope, setScope] = useState<string | null>(null);
@@ -104,21 +106,29 @@ export function RunStop({ run, label = 'Stop run' }: { run: RunView | null | und
     const payload = { action: 'stop', command_id: crypto.randomUUID(), run_id: run.run_id, expected_revision: run.revision, expected_generation: run.generation, question_id: null, answer: null } as const;
     void settle({ command: payload.command_id, run: run.run_id }, () => api.runCommand(payload, csrf));
   }
-  return <>
+  if (global && (!run || runTerminal(run)) && !pending.length && !storageFailed && !message && !global.unavailable) return null;
+  const controls = <>
+    {global?.context}
     <button type="button" disabled={!run || runTerminal(run) || run.state === 'STOPPING' || !scope || storageFailed || pending.some(item => item.run === run.run_id)} onClick={stop}>{label}</button>
+    {global && <button type="button" aria-label="Read active run" onClick={global.refresh}><span aria-hidden="true">↻</span></button>}
+    {global?.unavailable && <p>Active run unavailable or stale; Stop can target only the last observed identity. Local fallback: <code>omnis stop</code>.</p>}
     {pending.length > 0 && <ul aria-label="Unacknowledged Stops">{pending.map(item => <li key={`${item.run}:${item.command}`}>Unacknowledged Stop · run {item.run} · command {item.command} · {item.run === run?.run_id ? 'currently displayed run' : 'not the currently displayed run'}. Outcome unknown; no resend. <button type="button" aria-label={`Read Stop receipt · run ${item.run} · command ${item.command}`} disabled={sending.includes(item.command)} onClick={() => { void settle(item, null); }}>Read Stop receipt</button></li>)}</ul>}
     <output aria-live="polite">{message}</output>
   </>;
+  return global ? <section className={styles.globalControl} aria-label="Global run control">{controls}</section> : controls;
 }
 export function GlobalStop() {
   const { readPrivate } = useSession();
   const client = useQueryClient();
   const key = ['private', 'active-run'];
   const active = useQuery({ queryKey: key, queryFn: ({ signal }) => readPrivate(async () => checkRunProgress(await api.activeRun(signal), client.getQueryData<RunView | null>(key)), signal), ...runPolling });
-  return <section className={styles.globalControl} aria-label="Global run control">
-    {active.data && <Link to={`/engagements/${active.data.engagement_id}/stream`}>Engagement {active.data.engagement_id} · Run {active.data.run_id} · {active.data.state} · revision {active.data.revision} · generation {active.data.generation}</Link>}
-    <RunStop run={active.data} label="Stop active run" />
-    <button type="button" onClick={() => { void active.refetch(); }}>Read active run</button>
-    {(active.isError || !active.data) && <p>{active.isError ? 'Active run unavailable or stale; Stop can target only the last observed identity.' : active.isPending ? 'Reading active run.' : 'No active run observed.'} No shutdown acknowledged. Local fallback: <code>omnis stop</code>.</p>}
-  </section>;
+  const engagementId = active.data?.engagement_id;
+  const name = useQuery({ queryKey: ['private', 'active-run-name', engagementId], queryFn: ({ signal }) => readPrivate(() => api.engagement(engagementId ?? '', signal), signal), enabled: !!engagementId, ...runPolling });
+  return <RunStop run={active.data} label="Stop active run" global={{
+    unavailable: active.isError,
+    refresh: () => { void active.refetch(); },
+    context: active.data ? <><Link title={`Run ${active.data.run_id}`} to={`/engagements/${active.data.engagement_id}/stream`}>
+      <strong>{name.data?.payload.name ?? `Engagement ${active.data.engagement_id}`}</strong> · {active.data.state.toLowerCase().replaceAll('_', ' ')}
+    </Link><details className={styles.runIdentity}><summary aria-label="Current run identity">Identity</summary><p>Engagement {active.data.engagement_id}</p><p>Run {active.data.run_id}</p></details></> : null,
+  }} />;
 }

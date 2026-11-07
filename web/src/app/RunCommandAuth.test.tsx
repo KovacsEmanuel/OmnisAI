@@ -64,6 +64,7 @@ it.each(['healthy', 'preflight-gap', 'receipt-gap', 'start-gap', 'stale-admissio
   const view = render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${id}/overview`]}><App /></MemoryRouter></QueryClientProvider>);
   const pointer = `omnis-run-command-${id}`;
   const user = userEvent.setup();
+  await user.click(await screen.findByText('Prepare inert run', { selector: 'summary' }));
   await user.type(await screen.findByLabelText('Selected synthetic inert context'), 'Synthetic unsent context');
   await user.selectOptions(screen.getByLabelText('Qualified core publication'), publication.id);
   await user.click(screen.getByLabelText(/This text is synthetic and non-secret/));

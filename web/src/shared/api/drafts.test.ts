@@ -2,7 +2,7 @@ import { expect, it, vi } from 'vitest';
 import type { components } from './generated';
 import { api } from './client';
 import { ApiError, decodeError } from './errors';
-import { decodeRevision } from './drafts';
+import { decodeRevision, isFullDraft } from './drafts';
 
 const id = '00000000-0000-4000-8000-000000000010';
 const revisionId = '00000000-0000-4000-8000-000000000011';
@@ -23,6 +23,36 @@ const payload: components['schemas']['EngagementDraft'] = {
 };
 const view = { schema_version: 1, kind: 'engagement-revision', id: revisionId, engagement_id: id,
   revision: 2, digest: 'b'.repeat(64), created_at: '2030-01-01T00:00:00Z', payload };
+
+it('accepts explicit unbounded validity in full and historical-shaped revisions without rewriting fields', () => {
+  const unbounded = { ...payload, authorization: { ...payload.authorization, valid_from: null, valid_until: null } };
+  expect(isFullDraft(unbounded)).toBe(true);
+  expect(decodeRevision({ ...view, payload: unbounded }).payload).toEqual(unbounded);
+  const legacy = Object.fromEntries(Object.entries(unbounded).filter(([key]) => !['application_context', 'effect_rules', 'budgets', 'data_policy', 'business_matrix', 'business_rules_ref'].includes(key)));
+  expect(decodeRevision({ ...view, payload: legacy }).payload).toEqual(legacy);
+});
+
+it.each([
+  { valid_from: null }, { valid_until: null }, { valid_from: true }, { valid_until: 2030 },
+  { valid_from: '2030-02-29T00:00:00Z' }, { valid_from: '2030-04-31T00:00:00Z' },
+  { valid_from: '0000-01-01T00:00:00Z' }, { valid_from: '2030-01-01T24:00:00Z' },
+  { valid_from: '2030-01-01T00:00:60Z' }, { valid_until: '2030-01-01T00:00:00Z' },
+  { valid_until: '2029-12-31T23:59:59Z' }, { valid_from: '2030-01-01T00:00:00+00:00' },
+  { extra: null },
+])('rejects invalid or mixed validity on the actual revision decoder: %j', changes => {
+  expect(() => decodeRevision({ ...view, payload: { ...payload, authorization: { ...payload.authorization, ...changes } } })).toThrowError(ApiError);
+});
+
+it.each(['valid_from', 'valid_until'])('rejects missing %s even in unbounded authorization', missing => {
+  const authorization: Record<string, unknown> = { ...payload.authorization, valid_from: null, valid_until: null };
+  delete authorization[missing];
+  expect(() => decodeRevision({ ...view, payload: { ...payload, authorization } })).toThrowError(ApiError);
+});
+
+it('preserves precise finite UTC timestamps including leap days without normalization', () => {
+  const finite = { ...payload, authorization: { ...payload.authorization, valid_from: '2028-02-29T12:34:56Z' } };
+  expect(decodeRevision({ ...view, payload: finite }).payload).toEqual(finite);
+});
 
 it('creates, edits with exact CAS headers, and reads the complete authored payload without normalizing text', async () => {
   const fetcher = vi.fn<typeof fetch>().mockImplementation(async (_path, init) =>

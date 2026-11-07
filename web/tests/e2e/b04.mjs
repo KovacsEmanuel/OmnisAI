@@ -58,8 +58,7 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   assert.equal(await name.evaluate(element => getComputedStyle(element).outlineWidth), '2px');
   await page.getByLabel('Authorization owner').fill('Fixture operator');
   await page.getByLabel('Authorization statement').fill('Disposable synthetic only');
-  await page.getByLabel('Valid from (UTC)').fill('2030-01-01T00:00:00Z');
-  await page.getByLabel('Valid until (UTC)').fill('2030-12-31T00:00:00Z');
+  await check(page.getByRole('checkbox', { name: 'Limit to a period', exact: true })).not.toBeChecked();
   await page.getByLabel('Scope origin').fill('https://synthetic.invalid');
   await check(page.getByLabel('Scope access')).toHaveValue('BLOCKED');
   await check(page.getByLabel('Objective / Brain instructions')).toHaveValue('Assess the authorized Web/API surface within the selected profile.');

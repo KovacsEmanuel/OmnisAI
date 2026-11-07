@@ -105,6 +105,142 @@ async def pair_session(app: FastAPI, client: AsyncClient) -> str:
 
 
 @pytest.mark.asyncio
+async def test_optional_validity_roundtrips_null_finite_and_immutable_history(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
+    )
+    initial = draft()
+    auth = initial["authorization"]
+    assert isinstance(auth, dict)
+    initial["authorization"] = {**auth, "valid_from": None, "valid_until": None}
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+            csrf = await pair_session(app, client)
+            headers = {"origin": ORIGIN, "x-csrf-token": csrf}
+            created = await client.post("/api/v1/engagements", json=initial, headers=headers)
+            assert created.status_code == 201 and created.json()["payload"] == initial
+            url = f"/api/v1/engagements/{created.json()['engagement_id']}"
+            assert (await client.get(url)).json() == created.json()
+            finite = draft()
+            updated = await client.put(
+                url,
+                json=finite,
+                headers={
+                    **headers,
+                    "if-match": created.headers["etag"],
+                    "x-command-id": str(uuid4()),
+                },
+            )
+            assert updated.status_code == 200 and updated.json()["payload"] == finite
+            finite_view = updated.json()
+            raw_envelope = {
+                key: finite_view[key]
+                for key in ("schema_version", "kind", "id", "revision", "payload")
+            }
+            assert (
+                finite_view["digest"]
+                == hashlib.sha256(canonical_json(raw_envelope).encode()).hexdigest()
+            )
+            unlimited = await client.put(
+                url,
+                json=initial,
+                headers={
+                    **headers,
+                    "if-match": updated.headers["etag"],
+                    "x-command-id": str(uuid4()),
+                },
+            )
+            assert unlimited.status_code == 200 and unlimited.json()["payload"] == initial
+            assert unlimited.json()["revision"] == 3
+            cookie = client.cookies["omnis_session"]
+    fresh = create_app()
+    async with fresh.router.lifespan_context(fresh):
+        async with AsyncClient(
+            transport=ASGITransport(app=fresh), base_url=ORIGIN, cookies={"omnis_session": cookie}
+        ) as client:
+            assert (await client.get(url)).json() == unlimited.json()
+            history = await client.get(url + "/revisions")
+            assert history.status_code == 200
+            assert history.json()["items"] == [created.json(), finite_view, unlimited.json()]
+    with connect_test_database(migrated_database_url) as connection:
+        rows = connection.execute(
+            "SELECT payload, digest FROM engagement_revision WHERE engagement_id = %s "
+            "ORDER BY revision",
+            (created.json()["engagement_id"],),
+        ).fetchall()
+        assert [row[0] for row in rows] == [initial, finite, initial]
+        assert rows[1][1] == finite_view["digest"]
+
+
+@pytest.mark.asyncio
+async def test_invalid_optional_validity_refuses_create_and_update_without_revision(
+    monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
+) -> None:
+    monkeypatch.setenv(
+        "OMNIS_DATABASE_URL", migrated_database_url.render_as_string(hide_password=False)
+    )
+    app = create_app()
+    async with app.router.lifespan_context(app):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url=ORIGIN) as client:
+            csrf = await pair_session(app, client)
+            headers = {"origin": ORIGIN, "x-csrf-token": csrf}
+            saved = await client.post("/api/v1/engagements", json=draft(), headers=headers)
+            assert saved.status_code == 201
+            url = f"/api/v1/engagements/{saved.json()['engagement_id']}"
+            with connect_test_database(migrated_database_url) as connection:
+                before = connection.execute(
+                    "SELECT (SELECT count(*) FROM engagement), count(*) FROM engagement_revision"
+                ).fetchone()
+            auth = draft()["authorization"]
+            assert isinstance(auth, dict)
+            cases = [
+                {**auth, **change}
+                for change in (
+                    {"valid_from": None},
+                    {"valid_until": None},
+                    {"valid_from": True},
+                    {"valid_from": "2030-02-29T00:00:00Z"},
+                    {"valid_from": "2030-04-31T00:00:00Z"},
+                    {"valid_until": "2030-01-01T00:00:00Z"},
+                    {"extra": None},
+                )
+            ]
+            cases.extend(
+                {key: value for key, value in auth.items() if key != missing}
+                for missing in ("valid_from", "valid_until")
+            )
+            for invalid in cases:
+                body = {**draft(), "authorization": invalid}
+                denied = await client.post("/api/v1/engagements", json=body, headers=headers)
+                assert (
+                    denied.status_code == 422 and denied.json()["error"]["code"] == "INVALID_INPUT"
+                )
+                denied = await client.put(
+                    url,
+                    json=body,
+                    headers={
+                        **headers,
+                        "if-match": saved.headers["etag"],
+                        "x-command-id": str(uuid4()),
+                    },
+                )
+                assert (
+                    denied.status_code == 422 and denied.json()["error"]["code"] == "INVALID_INPUT"
+                )
+                assert (await client.get(url)).json() == saved.json()
+            with connect_test_database(migrated_database_url) as connection:
+                assert (
+                    connection.execute(
+                        "SELECT (SELECT count(*) FROM engagement), count(*) FROM engagement_revision"
+                    ).fetchone()
+                    == before
+                )
+
+
+@pytest.mark.asyncio
 async def test_declarative_context_and_matrix_persist_at_first_save_and_edit(
     monkeypatch: pytest.MonkeyPatch, migrated_database_url: URL
 ) -> None:

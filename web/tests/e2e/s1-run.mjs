@@ -115,8 +115,7 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   await page.getByLabel('Engagement name').fill('S1 synthetic inert run');
   await page.getByLabel('Authorization owner').fill('Synthetic fixture operator');
   await page.getByLabel('Authorization statement').fill('Inert context only; no target traffic');
-  await page.getByLabel('Valid from (UTC)').fill('2030-01-01T00:00:00Z');
-  await page.getByLabel('Valid until (UTC)').fill('2030-12-31T00:00:00Z');
+  await check(page.getByRole('checkbox', { name: 'Limit to a period', exact: true })).not.toBeChecked();
   await page.getByLabel('Scope origin').fill('https://synthetic.invalid');
   await page.getByRole('button', { name: 'Save draft', exact: true }).click();
   await check(page.getByText('Saved · revision 1')).toBeVisible();

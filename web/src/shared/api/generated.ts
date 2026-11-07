@@ -855,9 +855,9 @@ export interface components {
             /** Statement */
             statement: string;
             /** Valid From */
-            valid_from: string;
+            valid_from: string | null;
             /** Valid Until */
-            valid_until: string;
+            valid_until: string | null;
         };
         /** BrainDecision */
         BrainDecision: {

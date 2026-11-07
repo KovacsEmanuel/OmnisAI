@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { api } from '../../shared/api/client';
-import { isFullDraft } from '../../shared/api/drafts';
+import { isFullDraft, isUtcTimestamp } from '../../shared/api/drafts';
 import type { Draft, Revision } from '../../shared/api/drafts';
 import { ApiError, isRecord } from '../../shared/api/errors';
 import type { FieldError } from '../../shared/api/errors';
@@ -11,12 +11,13 @@ import { dashboardCopy } from '../dashboard/copy';
 import { engagementCopy } from './copy';
 import { Field, errorText, fieldId, focusField } from './WizardFields';
 import { ApplicationStep, RulesStep, ReviewStep } from './WizardSections';
+import { DatePicker } from './DatePicker';
 import styles from './Wizard.module.css';
 
 const DEFAULT_OBJECTIVE = 'Assess the authorized Web/API surface within the selected profile.';
 const steps = ['Target & permission', 'Application context', 'Identities', 'Rules & budgets', 'Review & preflight'];
 const empty = (): Draft => ({
-  name: '', authorization: { owner: '', statement: '', valid_from: '', valid_until: '' },
+  name: '', authorization: { owner: '', statement: '', valid_from: null, valid_until: null },
   scope: [{ origin: '', port: 443, path_prefix: '/', exclusions: [], access: 'BLOCKED' }],
   assessment_mode: 'FULL_ASSESSMENT', objective_text: DEFAULT_OBJECTIVE, objective_constraints: [],
   workflow_profile_ref: null,
@@ -38,6 +39,12 @@ function equal(a: unknown, b: unknown): boolean {
   return a === b;
 }
 function localErrors(form: Draft): FieldError[] {
+  const { valid_from: from, valid_until: until } = form.authorization;
+  if (from !== null || until !== null) {
+    if (!isUtcTimestamp(from)) return [{ field: 'authorization.valid_from', code: from === '' ? 'REQUIRED' : 'INVALID_VALUE' }];
+    if (!isUtcTimestamp(until) || Date.parse(until) <= Date.parse(from))
+      return [{ field: 'authorization.valid_until', code: until === '' ? 'REQUIRED' : 'INVALID_VALUE' }];
+  }
   const count = Array.from(form.objective_text).length;
   if (count > 8192 || new TextEncoder().encode(form.objective_text).length > 32768)
     return [{ field: 'objective_text', code: 'TOO_LONG' }];
@@ -229,8 +236,17 @@ export function Wizard({ id }: { id?: string }) {
             <Field path="name" label="Engagement name" errors={errors}>{props => <input {...props} value={form.name} onChange={event => change({ ...form, name: event.target.value }, 'name')} />}</Field>
             <Field path="authorization.owner" label="Authorization owner" errors={errors}>{props => <input {...props} value={form.authorization.owner} onChange={event => change({ ...form, authorization: { ...form.authorization, owner: event.target.value } }, 'authorization.owner')} />}</Field>
             <Field path="authorization.statement" label="Authorization statement" errors={errors}>{props => <textarea {...props} value={form.authorization.statement} onChange={event => change({ ...form, authorization: { ...form.authorization, statement: event.target.value } }, 'authorization.statement')} />}</Field>
-            <Field path="authorization.valid_from" label="Valid from (UTC)" hint="YYYY-MM-DDTHH:MM:SSZ" errors={errors}>{props => <input {...props} value={form.authorization.valid_from} onChange={event => change({ ...form, authorization: { ...form.authorization, valid_from: event.target.value } }, 'authorization.valid_from')} />}</Field>
-            <Field path="authorization.valid_until" label="Valid until (UTC)" hint="YYYY-MM-DDTHH:MM:SSZ" errors={errors}>{props => <input {...props} value={form.authorization.valid_until} onChange={event => change({ ...form, authorization: { ...form.authorization, valid_until: event.target.value } }, 'authorization.valid_until')} />}</Field>
+            <label className={styles.validity}><input type="checkbox" checked={form.authorization.valid_from !== null || form.authorization.valid_until !== null}
+              onChange={event => {
+                change({ ...form, authorization: { ...form.authorization, valid_from: event.target.checked ? '' : null, valid_until: event.target.checked ? '' : null } });
+                setErrors(current => current.filter(error => !['authorization.valid_from', 'authorization.valid_until'].includes(error.field)));
+              }} />Limit to a period</label>
+            {form.authorization.valid_from === null && form.authorization.valid_until === null ? <p>No end date — until closed or revoked.</p> : <>
+              <DatePicker path="authorization.valid_from" label="Valid from (UTC)" value={form.authorization.valid_from} errors={errors}
+                onChange={value => change({ ...form, authorization: { ...form.authorization, valid_from: value } }, 'authorization.valid_from')} />
+              <DatePicker path="authorization.valid_until" label="Valid until (UTC)" value={form.authorization.valid_until} endOfDay errors={errors}
+                onChange={value => change({ ...form, authorization: { ...form.authorization, valid_until: value } }, 'authorization.valid_until')} />
+            </>}
             <fieldset className={styles.mode}><legend>Assessment mode</legend>
               <label><input type="radio" name="assessment_mode" checked={form.assessment_mode === 'FULL_ASSESSMENT'} onChange={() => {
                 if (!form.objective_text) setDefaultUntouched(true);

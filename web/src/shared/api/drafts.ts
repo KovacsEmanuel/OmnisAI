@@ -36,11 +36,15 @@ const origin = (value: unknown): value is string => {
   try { return !!new URL(value).hostname; } catch { return false; }
 };
 const path = (value: unknown): value is string => text(value, 1, 2048) && /^\/[^?#]*$/.test(value);
+export const isUtcTimestamp = (value: unknown): value is string => {
+  if (typeof value !== 'string' || !/^(?!0000)\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/.test(value)) return false;
+  const time = Date.parse(value);
+  return Number.isFinite(time) && new Date(time).toISOString() === value.replace('Z', '.000Z');
+};
 const authorization = (value: unknown): value is Draft['authorization'] =>
   record(value, ['owner', 'statement', 'valid_from', 'valid_until']) && text(value.owner, 1, 128) &&
-  text(value.statement, 1, 4096) && typeof value.valid_from === 'string' && typeof value.valid_until === 'string' &&
-  /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/.test(value.valid_from) &&
-  /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/.test(value.valid_until);
+  text(value.statement, 1, 4096) && ((value.valid_from === null && value.valid_until === null) ||
+    (isUtcTimestamp(value.valid_from) && isUtcTimestamp(value.valid_until) && Date.parse(value.valid_until) > Date.parse(value.valid_from)));
 const scope = (value: unknown): value is Draft['scope'][number] =>
   record(value, ['origin', 'port', 'path_prefix', 'exclusions', 'access']) && origin(value.origin) &&
   integer(value.port, 1, 65535) && path(value.path_prefix) && list(value.exclusions, 0, 32, path) &&

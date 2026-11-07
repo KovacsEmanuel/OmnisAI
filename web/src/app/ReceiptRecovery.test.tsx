@@ -32,13 +32,15 @@ it.each([
   if (method === 'PUT') await waitFor(() => expect(name).toHaveValue(payload.name));
   else {
     for (const [label, value] of [['Authorization owner', payload.authorization.owner], ['Authorization statement', payload.authorization.statement],
-      ['Valid from (UTC)', payload.authorization.valid_from], ['Valid until (UTC)', payload.authorization.valid_until], ['Scope origin', payload.scope[0]!.origin]]) {
+      ['Scope origin', payload.scope[0]!.origin]]) {
       fireEvent.change(screen.getByLabelText(label!), { target: { value } });
     }
+    expect(screen.getByRole('checkbox', { name: 'Limit to a period' })).not.toBeChecked();
   }
   fireEvent.change(name, { target: { value: 'Receipt-bound local snapshot' } });
   await user.click(screen.getByRole('button', { name: 'Save draft' }));
   await screen.findByText('Unconfirmed readback');
+  if (method === 'POST') expect(stored.payload.authorization).toMatchObject({ valid_from: null, valid_until: null });
   expect(screen.getByRole('button', { name: 'Save draft' })).toBeDisabled();
   fireEvent.change(name, { target: { value: 'Edit after unconfirmed receipt' } });
   expect(writes).toBe(1);

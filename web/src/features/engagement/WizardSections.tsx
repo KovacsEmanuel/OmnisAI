@@ -3,6 +3,7 @@ import type { FieldError } from '../../shared/api/errors';
 import { isFullDraft } from '../../shared/api/drafts';
 import type { Draft, Revision } from '../../shared/api/drafts';
 import { Field } from './WizardFields';
+import { validitySummary } from './DatePicker';
 import styles from './Wizard.module.css';
 
 type Props = { form: Draft; errors: FieldError[]; change: (next: Draft, field?: string) => void };
@@ -103,6 +104,7 @@ export function ReviewStep({ saved, dirty }: { saved: Revision | null; dirty: bo
         <div><dt>Revision</dt><dd>{saved.revision} · {saved.id}</dd></div>
         <div><dt>Digest</dt><dd>{saved.digest}</dd></div>
         <div><dt>Mode</dt><dd>{saved.payload.assessment_mode}</dd></div>
+        <div><dt>Validity</dt><dd>{validitySummary(saved.payload.authorization)}</dd></div>
         <div><dt>Exact saved objective</dt><dd className={styles.exact}>{saved.payload.objective_text}</dd></div>
         <div><dt>Constraints</dt><dd>{saved.payload.objective_constraints.map(item => `${item.kind}: ${item.text}`).join('\n') || 'None'}</dd></div>
         <div><dt>Scope</dt><dd>{saved.payload.scope.map(item => `${item.origin}:${item.port}${item.path_prefix} · ${item.access} · exclusions: ${item.exclusions.join(', ') || 'None'}`).join('\n')}</dd></div>

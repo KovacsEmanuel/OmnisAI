@@ -1,11 +1,119 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Link } from 'react-router';
 import { expect, it, vi } from 'vitest';
 import { csrf, engagementId, payload, revision } from '../../tests/draft-fixtures';
 import { errorCopy } from '../shared/api/errors';
 import { App } from './App';
+
+it.each(['unbounded', 'bounded'])('saves explicit %s validity through the existing POST and exact GET confirmation', async period => {
+  let stored = revision;
+  let writes = 0;
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    if (String(input) === '/api/session') return Response.json({ authenticated: true, csrf_token: csrf });
+    if (init?.method === 'POST') {
+      writes++;
+      stored = { ...revision, payload: JSON.parse(String(init.body)) };
+      return Response.json(stored, { status: 201 });
+    }
+    return Response.json(stored);
+  }));
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/engagements/new']}><App /></MemoryRouter></QueryClientProvider>);
+  const user = userEvent.setup();
+  fireEvent.change(await screen.findByLabelText('Engagement name'), { target: { value: payload.name } });
+  fireEvent.change(screen.getByLabelText('Authorization owner'), { target: { value: payload.authorization.owner } });
+  fireEvent.change(screen.getByLabelText('Authorization statement'), { target: { value: payload.authorization.statement } });
+  fireEvent.change(screen.getByLabelText('Scope origin'), { target: { value: payload.scope[0]!.origin } });
+  const limit = screen.getByRole('checkbox', { name: 'Limit to a period' });
+  expect(limit).not.toBeChecked();
+  expect(screen.queryByLabelText('Valid from (UTC)')).not.toBeInTheDocument();
+  const day = new Date().toISOString().slice(0, 10);
+  if (period === 'bounded') {
+    await user.click(limit);
+    expect(screen.getByLabelText('Valid from (UTC)')).toHaveTextContent('Choose date');
+    expect(screen.getByLabelText('Valid until (UTC)')).toHaveTextContent('Choose date');
+    await user.click(screen.getByRole('button', { name: 'Save draft' }));
+    expect(writes).toBe(0);
+    expect(screen.getByLabelText('Valid from (UTC)')).toHaveAttribute('aria-invalid', 'true');
+    for (const label of ['Valid from (UTC)', 'Valid until (UTC)']) {
+      await user.click(screen.getByLabelText(label));
+      const picker = screen.getByRole('dialog', { name: `${label} calendar` });
+      expect(picker).not.toHaveAttribute('aria-modal', 'true');
+      const today = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${day}T00:00:00Z`));
+      const todayButton = within(picker).getByRole('button', { name: today });
+      expect(todayButton).toHaveAttribute('aria-current', 'date');
+      expect(todayButton).toHaveAttribute('aria-pressed', 'false');
+      await user.click(todayButton);
+      expect(screen.getByLabelText(label)).toHaveFocus();
+    }
+  }
+  await user.click(screen.getByRole('button', { name: 'Save draft' }));
+  await screen.findByText('Saved · revision 1');
+  expect(writes).toBe(1);
+  expect(stored.payload.authorization).toMatchObject(period === 'unbounded'
+    ? { valid_from: null, valid_until: null }
+    : { valid_from: `${day}T00:00:00Z`, valid_until: `${day}T23:59:59Z` });
+  const projection = await screen.findByRole('region', { name: 'Engagement projection' });
+  await user.click(await within(projection).findByRole('button', { name: '5. Review & preflight' }));
+  const validity = screen.getByText('Validity').closest('div');
+  expect(validity).toHaveTextContent(period === 'unbounded' ? 'No end date — until closed or revoked'
+    : new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${day}T00:00:00Z`)));
+  expect(validity).not.toHaveTextContent(/null|undefined|\d{2}:\d{2}|T00:00:00Z/);
+});
+
+it('preserves exact finite times through calendar navigation, theme and review; toggling off discards both dates', async () => {
+  const finite = { ...revision, payload: { ...payload, authorization: { ...payload.authorization, valid_from: '2030-01-01T12:34:56Z' } } };
+  let stored = finite;
+  vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    if (String(input) === '/api/session') return Response.json({ authenticated: true, csrf_token: csrf });
+    if (init?.method === 'PUT') stored = { ...finite, revision: stored.revision + 1, payload: JSON.parse(String(init.body)) };
+    return Response.json(stored);
+  }));
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${engagementId}/setup`]}><App /></MemoryRouter></QueryClientProvider>);
+  await screen.findByText('Saved · revision 1');
+  const user = userEvent.setup();
+  const from = screen.getByLabelText('Valid from (UTC)');
+  expect(from).toHaveTextContent(/^1 January 2030$/);
+  await user.click(from);
+  expect(screen.getByLabelText('Time (UTC)')).toHaveValue('12:34:56');
+  expect(screen.getByRole('button', { name: '1 January 2030' })).toHaveAttribute('aria-pressed', 'true');
+  for (const [key, date] of [['ArrowRight', '2 January 2030'], ['ArrowDown', '9 January 2030'], ['Home', '7 January 2030'], ['End', '13 January 2030'], ['PageDown', '13 February 2030'], ['PageUp', '13 January 2030']] as const) {
+    await user.keyboard(`{${key}}`);
+    expect(screen.getByRole('button', { name: date })).toHaveFocus();
+  }
+  await user.keyboard('{Escape}');
+  expect(from).toHaveFocus();
+  expect(from).toHaveTextContent('1 January 2030');
+  await user.click(from);
+  await user.click(screen.getByRole('button', { name: 'Next month' }));
+  expect(screen.getByText('February 2030')).toBeVisible();
+  await user.click(screen.getByRole('button', { name: /Light theme|Dark theme/ }));
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: '5. Review & preflight' }));
+  expect(screen.getByText('Validity').nextElementSibling).toHaveTextContent(/^1 January 2030 – 31 December 2030$/);
+  await user.click(screen.getByRole('button', { name: '1. Target & permission' }));
+  fireEvent.change(screen.getByLabelText('Engagement name'), { target: { value: 'Non-date edit' } });
+  await user.click(screen.getByRole('button', { name: 'Save draft' }));
+  await screen.findByText('Saved · revision 2');
+  expect(stored.payload.authorization).toEqual(finite.payload.authorization);
+  await user.click(screen.getByLabelText('Valid from (UTC)'));
+  fireEvent.change(screen.getByLabelText('Time (UTC)'), { target: { value: '13:45:06' } });
+  await user.click(screen.getByRole('button', { name: 'Done' }));
+  await user.click(screen.getByRole('button', { name: 'Save draft' }));
+  await screen.findByText('Saved · revision 3');
+  expect(stored.payload.authorization.valid_from).toBe('2030-01-01T13:45:06Z');
+  await user.click(screen.getByRole('checkbox', { name: 'Limit to a period' }));
+  expect(screen.queryByLabelText('Valid from (UTC)')).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Save draft' }));
+  await screen.findByText('Saved · revision 4');
+  expect(stored.payload.authorization).toMatchObject({ valid_from: null, valid_until: null });
+  await user.click(screen.getByRole('checkbox', { name: 'Limit to a period' }));
+  expect(screen.getByLabelText('Valid from (UTC)')).toHaveTextContent('Choose date');
+  expect(screen.getByLabelText('Valid until (UTC)')).toHaveTextContent('Choose date');
+});
 
 it('points a negative request ceiling at that field before checking the reserve relation', async () => {
   let writes = 0;
@@ -57,8 +165,7 @@ it.each(['POST', 'PUT'] as const)('keeps local edits actionable after a definite
   if (method === 'POST') {
     fireEvent.change(screen.getByLabelText('Authorization owner'), { target: { value: payload.authorization.owner } });
     fireEvent.change(screen.getByLabelText('Authorization statement'), { target: { value: payload.authorization.statement } });
-    fireEvent.change(screen.getByLabelText('Valid from (UTC)'), { target: { value: payload.authorization.valid_from } });
-    fireEvent.change(screen.getByLabelText('Valid until (UTC)'), { target: { value: payload.authorization.valid_until } });
+    expect(screen.getByRole('checkbox', { name: 'Limit to a period' })).not.toBeChecked();
     fireEvent.change(screen.getByLabelText('Scope origin'), { target: { value: payload.scope[0]!.origin } });
   }
   await user.clear(name);
@@ -103,8 +210,7 @@ it('creates an inert draft and confirms exact saved data with GET before reporti
   await user.type(await screen.findByLabelText('Engagement name'), payload.name);
   await user.type(screen.getByLabelText('Authorization owner'), payload.authorization.owner);
   await user.type(screen.getByLabelText('Authorization statement'), payload.authorization.statement);
-  await user.type(screen.getByLabelText('Valid from (UTC)'), payload.authorization.valid_from);
-  await user.type(screen.getByLabelText('Valid until (UTC)'), payload.authorization.valid_until);
+  expect(screen.getByRole('checkbox', { name: 'Limit to a period' })).not.toBeChecked();
   await user.click(screen.getByLabelText('Focused test'));
   await user.type(screen.getByLabelText('Objective / Brain instructions'), payload.objective_text);
   await user.type(screen.getByLabelText('Scope origin'), payload.scope[0]!.origin);

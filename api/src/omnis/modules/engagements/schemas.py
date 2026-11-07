@@ -24,6 +24,9 @@ def no_nul(value: str) -> str:
 
 
 DraftText = Annotated[str, AfterValidator(no_nul)]
+AuthorizationTime = Annotated[
+    str, Field(pattern=r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$"), AfterValidator(no_nul)
+]
 
 
 class DraftRecord(BaseModel):
@@ -33,11 +36,15 @@ class DraftRecord(BaseModel):
 class Authorization(DraftRecord):
     owner: DraftText = Field(min_length=1, max_length=128)
     statement: DraftText = Field(min_length=1, max_length=4096)
-    valid_from: DraftText = Field(pattern=r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
-    valid_until: DraftText = Field(pattern=r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+    valid_from: AuthorizationTime | None
+    valid_until: AuthorizationTime | None
 
     @model_validator(mode="after")
     def ordered_window(self) -> "Authorization":
+        if self.valid_from is None and self.valid_until is None:
+            return self
+        if self.valid_from is None or self.valid_until is None:
+            raise PydanticCustomError("authorization_window", "Invalid authorization window")
         try:
             start = datetime.fromisoformat(self.valid_from.replace("Z", "+00:00"))
             end = datetime.fromisoformat(self.valid_until.replace("Z", "+00:00"))

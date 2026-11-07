@@ -1,0 +1,21 @@
+/* Outrank Shell's nav-button rules without changing other controls. */
+.toggle[type=button] {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  color: var(--color-secondary);
+  background: transparent;
+  box-shadow: none;
+  transition: none;
+}
+.toggle[type=button]:hover,
+.toggle[type=button]:focus-visible {
+  color: var(--color-text);
+  background: var(--surface-shell);
+}

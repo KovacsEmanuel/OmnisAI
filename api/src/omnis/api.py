@@ -17,9 +17,9 @@ from omnis.core.db import ReadinessReason, database_engine, readiness_reason
 from omnis.core.errors import error_responses, validation_field_errors
 from omnis.core.readiness import DashboardReason, dashboard_reason
 from omnis.core.web_assets import CONTENT_TYPES, WEB_HEADERS, WebAssets
-from omnis.modules.engagements.routes import dashboard_router
 from omnis.modules.diagnostics.routes import router as diagnostics_router
 from omnis.modules.diagnostics.service import DiagnosticSink
+from omnis.modules.engagements.routes import dashboard_router
 from omnis.modules.engagements.routes import router as engagement_router
 from omnis.modules.instance.schemas import InstanceView
 from omnis.modules.instance.service import InstanceService

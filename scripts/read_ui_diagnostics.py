@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "api/src"))
 
-from omnis.modules.diagnostics.reader import read_docker  # noqa: E402
+from omnis.modules.diagnostics.reader import read_docker
 
 
 def main() -> int:
@@ -26,9 +26,18 @@ def main() -> int:
     except (OSError, ValueError, TimeoutError, http.client.HTTPException, RecursionError):
         print('{"state":"UNAVAILABLE","complete":false}', file=sys.stderr)
         return 2
-    print(json.dumps({"records": [record.model_dump(mode="json") for record in records],
-                      "complete": False, "loss_after_last_record": "UNKNOWN",
-                      "busy_drops": "UNKNOWN", "retention": "current container only"}, separators=(",", ":")))
+    print(
+        json.dumps(
+            {
+                "records": [record.model_dump(mode="json") for record in records],
+                "complete": False,
+                "loss_after_last_record": "UNKNOWN",
+                "busy_drops": "UNKNOWN",
+                "retention": "current container only",
+            },
+            separators=(",", ":"),
+        )
+    )
     return 0 if records else 2
 
 

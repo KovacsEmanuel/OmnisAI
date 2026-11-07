@@ -21,6 +21,20 @@ def stderr_fd() -> int:
     return os.open("/proc/self/fd/2", os.O_WRONLY | os.O_NONBLOCK | os.O_CLOEXEC)
 
 
+def write_record(data: bytes) -> Delivery:
+    fd = stderr_fd()
+    try:
+        if (
+            not stat.S_ISFIFO(os.fstat(fd).st_mode)
+            or os.get_blocking(fd)
+            or len(data) > os.fpathconf(fd, "PC_PIPE_BUF")
+        ):
+            return "UNAVAILABLE"
+        return "RECORDED" if os.write(fd, data) == len(data) else "UNAVAILABLE"
+    finally:
+        os.close(fd)
+
+
 class DiagnosticSink:
     def __init__(self) -> None:
         self.lock = threading.Lock()
@@ -34,7 +48,6 @@ class DiagnosticSink:
     def emit(self, event: UiEvent, correlation: str) -> Delivery:
         if not self.lock.acquire(blocking=False):
             return "BUSY"
-        fd: int | None = None
         try:
             if self.attempts >= ATTEMPTS:
                 return "BUDGET_EXHAUSTED"
@@ -46,25 +59,27 @@ class DiagnosticSink:
                 self.dropped += 1
                 return "RATE_LIMITED"
             self.burst += 1
-            record = UiRecord(marker="OMNIS_UI_DIAGNOSTIC_V1", source="browser_untrusted",
-                              capture_id=self.capture,
-                              received_at=datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
-                              request_correlation_id=correlation, attempt=self.attempts,
-                              remaining=ATTEMPTS-self.attempts, dropped_before=self.dropped, event=event)
+            record = UiRecord(
+                marker="OMNIS_UI_DIAGNOSTIC_V1",
+                source="browser_untrusted",
+                capture_id=self.capture,
+                received_at=datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
+                request_correlation_id=correlation,
+                attempt=self.attempts,
+                remaining=ATTEMPTS - self.attempts,
+                dropped_before=self.dropped,
+                event=event,
+            )
             data = record.model_dump_json().encode("utf-8") + b"\n"
             if len(data) > RECORD_BYTES or self.bytes + len(data) > TOTAL_BYTES:
                 self.dropped += 1
                 return "BUDGET_EXHAUSTED"
             # Charge attempts even on failure: an outage cannot create endless write work.
             self.bytes += len(data)
-            fd = stderr_fd()
-            if not stat.S_ISFIFO(os.fstat(fd).st_mode) or os.get_blocking(fd) or len(data) > os.fpathconf(fd, "PC_PIPE_BUF"):
+            state = write_record(data)
+            if state != "RECORDED":
                 self.dropped += 1
-                return "UNAVAILABLE"
-            if os.write(fd, data) != len(data):
-                self.dropped += 1
-                return "UNAVAILABLE"
-            return "RECORDED"
+            return state
         except BlockingIOError:
             self.dropped += 1
             return "BACKPRESSURED"
@@ -72,8 +87,4 @@ class DiagnosticSink:
             self.dropped += 1
             return "UNAVAILABLE"
         finally:
-            try:
-                if fd is not None:
-                    os.close(fd)
-            finally:
-                self.lock.release()
+            self.lock.release()

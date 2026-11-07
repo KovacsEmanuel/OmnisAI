@@ -583,9 +583,9 @@ def test_built_web_against_real_control_plane(
         outputs: list[tuple[str, str]] = []
         try:
             outputs = cleanup_all(resources, ownership=e2e_family)
-            for (process, _), (_, captured_stderr) in zip(resources, outputs, strict=True):
-                if process is api or process is first_api:
-                    diagnostic_api_logs[process.pid] = captured_stderr
+            for (captured_process, _), (_, captured_stderr) in zip(resources, outputs, strict=True):
+                if captured_process is api or captured_process is first_api:
+                    diagnostic_api_logs[captured_process.pid] = captured_stderr
         except Exception as exc:
             cleanup_issues.append(exc)
         try:
@@ -641,23 +641,37 @@ def test_built_web_against_real_control_plane(
                 observed_captures: set[str] = set()
                 for stage, owned_api in (("before", first_api), ("after", api)):
                     retained = read_records(diagnostic_api_logs[owned_api.pid].encode("utf-8"))
-                    expected: object = json.loads((output / f"ui-diagnostics-{stage}.json").read_text())
+                    expected: object = json.loads(
+                        (output / f"ui-diagnostics-{stage}.json").read_text()
+                    )
                     assert isinstance(expected, dict) and isinstance(expected.get("receipts"), list)
                     recorded = []
                     for item in expected["receipts"]:
                         assert isinstance(item, dict)
                         if item.get("state") != "RECORDED":
                             continue
-                        matches = [entry for entry in retained if entry.event.model_dump(mode="json") == item.get("event")]
-                        assert len(matches) == 1, "Accepted browser observation missing or duplicated in owned API stderr"
-                        assert matches[0].request_correlation_id == item.get("request_correlation_id")
+                        matches = [
+                            entry
+                            for entry in retained
+                            if entry.event.model_dump(mode="json") == item.get("event")
+                        ]
+                        assert len(matches) == 1, (
+                            "Accepted browser observation missing or duplicated in owned API stderr"
+                        )
+                        assert matches[0].request_correlation_id == item.get(
+                            "request_correlation_id"
+                        )
                         recorded.append(matches[0])
                     assert recorded, "No recorded browser observation in this API generation"
                     captures = {entry.capture_id for entry in recorded}
                     assert len(captures) == 1 and not observed_captures.intersection(captures)
                     observed_captures.update(captures)
                     if stage == "before":
-                        assert any(entry.event.correlation_id == expected.get("probe_correlation") and entry.event.action == "ERROR" for entry in recorded)
+                        assert any(
+                            entry.event.correlation_id == expected.get("probe_correlation")
+                            and entry.event.action == "ERROR"
+                            for entry in recorded
+                        )
                     assert_secret_free(markers, [entry.model_dump_json() for entry in retained])
                 record["ui_diagnostic_sink_reader_verified"] = True
                 record["ui_diagnostic_complete_history"] = False

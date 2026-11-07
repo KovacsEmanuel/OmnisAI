@@ -48,7 +48,7 @@ it('never adopts stale HTTP observations into a new session and never retries di
   }));
   const controller = new AbortController();
   const detach = bindDiagnostics(session.csrf_token, callback => { if (!current) return false; callback(); return true; }, controller.signal);
-  const old = api.activeRun().catch(error => error as unknown);
+  const old = api.activeRun().catch((error: unknown) => error);
   current = false; detach(); controller.abort();
   const next = new AbortController();
   const detachNext = bindDiagnostics(session.csrf_token, callback => { callback(); return true; }, next.signal);
@@ -62,17 +62,25 @@ it('never adopts stale HTTP observations into a new session and never retries di
   detachNext(); next.abort();
 });
 
-it('actual App controls report while a hanging diagnostic transport does not block exact global Stop', async () => {
+it.each(['hanging', 'unavailable'] as const)('actual App controls keep exact global Stop/recovery independent of %s diagnostics', async mode => {
   const domain: object[] = [], observations: object[] = [];
   vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
     const path = String(input);
-    if (path === endpoint) { observations.push(JSON.parse(String(init?.body)) as object); return new Promise(() => {}); }
+    if (path === endpoint) {
+      const event: unknown = JSON.parse(String(init?.body));
+      if (!event || typeof event !== 'object') throw new Error('Missing event');
+      observations.push(event);
+      if (mode === 'unavailable') throw new Error('Synthetic logger outage');
+      return new Promise(() => {});
+    }
     if (init?.method === 'POST') {
       const body: unknown = JSON.parse(String(init.body));
       if (!body || typeof body !== 'object' || !('command_id' in body)) throw new Error('Invalid command');
       domain.push(body);
+      if (mode === 'unavailable') throw new Error('Synthetic lost Stop reply');
       return Response.json({ command_id: body.command_id, run_id: syntheticRun.run_id, setup_ref: null, state: 'ADMITTED', revision: 8 });
     }
+    if (path.startsWith('/api/v1/runs/commands/')) return Response.json({ command_id: path.split('/').at(-1), run_id: syntheticRun.run_id, setup_ref: null, state: 'ADMITTED', revision: 8 });
     return Response.json(path === '/api/session' ? session : path === '/health/ready' ? health : path === '/api/instance' ? instance : path.startsWith('/api/v1/dashboard?') ? projection : path === `/api/v1/engagements/${id}` ? draft : path === '/api/v1/runs/active' ? syntheticRun : null);
   }));
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -83,9 +91,51 @@ it('actual App controls report while a hanging diagnostic transport does not blo
   await userEvent.setup().click(stop);
   await waitFor(() => expect(domain).toHaveLength(1));
   expect(domain[0]).toMatchObject({ action: 'stop', run_id: syntheticRun.run_id, expected_revision: 7, expected_generation: 3 });
-  expect(observations.length).toBeLessThanOrEqual(2);
+  if (mode === 'unavailable') {
+    await userEvent.setup().click(await screen.findByRole('button', { name: /^Read Stop receipt/ }));
+    await screen.findByText(/ADMITTED · Stop run/);
+    expect(domain).toHaveLength(1);
+  }
+  expect(observations.length).toBeLessThanOrEqual(mode === 'hanging' ? 2 : 64);
   expect(observations).toContainEqual(expect.objectContaining({ site: 'theme_toggle', action: 'OBSERVE' }));
   view.unmount(); client.clear();
+});
+
+it('bounds pending transport and aborts at cutover without retry or resend', async () => {
+  const signals: AbortSignal[] = [];
+  const transport = vi.fn<typeof fetch>().mockImplementation(async (_path, init) => {
+    if (init?.signal) signals.push(init.signal);
+    return new Promise(() => {});
+  });
+  vi.stubGlobal('fetch', transport);
+  const timeout = vi.spyOn(AbortSignal, 'timeout');
+  const controller = new AbortController();
+  const detach = bindDiagnostics(session.csrf_token, callback => { callback(); return true; }, controller.signal);
+  observeControl('theme_toggle'); observeControl('theme_toggle');
+  observeControl('navigation'); observeControl('period_toggle');
+  expect(transport).toHaveBeenCalledTimes(2);
+  expect(timeout).toHaveBeenCalledWith(750);
+  controller.abort(); detach();
+  expect(signals.every(signal => signal.aborted)).toBe(true);
+  observeControl('inspector_open');
+  expect(transport).toHaveBeenCalledTimes(2);
+});
+
+it('caps a settled session at 64 attempts including refused acknowledgements without retries', async () => {
+  let now = 0;
+  vi.spyOn(performance, 'now').mockImplementation(() => now);
+  const transport = vi.fn<typeof fetch>().mockImplementation(async () => Response.json({ accepted: true, state: 'RECORDED' }, { status: 503 }));
+  vi.stubGlobal('fetch', transport);
+  const controller = new AbortController();
+  const detach = bindDiagnostics(session.csrf_token, callback => { callback(); return true; }, controller.signal);
+  for (let i = 0; i < 70; i++) {
+    now += 1001;
+    observeControl('theme_toggle');
+    await waitFor(() => expect(transport).toHaveBeenCalledTimes(Math.min(i + 1, 64)));
+    await new Promise(resolve => setTimeout(resolve, 0));
+  }
+  expect(transport).toHaveBeenCalledTimes(64);
+  detach(); controller.abort();
 });
 
 it.each(['calendar', 'inspector'] as const)('actual %s control emits only finite observations, never field or record contents', async kind => {

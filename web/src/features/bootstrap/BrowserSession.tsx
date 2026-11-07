@@ -6,13 +6,14 @@ import { bindDiagnostics, observeControl } from '../../shared/uiDiagnostics';
 const BrowserSessionContext = createContext<ReturnType<typeof useBrowserSession> | null>(null);
 export function BrowserSessionProvider({ children }: { children: ReactNode }) {
   const state = useBrowserSession();
+  const { session, transition, commitPrivate } = state;
   useEffect(() => {
-    if (!state.session.data || state.session.isError || state.transition !== 'idle') return;
+    if (!session.data || session.isError || transition !== 'idle') return;
     const controller = new AbortController();
-    const detach = bindDiagnostics(state.session.data.csrf_token, send => state.commitPrivate(send, controller.signal), controller.signal);
+    const detach = bindDiagnostics(session.data.csrf_token, send => commitPrivate(send, controller.signal), controller.signal);
     observeControl('navigation');
     return () => { controller.abort(); detach(); };
-  }, [state.session.data, state.session.isError, state.transition, state.commitPrivate]);
+  }, [session.data, session.isError, transition, commitPrivate]);
   return <BrowserSessionContext.Provider value={state}>{children}</BrowserSessionContext.Provider>;
 }
 export function useSession() {

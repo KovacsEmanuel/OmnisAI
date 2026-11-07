@@ -112,7 +112,7 @@ context.on('request', request => {
   const value = request.postDataJSON();
   if (negativeDiagnostic && value.event_id === negativeDiagnostic.id) {
     assert.equal(value.message, negativeDiagnostic.secret);
-    const { message, ...metadata } = value; diagnosticBody(metadata);
+    const { message: _message, ...metadata } = value; diagnosticBody(metadata);
   } else { diagnosticBody(value); diagnosticEvents.set(value.event_id, value); }
 });
 context.on('response', response => {
@@ -161,12 +161,17 @@ async function paired() {
   remember(view.csrf_token);
   if (scenario === 'b04' && process.env.OMNIS_E2E_STAGE === 'before' && !diagnosticProbeCorrelation) {
     const missing = randomUUID();
-    const failed = page.waitForResponse(response => response.request().method() === 'GET' && response.url() === `${origin}/api/v1/engagements/${missing}`);
+    const failures = new Set();
+    const collectFailure = response => {
+      if (response.request().method() === 'GET' && response.status() === 404 && response.url().startsWith(`${origin}/api/v1/engagements/${missing}`)) failures.add(response.headers()['x-correlation-id']);
+    };
+    page.on('response', collectFailure);
     await page.goto(`${origin}/engagements/${missing}/overview`);
-    const unavailable = await failed; assert.equal(unavailable.status(), 404);
-    diagnosticProbeCorrelation = unavailable.headers()['x-correlation-id'];
-    await check.poll(() => diagnosticReceipts.some(item => item.state === 'RECORDED' && item.event.action === 'ERROR' && item.event.correlation_id === diagnosticProbeCorrelation)).toBe(true);
-    const seed = diagnosticReceipts.find(item => item.state === 'RECORDED' && item.event.correlation_id === diagnosticProbeCorrelation).event;
+    // Draft/run reads may race; match an actual same-subject 404, never an invented correlation.
+    await check.poll(() => diagnosticReceipts.some(item => item.state === 'RECORDED' && item.event.action === 'ERROR' && failures.has(item.event.correlation_id))).toBe(true);
+    page.off('response', collectFailure);
+    const seed = diagnosticReceipts.find(item => item.state === 'RECORDED' && item.event.action === 'ERROR' && failures.has(item.event.correlation_id)).event;
+    diagnosticProbeCorrelation = seed.correlation_id;
     negativeDiagnostic = { id: randomUUID(), secret: randomBytes(24).toString('base64url') };
     remember(negativeDiagnostic.secret);
     const rejected = await page.evaluate(async ({ body, csrf }) => (await fetch('/api/v1/diagnostics/ui-events', {

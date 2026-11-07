@@ -28,8 +28,9 @@ def read_records(data: bytes) -> list[UiRecord]:
             continue
         if not line.endswith(b"\n") or len(line) > 1024:
             raise ValueError("Incomplete or oversized diagnostic record")
-        value: object = json.loads(line, object_pairs_hook=unique_json_object,
-                                   parse_constant=reject_json_constant)
+        value: object = json.loads(
+            line, object_pairs_hook=unique_json_object, parse_constant=reject_json_constant
+        )
         records.append(UiRecord.model_validate(value))
         if len(records) > MAX_RECORDS:
             raise ValueError("Diagnostic record bound")
@@ -45,11 +46,15 @@ def validate_owner(value: object, container: str, project: str, attempt: str) ->
         raise ValueError("Missing owner")
     labels = config.get("Labels")
     log = host.get("LogConfig")
-    if (not isinstance(labels, dict) or labels.get("com.docker.compose.project") != project
+    if (
+        not isinstance(labels, dict)
+        or labels.get("com.docker.compose.project") != project
         or labels.get("com.docker.compose.service") != "api"
         or labels.get("org.omnis.start-attempt") != attempt
-        or config.get("Tty") is not False or not isinstance(log, dict)
-        or log.get("Type") not in {"json-file", "local"}):
+        or config.get("Tty") is not False
+        or not isinstance(log, dict)
+        or log.get("Type") not in {"json-file", "local"}
+    ):
         raise ValueError("Foreign or uncaptured API container")
 
 
@@ -93,7 +98,11 @@ def _get(path: str, resource: str, deadline: float, limit: int) -> bytes:
 
 
 def _read_docker(endpoint: str, container: str, project: str, attempt: str) -> list[UiRecord]:
-    if not re.fullmatch(r"[0-9a-f]{64}", container) or not re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,127}", project) or not re.fullmatch(r"[0-9a-f]{32}|[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}", attempt):
+    if (
+        not re.fullmatch(r"[0-9a-f]{64}", container)
+        or not re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,127}", project)
+        or not re.fullmatch(r"[0-9a-f]{32}|[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}", attempt)
+    ):
         raise ValueError("Invalid supplied owner")
     if not endpoint.startswith("unix://"):
         raise ValueError("Local Unix endpoint required")
@@ -104,10 +113,17 @@ def _read_docker(endpoint: str, container: str, project: str, attempt: str) -> l
     if not stat.S_ISSOCK(info.st_mode) or info.st_uid not in {0, os.getuid()}:
         raise ValueError("Foreign socket")
     deadline = time.monotonic() + 6
-    inspected: object = json.loads(_get(str(path), f"/containers/{container}/json", deadline, 65536))
+    inspected: object = json.loads(
+        _get(str(path), f"/containers/{container}/json", deadline, 65536)
+    )
     validate_owner(inspected, container, project, attempt)
     # Only stderr; no follow, no provider calls. Docker's multiplex frames are bounded too.
-    raw = _get(str(path), f"/containers/{container}/logs?stdout=0&stderr=1&tail=256&timestamps=0", deadline, MAX_BYTES)
+    raw = _get(
+        str(path),
+        f"/containers/{container}/logs?stdout=0&stderr=1&tail=256&timestamps=0",
+        deadline,
+        MAX_BYTES,
+    )
     data = bytearray()
     while raw:
         if len(raw) < 8 or raw[0] != 2 or raw[1:4] != b"\0\0\0":
@@ -115,8 +131,8 @@ def _read_docker(endpoint: str, container: str, project: str, attempt: str) -> l
         length = int.from_bytes(raw[4:8], "big")
         if length > len(raw) - 8:
             raise ValueError("Truncated stderr frame")
-        data.extend(raw[8:8+length])
-        raw = raw[8+length:]
+        data.extend(raw[8 : 8 + length])
+        raw = raw[8 + length :]
     return read_records(bytes(data))
 
 

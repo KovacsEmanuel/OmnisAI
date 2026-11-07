@@ -1,0 +1,37 @@
+{
+  "head": "596e74a1a260fcb796f84bbe4d0fab681ab6d7aa",
+  "command": "existing run_test_db_gate.py --check --target test-b04-e2e --timeout-seconds900",
+  "status": "PASS_SCOPED_REAL_BROWSER_API_PG_RESTART",
+  "outer_exit": 0,
+  "gate_receipt": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "test_summaries": [
+    "1 passed, 9 deselected in 28.79s"
+  ],
+  "input_count": 2436,
+  "drift": [],
+  "browser": {
+    "scenario": "b04",
+    "stage": "after",
+    "passed": true,
+    "browser": "153.0.8010.12",
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "secretChecks": true
+  },
+  "restart_marker": true,
+  "root": "/home/kali/.hermes/cache/scratch/q-7_nrnf02/db-2b38aafaa39e41f7",
+  "scratch": "/home/kali/.hermes/cache/scratch/q-7_nrnf02",
+  "project": "omnis-p01-61c1e131d53e4e35b8fa473492a661d0",
+  "cid": "1ce0bf79e8d7579cd0dc180db9aa6850feaa8be98bb9aad5bbe084560a95fa97",
+  "cleanup": {
+    "containers_absent": true,
+    "networks_absent": true
+  },
+  "runner_readback": true,
+  "data_root_retained": true,
+  "limits": "Actual B04 calendar finite\u2192null+postsave/noModelTest/CAS/denial/reload/APIprocessrestart; not S1 hierarchy/Stop UI, product provider, operator DB, telemetry or full canonical acceptance."
+}

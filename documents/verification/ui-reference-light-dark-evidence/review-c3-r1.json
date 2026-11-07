@@ -1,0 +1,87 @@
+{
+  "reviewed_commit": "6cfb5217e5b0e0a45d43f1c1bc65e20a00ac24d7",
+  "base_commit": "71e0a157e9014055e60d614039565782162f818b",
+  "scope": "Independent READ-ONLY R1 of the twelve new C3 paths, using immutable git show/diff and the surrounding affected definitions/callers. Current canonical UX amendment, layout-task.md and layout-c3-dispatch.md govern. Unchanged A1/B/C1-C2 approvals and historical B persistence evidence are reused within their scope, not recursively reviewed. Parent owns adjudication, fixes, Git, real QA and acceptance.",
+  "reviewed_paths": [
+    "web/src/app/App.tsx",
+    "web/src/app/Shell.module.css",
+    "web/src/features/engagement/GlobalStop.tsx",
+    "web/src/features/engagement/Engagement.tsx",
+    "web/src/features/engagement/Engagement.module.css",
+    "web/src/features/engagement/RunPanel.tsx",
+    "web/src/app/Engagement.test.tsx",
+    "web/src/app/Run.test.tsx",
+    "web/src/app/RunStream.test.tsx",
+    "web/src/app/RunCommandAuth.test.tsx",
+    "web/tests/e2e/b04.mjs",
+    "web/tests/e2e/s1-run.mjs"
+  ],
+  "manifest_match": {
+    "result_owned_paths": "12/12 immutable Git blob SHA256 values match ux-c3-result.json before and after review",
+    "freeze_owned_paths": "12/12 match ux-c3-freeze.json",
+    "cumulative_paths": "15/15 immutable Git blob SHA256 values match the cumulative C manifest before and after review",
+    "exact_changed_path_set": true,
+    "reviewed_commit_parent_equals_base": true,
+    "patch_hash_matches_before_and_after": true,
+    "patch_sha256": "4574a4490b220f5c7a9b511af2b87c7ce1a4159a914ca23bad10ced4e43abd1e",
+    "freeze_sha256": "1f48d1d4a4e8848c9c12d14bcce488f802ce597f1a123c64b9112c4b8b2c0d59",
+    "result_sha256": "b8e1dd1c74ec3b95d92dcd4a9739392f164cedd438e46ca8a2164264fc433930",
+    "checks_sha256": "2149f83f93dae17bd716b3209849ff5edadbf38f54ba26d60536f46d6f7c9711",
+    "worktree_used_as_review_source": false
+  },
+  "verdict": "CHANGES_REQUESTED",
+  "findings": [
+    {
+      "id": "C3_R1_B04_EXACT_CALENDAR_LABEL_MISMATCH",
+      "severity": "MEDIUM",
+      "fileline": "web/tests/e2e/b04.mjs:78-104",
+      "scenario": "Run the existing parent-owned B04 before-stage journey against this frozen UI. After checking Limit to a period, line78 constructs getByLabel('Valid from', { exact:true }); line79 awaits its text. The actual associated label is 'Valid from (UTC)', so that exact locator matches no button and the journey cannot reach the finite calendar save. The dialog locators independently have the same mismatch: actual names are 'Valid from (UTC) calendar' and 'Valid until (UTC) calendar', not the shortened names at lines83/104. The shortened until-label selectors at lines101/103/105 and retained-value selectors at lines132/133 also cannot match. Additionally, absence assertions at lines27/159 use the nonexistent shortened label, making those negative checks vacuous even if the actual date control remains present.",
+      "violatedcriterion": "layout-c3-dispatch.md:9 requires the EXISTING real B04 consumer to select an actual finite calendar period, verify independently expected UTC boundaries, explicitly clear to null/null and preserve meaningful restart/readback assertions. The exact producer/locator prerequisites must agree before spending parent QA; syntax and pytest collection do not validate accessible-name matching.",
+      "minimalremedy": "Change only the existing B04 locators to the actual frozen accessible names: 'Valid from (UTC)', 'Valid until (UTC)', 'Valid from (UTC) calendar' and 'Valid until (UTC) calendar', retaining exact:true and fixing the absence assertions too. Do not rename the approved calendar UI, weaken exact matching, change the runner/deadline or add a harness. Parent/developer then use the same existing source checks and B04 consumer in their assigned review/QA order.",
+      "evidence": [
+        "web/src/features/engagement/Wizard.tsx:245-248 passes labels 'Valid from (UTC)' and 'Valid until (UTC)' to DatePicker",
+        "web/src/features/engagement/WizardFields.tsx:13-21 preserves label text and explicitly associates it with the control id; no shortened aria-label is supplied",
+        "web/src/features/engagement/DatePicker.tsx:80-87 uses that Field label and derives dialog aria-label directly as `${label} calendar`",
+        "web/src/app/Wizard.test.tsx:31-40,78,102,109-115 already uses the full UTC labels"
+      ],
+      "proof_boundary": "Confirmed source-level test-caller mismatch on immutable bytes. No browser attempt was performed and no observed runtime FAIL is claimed. This is a concrete prerequisite defect, not a circular demand for future browser evidence."
+    }
+  ],
+  "scoped_assessment": {
+    "global_stop_and_auth": "C3 keeps the authenticated controller mounted while hiding only healthy idle presentation. Null-active-run pending recovery/storage failure controls remain in the changed tests. Literal comparison confirms the hydration/recovery/lifetime segment and Stop payload construction are unchanged from the approved base; private synchronous commit fences remain at the actual writes. Current global identity/name fallback is independent of a historical inspector. C3's cross-engagement test sends one Stop to the actual other current run with its observed revision/generation, not the inspected historical run. Receipt admission still does not assert STOPPED. Existing auth approval is reused, not reopened.",
+    "activity_and_task_hierarchy": "Current activity uses a separate run/cursor-keyed receive-only tail read after max(0,persisted_cursor-1), not the ascending first event page or URL filters. The existing client/decoder enforces run binding, ascending sequences after the cursor and through_cursor equal to the returned tail. C3 rejects a regressing cached tail and withholds the latest claim for has_more. Actual attempts are grouped by task, actual common task parents drive nesting, inconsistent retained parents are disclosed, second-pass visited-task traversal retains rootless cycles, and missing-parent/has_more/page-filter qualifications remain. No configured future actors or invented progress are introduced.",
+    "recorded_popup_and_safety_controls": "The nonmodal dialog renders retained instructions, decisions, results, gaps, consumption, allowed input, tools and usage as text/pre and explicitly disclaims a complete transcript. No send/execute composer or modal inert/trap is introduced. Close/Escape/blank-area outside handling and trigger/heading restoration are present; interactive background controls keep their native action. Global Stop has a higher stacking context, and popup placement observes its anchor. Exact native layering/focus geometry remains parent QA, not inferred from source. Preflight/data consent/model-cost confirmation and active clarification/Pause/Resume/Stop are still reachable rather than hidden under a blanket active-run disclosure.",
+    "url_refs_and_command_guards": "Literal comparison confirms the URL/summary-ready/roster/causal-inspection segment is byte-identical to base. Command handlers differ only in two success-message strings; synchronous admission/settlement/preflight/receipt commit guards remain. Existing malformed/duplicate/cross-run controls, six causal mismatch controls and actual clicked consuming-Brain URL reload/full-ref assertions remain in the unchanged test portions. No new authority is assigned to URL pointers.",
+    "overview_and_usage": "Actual objective/scope precede state, Needs you, five unavailable metric slots, findings/severity and accounting. Unavailable remains distinct from zero; the empty decorative severity ring is removed rather than populated without data. Compact MONITOR totals remain in Overview; detailed whole-run/attempt accounting is contextual in the selected inspector. Partial/UNKNOWN values, observation denominators, role/connection attribution, no inferred currency and no cache/reasoning double counting remain explicit. The accounting test still checks large exact decimal values, partial/unknown state and empty refresh through the actual relocated consumer. Native aesthetic acceptance is not granted.",
+    "existing_e2e_oracles": "S1 retains all seven measure/state/observation checks, role and connection attribution, exact dispatch reported usage, result/consumption/restart/read-only write-count/secret checks. Run totals are now checked inside the opened selected-inspector Usage disclosure. Added popup/current-Stop non-occlusion and native Identity Enter/Space assertions are prepared only, not executed. B04 retains revision1/2/3, CAS/denials/restart/digest checks and adds the intended finite-to-null path, but its calendar/absence locators require the concrete correction above before that path can run meaningfully."
+  },
+  "evidence": {
+    "method": "Read-only Git blob/diff/hash inspection and bounded reads of the explicitly named SOURCE logs. No tests/builds/services/DB/browser/provider calls were executed by this reviewer.",
+    "contract_inputs": [
+      "Immutable documents/verification/ui-reference-light-dark.md current UX amendment and scoped boundaries",
+      "layout-task.md (SHA256 74ba299bb79d45256476480786bb226c33c14fbab1f62d7d21dfaae2a84fb215)",
+      "layout-c3-dispatch.md (SHA256 a56cc6095124dc351bbccf193d404fbc68548882ff090f989c451af6a6929f60)",
+      "Static supplied HTML Overview markup, lines1310-1407, read only as style/composition data; no scripts imported or executed"
+    ],
+    "original_red": "ux-c3-red.log: 88PASS/7FAIL across3files. Actual failure blocks concern compact Run status, quiet idle, missing current activity/task grouping and nonmodal dialog. Positive pending-null/storage controls are not relabelled as failing.",
+    "retained_intermediates": "Read bounded failure/summary blocks from ux-c3-green-first.log (100PASS/10FAIL), ux-c3-green.log (119PASS/3FAIL), ux-c3-green-final.log (121PASS/1FAIL) and ux-c3-lint.log (native-group warning). These remain historical failures, not final PASS.",
+    "affected_green": "ux-c3-green-accepted.log: 122PASS/8files, preceding the final native-fieldset/Identity presentation. Not used alone to certify last bytes.",
+    "identity_evidence": "ux-c3-identity-red.log: 1FAIL/33SKIP, missing readable Identity disclosure. ux-c3-identity-green.log is still 1FAIL/33SKIP at native-summary Space activation. Final ux-c3-last-bytes-identity-green.log: 1PASS/33SKIP, asserting focus/native click and exact current identity. It does not prove native Enter/Space; the S1 browser journey is prepared for that separate check.",
+    "final_recorded_source_execution": {
+      "checks_record": "ux-c3-last-bytes-checks.json",
+      "full_web": "npm --prefix web test: exit0; ux-c3-last-bytes-full-web.log records609PASS/28files and40.11s Vitest duration (40.61s outer command duration in checks record)",
+      "lint": "npm --prefix web run lint: exit0; ux-c3-last-bytes-lint.log",
+      "typecheck": "npm --prefix web run typecheck: exit0; ux-c3-last-bytes-typecheck.log",
+      "build": "npm --prefix web run build: exit0; ux-c3-last-bytes-build.log includes contract/design checks, tsc, Vite and trusted manifest4files. Retains518.57kB JS chunk warning; no performance acceptance inferred",
+      "e2e_syntax": "Recorded node --check b04.mjs and s1-run.mjs exit0, with empty syntax logs; syntax does not prove locator correctness",
+      "b04_collection": "ux-c3-b04-collect.log records1existing B04 target collected; collection is not browser execution"
+    }
+  },
+  "limits": [
+    "CHANGES_REQUESTED is for the concrete B04 test-caller defect, not the absence of the parent-owned later QA. No additional broad audit, harness or universal proof is requested.",
+    "No product/source edits, test/build execution, runtime/service/DB/browser/provider/target effects, agents/worktrees/profiles, Git mutation or protected reads. Only this requested private review report is written.",
+    "No native painting, calendar geometry/keyboard, popup focus/stacking/hit-testing, scrollbar behavior, screen-reader coverage or operator visual approval is claimed. Prepared B04/S1 browser/PG paths remain NOT_RUN by this reviewer.",
+    "Unchanged A1/B/C1-C2 approvals and actual historical29PGPASS remain scoped evidence; C3 SOURCE609PASS is not browser/PG/canonical/READY acceptance.",
+    "Other new C3 source bytes have no additional concrete finding in this scoped review; this is not a claim of universal absence of defects. Parent adjudicates and obtains focused review of corrected bytes before its affected real consumer QA."
+  ]
+}

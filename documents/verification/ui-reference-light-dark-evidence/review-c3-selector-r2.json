@@ -1,0 +1,92 @@
+{
+  "reviewed_commit": "596e74a1a260fcb796f84bbe4d0fab681ab6d7aa",
+  "reviewed_base": "6cfb5217e5b0e0a45d43f1c1bc65e20a00ac24d7",
+  "review_type": "FOCUSED_READ_ONLY_SOURCE_REREVIEW_C3-R2-F01",
+  "paths": [
+    "web/tests/e2e/b04.mjs"
+  ],
+  "hash": {
+    "algorithm": "SHA-256",
+    "path": "web/tests/e2e/b04.mjs",
+    "value": "7dcab3e9a8e0f39708634a1bc06b0273bce6ceac03e901c17afc0be16ca37c8c",
+    "matches_supplied_and_evidence_hash": true,
+    "source": "Immutable Git blob at reviewed_commit"
+  },
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "original_finding": {
+    "id": "C3-R2-F01",
+    "original_commit": "6cfb5217e5b0e0a45d43f1c1bc65e20a00ac24d7",
+    "original_report": "review-c3-r2.json",
+    "original_verdict_preserved": "CHANGES_REQUESTED",
+    "disposition": "RESOLVED_SOURCE_SCOPED_IN_596e74a1",
+    "reason": "All ten exact trigger/dialog/readback/absence occurrences now match the unchanged Wizard-to-Field-to-DatePicker accessible-name contract, including the UTC suffix. Exact matching and every other B04 byte are retained. This resolves the source defect without claiming native execution or retroactively changing the original verdict.",
+    "parent_boundary": "Parent retains adjudication, integration and real QA/acceptance ownership."
+  },
+  "findings": [],
+  "delta_verification": {
+    "method": "Read git show/diff for the two exact commits; calculate SHA-256 of immutable B04 bytes; independently transform the base file with the four single-quoted literal replacements and compare the entire resulting byte string with the reviewed blob.",
+    "only_changed_path": "web/tests/e2e/b04.mjs",
+    "literal_substitution_count": 10,
+    "entire_file_equals_base_plus_only_these_substitutions": true,
+    "all_ten_occurrences_retain_exact_true": true,
+    "occurrences": [
+      { "lines": [27, 159], "kind": "absence after restart / explicit uncheck", "name": "Valid from (UTC)" },
+      { "lines": [78, 132], "kind": "positive trigger / finite readback", "name": "Valid from (UTC)" },
+      { "lines": [101, 103, 105, 133], "kind": "invalid incomplete state / trigger / selected date / finite readback", "name": "Valid until (UTC)" },
+      { "lines": [83], "kind": "exact from dialog", "name": "Valid from (UTC) calendar" },
+      { "lines": [104], "kind": "exact until dialog", "name": "Valid until (UTC) calendar" }
+    ],
+    "producer_definitions_read_at_reviewed_commit": [
+      "web/src/features/engagement/Wizard.tsx:239-249 passes Valid from (UTC) and Valid until (UTC), and hides the fields for explicit null/null.",
+      "web/src/features/engagement/WizardFields.tsx:13-21 renders the supplied label verbatim, associated with the control ID.",
+      "web/src/features/engagement/DatePicker.tsx:79-87 passes that same label to Field and names the dialog `${label} calendar`."
+    ],
+    "preserved_constraints": [
+      "All exact:true flags; positive finite selectors and meaningful absence checks now address the same real fields.",
+      "44px targets, 320/390 viewport bounds, no overflow, native focus/Enter/Escape and focus return.",
+      "Independent real-UTC finite expectations, incomplete-period no-POST and one-create assertions.",
+      "Finite revision1 readback, explicit null/null revision2, revision3 and restart/reload/digest/objective assertions.",
+      "CAS conflict/local-edit preservation, Host/Origin/CSRF/ref refusals, expiry/re-pair, secret checks, original producer, runner and budgets."
+    ],
+    "other_original_C3_paths": {
+      "count": 11,
+      "all_byte_equal_to_base": true,
+      "all_match_original_ux_c3_result_hashes": true,
+      "review_reused_not_repeated": true
+    }
+  },
+  "coverage_reuse": {
+    "prior_full_source_review": "review-c3-r2.json on 6cfb5217e5b0e0a45d43f1c1bc65e20a00ac24d7",
+    "current_basis": "Reuse that scoped full-C3 assessment for unchanged bytes, plus this focused test-only delta review. The earlier report and its CHANGES_REQUESTED finding remain valid history at their original snapshot; they are not discarded or overwritten.",
+    "source_checks": "Existing 609-web-PASS/lint/typecheck/build evidence is reused for unchanged production/test bytes. No full suite or build was rerun by this reviewer or requested as an extra prerequisite."
+  },
+  "evidence": {
+    "root": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/",
+    "read": [
+      "ux-c3-selector-fix-result.json",
+      "ux-c3-selector-fix-checks.json",
+      "ux-c3-selector-fix-wizard.log",
+      "ux-c3-selector-fix-syntax.log",
+      "ux-c3-selector-fix-diff-check.log"
+    ],
+    "observed_existing_results": [
+      "Existing Wizard finite-time/calendar test: 1 passed, 26 skipped; exit0 in command index.",
+      "node --check web/tests/e2e/b04.mjs: exit0 in command index; syntax log empty.",
+      "git diff --check -- web/tests/e2e/b04.mjs: exit0 in command index; diff-check log empty."
+    ],
+    "reviewer_execution": "Only read-only Git/blob inspection and literal/hash comparison were executed. Evidence commands were not rerun."
+  },
+  "next_gate": {
+    "owner": "Parent",
+    "consumer": "Existing make test-b04-e2e / api/tests/test_web_e2e.py::test_built_web_against_real_control_plane[b04]",
+    "state": "NOT_RUN",
+    "source_blocker": false,
+    "note": "This is the next real browser/API/PG consumer, not a circular prerequisite for focused SOURCE approval."
+  },
+  "limits": [
+    "Focused C3-R2-F01 re-review only; no broad repeat, mutable WIP review, D implementation, old S1 rerun or archival metadata audit.",
+    "No tests, build, DB, browser, service, Git mutation, agent, profile or worktree operation; no protected files, credentials, private raw logs or Strix reads. Only this requested JSON report was written.",
+    "Source name-contract closure and unchanged oracles do not establish native geometry, actual selector execution, finite/null persistence through B04 restart or aesthetic acceptance. Those remain parent QA/operator decisions.",
+    "No claim that scoped review proves the absence of every possible defect or closes overall delivery."
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "reviewed_commit": "6cfb5217e5b0e0a45d43f1c1bc65e20a00ac24d7",
+  "reviewed_base": "71e0a157e9014055e60d614039565782162f818b",
+  "review_type": "INDEPENDENT_READ_ONLY_SOURCE_SECURITY_FAILURE_STOP_AUTH_OWNERSHIP",
+  "paths": [
+    "web/src/app/App.tsx",
+    "web/src/app/Shell.module.css",
+    "web/src/features/engagement/GlobalStop.tsx",
+    "web/src/features/engagement/Engagement.tsx",
+    "web/src/features/engagement/Engagement.module.css",
+    "web/src/features/engagement/RunPanel.tsx",
+    "web/src/app/Engagement.test.tsx",
+    "web/src/app/Run.test.tsx",
+    "web/src/app/RunStream.test.tsx",
+    "web/src/app/RunCommandAuth.test.tsx",
+    "web/tests/e2e/b04.mjs",
+    "web/tests/e2e/s1-run.mjs"
+  ],
+  "verdict": "CHANGES_REQUESTED",
+  "summary": "One concrete defect in the new B04 test source: exact calendar locators omit the existing (UTC) accessible-name suffix. The required existing native consumer cannot reach its new calendar/save assertions as written. No additional concrete product-code security, Stop, auth-ownership or consumption-guard defect identified. Pending browser/PG execution is not itself a SOURCE blocker; the literal caller/definition mismatch is.",
+  "findings": [
+    {
+      "id": "C3-R2-F01",
+      "severity": "MEDIUM",
+      "blocking": true,
+      "category": "NEW_TEST_SOURCE_CALLER_CONTRACT_MISMATCH",
+      "fileline": "web/tests/e2e/b04.mjs:78-84",
+      "related_filelines": [
+        "web/tests/e2e/b04.mjs:27,101-105,132-133,159",
+        "web/src/features/engagement/Wizard.tsx:245-248",
+        "web/src/features/engagement/DatePicker.tsx:79-86",
+        "web/src/features/engagement/WizardFields.tsx:17-19",
+        "web/src/app/Wizard.test.tsx:29-49"
+      ],
+      "scenario": "In the existing B04 before stage, check Limit to a period at line 77. The frozen Wizard supplies labels Valid from (UTC) and Valid until (UTC). Field renders that label verbatim and DatePicker names each dialog by appending ' calendar'. The new exact locator at line 78 instead requests Valid from, so line 79 cannot find the trigger. Fixing only that occurrence would next encounter the same mismatch in the exact dialog name at line 83 and the until/readback locators. The two new absent-field assertions also use the wrong exact name and therefore do not establish absence of the real field.",
+      "reproducer": {
+        "status": "SOURCE_TRACE_CONFIRMED; BROWSER_NOT_RUN_AS_REQUESTED",
+        "existing_parent_consumer": "make test-b04-e2e",
+        "existing_producer": "api/tests/test_web_e2e.py::test_built_web_against_real_control_plane[b04]",
+        "negative": "After B04 line 77, page.getByLabel('Valid from', { exact: true }) does not match the rendered label 'Valid from (UTC)'; await check(from).toHaveText('Choose date') at line 79 would fail before the calendar opens. Likewise getByRole('dialog', { name: 'Valid from calendar', exact: true }) does not match 'Valid from (UTC) calendar'.",
+        "positive_control": "For the same enabled state, use page.getByLabel('Valid from (UTC)', { exact: true }); after opening it, use page.getByRole('dialog', { name: 'Valid from (UTC) calendar', exact: true }). The corresponding until names are 'Valid until (UTC)' and 'Valid until (UTC) calendar'. Existing Wizard.test.tsx:35-49 already uses these actual labels/dialog names, with its result included in the reported full-web609PASS.",
+        "limits": "This is a direct immutable-source name-contract reproduction, not a claimed observed Playwright timeout or newly executed positive/negative test. No browser/server was launched."
+      },
+      "violatedcriterion": "layout-c3-dispatch.md:7-9 requires an executable existing B04 journey selecting the real calendar, exact UTC finite readback, explicit null update and preserved native/restart oracles; layout-task.md:20 requires real definitions/callers and meaningful existing browser oracles. Syntax/collection success alone does not satisfy that source caller contract.",
+      "minimalremedy": "In b04.mjs only, use the existing exact labels 'Valid from (UTC)'/'Valid until (UTC)' and dialog names 'Valid from (UTC) calendar'/'Valid until (UTC) calendar' at all affected positive and absence assertions. Keep exact matching, all finite/null/focus/44px/geometry/CAS/restart/denial/secret assertions, revision counts and existing producer/limits intact. Do not rename the frozen product fields or add a harness. Parent should have the assigned developer make this narrow test-source correction, then use the already admitted B04 QA gate. No repeated UX-B PG run is requested."
+    }
+  ],
+  "snapshot_integrity": {
+    "method": "git show/diff on the exact commit and base; SHA-256 calculated from Git blob bytes, never changing worktree source files.",
+    "changed_path_count": 12,
+    "changed_set_equals_result_manifest": true,
+    "result_and_freeze_owned_hash_maps_equal": true,
+    "owned_hashes_verified": 12,
+    "owned_hashes_all_match": true,
+    "cumulative_hashes_verified": 15,
+    "cumulative_hashes_all_match": true,
+    "mismatches": [],
+    "verified_owned_sha256": {
+      "web/src/app/App.tsx": "1ab0d250be657af7463bf7f43a644d484ce6f6fd36c45e0c81d6075f7cc7470b",
+      "web/src/app/Shell.module.css": "b26c4e7f504536344e15cd5a7705c79a3f7a65743de703f4f934b5f17172aac8",
+      "web/src/features/engagement/GlobalStop.tsx": "752aa6f13f9efba72eb75bb654df1f8fbecc64af31a198d53ac42cb833a456e5",
+      "web/src/features/engagement/Engagement.tsx": "8b0d326658ae3218fca91052daa78d97254c652974c807046b34f695d70af889",
+      "web/src/features/engagement/Engagement.module.css": "4bdb0ec398cf1bda0baa06e9a4b22a3d5115e39005904e5464318d176c349554",
+      "web/src/features/engagement/RunPanel.tsx": "e0bc68d5b430990c796d125c0f5cf28f17beec97615837359254612614681599",
+      "web/src/app/Engagement.test.tsx": "ca65fdfaf9295adf987e66ac27b1370e366b2b4fefcfcecb9e8ef640b7c334f8",
+      "web/src/app/Run.test.tsx": "b2939c5ffa82d29dad745ab0589fb517f7281533e44e682fee7497625220bf8a",
+      "web/src/app/RunStream.test.tsx": "51581790ba70f09da3e27969a93fce550f79e11f24fd2efacaaf7cd621a74bf8",
+      "web/src/app/RunCommandAuth.test.tsx": "171b7cbba86824b3cf5523730df8a50244dc335fa91ad5e8fdbfcde4dc6cd03a",
+      "web/tests/e2e/b04.mjs": "3d5c581111399539a0ad12290ada9f721f274907101c43415e3b77d346545b9c",
+      "web/tests/e2e/s1-run.mjs": "285ea89b3c02924ba5d5f556bb22f5a1155b2a19259a058ac4779139874f24e2"
+    },
+    "cumulative_only_bindings_not_rereviewed": [
+      "web/src/app/Wizard.test.tsx",
+      "web/src/shared/styles/global.css",
+      "web/scripts/design.test.mjs"
+    ],
+    "independently_compared_unchanged_segments": [
+      "GlobalStop.tsx: RunStop hook/recovery/settle/stop imperative body before the new presentation return is byte-equal to base.",
+      "RunPanel.tsx: session/lifetime, URL, current-run, summary, roster, inspection and exact consuming-Brain guards before inspectorHeading are byte-equal to base.",
+      "RunStopAuth.test.tsx, RunStopObserver.test.tsx, ReceiptRecovery.test.tsx and api/tests/test_web_e2e.py Git blobs are unchanged."
+    ]
+  },
+  "charter_assessment": [
+    {
+      "criterion": "Always-mounted pending-null Stop hydration and UNKNOWN/receipt/no-resend semantics",
+      "references": [
+        "web/src/app/App.tsx:37-39",
+        "web/src/features/engagement/GlobalStop.tsx:30-118",
+        "web/src/app/Run.test.tsx:130-154"
+      ],
+      "assessment": "App still mounts the authenticated GlobalStop controller independently of active-run data. RunStop returns visually null only after its hooks; stored unresolved Stops and storage failures can therefore hydrate even when activeRun=null. Its imperative target/command checks, shared-storage reread, exact pending removal, commitPrivate/lifetime fences and receive-only receipt recovery are unchanged. ADMITTED retains the explicit not-confirmation-of-STOPPED message. New idle/pending/storage cases exercise this presentation boundary without permitting automatic POSTs."
+    },
+    {
+      "criterion": "Exact current global identity and Stop while inspecting another engagement; actual CSS stacking semantics",
+      "references": [
+        "web/src/features/engagement/GlobalStop.tsx:120-133",
+        "web/src/app/Shell.module.css:11-14",
+        "web/src/features/engagement/Engagement.module.css:47-54,85",
+        "web/src/features/engagement/RunPanel.tsx:123-148,309-340",
+        "web/src/app/RunStream.test.tsx:96-128"
+      ],
+      "assessment": "Stop continues to bind active.data rather than the historical inspector's run. The new name query uses the active engagement ID, a private query key, the existing identity-validating api.engagement decoder and readPrivate; unavailable names fall back to the exact engagement UUID. Native Identity exposes current run/engagement IDs. The sticky global anchor is a sibling of main at z-index3; main is its own z-index1 stacking context and the nonmodal inspector's z-index2 stays inside that context. Rendering dialog with open, not showModal, does not put it in the browser top layer or inert the page. Placement measures the actual anchor and updates on resize/scroll/anchor resize, with cleanup. Outside-control pointer actions are not swallowed. Source test binds a Stop POST to the other current engagement/run/revision/generation while history stays read-only. Native pixel non-occlusion and reachable geometry remain QA, not inferred from these facts."
+    },
+    {
+      "criterion": "Auth lifetime/cache cutover, foreign summary/roster/URL and consuming-Brain guards under the new effects and grouping",
+      "references": [
+        "web/src/features/bootstrap/useBrowserSession.ts:113-137",
+        "web/src/features/engagement/RunPanel.tsx:39-118,139-160,231-253,294,312-336",
+        "web/src/shared/api/client.ts:92-108,302-307",
+        "web/src/shared/api/runs.ts:247-265"
+      ],
+      "assessment": "New activity/name reads use the existing private auth reader and private caches; no new uncontrolled cache commit or effectful transport is added. Existing URL uniqueness/run binding, summary-ready/instance, roster actor identity and exact source/result/decision consumption checks remain in force after the JSX relocation. Popup effects install only UI listeners/ResizeObserver and clean them up. The inspector uses React text/pre, remains read-only and makes no complete-transcript/private-reasoning claim. Task grouping uses actual task IDs and agreed parent IDs, retains individually selectable attempts and unknown/conflicting parent context, and its visited set/second pass keeps cycles/rootless tasks bounded and selectable."
+    },
+    {
+      "criterion": "Latest activity binding and known real API cursor behavior, without a new server",
+      "references": [
+        "web/src/features/engagement/RunPanel.tsx:149-161,285-287",
+        "web/src/shared/api/client.ts:98-102",
+        "web/src/shared/api/runs.ts:255-265",
+        "api/src/omnis/modules/runs/run_routes.py:172-182",
+        "api/src/omnis/modules/runs/projections.py:306-360",
+        "api/src/omnis/modules/runs/run_store.py:327-378",
+        "api/src/omnis/modules/runs/run_runtime.py:375-377"
+      ],
+      "assessment": "The new capsule does not reuse the oldest ascending UI page or its URL filters. It requests after max(0,persisted through_cursor-1) for the currently bound run, uses the existing decoder's run/order/after/through checks, rejects same-key regressions and suppresses a latest claim for has_more/error responses. The real API accepts canonical numeric run-prefixed cursors and queries sequence>after in ascending bounded order; it does not require after to name an existing event. Event sequences are engagement-scoped and can be noncontiguous within a run, so cursor-1 is a valid numeric boundary, not an assumed previous event ID. The recorded run cursor is a saved watermark; the request may also return later committed events. If the bounded read cannot establish the tail, the UI says so rather than relabeling an old first page. Source tests cover separate tail/first-page data, has_more and regressing-tail refusal. No live freshness claim is made."
+    },
+    {
+      "criterion": "Meaningful safety/recovery/native test oracles retained",
+      "references": [
+        "web/src/app/Run.test.tsx, RunStream.test.tsx, RunCommandAuth.test.tsx incremental diffs",
+        "web/tests/e2e/b04.mjs incremental diff",
+        "web/tests/e2e/s1-run.mjs incremental diff"
+      ],
+      "assessment": "Changed display assertions bind exact data-run/data-attempt identity rather than requiring removed UUID headings, while underlying refs/result/parent/UNKNOWN/replay/auth controls remain. Preflight tests explicitly open the new disclosure without changing consent/admission barriers. S1 accounting moves to the real inspector Run totals consumer while retaining all seven measures, state/observation/role/connection/dispatch/ref assertions and no-write reload/restart checks. New S1 native identity keys and current Stop focus/non-occlusion are prepared, not claimed executed. B04 retains existing CAS, denials, secrets, revision1/2/3 and restart producer and adds finite-to-null assertions; F01 must be corrected so those new calendar oracles actually address the real controls. No broader harness or weakened native oracle is requested."
+    }
+  ],
+  "evidence": {
+    "root": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/",
+    "assignment_and_manifests_read": [
+      "layout-task.md",
+      "layout-c3-dispatch.md",
+      "ux-c3-result.json",
+      "ux-c3-freeze.json",
+      "ux-c3-last-bytes-checks.json"
+    ],
+    "logs_read": [
+      "ux-c3-red.log",
+      "ux-c3-identity-red.log",
+      "ux-c3-identity-green.log",
+      "ux-c3-green-first.log",
+      "ux-c3-green.log",
+      "ux-c3-green-final.log",
+      "ux-c3-green-accepted.log",
+      "ux-c3-lint.log",
+      "ux-c3-b04-collect.log",
+      "ux-c3-diff-check.log",
+      "ux-c3-last-bytes-identity-green.log",
+      "ux-c3-last-bytes-lint.log",
+      "ux-c3-last-bytes-typecheck.log",
+      "ux-c3-last-bytes-build.log",
+      "ux-c3-last-bytes-full-web.log",
+      "ux-c3-last-bytes-b04-syntax.log",
+      "ux-c3-last-bytes-s1-syntax.log"
+    ],
+    "reading_boundary": "Exact referenced test/tooling artifacts were read. Large logs were reduced to relevant diagnostics/result summaries, not private runtime/operator logs. No listed evidence command was executed by this reviewer.",
+    "observed_existing_results": {
+      "last_bytes_full_web": "609 passed / 28 files; command index exit0. Vitest duration40.11s, outer command elapsed40.61s.",
+      "last_bytes_identity": "1 passed / 33 skipped in focused invocation; exit0. Final full suite separately includes all cases.",
+      "last_bytes_quality_build_syntax": "Lint/typecheck/build/B04 syntax/S1 syntax exit0 in command index; corresponding logs read. Build includes contract/design checks, TypeScript, Vite and trusted four-file manifest; existing518.57kB chunk warning retained.",
+      "b04_collection": "One existing node collected; collection is not browser execution and does not detect F01.",
+      "retained_failures": "RED88PASS7FAIL, identity RED1FAIL, native-summary Space simulation failure, intermediate100PASS10FAIL,119PASS3FAIL,121PASS1FAIL and native-group lint finding remain retained failures. No retrospective PASS transfer.",
+      "real_C3_B04_S1_browser_PG": "NOT_RUN; parent-owned next QA gate"
+    },
+    "canonical_source_read": [
+      "README.md current UX mandate at reviewed_commit",
+      "documents/verification/ui-reference-light-dark.md current ux-* contract and ownership at reviewed_commit",
+      "documents/Omnis_UI_UX_Spec.md:46 at reviewed_commit"
+    ],
+    "supporting_source_boundary": "Only affected callers/definitions were read from immutable Git: BrowserSession/useBrowserSession, API run/client decoders, selected-draft decoder, real run projections/routes/event producer, current B04 label producer and existing Wizard positive selector oracle. Existing A1/B/C12 approved reports and29PGPASS were reused as scoped inputs, not reopened or independently re-certified; archival metadata was not audited."
+  },
+  "requirements_vs_proof_gaps": {
+    "source_requirement_defect": "F01 is an exact new test-source/producer name mismatch, not a demand for PG/browser evidence before source review.",
+    "not_findings": [
+      "Actual B04/S1 scripted browser/PG execution is pending and belongs to parent after the narrow source correction/review.",
+      "Native geometry, touch/focus/Enter-Space behavior, popup/Stop pixel non-occlusion, paint and aesthetics remain real-browser/operator decisions.",
+      "The capsule is a bounded persisted observation, not an assurance of instantaneous wall-clock activity or universal completeness."
+    ]
+  },
+  "limits": [
+    "Read-only immutable-source review. No test/build/browser/DB/service command, credential/provider/target operation, Git mutation, new agent/profile/worktree or product edit was performed.",
+    "Only this requested review JSON was intentionally written. Protected files, .env/vault/keys, private raw operator logs and Strix were not read or hashed.",
+    "A1/B/C12 and historical S1 were not re-reviewed/rerun. Cumulative15 hashes were checked for binding only; new C3 bytes were the review scope. No D implementation was inspected or started.",
+    "Full609PASS, lint/typecheck/build and syntax logs are SOURCE evidence, not proof the new B04 selectors execute. No absence-of-all-defects, installed READY, final visual or project-completion claim.",
+    "Parent adjudicates F01, assigns the minimal correction, integrates and owns the real affected QA/acceptance."
+  ]
+}

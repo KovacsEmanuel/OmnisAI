@@ -24,7 +24,7 @@ export async function runB04({ page, context, check, paired, fault, output, orig
     assert.equal(restored.payload.authorization.valid_from, null);
     assert.equal(restored.payload.authorization.valid_until, null);
     await check(page.getByRole('checkbox', { name: 'Limit to a period', exact: true })).not.toBeChecked();
-    await check(page.getByLabel('Valid from', { exact: true })).toHaveCount(0);
+    await check(page.getByLabel('Valid from (UTC)', { exact: true })).toHaveCount(0);
     await page.reload();
     await check(page.getByLabel('Objective / Brain instructions')).toHaveValue(previous.objective);
     await page.getByRole('button', { name: '2. Application context' }).click();
@@ -75,12 +75,12 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   let creates = 0;
   page.on('request', request => { if (request.method() === 'POST' && new URL(request.url()).pathname === '/api/v1/engagements') creates += 1; });
   await page.getByRole('checkbox', { name: 'Limit to a period', exact: true }).check();
-  const from = page.getByLabel('Valid from', { exact: true });
+  const from = page.getByLabel('Valid from (UTC)', { exact: true });
   await check(from).toHaveText('Choose date');
   await from.focus(); await check(from).toBeFocused();
   const fromBox = await from.boundingBox(); assert.ok(fromBox && fromBox.width >= 44 && fromBox.height >= 44);
   await page.keyboard.press('Enter');
-  const calendar = page.getByRole('dialog', { name: 'Valid from calendar', exact: true });
+  const calendar = page.getByRole('dialog', { name: 'Valid from (UTC) calendar', exact: true });
   await check(calendar.getByRole('button', { name: dayLabel(utc.day), exact: true })).toBeFocused();
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 900 });
@@ -98,11 +98,11 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   await calendar.getByRole('button', { name: dayLabel(15), exact: true }).click();
   await check(from).toHaveText(dayLabel(15)); await check(from).toBeFocused();
   await page.getByRole('button', { name: 'Save draft' }).click();
-  await check(page.getByLabel('Valid until', { exact: true })).toHaveAttribute('aria-invalid', 'true');
+  await check(page.getByLabel('Valid until (UTC)', { exact: true })).toHaveAttribute('aria-invalid', 'true');
   assert.equal(creates, 0, 'An incomplete enabled period must not dispatch POST');
-  await page.getByLabel('Valid until', { exact: true }).click();
-  await page.getByRole('dialog', { name: 'Valid until calendar', exact: true }).getByRole('button', { name: dayLabel(16), exact: true }).click();
-  await check(page.getByLabel('Valid until', { exact: true })).toHaveText(dayLabel(16));
+  await page.getByLabel('Valid until (UTC)', { exact: true }).click();
+  await page.getByRole('dialog', { name: 'Valid until (UTC) calendar', exact: true }).getByRole('button', { name: dayLabel(16), exact: true }).click();
+  await check(page.getByLabel('Valid until (UTC)', { exact: true })).toHaveText(dayLabel(16));
   await check(page.getByLabel('Objective / Brain instructions')).toHaveValue('Assess the authorized Web/API surface within the selected profile.');
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 900 });
@@ -129,8 +129,8 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   assert.equal(finiteReadback.payload.authorization.valid_from, finite.valid_from);
   assert.equal(finiteReadback.payload.authorization.valid_until, finite.valid_until);
   await check(page.getByRole('checkbox', { name: 'Limit to a period', exact: true })).toBeChecked();
-  await check(page.getByLabel('Valid from', { exact: true })).toHaveText(dayLabel(15));
-  await check(page.getByLabel('Valid until', { exact: true })).toHaveText(dayLabel(16));
+  await check(page.getByLabel('Valid from (UTC)', { exact: true })).toHaveText(dayLabel(15));
+  await check(page.getByLabel('Valid until (UTC)', { exact: true })).toHaveText(dayLabel(16));
   await check(page.getByRole('region', { name: 'Test model', exact: true })).toHaveCount(0);
   await check(page.getByRole('button', { name: 'Start assessment' })).toBeDisabled();
   await page.getByRole('button', { name: 'Next' }).click();
@@ -156,7 +156,7 @@ export async function runB04({ page, context, check, paired, fault, output, orig
   await check(page.getByLabel('Objective / Brain instructions')).toHaveAttribute('aria-invalid', 'true');
   await page.getByLabel('Objective / Brain instructions').fill(objective);
   await page.getByRole('checkbox', { name: 'Limit to a period', exact: true }).uncheck();
-  await check(page.getByLabel('Valid from', { exact: true })).toHaveCount(0);
+  await check(page.getByLabel('Valid from (UTC)', { exact: true })).toHaveCount(0);
   await check(page.getByText(/code points/).first()).toContainText('8192');
   await page.getByRole('button', { name: '2. Application context' }).click();
   await page.getByLabel('Seed URLs (one per line)').fill('https://synthetic.invalid/api');

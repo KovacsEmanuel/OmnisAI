@@ -86,5 +86,5 @@ export function httpObservation(path: string, method: string): Observation | nul
 }
 
 export function reportTypedError(observe: Observation, code: ErrorCode, correlation?: string) {
-  observe({ site: 'http_read', action: 'ERROR', outcome: 'REFUSED', error_code: code, correlation_id: correlation ?? null });
+  observe({ site: 'http_read', action: 'ERROR', outcome: 'UNCONFIRMED', error_code: code, correlation_id: correlation ?? null });
 }

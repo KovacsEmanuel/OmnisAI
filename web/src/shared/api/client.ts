@@ -29,15 +29,17 @@ function responseCorrelation(response: Response) {
   return isUuid(value) ? value : undefined;
 }
 async function request(path: RequestPath, init: RequestInit = {}, signal?: AbortSignal): Promise<Response> {
-  const observe = httpObservation(path, init.method ?? 'GET');
+  const method = init.method ?? 'GET';
+  const observe = httpObservation(path, method);
+  const tracked = method !== 'GET' || (path.startsWith('/api/v1/runs/commands/') && isUuid(path.slice('/api/v1/runs/commands/'.length)));
   try {
-    if (init.method && init.method !== 'GET') observe?.({ site: 'http_read', action: 'REQUEST', outcome: 'UNCONFIRMED' });
+    if (tracked) observe?.({ site: 'http_read', action: 'REQUEST', outcome: 'UNCONFIRMED' });
     const response = await fetch(path, {
       ...init, credentials: 'same-origin', cache: 'no-store', redirect: 'error',
       signal: AbortSignal.any([AbortSignal.timeout(12000), ...(signal ? [signal] : [])]),
     });
     if (observe) observations.set(response, observe);
-    if (response.ok && init.method && init.method !== 'GET') observe?.({ site: 'http_read', action: 'RESPONSE', outcome: 'UNCONFIRMED', correlation_id: responseCorrelation(response) ?? null });
+    if (response.ok && tracked) observe?.({ site: 'http_read', action: 'RESPONSE', outcome: 'UNCONFIRMED', correlation_id: responseCorrelation(response) ?? null });
     return response;
   } catch {
     if (observe) reportTypedError(observe, 'API_UNAVAILABLE');

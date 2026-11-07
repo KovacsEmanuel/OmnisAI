@@ -8,8 +8,9 @@ import { syntheticRun, syntheticSummary, syntheticAttempt, inspection } from '..
 import { draft, id, projection } from '../../tests/projection-fixtures';
 import { payload } from '../../tests/draft-fixtures';
 import { api } from '../shared/api/client';
-import { ApiError } from '../shared/api/errors';
+import { ApiError, isRecord } from '../shared/api/errors';
 import { bindDiagnostics, observeControl } from '../shared/uiDiagnostics';
+import { remember, sessionScope } from '../features/engagement/SettingsModels';
 import { App } from './App';
 
 vi.unmock('../shared/uiDiagnostics');
@@ -34,7 +35,7 @@ it('preserves malformed response header correlation and emits finite metadata, n
   await waitFor(() => expect(events.length).toBeGreaterThan(0));
   expect(JSON.stringify(events)).not.toContain(session.csrf_token);
   expect(JSON.stringify(events)).not.toContain('not JSON');
-  expect(events).toContainEqual(expect.objectContaining({ site: 'draft_save', action: 'ERROR', error_code: 'INVALID_RESPONSE', correlation_id: correlation }));
+  expect(events).toContainEqual(expect.objectContaining({ site: 'draft_save', action: 'ERROR', outcome: 'UNCONFIRMED', error_code: 'INVALID_RESPONSE', correlation_id: correlation }));
   detach(); controller.abort();
 });
 
@@ -62,43 +63,96 @@ it('never adopts stale HTTP observations into a new session and never retries di
   detachNext(); next.abort();
 });
 
-it.each(['hanging', 'unavailable'] as const)('actual App controls keep exact global Stop/recovery independent of %s diagnostics', async mode => {
+it.each(['hanging', 'unavailable', 'recorded-lost', 'recorded-recovery'] as const)('actual App controls keep exact global Stop/recovery independent of %s diagnostics', async mode => {
+  sessionStorage.clear();
   const domain: object[] = [], observations: object[] = [];
+  const correlation = syntheticRun.setup_ref.id;
+  let receiptReads = 0;
+  if (mode === 'recorded-recovery') remember('omnis-run-stop', await sessionScope(session.csrf_token), { run: syntheticRun.run_id, command: syntheticAttempt.attempt_id });
   vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
     const path = String(input);
     if (path === endpoint) {
       const event: unknown = JSON.parse(String(init?.body));
-      if (!event || typeof event !== 'object') throw new Error('Missing event');
+      if (!isRecord(event) || typeof event.event_id !== 'string') throw new Error('Missing event');
       observations.push(event);
       if (mode === 'unavailable') throw new Error('Synthetic logger outage');
-      return new Promise(() => {});
+      if (mode === 'hanging') return new Promise(() => {});
+      return Response.json({ version: 1, event_id: event.event_id, accepted: true, state: 'RECORDED' }, { status: 202 });
     }
     if (init?.method === 'POST') {
       const body: unknown = JSON.parse(String(init.body));
       if (!body || typeof body !== 'object' || !('command_id' in body)) throw new Error('Invalid command');
       domain.push(body);
-      if (mode === 'unavailable') throw new Error('Synthetic lost Stop reply');
+      // Let diagnostic acknowledgements settle before the controlled domain outcome.
+      await new Promise(resolve => setTimeout(resolve, 0));
+      if (mode !== 'hanging') throw new Error('Synthetic lost Stop reply');
       return Response.json({ command_id: body.command_id, run_id: syntheticRun.run_id, setup_ref: null, state: 'ADMITTED', revision: 8 });
     }
-    if (path.startsWith('/api/v1/runs/commands/')) return Response.json({ command_id: path.split('/').at(-1), run_id: syntheticRun.run_id, setup_ref: null, state: 'ADMITTED', revision: 8 });
+    if (path.startsWith('/api/v1/runs/commands/')) {
+      receiptReads++;
+      await new Promise(resolve => setTimeout(resolve, 0));
+      return Response.json({ command_id: path.split('/').at(-1), run_id: syntheticRun.run_id, setup_ref: null, state: 'ADMITTED', revision: 8 }, { headers: { 'X-Correlation-ID': correlation } });
+    }
     return Response.json(path === '/api/session' ? session : path === '/health/ready' ? health : path === '/api/instance' ? instance : path.startsWith('/api/v1/dashboard?') ? projection : path === `/api/v1/engagements/${id}` ? draft : path === '/api/v1/runs/active' ? syntheticRun : null);
   }));
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const view = render(<QueryClientProvider client={client}><MemoryRouter><App /></MemoryRouter></QueryClientProvider>);
   const stop = await screen.findByRole('button', { name: 'Stop active run' });
-  await waitFor(() => expect(stop).toBeEnabled());
+  if (mode !== 'recorded-recovery') await waitFor(() => expect(stop).toBeEnabled());
   await userEvent.setup().click(screen.getByRole('button', { name: /Light theme|Dark theme/ }));
-  await userEvent.setup().click(stop);
-  await waitFor(() => expect(domain).toHaveLength(1));
-  expect(domain[0]).toMatchObject({ action: 'stop', run_id: syntheticRun.run_id, expected_revision: 7, expected_generation: 3 });
-  if (mode === 'unavailable') {
-    await userEvent.setup().click(await screen.findByRole('button', { name: /^Read Stop receipt/ }));
+  if (mode !== 'recorded-recovery') {
+    await userEvent.setup().click(stop);
+    await waitFor(() => expect(domain).toHaveLength(1));
+    expect(domain[0]).toMatchObject({ action: 'stop', run_id: syntheticRun.run_id, expected_revision: 7, expected_generation: 3 });
+  }
+  if (mode !== 'hanging') {
+    const recover = await screen.findByRole('button', { name: /^Read Stop receipt/ });
+    await waitFor(() => expect(recover).toBeEnabled());
+    if (mode === 'recorded-lost') expect(observations).toContainEqual(expect.objectContaining({ site: 'run_command', action: 'ERROR', error_code: 'API_UNAVAILABLE', outcome: 'UNCONFIRMED', correlation_id: null }));
+    await userEvent.setup().click(recover);
     await screen.findByText(/ADMITTED · Stop run/);
-    expect(domain).toHaveLength(1);
+    expect(domain).toHaveLength(mode === 'recorded-recovery' ? 0 : 1);
+    expect(receiptReads).toBe(1);
+    if (mode.startsWith('recorded')) {
+      const command = mode === 'recorded-recovery' ? syntheticAttempt.attempt_id : isRecord(domain[0]) ? domain[0].command_id : null;
+      expect(observations).toContainEqual(expect.objectContaining({ site: 'command_receipt', action: 'REQUEST', outcome: 'UNCONFIRMED', command_id: command, correlation_id: null }));
+      expect(observations).toContainEqual(expect.objectContaining({ site: 'command_receipt', action: 'RESPONSE', outcome: 'UNCONFIRMED', command_id: command, correlation_id: correlation }));
+      expect(observations).not.toContainEqual(expect.objectContaining({ outcome: 'REFUSED' }));
+    }
   }
   expect(observations.length).toBeLessThanOrEqual(mode === 'hanging' ? 2 : 64);
   expect(observations).toContainEqual(expect.objectContaining({ site: 'theme_toggle', action: 'OBSERVE' }));
-  view.unmount(); client.clear();
+  expect(JSON.stringify(observations)).not.toContain(session.csrf_token);
+  view.unmount(); client.clear(); sessionStorage.clear();
+});
+
+it.each(['valid-header', 'invalid-header'] as const)('observes only explicit receipt GET, not successful polling, with %s correlation', async kind => {
+  const events: object[] = [];
+  const command = syntheticAttempt.attempt_id, correlation = syntheticRun.setup_ref.id;
+  const transport = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
+    if (String(input) === endpoint) {
+      const value: unknown = JSON.parse(String(init?.body));
+      if (!isRecord(value)) throw new Error('Missing event');
+      events.push(value);
+      return Response.json({ version: 1, event_id: value.event_id, accepted: true, state: 'RECORDED' }, { status: 202 });
+    }
+    await new Promise(resolve => setTimeout(resolve, 0));
+    return Response.json(String(input).endsWith(command) ? { command_id: command, run_id: syntheticRun.run_id, setup_ref: null, state: 'ADMITTED', revision: 8 } : null,
+      { headers: { 'X-Correlation-ID': kind === 'valid-header' ? correlation : 'synthetic_invalid_header_not_for_log' } });
+  });
+  vi.stubGlobal('fetch', transport);
+  const controller = new AbortController();
+  const detach = bindDiagnostics(session.csrf_token, callback => { callback(); return true; }, controller.signal);
+  await api.activeRun();
+  expect(events).toEqual([]);
+  await expect(api.runCommandReceipt(command)).resolves.toMatchObject({ state: 'ADMITTED' });
+  expect(events).toEqual([
+    expect.objectContaining({ site: 'command_receipt', command_id: command, action: 'REQUEST', outcome: 'UNCONFIRMED', correlation_id: null }),
+    expect.objectContaining({ site: 'command_receipt', command_id: command, action: 'RESPONSE', outcome: 'UNCONFIRMED', correlation_id: kind === 'valid-header' ? correlation : null }),
+  ]);
+  expect(transport.mock.calls.filter(([input]) => String(input).endsWith(command))).toHaveLength(1);
+  expect(JSON.stringify(events)).not.toContain('synthetic_invalid_header_not_for_log');
+  detach(); controller.abort();
 });
 
 it('bounds pending transport and aborts at cutover without retry or resend', async () => {

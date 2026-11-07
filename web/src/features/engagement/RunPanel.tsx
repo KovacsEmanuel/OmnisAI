@@ -10,6 +10,7 @@ import { ApiError, isUuid } from '../../shared/api/errors';
 import { useSession } from '../bootstrap/BrowserSession';
 import { remembered, remember, sessionScope } from './SettingsModels';
 import styles from './Engagement.module.css';
+import { observeControl } from '../../shared/uiDiagnostics';
 
 function UsageAmounts({ totals }: { totals: UsageTotals }) {
   return <><p>Allocations: {totals.dispatches} · without observation: {totals.unobserved_dispatches}</p><dl>{usageFields.map(key => <div key={key}><dt>{key}</dt><dd>{totals[key].value ?? 'UNKNOWN'} · {totals[key].state} · {totals[key].observed_dispatches}/{totals.dispatches} observed</dd></div>)}</dl></>;
@@ -82,7 +83,10 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
     if (runId) next.set('run', runId);
     setParams(next, { replace: true });
   }
-  const setSelected = (attempt: string | null, source: string | null = null) => updateView({ attempt, source });
+  const setSelected = (attempt: string | null, source: string | null = null) => {
+    if (attempt && runId) observeControl('inspector_open', { run_id: runId });
+    updateView({ attempt, source });
+  };
   const setAfter = (after: number) => { setPage({ run: runId, cursors: after === 0 ? [] : [...cursors, after] }); updateView({ after: after ? String(after) : null }); };
   const summary = useQuery({ queryKey: ['private', 'run-summary', runId], queryFn: ({ signal }) => { if (!runId) throw new ApiError('INVALID_INPUT'); return readPrivate(async () => { const result = await api.runSummary(runId, signal); checkRunProgress(result.run, client.getQueryData<RunSummary>(['private', 'run-summary', runId])?.run); checkRunProgress(result.run, client.getQueryData<RunView | null>(currentKey)); return result; }, signal); }, enabled: enabled && !!runId, ...polling });
   const summaryReady = summary.isSuccess && summary.data.run.run_id === runId && summary.data.run.instance_id === currentRun.data?.instance_id;

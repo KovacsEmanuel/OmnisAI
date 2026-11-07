@@ -15,6 +15,7 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from omnis.core.db import readiness_reason
 from omnis.core.errors import ErrorCode, ErrorDetail, ErrorEnvelope, FieldError, request_correlation
+from omnis.modules.diagnostics.schemas import PATH as DIAGNOSTICS_PATH
 from omnis.security.sessions import SessionStore
 
 COOKIE = "omnis_session"
@@ -217,7 +218,7 @@ class LocalBoundary:
                         await error_response("INVALID_CSRF", 403)(scope, receive, send)
                         return
                     scope.setdefault("state", {})["session_grant"] = grant
-                if engagement_write:
+                if engagement_write or (scope["path"] == DIAGNOSTICS_PATH and mutation):
                     try:
                         json.loads(
                             body,

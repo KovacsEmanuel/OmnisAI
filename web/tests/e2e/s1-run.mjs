@@ -7,7 +7,7 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   const record = join(output, 's1-run-record.json');
   const writes = [];
   page.on('request', request => {
-    if (['POST', 'PUT', 'DELETE'].includes(request.method()) && new URL(request.url()).pathname.startsWith('/api/v1/')) writes.push(`${request.method()} ${new URL(request.url()).pathname}`);
+    if (['POST', 'PUT', 'DELETE'].includes(request.method()) && new URL(request.url()).pathname.startsWith('/api/v1/') && !(request.method() === 'POST' && request.url() === `${origin}/api/v1/diagnostics/ui-events`)) writes.push(`${request.method()} ${new URL(request.url()).pathname}`);
   });
   const read = path => page.evaluate(async path => {
     const response = await fetch(path);

@@ -85,6 +85,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/diagnostics/ui-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ui Event */
+        post: operations["ui_event_api_v1_diagnostics_ui_events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/engagements": {
         parameters: {
             query?: never;
@@ -2295,6 +2312,66 @@ export interface components {
         /** @enum {string} */
         State: "PENDING" | "RUNNING" | "STOPPING" | "FINISHED" | "NEEDS_RECONCILIATION";
         TokenCount: number;
+        /** UiAck */
+        UiAck: {
+            /**
+             * Accepted
+             * @constant
+             */
+            accepted: true;
+            /** Event Id */
+            event_id: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "RECORDED" | "RATE_LIMITED" | "BUDGET_EXHAUSTED" | "BUSY" | "UNAVAILABLE" | "BACKPRESSURED";
+            /**
+             * Version
+             * @constant
+             */
+            version: 1;
+        };
+        /** UiEvent */
+        UiEvent: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "OBSERVE" | "REQUEST" | "RESPONSE" | "ERROR";
+            /** Command Id */
+            command_id: string | null;
+            /** Correlation Id */
+            correlation_id: string | null;
+            /** Error Code */
+            error_code: components["schemas"]["ErrorCode"] | ("API_UNAVAILABLE" | "INVALID_RESPONSE") | null;
+            /** Event Id */
+            event_id: string;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "OBSERVED" | "UNCONFIRMED" | "REFUSED";
+            /** Run Id */
+            run_id: string | null;
+            /**
+             * Site
+             * @enum {string}
+             */
+            site: "navigation" | "theme_toggle" | "period_toggle" | "calendar_choice" | "inspector_open" | "draft_save" | "run_command" | "stop_request" | "stop_receipt_lookup" | "command_receipt" | "model_request" | "provider_catalog_search" | "provider_request" | "http_read";
+            /**
+             * Source
+             * @constant
+             */
+            source: "browser_untrusted";
+            /**
+             * Surface
+             * @enum {string}
+             */
+            surface: "dashboard" | "engagement_setup" | "engagement_overview" | "brain_stream" | "settings" | "bootstrap";
+            /** Version */
+            version: number;
+        };
         /** UsageMeasures */
         UsageMeasures: {
             cache_creation_tokens?: components["schemas"]["TokenCount"] | null;
@@ -2747,6 +2824,75 @@ export interface operations {
             };
             /** @description Service Unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    ui_event_api_v1_diagnostics_ui_events_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UiEvent"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiAck"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -5050,6 +5050,187 @@
         "minimum": 0.0,
         "type": "integer"
       },
+      "UiAck": {
+        "additionalProperties": false,
+        "properties": {
+          "accepted": {
+            "const": true,
+            "title": "Accepted",
+            "type": "boolean"
+          },
+          "event_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "RECORDED",
+              "RATE_LIMITED",
+              "BUDGET_EXHAUSTED",
+              "BUSY",
+              "UNAVAILABLE",
+              "BACKPRESSURED"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "version": {
+            "const": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "event_id",
+          "accepted",
+          "state"
+        ],
+        "title": "UiAck",
+        "type": "object"
+      },
+      "UiEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "OBSERVE",
+              "REQUEST",
+              "RESPONSE",
+              "ERROR"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "command_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Command Id"
+          },
+          "correlation_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correlation Id"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorCode"
+              },
+              {
+                "enum": [
+                  "API_UNAVAILABLE",
+                  "INVALID_RESPONSE"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "event_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "OBSERVED",
+              "UNCONFIRMED",
+              "REFUSED"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "site": {
+            "enum": [
+              "navigation",
+              "theme_toggle",
+              "period_toggle",
+              "calendar_choice",
+              "inspector_open",
+              "draft_save",
+              "run_command",
+              "stop_request",
+              "stop_receipt_lookup",
+              "command_receipt",
+              "model_request",
+              "provider_catalog_search",
+              "provider_request",
+              "http_read"
+            ],
+            "title": "Site",
+            "type": "string"
+          },
+          "source": {
+            "const": "browser_untrusted",
+            "title": "Source",
+            "type": "string"
+          },
+          "surface": {
+            "enum": [
+              "dashboard",
+              "engagement_setup",
+              "engagement_overview",
+              "brain_stream",
+              "settings",
+              "bootstrap"
+            ],
+            "title": "Surface",
+            "type": "string"
+          },
+          "version": {
+            "maximum": 1.0,
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "source",
+          "event_id",
+          "surface",
+          "site",
+          "action",
+          "outcome",
+          "error_code",
+          "correlation_id",
+          "run_id",
+          "command_id"
+        ],
+        "title": "UiEvent",
+        "type": "object"
+      },
       "UsageMeasures": {
         "additionalProperties": false,
         "properties": {
@@ -5759,6 +5940,84 @@
           }
         },
         "summary": "Read Dashboard"
+      }
+    },
+    "/api/v1/diagnostics/ui-events": {
+      "post": {
+        "operationId": "ui_event_api_v1_diagnostics_ui_events_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UiEvent"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiAck"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Ui Event"
       }
     },
     "/api/v1/engagements": {

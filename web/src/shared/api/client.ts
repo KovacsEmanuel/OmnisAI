@@ -17,18 +17,30 @@ import { decodeProviderModels } from './providerModels';
 import { runCommandFits, decodeReceipt, decodeOptionalRun, decodeRunSummary, decodeEvents, decodeAttemptInspection, decodePublications } from './runs';
 import type { Preflight, StartRun, RunCommand } from './runs';
 import type { RemoveModel, SaveModels } from './providerModels';
+import { httpObservation, reportTypedError } from '../uiDiagnostics';
 
 type Session = components['schemas']['SessionView'];
 type ApiPath = keyof paths;
 type RequestPath = `/api/v1/runs/${string}` | `/api/v1/settings/models/${string}` | `/api/v1/model-test/${string}` | `/api/v1/settings/providers/commands/${string}` | `/api/v1/settings/catalog/${string}` | `/api/v1/settings/provider/operations/${string}` | ApiPath | `/api/v1/dashboard?${string}` | `/api/v1/engagements/${string}`;
 
+const observations = new WeakMap<Response, NonNullable<ReturnType<typeof httpObservation>>>();
+function responseCorrelation(response: Response) {
+  const value = response.headers.get('X-Correlation-ID');
+  return isUuid(value) ? value : undefined;
+}
 async function request(path: RequestPath, init: RequestInit = {}, signal?: AbortSignal): Promise<Response> {
+  const observe = httpObservation(path, init.method ?? 'GET');
   try {
-    return await fetch(path, {
+    if (init.method && init.method !== 'GET') observe?.({ site: 'http_read', action: 'REQUEST', outcome: 'UNCONFIRMED' });
+    const response = await fetch(path, {
       ...init, credentials: 'same-origin', cache: 'no-store', redirect: 'error',
       signal: AbortSignal.any([AbortSignal.timeout(12000), ...(signal ? [signal] : [])]),
     });
+    if (observe) observations.set(response, observe);
+    if (response.ok && init.method && init.method !== 'GET') observe?.({ site: 'http_read', action: 'RESPONSE', outcome: 'UNCONFIRMED', correlation_id: responseCorrelation(response) ?? null });
+    return response;
   } catch {
+    if (observe) reportTypedError(observe, 'API_UNAVAILABLE');
     throw new ApiError('API_UNAVAILABLE');
   }
 }
@@ -36,9 +48,17 @@ async function request(path: RequestPath, init: RequestInit = {}, signal?: Abort
 async function body(response: Response): Promise<unknown> {
   try {
     const value: unknown = await response.json();
+    if (!response.ok) {
+      const error = decodeError(value);
+      const observe = observations.get(response);
+      if (observe) reportTypedError(observe, error.code, error.correlation ?? responseCorrelation(response));
+    }
     return value;
   } catch {
-    throw new ApiError('INVALID_RESPONSE');
+    const correlation = responseCorrelation(response);
+    const observe = observations.get(response);
+    if (observe) reportTypedError(observe, 'INVALID_RESPONSE', correlation);
+    throw new ApiError('INVALID_RESPONSE', correlation);
   }
 }
 

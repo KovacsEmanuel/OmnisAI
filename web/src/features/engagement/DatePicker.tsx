@@ -5,6 +5,7 @@ import type { Draft } from '../../shared/api/drafts';
 import type { FieldError } from '../../shared/api/errors';
 import { Field, fieldId } from './WizardFields';
 import styles from './DatePicker.module.css';
+import { observeControl } from '../../shared/uiDiagnostics';
 
 const dayLabel = (date: Date) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(date);
 const dayKey = (date: Date) => date.toISOString().slice(0, 10);
@@ -96,7 +97,7 @@ export function DatePicker({ path, label, value, endOfDay, errors, onChange }: {
           <td key={column}>{date && <button type="button" aria-pressed={dayKey(date) === selected}
             ref={dayKey(date) === dayKey(cursor) ? focused : undefined} tabIndex={dayKey(date) === dayKey(cursor) ? 0 : -1}
             aria-label={dayLabel(date)} aria-current={dayKey(date) === today ? 'date' : undefined} onKeyDown={keys}
-            onClick={() => { onChange(`${dayKey(date)}T${clock}Z`); close(); }}>{date.getUTCDate()}</button>}</td>)}</tr>)}</tbody>
+            onClick={() => { observeControl('calendar_choice'); onChange(`${dayKey(date)}T${clock}Z`); close(); }}>{date.getUTCDate()}</button>}</td>)}</tr>)}</tbody>
       </table>
       <p className={styles.hint}>UTC · new dates use {endOfDay ? '23:59:59 (end of day)' : '00:00:00 (start of day)'}. Existing times are preserved.</p>
       <label className={styles.time} htmlFor={`${dialogId}-time`}>Time (UTC)

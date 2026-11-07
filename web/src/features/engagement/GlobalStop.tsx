@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { observeControl } from '../../shared/uiDiagnostics';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router';
 import { api } from '../../shared/api/client';
@@ -82,6 +83,7 @@ export function RunStop({ run, label = 'Stop run', global }: { run: RunView | nu
     busy.current.add(target.command); setSending(current => [...current, target.command]);
     const signal = lifetime.current.signal;
     try {
+      observeControl(send ? 'stop_request' : 'stop_receipt_lookup', { run_id: target.run, command_id: target.command });
       if (send) setMessage(`Stop pending · run ${target.run} · command ${target.command}`);
       const receipt = await readPrivate(send ?? (() => api.runCommandReceipt(target.command, signal)), signal);
       let cleared = false;

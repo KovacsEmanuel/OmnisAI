@@ -10,6 +10,7 @@ import { BrowserSessionProvider, useSession } from '../features/bootstrap/Browse
 import { copy } from '../features/bootstrap/copy';
 import styles from './Shell.module.css';
 import { ThemeToggle } from './ThemeToggle';
+import { diagnosticSurface, observeControl } from '../shared/uiDiagnostics';
 
 function Shell() {
   const location = useLocation();
@@ -20,6 +21,7 @@ function Shell() {
     // Initial entry starts at the native tab order; client navigation resets scroll/focus.
     if (previousPath.current === location.pathname) return;
     previousPath.current = location.pathname;
+    observeControl('navigation', {}, diagnosticSurface(location.pathname));
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     main.current?.focus({ preventScroll: true });
   }, [location.pathname]);

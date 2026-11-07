@@ -3,6 +3,7 @@ import { CancelledError, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../shared/api/client';
 import { ApiError } from '../../shared/api/errors';
 import { copy } from './copy';
+import { captureObservation, reportTypedError } from '../../shared/uiDiagnostics';
 
 type Transition = 'idle' | 'pairing' | 'logout';
 
@@ -133,6 +134,7 @@ export function useBrowserSession() {
     } catch (error) {
       if (cancelled()) throw new CancelledError({ silent: true });
       if (error instanceof ApiError && error.code === 'UNAUTHENTICATED') expire();
+      if (error instanceof ApiError) reportTypedError(captureObservation(), error.code, error.correlation);
       throw error;
     }
   }

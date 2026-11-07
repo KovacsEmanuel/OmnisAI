@@ -32,7 +32,7 @@ export async function runB03({ page, check, paired, fault, output, origin, scree
     return result;
   });
   const mutationRequests = [];
-  page.on('request', request => { if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method()) && request.url().includes('/api/v1/')) mutationRequests.push(request.url()); });
+  page.on('request', request => { if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method()) && request.url().includes('/api/v1/') && !(request.method() === 'POST' && request.url() === `${origin}/api/v1/diagnostics/ui-events`)) mutationRequests.push(request.url()); });
   await page.reload();
   await check(page.getByRole('heading', { name: 'Recent engagements' })).toBeVisible();
   const summary = await page.evaluate(async () => (await fetch('/api/v1/dashboard')).json());

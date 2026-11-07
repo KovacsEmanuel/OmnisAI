@@ -13,6 +13,7 @@ import { Field, errorText, fieldId, focusField } from './WizardFields';
 import { ApplicationStep, RulesStep, ReviewStep } from './WizardSections';
 import { DatePicker } from './DatePicker';
 import styles from './Wizard.module.css';
+import { observeControl } from '../../shared/uiDiagnostics';
 
 const DEFAULT_OBJECTIVE = 'Assess the authorized Web/API surface within the selected profile.';
 const steps = ['Target & permission', 'Application context', 'Identities', 'Rules & budgets', 'Review & preflight'];
@@ -238,6 +239,7 @@ export function Wizard({ id }: { id?: string }) {
             <Field path="authorization.statement" label="Authorization statement" errors={errors}>{props => <textarea {...props} value={form.authorization.statement} onChange={event => change({ ...form, authorization: { ...form.authorization, statement: event.target.value } }, 'authorization.statement')} />}</Field>
             <label className={styles.validity}><input type="checkbox" checked={form.authorization.valid_from !== null || form.authorization.valid_until !== null}
               onChange={event => {
+                observeControl('period_toggle');
                 change({ ...form, authorization: { ...form.authorization, valid_from: event.target.checked ? '' : null, valid_until: event.target.checked ? '' : null } });
                 setErrors(current => current.filter(error => !['authorization.valid_from', 'authorization.valid_until'].includes(error.field)));
               }} />Limit to a period</label>

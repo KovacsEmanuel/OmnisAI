@@ -38,6 +38,24 @@ const requests = [];
 const consoleMessages = [];
 const pageErrors = [];
 const external = [];
+const diagnosticPath = '/api/v1/diagnostics/ui-events';
+const diagnosticContract = JSON.parse(await readFile(new URL('../../../contracts/omnis.openapi.json', import.meta.url), 'utf8')).components.schemas;
+const diagnosticEvents = new Map(), diagnosticReceipts = [], diagnosticTasks = [], diagnosticErrors = [];
+let negativeDiagnostic = null, diagnosticProbeCorrelation = null;
+function diagnosticPost(request) { return request.method() === 'POST' && request.url() === `${origin}${diagnosticPath}`; }
+function diagnosticBody(value) {
+  assert.ok(value && typeof value === 'object' && !Array.isArray(value));
+  const schema = diagnosticContract.UiEvent;
+  assert.deepEqual(Object.keys(value).sort(), [...schema.required].sort());
+  assert.equal(value.version, 1); assert.equal(value.source, 'browser_untrusted');
+  for (const key of ['site', 'surface', 'action', 'outcome']) assert.ok(schema.properties[key].enum.includes(value[key]));
+  for (const key of ['event_id', 'run_id', 'command_id', 'correlation_id']) {
+    if (key !== 'event_id' && value[key] === null) continue;
+    assert.equal(typeof value[key], 'string'); assert.match(value[key], new RegExp(schema.properties.event_id.pattern));
+  }
+  assert.ok(value.error_code === null || [...diagnosticContract.ErrorCode.enum, 'API_UNAVAILABLE', 'INVALID_RESPONSE'].includes(value.error_code));
+  assert.ok(Buffer.byteLength(JSON.stringify(value)) <= 4096);
+}
 const faultPath = fileURLToPath(new URL('../../../api/tests/web_fault.py', import.meta.url));
 
 async function control(command) {
@@ -89,6 +107,32 @@ await context.route('**/*', async route => {
   else await route.continue();
 });
 context.on('request', request => requests.push(request.url()));
+context.on('request', request => {
+  if (!diagnosticPost(request)) return;
+  const value = request.postDataJSON();
+  if (negativeDiagnostic && value.event_id === negativeDiagnostic.id) {
+    assert.equal(value.message, negativeDiagnostic.secret);
+    const { message, ...metadata } = value; diagnosticBody(metadata);
+  } else { diagnosticBody(value); diagnosticEvents.set(value.event_id, value); }
+});
+context.on('response', response => {
+  if (!diagnosticPost(response.request())) return;
+  diagnosticTasks.push((async () => {
+    const value = response.request().postDataJSON();
+    if (negativeDiagnostic && value.event_id === negativeDiagnostic.id) { assert.equal(response.status(), 422); return; }
+    const correlation = response.headers()['x-correlation-id'];
+    assert.match(correlation ?? '', new RegExp(diagnosticContract.UiEvent.properties.event_id.pattern));
+    if (response.status() !== 202) {
+      assert.ok([401, 403, 503].includes(response.status()));
+      diagnosticReceipts.push({ event: value, request_correlation_id: correlation, state: 'HTTP_REFUSED' }); return;
+    }
+    const ack = await response.json();
+    assert.deepEqual(Object.keys(ack).sort(), ['accepted', 'event_id', 'state', 'version']);
+    assert.equal(ack.version, 1); assert.equal(ack.accepted, true); assert.equal(ack.event_id, value.event_id);
+    assert.ok(diagnosticContract.UiAck.properties.state.enum.includes(ack.state));
+    diagnosticReceipts.push({ event: value, request_correlation_id: correlation, state: ack.state });
+  })().catch(() => { diagnosticErrors.push('INVALID_DIAGNOSTIC_ACK'); }));
+});
 context.on('page', opened => {
   opened.on('console', message => consoleMessages.push(message.text()));
   opened.on('pageerror', error => pageErrors.push(error.message));
@@ -115,6 +159,21 @@ async function paired() {
   remember(cookie.value);
   const view = await page.evaluate(async () => (await fetch('/api/session')).json());
   remember(view.csrf_token);
+  if (scenario === 'b04' && process.env.OMNIS_E2E_STAGE === 'before' && !diagnosticProbeCorrelation) {
+    const missing = randomUUID();
+    const failed = page.waitForResponse(response => response.request().method() === 'GET' && response.url() === `${origin}/api/v1/engagements/${missing}`);
+    await page.goto(`${origin}/engagements/${missing}/overview`);
+    const unavailable = await failed; assert.equal(unavailable.status(), 404);
+    diagnosticProbeCorrelation = unavailable.headers()['x-correlation-id'];
+    await check.poll(() => diagnosticReceipts.some(item => item.state === 'RECORDED' && item.event.action === 'ERROR' && item.event.correlation_id === diagnosticProbeCorrelation)).toBe(true);
+    const seed = diagnosticReceipts.find(item => item.state === 'RECORDED' && item.event.correlation_id === diagnosticProbeCorrelation).event;
+    negativeDiagnostic = { id: randomUUID(), secret: randomBytes(24).toString('base64url') };
+    remember(negativeDiagnostic.secret);
+    const rejected = await page.evaluate(async ({ body, csrf }) => (await fetch('/api/v1/diagnostics/ui-events', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf }, body: JSON.stringify(body),
+    })).status, { body: { ...seed, event_id: negativeDiagnostic.id, message: negativeDiagnostic.secret }, csrf: view.csrf_token });
+    assert.equal(rejected, 422);
+  }
   return grant;
 }
 
@@ -336,6 +395,11 @@ try {
     await writeFile(join(output, 'contrast.json'), JSON.stringify(contrast, null, 2));
   } else throw new Error('Unknown E2E case');
   await secretChecks();
+  await Promise.all(diagnosticTasks);
+  assert.deepEqual(diagnosticErrors, []);
+  if (scenario === 'b04') await writeFile(join(output, `ui-diagnostics-${process.env.OMNIS_E2E_STAGE}.json`), JSON.stringify({
+    receipts: diagnosticReceipts, probe_correlation: diagnosticProbeCorrelation, complete: false,
+  }));
   await writeFile(join(output, 'browser-result.json'), JSON.stringify({ scenario, passed: scenario === 'settings-cancel-probe' ? null : true, browser: browser.version(),
     ...(scenario === 'b04' ? { stage: process.env.OMNIS_E2E_STAGE } : {}),
     ...(catalogEvidence ? { catalog: catalogEvidence } : {}),

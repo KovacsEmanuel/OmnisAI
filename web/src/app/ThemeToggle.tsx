@@ -1,5 +1,6 @@
 import { useLayoutEffect, useState } from 'react';
 import styles from './ThemeToggle.module.css';
+import { observeControl } from '../shared/uiDiagnostics';
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -8,6 +9,7 @@ export function ThemeToggle() {
   });
   useLayoutEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
   function toggle() {
+    observeControl('theme_toggle');
     const next = theme === 'dark' ? 'light' : 'dark';
     setTheme(next);
     try { localStorage.setItem('omnis-theme', next); }

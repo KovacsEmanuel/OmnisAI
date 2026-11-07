@@ -472,6 +472,7 @@ def test_built_web_against_real_control_plane(
     first_driver: subprocess.Popen[str] | None = None
     restart_listener: socket.socket | None = None
     prior_output = ""
+    diagnostic_api_logs: dict[int, str] = {}
     output = Path(os.environ["TMPDIR"]) / "omnis-p03-e2e" / case
     output.mkdir(parents=True, exist_ok=True)
     (output / "result.json").unlink(missing_ok=True)
@@ -553,7 +554,9 @@ def test_built_web_against_real_control_plane(
             assert restart_listener is not None
             first_api, first_driver = api, driver
             first_api.terminate()
-            prior_output += "".join(first_api.communicate(timeout=5))
+            first_stdout, first_stderr = first_api.communicate(timeout=5)
+            diagnostic_api_logs[first_api.pid] = first_stderr
+            prior_output += first_stdout + first_stderr
             assert first_api.returncode == -signal.SIGTERM, "Old API did not exit for restart"
             api = launch_api(restart_listener, migrated_database_url, ipc_directory)
             assert api.pid != first_api.pid, "Restart must use a new backend process"
@@ -580,6 +583,9 @@ def test_built_web_against_real_control_plane(
         outputs: list[tuple[str, str]] = []
         try:
             outputs = cleanup_all(resources, ownership=e2e_family)
+            for (process, _), (_, captured_stderr) in zip(resources, outputs, strict=True):
+                if process is api or process is first_api:
+                    diagnostic_api_logs[process.pid] = captured_stderr
         except Exception as exc:
             cleanup_issues.append(exc)
         try:
@@ -630,6 +636,31 @@ def test_built_web_against_real_control_plane(
             if case == "b04":
                 assert record["stage"] == "after" and first_api is not None and api is not None
                 record["backend_restart_verified"] = first_api.pid != api.pid
+                from omnis.modules.diagnostics.reader import read_records
+
+                observed_captures: set[str] = set()
+                for stage, owned_api in (("before", first_api), ("after", api)):
+                    retained = read_records(diagnostic_api_logs[owned_api.pid].encode("utf-8"))
+                    expected: object = json.loads((output / f"ui-diagnostics-{stage}.json").read_text())
+                    assert isinstance(expected, dict) and isinstance(expected.get("receipts"), list)
+                    recorded = []
+                    for item in expected["receipts"]:
+                        assert isinstance(item, dict)
+                        if item.get("state") != "RECORDED":
+                            continue
+                        matches = [entry for entry in retained if entry.event.model_dump(mode="json") == item.get("event")]
+                        assert len(matches) == 1, "Accepted browser observation missing or duplicated in owned API stderr"
+                        assert matches[0].request_correlation_id == item.get("request_correlation_id")
+                        recorded.append(matches[0])
+                    assert recorded, "No recorded browser observation in this API generation"
+                    captures = {entry.capture_id for entry in recorded}
+                    assert len(captures) == 1 and not observed_captures.intersection(captures)
+                    observed_captures.update(captures)
+                    if stage == "before":
+                        assert any(entry.event.correlation_id == expected.get("probe_correlation") and entry.event.action == "ERROR" for entry in recorded)
+                    assert_secret_free(markers, [entry.model_dump_json() for entry in retained])
+                record["ui_diagnostic_sink_reader_verified"] = True
+                record["ui_diagnostic_complete_history"] = False
             if catalog is not None:
                 assert_secret_free(markers, [(output / "catalog-network.json").read_text()])
                 record["catalog_ledger_tables"] = list(CATALOG_TABLES)

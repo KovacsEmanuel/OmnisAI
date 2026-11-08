@@ -24,7 +24,7 @@ it('orders Overview now, Needs you, metrics, context and exact usage without inv
   const metrics = screen.getByLabelText('Target assessment metrics');
   const context = screen.getByRole('region', { name: 'Engagement scope' });
 
-  for (const [before, after] of [[context, now], [now, needs], [needs, metrics], [metrics, accounting]] as const) expect(before.compareDocumentPosition(after) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  for (const [before, after] of [[now, needs], [needs, metrics], [metrics, context], [context, accounting]] as const) expect(before.compareDocumentPosition(after) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(metrics.querySelectorAll('section')).toHaveLength(5);
   expect(now).not.toHaveTextContent(/owner|fence|generation|revision/);
   expect(metrics.textContent).not.toContain('0');

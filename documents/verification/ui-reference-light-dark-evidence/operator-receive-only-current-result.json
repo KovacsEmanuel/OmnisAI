@@ -1,0 +1,47 @@
+{
+  "product": "455990a4a7ab43fe7f7d49d40c9eef4bba069f46",
+  "instance": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+  "generation": 61,
+  "epoch": 34,
+  "transport": "Existing operator-paired Chrome normal same-origin GET then native Save response, no cookies/CSRF/session exports or direct database queries",
+  "baseline": "/home/kali/.local/share/omnis-ui-artifacts/design-light-dark-20261106/layout-live/before.json",
+  "readback": {
+    "run": {
+      "equal": true,
+      "baseline_sha256": "23c87cfab98206d98af7e2243b472a73f83293dca9afed6b5d7c151d8696952f",
+      "current_sha256": "23c87cfab98206d98af7e2243b472a73f83293dca9afed6b5d7c151d8696952f"
+    },
+    "summary": {
+      "equal": true,
+      "baseline_sha256": "cde84aa1dc75581e30d7d7ca794153281b1633b10e7c727d334c798d58db7c95",
+      "current_sha256": "cde84aa1dc75581e30d7d7ca794153281b1633b10e7c727d334c798d58db7c95"
+    },
+    "worker": {
+      "equal": true,
+      "baseline_sha256": "565d4980af8fc516813ac0381f96024b540a757fc08ef0c08756843ee71507c3",
+      "current_sha256": "565d4980af8fc516813ac0381f96024b540a757fc08ef0c08756843ee71507c3"
+    },
+    "brain": {
+      "equal": true,
+      "baseline_sha256": "7929f65aaa364f65511153d0014c9b8c7d4bd4f54a3fda224b515eb1e1a15255",
+      "current_sha256": "7929f65aaa364f65511153d0014c9b8c7d4bd4f54a3fda224b515eb1e1a15255"
+    },
+    "selection": {
+      "equal": true,
+      "baseline_sha256": "f822278075ffad49046688587b64835b4b9416b7748cf19b3b9535cf6ab9b326",
+      "current_sha256": "f822278075ffad49046688587b64835b4b9416b7748cf19b3b9535cf6ab9b326"
+    }
+  },
+  "excluded_only": [
+    "summary.as_of",
+    "worker.as_of",
+    "brain.as_of"
+  ],
+  "canonical_serialization": "UTF8 ensure_ascii=false sortedkeys compact separators, arrays/values otherwise unchanged; original native JSON responses retained separately",
+  "run_state": "LIMITED",
+  "run_revision": 6,
+  "old_run_dispatches": 5,
+  "selection_revision": 6,
+  "no_reexecution_scope": "Same original run/usage/worker/Brain/ref receipts/selection remain byte-equal after normalrestart. Not a universal egress or global dispatch audit; syntheticPGtest11dispatch distinct from operator5.",
+  "phase_limit": "Verified READY61 while investigating failed canonical postlude; not finalcanonical/CIacceptance. Same build, further canonical rebuild requires normalStop first."
+}

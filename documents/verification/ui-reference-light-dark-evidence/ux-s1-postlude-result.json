@@ -1,0 +1,102 @@
+{
+  "status": "OBSERVATION_ONLY_CYCLE2_FROZEN_PENDING_PARENT_REVIEW",
+  "writer_stopped": true,
+  "native_cause": "UNKNOWN",
+  "native_path": "NOT_RUN_BY_DEVELOPER",
+  "baseHEAD": "7a232e2f000e02535c8e141007568da7d1d563a2",
+  "head_at_freeze": "7a232e2f000e02535c8e141007568da7d1d563a2",
+  "branch": "checkpoint/ux-d-pause-20261107",
+  "retained_failure": {
+    "source": "canonical-7a232e2f-fail-result.json",
+    "summary": "Canonical outer2/inner2/familydrained/2478inputs identical; exact runtime/network/socket absent, PGDATA retained. S1 failed126.94s at driver.communicate(timeout=120), not the previous keyboard focus assertion.",
+    "body_boundary": "Retained record and all inspector1440/390/320 plus injected503 frames locate progress through runS1's body secretChecks and record write. This does not establish completion of global secretChecks, diagnostic join, result write or cleanup.",
+    "normalizer": "test_web_e2e.py appends stdout/stderr only after communicate succeeds. TimeoutExpired bypasses that append; empty settings-browser.log is not evidence of no first error.",
+    "fixture_limit": "Current private synthetic S1 record is not operator run history. No raw gate/fixture credentials, key/vault/password/env or PG tracebacks read/copied/printed."
+  },
+  "read_only_analysis_and_preflight": {
+    "producer_path": "runS1 awaits body secretChecks, writes s1-run-record.json then returns; caller awaits global secretChecks, Promise.all(diagnosticTasks), asserts diagnosticErrors empty, writes browser-result.json, logs success, finally awaits context.close then browser.close. Python receives streams after process exit, before census/restart.",
+    "ACK_path": "Response observer pushes an async task, validates request/correlation/status, awaits response.json for202, validates exact ACK and pushes receipt; rejection is normalized to INVALID_DIAGNOSTIC_ACK. No observer-local settlement bound exists. This is a hypothesis for native blocking, not an established native cause.",
+    "exact_source_controls": "Node executed the actual source join line and actual original finally source: resolved join completes; held promise keeps join pending until released; rejected join preserves error identity; first body error waits behind held context close; throwing cleanup can mask the earlier error under original JS semantics.",
+    "preflight_exit": 0,
+    "preflight_log": "ux-s1-postlude-preflight.log",
+    "decision": "No causal product bug demonstrated. Do not change product, ACK semantics, waits or normalization from guess. Add only admitted finite S1 postlude observation."
+  },
+  "change": {
+    "only_repo_path": "web/tests/e2e/run.mjs",
+    "producer": "S1-only local observePostlude writes fixed s1-postlude.json synchronously before each awaited boundary and after successful completion. Payload checked <=1024 bytes before write; new file mode0600. No stdout dependence, new API logger/owner, global instrumentation or harness framework.",
+    "phases": ["SCENARIO_ENTER", "SCENARIO_DONE", "SECRETS_ENTER", "SECRETS_DONE", "DIAGNOSTICS_ENTER", "DIAGNOSTICS_DONE", "RESULT_ENTER", "RESULT_DONE", "CONTEXT_CLOSE_ENTER", "CONTEXT_CLOSE_DONE", "BROWSER_CLOSE_ENTER", "BROWSER_CLOSE_DONE", "FAILURE"],
+    "schema": {
+      "version": 1,
+      "stage": ["BEFORE", "AFTER", "UNKNOWN"],
+      "phase": "one finite phase enum",
+      "firstFailure": "null or {phase: previous finite phase including NOT_ENTERED, kind: ASSERTION|ERROR|NON_ERROR}",
+      "tasks": "diagnosticTasks.length count",
+      "receipts": "diagnosticReceipts.length count",
+      "errors": "diagnosticErrors.length count",
+      "writeFailed": "boolean, retained after any previous failed/oversized observer write"
+    },
+    "error_handling": "Main catch records first finite class before finally and rethrows the exact same error. Async cleanup rejection callbacks record without replacing earlier firstFailure and rethrow that same cleanup error. Original cleanup ordering, release behavior and existing cleanup-error masking semantics are preserved, not repaired or hidden.",
+    "observer_failure": "Write errors only set a boolean and return. They neither replace first error nor skip/release cleanup. Later successful writes expose writeFailed=true; if all writes fail, no signal is available.",
+    "privacy": "Only fixed phase/stage enums, booleans and counts; no DOM/forms/prompts/URLs/request bodies/headers/cookies/session/code/key/stack/raw error. Error class uses instanceof only, not message/code/stack.",
+    "unchanged": "All original statements/assertions and await ordering restore byte-exact after removing observation import/producer/hooks and catch-only callbacks/wrapper. No secret/ACK/census/receive-only oracle or S1 body edit.120s/2min driver,15000 check,300s product and runner/selection limits untouched."
+  },
+  "control_proof": {
+    "script": "/home/kali/.hermes/cache/scratch/ux-s1-postlude-4jxhdtl1/selfcheck.mjs",
+    "script_sha256": "217e3ead72e14a7d18a35284c944e4bcbd0ca79c114426bfb543926061a84b1a",
+    "method": "Extract actual new producer, actual scenario call hooks and actual postlude/catch/finally source; execute with Node and controlled promises/close bindings. Observer uses real writeFileSync and files in owned scratch. Result-write is a held/success await binding and emits no fabricated browser-result. No browser/PG/HTTP response execution or invented live response evidence.",
+    "held_controls": "Each of SCENARIO, SECRETS, DIAGNOSTICS, RESULT, CONTEXT_CLOSE, BROWSER_CLOSE independently held: file already records matching ENTER with firstFailure=null before release; release reaches BROWSER_CLOSE_DONE.",
+    "error_finally": "Real AssertionError before cleanup plus held context close retains firstFailure {SECRETS_ENTER,ASSERTION} on disk before close releases. After release, caught object is strictly identical to original; browser cleanup ran.",
+    "cleanup_error": "With prior AssertionError and rejected context close, original cleanup-error propagation remains; firstFailure still references initial phase/class, browser close remains skipped exactly as baseline. No unsupported new primary-error precedence claim.",
+    "failed_write": "Real ENOENT output path: first error identity and both cleanup calls preserved. First write failure followed by real directory creation/recovery produces writeFailed=true; AFTER stage encoded as finite enum.",
+    "negative_scope": "Non-S1 invocation writes no observer file. No browser-result file emitted by held calibration controls. Every inspected snapshot validates exact keys/types and<=1024 bytes.",
+    "observed_max_final_snapshot_bytes": 173,
+    "byte_restoration": "Removing only the observation import/producer/call hooks and catch-only wrapper/callbacks gives exact git-show base source. This asserts original ACK/secret/body/cleanup statements are unchanged, not native correctness.",
+    "retention": "Selfcheck source is in owned scratch cache and may be pruned; final calibration log and hashes are retained in admitted evidence root."
+  },
+  "checks": [
+    { "command": "Exact-source Node join/finally preflight, no browser/PG", "exit": 0, "log": "ux-s1-postlude-preflight.log" },
+    { "command": "node /home/kali/.hermes/cache/scratch/ux-s1-postlude-4jxhdtl1/selfcheck.mjs", "exit": 0, "log": "ux-s1-postlude-calibration-final.log" },
+    { "command": "node --check web/tests/e2e/run.mjs", "exit": 0, "log": "ux-s1-postlude-syntax-final.log" },
+    { "command": "npm --prefix web run lint", "exit": 0, "log": "ux-s1-postlude-lint-final.log" },
+    { "command": "git diff --check; exact tracked/staged scope and base..HEAD check; SHA256 source/diff/selfcheck; compare S1 body and Python owner with base", "exit": 0, "result": "Only run.mjs modified, no staged files, preserved body/normalizer bytes" }
+  ],
+  "retained_initial_check": "Initial calibration and syntax passed; lint exit1 flagged no-unsafe-finally on an explicit cleanup catch rethrow. Replaced that observational catch with rejection callbacks preserving same error identity, without a lint suppression. Recalibrated actual final source and reran syntax/lint: all0. Initial logs/checks preserved.",
+  "checks_files": ["ux-s1-postlude-checks.json", "ux-s1-postlude-checks-final.json"],
+  "freeze": {
+    "path": "web/tests/e2e/run.mjs",
+    "before_sha256": "42ef405614211544796aa5c0406f6637aca565468a39e924e2150e9eabe5f8ce",
+    "after_sha256": "583adc2427cac0b74db8584a47572c79ecd03e740329858d164f76b30a99735a",
+    "diff_sha256": "09f842b7b6a7a9edc550bf4aeaabb7f82d73a8083e1d4fccd5021bef63f30d5a",
+    "preserved_sha256": {
+      "web/tests/e2e/s1-run.mjs": "b612d58d3531d3547f56fc4dcc6d5429a8401d4ae40593f4b4fc88c58262f5cd",
+      "api/tests/test_web_e2e.py": "0ae5fc2215888d51c3e9d345e22a43b6b623d425b48d927badd91444c9c32a33"
+    }
+  },
+  "positive_and_negative_observables": {
+    "DONE": "With a valid fresh-stage snapshot and no write-failure indication, DONE establishes that awaited boundary returned before the successful marker write. SCENARIO_DONE distinguishes actual scenario return from body record alone.",
+    "ENTER_without_DONE": "Locates the last successfully recorded boundary; compatible with a held await or later observation I/O failure, not automatically proof of native root cause. Counts are observations, not authoritative ACK success or a complete settled-task census.",
+    "firstFailure_nonnull": "At least one intercepted main/async-cleanup failure occurred. Stored phase/class remains through subsequent cleanup markers; no raw error identity/message is serialized.",
+    "diagnostics_enter": "If retained here, narrow to existing diagnostic-task settlement and actual response/body path; do not discard join, treat202 as ACK, retry or extend120 from this signal alone.",
+    "close_enter_with_first_failure": "Separates an earlier failure delayed by cleanup from a normal postlude stall. Preserve the first-error finding; do not label it another focus bug without matching phase/evidence.",
+    "browser_close_done": "These awaited boundaries completed; if process still does not exit, narrow to existing process/handle exit boundary, not another nested observer layer.",
+    "missing_invalid_stale": "UNAVAILABLE, not evidence of no error/no execution/PASS. Snapshot is last successful non-atomic local write; no power-loss durability or universal I/O deadline claim. BEFORE/AFTER must be checked because same fixed file is reused by sequential stages.",
+    "conditional_remedy": "No product/ACK/normalizer remedy admitted now. A fresh phase must establish the failing boundary, then a causal reproducer must support a minimal settlement/first-error repair under existing limits. If signal remains unavailable, narrow/report BLOCKED."
+  },
+  "harness_only_cycles": {
+    "acceptance_row": "Same S1 acceptance row",
+    "before": 1,
+    "this_observation_only_cycle": 2,
+    "current": 2,
+    "history": "Cycle1 led to genuine explicit-reactivation product fix; it is not reset. Current late postlude timeout differs from historical390 receiver-unknown failure.",
+    "rule": "No third observer layer or canonical debug loop. If this signal cannot support progress, report BLOCKED/narrow proof boundary."
+  },
+  "limits_and_effects": {
+    "parent_gates": "Independent review then one informative fresh existing unchanged-limit S1 only if parent admits it. Native causal acceptance, cleanup/integration/canonical remain parent-owned.",
+    "not_rerun": "No full673/build/API/migration/Models/StopRead/canonical rerun; unchanged app TS/CSS. Existing completed evidence is retained, not promoted to canonical PASS.",
+    "history": "Targeted real S1 after product fix PASS46.56s remains prior scoped evidence. Original390 exclusive cause UNKNOWN. New timeout not retroactively attributed to focus.",
+    "forbidden_effects": "No Git writes, services/PG/browser/provider/target actions, installs or agents; no product/API/CSS/Models/test selection edits. AppSTOPPED60 not changed by developer. Protected tempkey.txt, documents/Omnis_Notite_Originale.html, .env/keys/vault/raw operator logs/Strix excluded all reads/hashes.",
+    "written": "Only admitted run.mjs plus new ux-s1-postlude logs/checks/result in private artifact root and owned scratch selfcheck/calibration files. Original failure evidence untouched.",
+    "S2": "NOT_STARTED_OR_PREPARED"
+  },
+  "next": "Parent verifies exact driver hash/diff and reviews observation-only candidate, then decides one fresh unchanged-limit S1 admission. Preserve s1-postlude.json directly from owned output even if Python stdout/stderr remain empty. Writer stopped at freeze."
+}

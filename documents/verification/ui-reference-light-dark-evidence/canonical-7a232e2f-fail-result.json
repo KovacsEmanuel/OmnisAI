@@ -1,0 +1,51 @@
+{
+  "head": "7a232e2f000e02535c8e141007568da7d1d563a2",
+  "command": "make check UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+  "outer_exit": 2,
+  "inner": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "inputs": 2478,
+  "input_drift": [],
+  "completed": {
+    "documentation": "87OK1.588s",
+    "development": "75OK11.764s",
+    "API": "3726PASS75SKIP7deselected3345.73s",
+    "migrations": "23PASS68.44s",
+    "web": "673PASS",
+    "Models_UI": "1PASS117.13s",
+    "Stop_read_UI": "1PASS93.12s"
+  },
+  "failure": {
+    "test": "api/tests/test_run_runtime_pg.py::test_run_api_pg_three_causal_tasks_and_receive_only_replay[True]",
+    "test_duration_seconds": 126.94,
+    "primary": "subprocess.TimeoutExpired",
+    "caller": "test_web_e2e.py:372 driver.communicate(timeout=120)",
+    "driver_timeout_seconds": 120,
+    "driver_timeout_minutes": 2,
+    "s1_record_written": true,
+    "all_inspector_viewport_frames_retained": true,
+    "first_error_focus_marker": false,
+    "browser_result_json": false,
+    "captured_browser_log_bytes": 0,
+    "cause": "UNKNOWN: last retained S1 body/secretChecks+record completed; global secretChecks/diagnostic ACK join/error unwind/cleanup not discriminated",
+    "record_to_receipt_seconds": 92.86114740371704
+  },
+  "not_reached_or_not_verified": [
+    "S1 global completion/census/backendrestart",
+    "full10E2E",
+    "CLI source/wheel/live",
+    "release",
+    "canonicalPASS"
+  ],
+  "container": "deb2ccfc6e2adf0b4224e93070b76dc72feb9971939ec8e6d9a3e7edbbe4e8d2",
+  "project": "omnis-p01-5047a4e17a4e4433a500a93bc363cdff",
+  "runtime_absent": true,
+  "PGDATA_retained": true,
+  "retention_root": "/home/kali/.hermes/cache/scratch/uc-j4vyf1f9/db-67b2aca1e8be4dc2",
+  "private_S1_artifact_count": 10,
+  "harness_only_cycles": 1,
+  "next": "Read-only causal discrimination; if needed bounded finite producer postlude observation before normalizer, reviewed/calibrated before one unchanged-limit S1. Do not extend120 or repeatcanonicalforluck"
+}

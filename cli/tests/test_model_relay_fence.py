@@ -260,6 +260,12 @@ class PhysicalFenceTest(unittest.IsolatedAsyncioTestCase):
                     self.assertFalse(connects)
                     release.set()
                     self.assertEqual((await opening)["status"], "DENIED")
+                    # A cancelled OPEN receipt is not the resolver worker's exit.
+                    for _ in range(100):
+                        if not listener.resolver_alive:
+                            break
+                        await asyncio.sleep(0.005)
+                    self.assertFalse(listener.resolver_alive)
                     self.assertEqual((await rpc("DRAIN"))["status"], "OK")
                     self.assertFalse(connects)
             finally:

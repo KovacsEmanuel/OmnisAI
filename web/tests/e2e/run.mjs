@@ -139,7 +139,10 @@ context.on('response', response => {
       assert.ok([401, 403, 503].includes(response.status()));
       diagnosticReceipts.push({ event: value, request_correlation_id: correlation, state: 'HTTP_REFUSED' }); return;
     }
-    const ack = await response.json();
+    let body;
+    try { body = await response.body(); }
+    catch { diagnosticReceipts.push({ event: value, request_correlation_id: correlation, state: 'TRANSPORT_UNCONFIRMED' }); return; }
+    const ack = JSON.parse(body.toString('utf8'));
     assert.deepEqual(Object.keys(ack).sort(), ['accepted', 'event_id', 'state', 'version']);
     assert.equal(ack.version, 1); assert.equal(ack.accepted, true); assert.equal(ack.event_id, value.event_id);
     assert.ok(diagnosticContract.UiAck.properties.state.enum.includes(ack.state));

@@ -1,0 +1,41 @@
+{
+  "head": "9f4fc0dc71aea493bd2a5826b0e7c66078cd3c63",
+  "scope": "SCOPED_REMAINING_REQUIRED_CONSUMERS_NOT_CANONICAL",
+  "outer_exit": 2,
+  "inner": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "completed": [
+    "Models UI1PASS128.91s",
+    "remove UI1PASS96.37s"
+  ],
+  "failed": "S1 UI1FAIL37.45s at run.mjs423 diagnosticErrors empty assertion",
+  "finite_postlude": {
+    "version": 1,
+    "stage": "BEFORE",
+    "phase": "BROWSER_CLOSE_DONE",
+    "firstFailure": {
+      "phase": "DIAGNOSTICS_DONE",
+      "kind": "ASSERTION"
+    },
+    "tasks": 36,
+    "receipts": 35,
+    "errors": 1,
+    "writeFailed": false
+  },
+  "NOT_REACHED": [
+    "S1 AFTER/APIrestart",
+    "full10E2E",
+    "CLI",
+    "release"
+  ],
+  "input_drift": [],
+  "exact_runtime_absent": true,
+  "PGDATA_retained": true,
+  "retention_root": "/home/kali/.hermes/cache/scratch/ur-uuslnymb/db-d642b7db0f6e4d0e",
+  "cause": "INVALID_DIAGNOSTIC_ACK hides original cause; DIAGNOSTICS_DONE with36tasks/35receipts/1error; no120stimeout or focus failure in this invocation. Actual failed ACK subtype UNKNOWN",
+  "counter": 2,
+  "next": "No new observer/full replay. Narrow source consumer versus intentional750ms diagnostic abort with one deterministic original-callback native control; same developer; fix only demonstrated oracle mismatch, retain strict delivered ACK and original UNKNOWN"
+}

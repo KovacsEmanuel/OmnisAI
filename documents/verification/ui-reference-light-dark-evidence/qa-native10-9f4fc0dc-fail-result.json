@@ -1,0 +1,126 @@
+{
+  "head": "9f4fc0dc71aea493bd2a5826b0e7c66078cd3c63",
+  "scope": "SCOPED_FULL10_NATIVE_E2E_BODY_NOT_DEPENDENCY_GATE_OR_CANONICAL",
+  "actual_argv": [
+    "env",
+    "-u",
+    "PYTHONPATH",
+    "-u",
+    "MYPYPATH",
+    "-u",
+    "PYTEST_ADDOPTS",
+    "-u",
+    "PYTEST_PLUGINS",
+    "api/.venv/bin/python",
+    "-I",
+    "-m",
+    "pytest",
+    "api/tests/test_web_e2e.py",
+    "-q",
+    "-s"
+  ],
+  "outer_exit": 1,
+  "inner": {
+    "schema_version": 1,
+    "code": 1,
+    "family_drained": true
+  },
+  "summary": "1failed,9passed in237.11s",
+  "failed_case": "test_built_web_against_real_control_plane[b03]",
+  "failure": "driver.communicate120s timed out; no final browser-result/result; twelve named body screenshots retained; exact postlude/firsterror unavailable fornon-S1. CauseUNKNOWN, not ascribed to acknowledged validator gap",
+  "passed_cases": {
+    "accessibility": {
+      "passed": true,
+      "secretChecks": true,
+      "cleanup_verified": true,
+      "server_log_secret_check": true,
+      "externalRequests": 0,
+      "pageErrors": 0
+    },
+    "api": {
+      "passed": true,
+      "secretChecks": true,
+      "cleanup_verified": true,
+      "server_log_secret_check": true,
+      "externalRequests": 0,
+      "pageErrors": 0
+    },
+    "b04": {
+      "passed": true,
+      "secretChecks": true,
+      "cleanup_verified": true,
+      "server_log_secret_check": true,
+      "externalRequests": 0,
+      "pageErrors": 0
+    },
+    "catalog": {
+      "passed": true,
+      "secretChecks": true,
+      "cleanup_verified": true,
+      "server_log_secret_check": true,
+      "externalRequests": 0,
+      "pageErrors": 0
+    },
+    "control": {
+      "passed": true,
+      "secretChecks": true,
+      "cleanup_verified": true,
+      "server_log_secret_check": true,
+      "externalRequests": 0,
+      "pageErrors": 0
+    },
+    "database": {
+      "passed": true,
+      "secretChecks": true,
+      "cleanup_verified": true,
+      "server_log_secret_check": true,
+      "externalRequests": 0,
+      "pageErrors": 0
+    },
+    "expiry": {
+      "passed": true,
+      "secretChecks": true,
+      "cleanup_verified": true,
+      "server_log_secret_check": true,
+      "externalRequests": 0,
+      "pageErrors": 0
+    },
+    "flow": {
+      "passed": true,
+      "secretChecks": true,
+      "cleanup_verified": true,
+      "server_log_secret_check": true,
+      "externalRequests": 0,
+      "pageErrors": 0
+    },
+    "offline": {
+      "passed": true,
+      "secretChecks": true,
+      "cleanup_verified": true,
+      "server_log_secret_check": true,
+      "externalRequests": 0,
+      "pageErrors": 0
+    }
+  },
+  "failed_case_screenshots": [
+    "b03-setup-1440.png",
+    "b03-projection-stale-503.png",
+    "b03-forced-colors-focus.png",
+    "b03-dashboard-390.png",
+    "b03-setup-320.png",
+    "b03-setup-1280.png",
+    "b03-dashboard-320.png",
+    "b03-dashboard-1280.png",
+    "b03-dashboard-1440.png",
+    "b03-zoom-200.png",
+    "b03-session-expired.png",
+    "b03-setup-390.png"
+  ],
+  "inputs": 2481,
+  "input_drift_at_owner_settlement": [],
+  "exact_runtime_absent_at_settlement": true,
+  "PGDATA_retained": true,
+  "retention_root": "/home/kali/.hermes/cache/scratch/ue-y990hjo2/db-b1c8c506c705471a",
+  "limitations": "Not complete native10PASS or full test-e2e dependency graph/canonical. Owner settlement/complete2481hash/exactCIDprojectnetworksocket absence independently read before new Source writer admission; no claim that later intended test edits are mixed QA inputs.",
+  "counter": 2
+}

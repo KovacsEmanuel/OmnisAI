@@ -1,0 +1,43 @@
+{
+  "head": "9f4fc0dc71aea493bd2a5826b0e7c66078cd3c63",
+  "reviewed_observer": "1c35914a523b0f1eefe8cce93ccf4fa1cd473f41",
+  "target": "test-s1-run-ui-pg",
+  "outer_exit": 0,
+  "inner": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "test_summary": [
+    "1 passed in 46.20s"
+  ],
+  "inputs": 2481,
+  "input_drift": [],
+  "postlude": {
+    "version": 1,
+    "stage": "AFTER",
+    "phase": "BROWSER_CLOSE_DONE",
+    "firstFailure": null,
+    "tasks": 5,
+    "receipts": 5,
+    "errors": 0,
+    "writeFailed": false
+  },
+  "browser": {
+    "passed": true,
+    "secretChecks": true,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "apiRestartReadback": true,
+    "injectedUiHttp503Focus": true
+  },
+  "container": "9a34cdff030cbde32acc4dc07d5aa98cbd2b43a550507170954988d86e019cae",
+  "project": "omnis-p01-530804a7d4344a6887e02436930b1457",
+  "runtime_absent": true,
+  "PGDATA_retained": true,
+  "retention_root": "/home/kali/.hermes/cache/scratch/up-352r9u1f/db-13d3047846924745",
+  "private_artifact_count": 12,
+  "historical_timeout": "UNKNOWN/NOT_REPRODUCED_THIS_RUN; no productfix or retrospectivecause. Original canonicalFAIL remainsFAIL; no thirdobserverlayer",
+  "counter": 2,
+  "next": "Narrow to actual still-unreached required fullE2E/CLI/release consumers before one final frozen integration canonical; no diagnostic replay ofunchangedpassedparts"
+}

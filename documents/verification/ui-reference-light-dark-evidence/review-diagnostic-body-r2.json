@@ -1,0 +1,207 @@
+{
+  "review_id": "diagnostic-body-r2",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "language": "ro",
+  "scope": "Review independent R2 complementar: integritatea recorded-sink/secrete/negative-control și clasificarea fixture-only TRANSPORT_UNCONFIRMED. Nu aprobare runtime/produs/canonical.",
+  "freeze": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "9f4fc0dc71aea493bd2a5826b0e7c66078cd3c63",
+    "candidate": "0b667a64d15deca4b81a116e8c78d9541a40129d",
+    "head_at_entry_and_final_readback": "0b667a64d15deca4b81a116e8c78d9541a40129d",
+    "branch": "checkpoint/ux-d-pause-20261107",
+    "scoped_diff_sha256": "13e021b33d8296b4ee3fdb597a5148aac0d3f5ea9bf6cd66ef558373799338ca",
+    "changed_files": [
+      {
+        "path": "web/tests/e2e/run.mjs",
+        "lines": "142-145",
+        "base_blob": "aa827db5c1d47141e797a863f7adf2ff336f0e31",
+        "candidate_blob": "3e86ec979a0458e7f7bc83a4b7c9cb98d3fb3e44",
+        "sha256": "f7665bb1c3052f6fad49d3d917f0c4d02cf650b788438bb7b76cee3310db0f9a"
+      },
+      {
+        "path": "web/scripts/ui-diagnostic-ack.test.mjs",
+        "lines": "1-102",
+        "base_blob": null,
+        "candidate_blob": "ee68d37aedfd07f21269891581d99c893018bc1e",
+        "sha256": "fbd1df7aabba0d32c65364457437dfff4bfc288000c8ece9998841420bb8192c"
+      }
+    ],
+    "unchanged_direct_consumers_and_contract": [
+      {
+        "path": "api/tests/test_web_e2e.py",
+        "base_and_candidate_blob": "96e30edce6ecb0beb7ae9acd0df91848a64ba425",
+        "sha256": "0ae5fc2215888d51c3e9d345e22a43b6b623d425b48d927badd91444c9c32a33"
+      },
+      {
+        "path": "contracts/omnis.openapi.json",
+        "base_and_candidate_blob": "50f26a48389a923d238a8d3a6fd4d81522b0b407",
+        "sha256": "7543d8c26712cbd9b5b2d1490efb16a5e93de848a2dafce5a6fd10bb1ab0bfa4"
+      },
+      {
+        "path": "web/tests/e2e/b04.mjs",
+        "base_and_candidate_blob": "bc25da9374c3f73669323e493d33412915898921",
+        "sha256": "7dcab3e9a8e0f39708634a1bc06b0273bce6ceac03e901c17afc0be16ca37c8c"
+      },
+      {
+        "path": "web/tests/e2e/leaks.mjs",
+        "base_and_candidate_blob": "a63203eab092830fc930e27e31e86af1b0933bac",
+        "sha256": "edac01a1597f9849e77d6ae3ebf481c5815f4127db4c394bf3c357d9ca78561c"
+      }
+    ],
+    "working_bytes_match_candidate_for_all_listed_files": true,
+    "reverse_only_four_line_seam_equals_entire_base_driver": true,
+    "restored_base_driver_sha256": "583adc2427cac0b74db8584a47572c79ecd03e740329858d164f76b30a99735a",
+    "tracked_and_staged_diffs_at_entry_and_final": "empty",
+    "preexisting_untracked_names_only_not_opened_or_hashed": [
+      "documents/Omnis_Notite_Originale.html",
+      "tempkey.txt"
+    ]
+  },
+  "admission": {
+    "requirement": "Păstrarea pozitivelor reale de diagnostic și a probei de secrete fără a interpreta corpul indisponibil ca ACK malformed ori ca delivery success.",
+    "consumer": "Listenerul real extras din run.mjs; paired() B04; readerul Python nemodificat api/tests/test_web_e2e.py:649-675.",
+    "risk": "TRANSPORT_UNCONFIRMED ar putea deveni RECORDED/seed/pozitiv de sink; catch prea larg ar putea ascunde JSON/schema/header/status greșite sau ar putea păstra mesajul brut/secret.",
+    "decision": "Aprobare SOURCE scoped dacă frontierele rămân stricte; changes-requested numai pentru blocker concret reprodus în acest delta. QA reală și închiderea aparțin părintelui.",
+    "affected_reach": "Numai body/parse seam și testul nou; callerii/fixture B04, contractul, readerul Python și helperul leaks verificate read-only. Fără config/export/dependency sau modificări de produs."
+  },
+  "findings": [],
+  "blockers": [],
+  "requirement_consumer_risk_decision": [
+    {
+      "requirement": "Corp indisponibil distinct de ACK invalid",
+      "consumer": "web/tests/e2e/run.mjs:131-150",
+      "risk": "Succes fabricat sau catch care ascunde validarea",
+      "evidence": "Catch numai în jurul response.body(); JSON.parse și validările ACK rămân în afară. Receiptul conține doar event/correlation/state, fără accepted sau textul excepției. TRANSPORT_UNCONFIRMED nu este enum UiAck și este respins dacă vine într-un ACK citibil.",
+      "decision": "APPROVED_SOURCE_SCOPED"
+    },
+    {
+      "requirement": "Schema/header/status/predicate exacte",
+      "consumer": "web/tests/e2e/run.mjs:58-70,123-150; web/scripts/ui-diagnostic-ack.test.mjs",
+      "risk": "Relaxare la trust boundary",
+      "evidence": "Corelația este verificată înainte de body; numai202 citește body,401/403/503 rămân HTTP_REFUSED,200/422/500 normale sunt INVALID_DIAGNOSTIC_ACK. ACK citibil cere exact4chei/version1/accepted true/event_id egal/stare enum. POST numai origin+path exact.21teste noi PASS;6controale R2 PASS.",
+      "decision": "APPROVED_SOURCE_SCOPED"
+    },
+    {
+      "requirement": "Seed B04 numai din pozitiv real",
+      "consumer": "web/tests/e2e/run.mjs:178-196",
+      "risk": "Transportul incert ar putea permite fabricarea probei negative",
+      "evidence": "Predicatele some/find nemodificate cer state RECORDED, action ERROR și correlation_id din răspunsurile404 efectiv observate pentru subiectul fixture. Controlul Node execută expresiile reale extrase: transport-only fără seed; RECORDED corelat produce seed; corelația străină și REQUEST nu produc seed.",
+      "decision": "APPROVED_SOURCE_SCOPED; nu dovadă B04 live"
+    },
+    {
+      "requirement": "Readerul păstrează pozitive unice stderr/corelație și per-generation",
+      "consumer": "api/tests/test_web_e2e.py:641-677",
+      "risk": "UNKNOWN numărat ca sink succes sau eliminarea pozitivelor",
+      "evidence": "Fișier byte-identic cu baza.649-665 ignoră state!=RECORDED, cere exact1match event în stderr-ul API deținut, corelație request egală și recorded nevid pentru fiecare generație.666-674 cer capture_id unic/disjunct și ERROR/probe_correlation înainte de restart.675 păstrează secret-check pe toate intrările retained; complete_history rămâne false.",
+      "decision": "APPROVED_SOURCE_SCOPED; Python/reader/PG nu au fost executate de R2"
+    },
+    {
+      "requirement": "Negativ422 și secrete fără ocolire",
+      "consumer": "web/tests/e2e/run.mjs:123-135,191-218,420-429; web/tests/e2e/leaks.mjs; api/tests/test_web_e2e.py:619-630,675,687",
+      "risk": "Rawmessage/secret în receipts/log/report sau negativ contat drept pozitiv",
+      "evidence": "Negativul identificat exact cere422 înainte de body/header; request listener validează metadata fără message, verifică markerul exact și nu adaugă negativul în diagnosticEvents. Controalele R2 confirmă fără reads/receipts/events pentru negativ,202 respins; secret brut în body/header/exception nu ajunge în receipt sau în diagnosticErrors, care rămâne cod finit. Guardurile de browser și parent-secret checks sunt neschimbate; nu s-a citit browserstorage real sau log operator.",
+      "decision": "APPROVED_SOURCE_SCOPED; nu certificare end-to-end nouă de secrete"
+    },
+    {
+      "requirement": "Scope minim, fără runtime closure sau limite slăbite",
+      "consumer": "Delta candidat; postludiu run.mjs:420-448",
+      "risk": "Transformarea clasificării best-effort într-un verdict de produs",
+      "evidence": "Inversarea numai a celor4linii reface byte-exact întregul driver de bază și SHA-ul așteptat. Restul driverului, secret checks, observer, Stop/census/limite rămân intacte. Postludiul generic poate continua fără eroare pentru transport incert, intenționat; aceasta NU certifică delivery/sink/domeniu și nu satisface pozitivele B04.",
+      "decision": "APPROVED_SOURCE_SCOPED, fără PRODUCT/RUNTIME/CANONICAL PASS"
+    }
+  ],
+  "commands": [
+    {
+      "cwd": "/home/kali/OmnisAI",
+      "command": "git status --short --branch && git rev-parse HEAD && git diff --stat && git diff --cached --stat && git show --format=fuller --stat --no-renames 0b667a64d15deca4b81a116e8c78d9541a40129d && git diff --no-ext-diff --no-renames 9f4fc0dc71aea493bd2a5826b0e7c66078cd3c63 0b667a64d15deca4b81a116e8c78d9541a40129d --",
+      "exit_code": 0,
+      "result": "HEAD exact, numai2fișiere în candidat; fără diff tracked/staged. Numele celor2untracked protejate doar observate din status."
+    },
+    {
+      "cwd": "/home/kali/OmnisAI",
+      "command": "git diff --check 9f4fc0dc71aea493bd2a5826b0e7c66078cd3c63 0b667a64d15deca4b81a116e8c78d9541a40129d -- web/tests/e2e/run.mjs web/scripts/ui-diagnostic-ack.test.mjs",
+      "exit_code": 0,
+      "result": "Fără erori whitespace; prealabil verificat că raportul nu exista și nu era symlink."
+    },
+    {
+      "cwd": "/home/kali/OmnisAI",
+      "command": "node --test web/scripts/ui-diagnostic-ack.test.mjs; result=$?; printf '\\nR2_FOCUSED_TEST_EXIT=%s\\n' \"$result\"; exit \"$result\"",
+      "exit_code": 0,
+      "result": {
+        "tests": 21,
+        "pass": 21,
+        "fail": 0,
+        "skipped": 0,
+        "scope": "SOURCE; listener real extras; response double, nu browser/API"
+      }
+    },
+    {
+      "cwd": "/home/kali/OmnisAI",
+      "argv": [
+        "node",
+        "--input-type=module",
+        "-e",
+        "\nimport assert from \"node:assert/strict\";\nimport { readFileSync } from \"node:fs\";\nimport { test } from \"node:test\";\nimport { assertSecretFree } from \"./web/tests/e2e/leaks.mjs\";\nconst source = readFileSync(\"web/tests/e2e/run.mjs\", \"utf8\");\nconst schemas = JSON.parse(readFileSync(\"contracts/omnis.openapi.json\", \"utf8\")).components.schemas;\nconst origin = \"http://127.0.0.1:1\", diagnosticPath = \"/api/v1/diagnostics/ui-events\";\nconst bodyStart = source.indexOf(\"function diagnosticBody(value) {\");\nconst bodyEnd = source.indexOf(\"\\nconst faultPath\", bodyStart);\nassert.ok(bodyStart >= 0 && bodyEnd > bodyStart);\nconst diagnosticBody = new Function(\"diagnosticContract\", \"assert\", source.slice(bodyStart, bodyEnd) + \";return diagnosticBody;\")(schemas, assert);\nconst predicate = source.match(/^function diagnosticPost\\(request\\).*$/m);\nassert.ok(predicate);\nconst diagnosticPost = new Function(\"origin\", \"diagnosticPath\", predicate[0] + \";return diagnosticPost;\")(origin, diagnosticPath);\nconst start = source.indexOf(\"context.on(\\u0027request\\u0027, request => {\");\nconst end = source.indexOf(\"\\ncontext.on(\\u0027page\\u0027\", start);\nassert.ok(start >= 0 && end > start);\nconst register = new Function(\"context\", \"diagnosticPost\", \"diagnosticBody\", \"diagnosticEvents\", \"diagnosticTasks\", \"negativeDiagnostic\", \"diagnosticContract\", \"assert\", \"diagnosticReceipts\", \"diagnosticErrors\", source.slice(start, end));\nconst id = \"00000000-0000-4000-8000-000000000001\";\nconst marker = \"R2_SYNTHETIC_SECRET_MARKER_ONLY\";\nconst event = {version:1, source:\"browser_untrusted\", event_id:id, surface:\"brain_stream\", site:\"http_read\", action:\"ERROR\", outcome:\"UNCONFIRMED\", error_code:null, correlation_id:id, run_id:null, command_id:null};\nconst ack = {version:1, event_id:id, accepted:true, state:\"RECORDED\"};\nasync function observe({ value=event, negative=null, correlation=id, status=202, bytes=JSON.stringify(ack), unavailable=false, url=origin+diagnosticPath, method=\"POST\" }={}) {\n  const handlers={}, events=new Map(), tasks=[], receipts=[], errors=[]; let reads=0;\n  register({on(name, callback){assert.equal(handlers[name], undefined); handlers[name]=callback;}}, diagnosticPost, diagnosticBody, events, tasks, negative, schemas, assert, receipts, errors);\n  const request={method:()=>method, url:()=>url, postDataJSON:()=>value};\n  const response={request:()=>request, headers:()=>({\"x-correlation-id\":correlation}), status:()=>status, async body(){reads++; if(unavailable) throw new Error(marker); return Buffer.from(bytes);}};\n  handlers.request(request); handlers.response(response); await Promise.all(tasks);\n  return {events:[...events.values()], receipts, errors, reads};\n}\ntest(\"actual request guard still rejects raw/free-text, unknown enums and invalid identities\", async()=>{\n  diagnosticBody(event);\n  for(const value of [{...event,message:marker},{...event,surface:marker},{...event,error_code:marker},{...event,event_id:marker},{...event,run_id:marker}]) await assert.rejects(observe({value}));\n});\ntest(\"actual negative probe remains excluded from event/receipt positives and body reads\", async()=>{\n  const value={...event,message:marker}, negative={id,secret:marker};\n  const result=await observe({value,negative,status:422,correlation:null,unavailable:true});\n  assert.deepEqual(result,{events:[],receipts:[],errors:[],reads:0});\n  const wrongStatus=await observe({value,negative,status:202,unavailable:true});\n  assert.deepEqual(wrongStatus,{events:[],receipts:[],errors:[\"INVALID_DIAGNOSTIC_ACK\"],reads:0});\n  await assert.rejects(observe({value:{...value,message:\"wrong synthetic marker\"},negative,status:422}));\n});\ntest(\"unavailable-body error text cannot escape into receipt; fixture state is not an ACK state\", async()=>{\n  const result=await observe({unavailable:true});\n  assert.deepEqual(result.receipts,[{event,request_correlation_id:id,state:\"TRANSPORT_UNCONFIRMED\"}]);\n  assert.deepEqual(result.errors,[]); assert.equal(result.reads,1);\n  assertSecretFree([marker],[JSON.stringify(result)]);\n  assert.equal(schemas.UiAck.properties.state.enum.includes(\"TRANSPORT_UNCONFIRMED\"),false);\n  const spoof=await observe({bytes:JSON.stringify({...ack,state:\"TRANSPORT_UNCONFIRMED\"})});\n  assert.deepEqual(spoof.receipts,[]); assert.deepEqual(spoof.errors,[\"INVALID_DIAGNOSTIC_ACK\"]);\n});\ntest(\"readable raw secret/malformed ACK and bad header remain only fixed error codes\", async()=>{\n  for(const options of [{bytes:marker},{bytes:JSON.stringify({...ack,extra:marker})},{correlation:marker,unavailable:true}]){\n    const result=await observe(options);\n    assert.deepEqual(result.receipts,[]); assert.deepEqual(result.errors,[\"INVALID_DIAGNOSTIC_ACK\"]);\n    assertSecretFree([marker],[JSON.stringify(result)]);\n  }\n});\ntest(\"exact POST predicate does not accept foreign origin, suffix, query, or HEAD\", async()=>{\n  for(const options of [{url:\"http://127.0.0.1:2\"+diagnosticPath},{url:origin+diagnosticPath+\"/\"},{url:origin+diagnosticPath+\"?x=1\"},{method:\"HEAD\"}]){\n    const result=await observe(options); assert.deepEqual(result,{events:[],receipts:[],errors:[],reads:0});\n  }\n});\ntest(\"actual B04 source predicates cannot seed from transport uncertainty or wrong correlation\", ()=>{\n  const someLine=source.split(\"\\n\").find(line=>line.includes(\"check.poll(() => diagnosticReceipts.some(\"));\n  const findLine=source.split(\"\\n\").find(line=>line.includes(\"const seed = diagnosticReceipts.find(\"));\n  assert.ok(someLine && findLine);\n  const someExpr=someLine.slice(someLine.indexOf(\"diagnosticReceipts.some(\"),someLine.lastIndexOf(\").toBe(true)\"));\n  const findExpr=findLine.slice(findLine.indexOf(\"diagnosticReceipts.find(\"),findLine.lastIndexOf(\".event;\"));\n  const hasSeed=new Function(\"diagnosticReceipts\",\"failures\",\"return \"+someExpr);\n  const findSeed=new Function(\"diagnosticReceipts\",\"failures\",\"return \"+findExpr);\n  const failures=new Set([id]);\n  const transport={event,request_correlation_id:id,state:\"TRANSPORT_UNCONFIRMED\"};\n  assert.equal(hasSeed([transport],failures),false); assert.equal(findSeed([transport],failures),undefined);\n  const recorded={...transport,state:\"RECORDED\"};\n  assert.equal(hasSeed([recorded],failures),true); assert.equal(findSeed([recorded],failures),recorded);\n  assert.equal(hasSeed([{...recorded,event:{...event,correlation_id:\"00000000-0000-4000-8000-000000000002\"}}],failures),false);\n  assert.equal(hasSeed([{...recorded,event:{...event,action:\"REQUEST\"}}],failures),false);\n});\n"
+      ],
+      "exit_code": 0,
+      "result": {
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 0,
+        "scope": "SOURCE; request+response listeners și B04 predicates extrase din bytes reali; synthetic marker only; fără network sau storage real"
+      }
+    },
+    {
+      "cwd": "/home/kali/OmnisAI",
+      "command": "node --check web/tests/e2e/run.mjs && node --check web/scripts/ui-diagnostic-ack.test.mjs",
+      "exit_code": 0,
+      "result": "Ambele parsează; nu execuție runtime."
+    },
+    {
+      "cwd": "/home/kali/OmnisAI",
+      "command_family": "python -B -c, prima versiune inline a probei freeze",
+      "exit_code": 2,
+      "result": "Shell parse error lângă ) din cauza quoting-ului apostrofurilor din șirul seam. Python nu a pornit; fără writes și fără constatare de produs. Reîncercarea de mai jos a evitat quoting-ul extrăgând cele4linii în memorie."
+    },
+    {
+      "cwd": "/home/kali/OmnisAI",
+      "argv": [
+        "python",
+        "-B",
+        "-c",
+        "\nfrom pathlib import Path\nimport hashlib,json,subprocess\nbase=\"9f4fc0dc71aea493bd2a5826b0e7c66078cd3c63\"\nhead=\"0b667a64d15deca4b81a116e8c78d9541a40129d\"\ndef git(*args): return subprocess.check_output([\"git\",*args])\nassert git(\"rev-parse\",\"HEAD\").decode().strip()==head\npaths=[\"web/tests/e2e/run.mjs\",\"web/scripts/ui-diagnostic-ack.test.mjs\",\"api/tests/test_web_e2e.py\",\"contracts/omnis.openapi.json\",\"web/tests/e2e/b04.mjs\",\"web/tests/e2e/leaks.mjs\"]\nmanifest=[]\nfor path in paths:\n    candidate=git(\"show\",head+\":\"+path)\n    assert Path(path).read_bytes()==candidate, path\n    row={\"path\":path,\"candidate_blob\":git(\"rev-parse\",head+\":\"+path).decode().strip(),\"sha256\":hashlib.sha256(candidate).hexdigest(),\"working_bytes_match_candidate\":True}\n    if path!=\"web/scripts/ui-diagnostic-ack.test.mjs\":\n        baseline=git(\"show\",base+\":\"+path)\n        row[\"base_blob\"]=git(\"rev-parse\",base+\":\"+path).decode().strip()\n        row[\"unchanged_from_base\"]=candidate==baseline\n    manifest.append(row)\nold=b\"    const ack = await response.json();\"\ncurrent=Path(paths[0]).read_bytes()\nnew=\"\\n\".join(current.decode().splitlines()[141:145]).encode()\nassert new.startswith(b\"    let body;\\n    try { body = await response.body(); }\")\nassert b\"TRANSPORT_UNCONFIRMED\" in new and b\"JSON.parse(body.toString(\" in new\nassert current.count(new)==1\nrestored=current.replace(new,old)\nassert restored==git(\"show\",base+\":\"+paths[0])\nassert hashlib.sha256(restored).hexdigest()==\"583adc2427cac0b74db8584a47572c79ecd03e740329858d164f76b30a99735a\"\ndiff=git(\"diff\",\"--no-ext-diff\",\"--no-renames\",base,head,\"--\",paths[0],paths[1])\nchanged=git(\"diff\",\"--name-only\",base,head).decode().splitlines()\nassert sorted(changed)==sorted(paths[:2])\nprint(json.dumps({\"base\":base,\"candidate\":head,\"files\":manifest,\"restored_driver_sha256\":hashlib.sha256(restored).hexdigest(),\"only_driver_change_is_four_line_body_parse_seam\":True,\"changed_paths\":changed,\"scoped_diff_sha256\":hashlib.sha256(diff).hexdigest()},indent=2))\n"
+      ],
+      "exit_code": 0,
+      "result": "Cele6căi permise sunt exacte față de candidat;4consumatori/contract/helpers identici cu baza; numai2căi schimbate; inversarea seam reface întregul driver și SHA-ul așteptat. Niciun fișier scris."
+    },
+    {
+      "cwd": "/home/kali/OmnisAI",
+      "command_family": "git status --short --branch && git rev-parse HEAD && git diff --stat && git diff --cached --stat; Python -B final: exact HEAD, byte-equality pe cele6căi, report absent/no-symlink",
+      "exit_code": 0,
+      "result": "FINAL_FREEZE_IDENTICAL; REPORT_ABSENT; NO_REPO_WRITES"
+    }
+  ],
+  "provided_context_not_rerun_or_reclassified": {
+    "baseline_and_parent": "20PASS/1expectedFAIL→21PASS, tooling32PASS/lint/syntax0 și parent21PASS sunt context furnizat. R2 a executat independent numai cele21teste,6controale și syntax/freeze descrise aici; nu promovează probele altcuiva ca execuții proprii.",
+    "native_causal_positive": "Pozitivul nativ anterior privind best-effort750ms/body indisponibil și vechiul INVALID_ACK este context furnizat, nu repetat de R2. Nu este prerequisite o atribuire retrospectivă exclusivă.",
+    "historical_failures": "Subtipul badACK original, canonical120s și B03timeout rămân UNKNOWN/FAIL în scope-urile lor; acest review nu le repară și nu le reclasifică."
+  },
+  "limits": [
+    "SOURCE only. Părintele deține și decide probele reale S1/B03/B04 și full canonical pe bytes finali.",
+    "Nu native browser, API, PG, build, full tests, provider sau target. Nici pornire/opriere de servicii, install, subagenți ori cleanup.",
+    "Fără modificări sursă/docs/Git/Python/config/skills; doar acest raport nou în calea autorizată. Nu s-a modificat harta de status sau un CURRENT.",
+    "Fișierele protejate, .env/keys/vault, browserstorage, rawoperatorlogs și checkoutul Strix nu au fost citite ori hash-uite. Numai numele untracked au apărut în git status.",
+    "Contractul și readerul Python au fost inspectate read-only, nu executate; controalele cu doubles nu dovedesc sink real sau secret-freedom live.",
+    "Reticle NOT_APPLICABLE pentru acest review SOURCE-only; Chisel BLOCKED_NO_GO. Fără smoke ceremonial sau audit general al domeniilor neschimbate.",
+    "Candidatul nu este acceptare de integrare, runtime closure, aprobare estetică sau canonical PASS."
+  ],
+  "issues_encountered": [
+    "O singură eroare locală de quoting shell la prima probă freeze (exit2), corectată și rerulată exit0; nu finding de produs."
+  ],
+  "created_files": [
+    "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/review-diagnostic-body-r2.json"
+  ],
+  "modified_repository_files": [],
+  "proposed_status_delta": "AICI: candidatul0b667a64 primește R2 APPROVED_SOURCE_SCOPED pentru recorded-sink/secrete/negative-control/TRANSPORT_UNCONFIRMED. Fără tranziție a porților runtime/canonical; parent adjudication/integration rămân separate."
+}

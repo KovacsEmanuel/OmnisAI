@@ -1,0 +1,97 @@
+{
+  "status": "TEST_CONSUMER_CANDIDATE_FROZEN_PENDING_INDEPENDENT_REVIEW_AND_PARENT_NATIVE_QA",
+  "writer_stopped": true,
+  "baseHEAD": "9f4fc0dc71aea493bd2a5826b0e7c66078cd3c63",
+  "head_at_freeze": "9f4fc0dc71aea493bd2a5826b0e7c66078cd3c63",
+  "branch": "checkpoint/ux-d-pause-20261107",
+  "scope": "Demonstrated diagnostic ACK test-consumer body-read classification correction only, not a product fix or a historical exclusive-cause claim",
+  "change": {
+    "driver": "Narrow try/catch around only await response.body(). Retrieval rejection appends exactly {event,request_correlation_id,state:TRANSPORT_UNCONFIRMED} and returns. JSON.parse(body.toString('utf8')) is outside that catch, followed by unchanged original exact shape/version/accepted/event_id/state assertions. Top-level INVALID_DIAGNOSTIC_ACK handler remains unchanged for malformed delivered bytes/schema/header/status.",
+    "semantics": "TRANSPORT_UNCONFIRMED is a fixture-local receipt state, not UiAck, accepted=true, RECORDED or domain success. No arbitrary reason/error/message/stack captured. No requestfailure flag, extra wait, retry, new timeout, API/logger or dependency.",
+    "new_test": "One node:test file executes exact current source-extracted listener and original request predicate. Fake response json delegates to body and JSON.parse for baseline equivalence with installed Playwright; there is no duplicated ACK validator. No HTTP/browser effects are claimed by these SOURCE tests."
+  },
+  "caller_trace": {
+    "run_driver": "diagnosticTasks joined before unchanged diagnosticErrors empty assertion. B04 exports existing diagnosticReceipts shape. New fixture-local state remains distinguishable; receipt count alone never means RECORDED.",
+    "B04_browser_positive": "paired() uses only receipt.state===RECORDED for required captured error/correlation seed; TRANSPORT_UNCONFIRMED cannot seed the recorded-event positive. Negative422 probe remains unchanged.",
+    "B04_Python_reader": "api/tests/test_web_e2e.py649-665 skips state!=RECORDED and still requires nonempty recorded matches to real owned API stderr, exact event/correlation and later capture/error-probe assertions. Python source byte-unchanged; no unknown receipt can satisfy its recorded sink positive.",
+    "other_callers": "Repository search found fixture receipt collection/seed/B04 export in run.mjs and existing Python reader. No product observer or other receipt consumer changed.",
+    "unchanged_driver": "Reversing only the four-line body retrieval/parse seam restores full driver byte-exact to base. Therefore predicate, negative probe, strict assertions, postlude observer, secret checks, census/read-only flow, Stop and all existing limits remain unchanged."
+  },
+  "source_controls": {
+    "tests": 21,
+    "unavailable": "Body retrieval rejection with no request.failure method produces one exact TRANSPORT_UNCONFIRMED receipt, no error, no accepted field or RECORDED. Only one body read.",
+    "delivered_positive": "All six contract delivery states remain valid complete ACKs with exact event/correlation receipt fields; no transport fallback used.",
+    "malformed_negative": "Complete readable unparseable JSON, null, array, missing shape, extra field, wrong version, accepted=false, foreign event_id and unknown state remain INVALID_DIAGNOSTIC_ACK with no receipt.",
+    "boundaries": "Invalid/null correlation and unexpected200/422/500 remain errors before body read even when body is unavailable.401/403/503 remain HTTP_REFUSED without body read. Explicit negative probe permits only422, not202. Predicate ignores GET and other endpoints.",
+    "old_SOURCE_controls": "Baseline final RED has20 existing contract/control behaviors passing and only new unavailable-body expectation failing. GREEN retains those20 and fixes that one classification gap. Fake/event SOURCE execution is not renewed native acceptance."
+  },
+  "checks": [
+    {
+      "phase": "RED before consumer edit",
+      "command": "node --test web/scripts/ui-diagnostic-ack.test.mjs",
+      "exit": 1,
+      "result": "20 passed/1 failed: unavailable body incorrectly enters INVALID_DIAGNOSTIC_ACK; delivered positives and malformed/header/status/probe/predicate controls pass",
+      "log": "ux-diagnostic-body-classification-red-final.log"
+    },
+    {
+      "phase": "GREEN after last source edit",
+      "command": "node --test web/scripts/ui-diagnostic-ack.test.mjs",
+      "exit": 0,
+      "result": "21 passed/0 failed;107.776216ms",
+      "log": "ux-diagnostic-body-classification-green.log"
+    },
+    {
+      "command": "npm --prefix web run test:tooling",
+      "exit": 0,
+      "result": "32 passed/0 failed;2583.885837ms, including new automatic scripts/*.test.mjs coverage. Existing Redocly missing-ref/operation negative-control messages are expected, not failed tests.",
+      "log": "ux-diagnostic-body-classification-tooling.log"
+    },
+    { "command": "npm --prefix web run lint", "exit": 0, "log": "ux-diagnostic-body-classification-lint.log" },
+    { "command": "node --check web/tests/e2e/run.mjs", "exit": 0, "log": "ux-diagnostic-body-classification-syntax-driver.log" },
+    { "command": "node --check web/scripts/ui-diagnostic-ack.test.mjs", "exit": 0, "log": "ux-diagnostic-body-classification-syntax-test.log" },
+    { "command": "git diff --check", "exit": 0, "log": "ux-diagnostic-body-classification-diff.log" },
+    { "command": "Exact two-path scope/staged/base checks; reverse seam to full original driver; compare all127 unaffected scoped input hashes and five build hashes", "exit": 0, "result": "All unchanged, no staged files or unrelated tracked modification" }
+  ],
+  "commands_file": "ux-diagnostic-body-classification-checks.json",
+  "execution": "Pinned /home/kali/.local/share/omnis-toolchains/bin PATH. RED records real subprocess exit1, not wrapper exit0. Original first RED log retained; only a new test's null-correlation label/input spelling was clarified before final RED, preserving actual invalid input and all20 controls. No source edits after final required checks.",
+  "freeze": {
+    "paths": {
+      "web/tests/e2e/run.mjs": {
+        "before_sha256": "583adc2427cac0b74db8584a47572c79ecd03e740329858d164f76b30a99735a",
+        "after_sha256": "f7665bb1c3052f6fad49d3d917f0c4d02cf650b788438bb7b76cee3310db0f9a"
+      },
+      "web/scripts/ui-diagnostic-ack.test.mjs": {
+        "before": "ABSENT",
+        "after_sha256": "fbd1df7aabba0d32c65364457437dfff4bfc288000c8ece9998841420bb8192c"
+      }
+    },
+    "candidate_patch": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-diagnostic-body-classification-candidate.patch",
+    "two_path_diff_sha256": "c65962c114854e3b93cd9243ff193861926867cd4c2913c988de529a5c6e45ba",
+    "diff_definition": "Concatenate git diff --binary HEAD -- web/tests/e2e/run.mjs with git diff --no-index --binary -- /dev/null web/scripts/ui-diagnostic-ack.test.mjs. Includes owned new untracked test without staging it.",
+    "Git": "Tracked driver modified and only admitted new test under web/scripts untracked; no index/commit/push operation. Preexisting protected untracked paths untouched. Coherent candidate, not integrated/accepted."
+  },
+  "unchanged_inputs": {
+    "manifest": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-diagnostic-body-classification-inputs-before.json",
+    "manifest_sha256": "d2155b99433927f6dca35a2abc2d13f3871ca071c526d029ab9db17aadb0ab21",
+    "count": 127,
+    "verified_after_checks": true,
+    "scope": "Unaffected tracked web src/tests/scripts/config lint inputs; package/lock; contract; Makefile/CI; baseline/design/font provenance and generator assets; Python B04 reader; anti-slop config; five build files. New test and changed driver excluded from this unchanged set and frozen separately. No arbitrary protected source/tree or operator data hashed.",
+    "build_files": {
+      "web/dist/assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+      "web/dist/assets/index-CETyBSLz.css": "80f6f33fcdeb6617a3757b083cb07f6a1a00cda8ca32a65ebf8c56220de2876b",
+      "web/dist/assets/index-qtVd4vTL.js": "4340ba37b007caa5f6d046105f6f8182f5fc7db1f966ce83fcc2ddcd518aae5f",
+      "web/dist/index.html": "c34c7c81aea67b276e3b57a3c2a684860cf0e6db0723562376b4c7ba273f6612",
+      "web/dist/omnis-web.json": "b523d2dd24530f85aca767abab15aa39233a44ef1cf999120666d09687dba759"
+    }
+  },
+  "history_and_limits": {
+    "native_proof": "Earlier adjudicated exact-listener causal controls remain original: healthy GREEN,750ms abort/body-unavailable RED and complete readable malformed ACK RED. Original incomplete calibration and corrected proof/scripts retained privately; not rewritten. No new native invocation here.",
+    "historical_attribution": "Old S1 badACK subtype, canonical120s timeout and B03 communicate120s timeout after12captures remain UNKNOWN. This correction does not establish their exclusive cause or certify B03/final gates.",
+    "parent_settled_owners": "Parent-reported CLI471source+471wheel+PGstatus1+release84OK3SKIP outer0/inner0/drained/2481no drift, Models128.91s and remove96.37s retained unchanged, not rerun.",
+    "remaining": "Independent focused review on exact candidate, then parent-owned actual native S1/B03/B04 and required final canonical. No SOURCE count replaces those gates.",
+    "counter": "Counter2 retained; this is admitted demonstrated test-consumer correction, not a third observer, new framework or retry.",
+    "not_run": "No unchanged full673/build/API, native browser/PG/fullGate or product/provider/target/lifecycle/profile effects. No subagents/dependencies/Git writes or S2.",
+    "protected": "tempkey.txt, documents/Omnis_Notite_Originale.html, .env/keys/vault/raw operator logs/Strix excluded from reads/hashes/edits. OperatorSTOPPED62 not queried or changed."
+  },
+  "next": "Parent verifies exact two-path patch/source hashes and unchanged input/build manifest, integrates and obtains independent review before actual affected native consumers/canonical. Writer stopped at freeze."
+}

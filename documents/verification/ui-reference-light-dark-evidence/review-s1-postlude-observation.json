@@ -1,0 +1,155 @@
+{
+  "review_id": "review-s1-postlude-observation",
+  "verdict": "APPROVED_SOURCE_SCOPED_OBSERVATION_ONLY",
+  "snapshot": {
+    "base": "7a232e2f000e02535c8e141007568da7d1d563a2",
+    "head": "1c35914a523b0f1eefe8cce93ccf4fa1cd473f41",
+    "path": "web/tests/e2e/run.mjs",
+    "sha256": "583adc2427cac0b74db8584a47572c79ecd03e740329858d164f76b30a99735a",
+    "base_blob": "c4162ce2a2b2f6d84822f7c38579d3e50c353f57",
+    "head_blob": "aa827db5c1d47141e797a863f7adf2ff336f0e31",
+    "numstat": "31\t3\tweb/tests/e2e/run.mjs",
+    "status": [
+      "## checkpoint/ux-d-pause-20261107",
+      " M README.md",
+      " M documents/verification/implementation-status.md",
+      " M documents/verification/ui-reference-light-dark.md",
+      "?? documents/Omnis_Notite_Originale.html",
+      "?? documents/verification/ui-reference-light-dark-evidence/canonical-7a232e2f-fail-result.json",
+      "?? documents/verification/ui-reference-light-dark-evidence/operator-receive-only-current-result.json",
+      "?? documents/verification/ui-reference-light-dark-evidence/ux-s1-postlude-result.json",
+      "?? tempkey.txt"
+    ],
+    "preserved_sha256": {
+      "web/tests/e2e/s1-run.mjs": "b612d58d3531d3547f56fc4dcc6d5429a8401d4ae40593f4b4fc88c58262f5cd",
+      "api/tests/test_web_e2e.py": "0ae5fc2215888d51c3e9d345e22a43b6b623d425b48d927badd91444c9c32a33"
+    }
+  },
+  "scope": "Independent exact-snapshot review of finite S1 postlude producer, privacy, first-failure observation and baseline error/cleanup preservation. No product-fix approval.",
+  "requirement_consumer_risk_decision": "Finite synchronous local S1-only phase evidence -> existing run.mjs caller and parent unchanged-limit S1 reader -> raw-error exposure, altered assertions/error precedence, ambiguous stale evidence -> admit at most one informative native S1 or report concrete blocker.",
+  "findings": [],
+  "source_review": [
+    {
+      "lines": "45-57; all literal call sites",
+      "result": "Finite phase set at current call sites (13), finite stage normalization, scalar booleans/counts and first finite class only. No raw error message/code/stack, DOM, URL, prompt, tokens, request/session/body values are serialized."
+    },
+    {
+      "lines": "46-56",
+      "result": "Non-S1 returns before observer state changes or writes. Payload checked <=1024 bytes before write; mode0600 applies to newly created file. No claim of chmod of a preexisting file or bounded filesystem I/O."
+    },
+    {
+      "lines": "262-264;417-445",
+      "result": "ENTER written before awaited boundary, DONE only after normal return. First main failure recorded before finally and rethrown unchanged. Async cleanup rejection records only the first failure; original cleanup-error masking and skipped browser-close after failed context-close remain baseline behavior, not repaired."
+    },
+    {
+      "lines": "51-56;435-445",
+      "result": "Actual filesystem ENOENT failure/recovery controls show observer write failures neither replace the caught error nor skip cleanup; later successful writes retain writeFailed=true. Total write failure yields unavailable signal."
+    },
+    {
+      "lines": "421-423 and unchanged source/body/owner",
+      "result": "Actual-source restoration control returns exact baseline bytes after deleting observer additions. ACK validation, secret checks, diagnostic join/error assertion, result writing, release/cleanup order, census/receive-only owner semantics and limits are not weakened."
+    }
+  ],
+  "checks": [
+    {
+      "command": "node /home/kali/.hermes/cache/scratch/ux-s1-postlude-4jxhdtl1/selfcheck.mjs",
+      "exit": 0,
+      "stdout": [
+        "PASS held/resumed SCENARIO",
+        "PASS held/resumed SECRETS",
+        "PASS held/resumed DIAGNOSTICS",
+        "PASS held/resumed RESULT",
+        "PASS held/resumed CONTEXT_CLOSE",
+        "PASS held/resumed BROWSER_CLOSE",
+        "PASS first failure retained before held finally; original error identity after close",
+        "PASS original cleanup-error propagation retained; first failure not overwritten",
+        "PASS actual ENOENT observer writes do not replace error or bypass cleanup; later write retains failure flag",
+        "PASS non-S1 observer no-op",
+        "PASS exact original bytes restored after removing observation import/producer/hooks and catch-only wrappers",
+        "SELF_CHECK_ONLY: real producer and exact scenario/postlude source, synthetic held/error await bindings; no browser/PG/HTTP responses or native acceptance."
+      ],
+      "stderr_empty": true
+    },
+    {
+      "command": "node --input-type=module -e <in-memory exact-source privacy/stage/mode assertions>",
+      "exit": 0,
+      "stdout": [
+        "{\"result\":\"PASS\",\"scope\":\"SOURCE_ONLY\",\"root\":\"/home/kali/.hermes/cache/scratch/review-s1-postlude-VxV3qe\",\"finiteCallsitePhases\":13,\"errorClasses\":[\"ASSERTION\",\"ERROR\",\"NON_ERROR\"],\"rawErrorPropertyReads\":0,\"newFileMode\":\"0600\",\"stageReuse\":\"BEFORE_TO_AFTER\",\"unknownStage\":\"UNKNOWN\",\"maxPayload\":1024}"
+      ],
+      "stderr_empty": true
+    },
+    {
+      "command": "node --check web/tests/e2e/run.mjs",
+      "exit": 0,
+      "stdout": [],
+      "stderr_empty": true
+    },
+    {
+      "command": "git diff --check 7a232e2f000e02535c8e141007568da7d1d563a2 1c35914a523b0f1eefe8cce93ccf4fa1cd473f41",
+      "exit": 0,
+      "stdout": [],
+      "stderr_empty": true
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "stdout": [],
+      "stderr_empty": true
+    }
+  ],
+  "selfcheck": {
+    "path": "/home/kali/.hermes/cache/scratch/ux-s1-postlude-4jxhdtl1/selfcheck.mjs",
+    "sha256": "217e3ead72e14a7d18a35284c944e4bcbd0ca79c114426bfb543926061a84b1a",
+    "read_before_execution": true
+  },
+  "independent_controls": {
+    "result": "PASS",
+    "scope": "SOURCE_ONLY",
+    "root": "/home/kali/.hermes/cache/scratch/review-s1-postlude-VxV3qe",
+    "finiteCallsitePhases": 13,
+    "errorClasses": [
+      "ASSERTION",
+      "ERROR",
+      "NON_ERROR"
+    ],
+    "rawErrorPropertyReads": 0,
+    "newFileMode": "0600",
+    "stageReuse": "BEFORE_TO_AFTER",
+    "unknownStage": "UNKNOWN",
+    "maxPayload": 1024
+  },
+  "checks_scope": "SOURCE_ONLY: real current producer and extracted actual scenario/postlude/finally statements; controlled promise bindings and real local filesystem. Not browser/PG/HTTP/native evidence. Author lint exit0 is retained source evidence, not independently rerun.",
+  "consumer_decision": {
+    "producer_ready_for_one_parent_unchanged_limit_consumer": true,
+    "allowed": "One parent-owned informative real S1 using the existing runner, fresh owned output, original source/assets, unchanged120s driver/check15000/product300/selection/deadlines. No child native execution.",
+    "before_after": "Read each stage file immediately from that exact owned output. BEFORE/AFTER sequentially overwrite the same fixed path; validate expected stage and invocation provenance. BEFORE cannot substitute for missing AFTER. UNKNOWN is not expected-stage proof.",
+    "missing_invalid_stale": "UNAVAILABLE, never absence of failure, absence of execution, or PASS. Same-stage stale file has no run id/time protection; require fresh owned output and parent stage/provenance tracking. No atomicity, fsync/power-loss durability or universal I/O deadline claim.",
+    "interpretation": "ENTER is last successful observation, not proof of a held await if later writes failed. DONE establishes the await returned before that successful write. firstFailure is observed finite class/phase, not raw identity or root cause. Counts do not prove successful ACK, complete census or all tasks settled.",
+    "after_consumer": "Use actual observed boundary to narrow the existing causal reproducer, or report BLOCKED. No chance-based rerun, third observer layer, product repair attribution, ACK relaxation or120s extension."
+  },
+  "status": {
+    "source_observer": "APPROVED_SCOPED",
+    "bounded_controls": "PASS_SOURCE_ONLY",
+    "real_s1": "NOT_RUN_BY_REVIEWER",
+    "canonical": "FAIL_RETAINED",
+    "missing_e2e_cli_release": "NOT_REACHED",
+    "native_cause": "UNKNOWN",
+    "harness_only_counter_same_s1_row": 2,
+    "product_fix_approval": false,
+    "s2": "NOT_STARTED_OR_PREPARED",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "orientation_discrepancy": "README/author result retain historicalSTOPPED60; parent context states READY61 restored normally with unchanged app build. Reviewer performed no operator lifecycle/status actions and does not claim independent current READY readback.",
+  "limits_and_effects": {
+    "unchanged_checkout_verified": true,
+    "report_absence_checked_before_write": true,
+    "repo_git_writes": false,
+    "operator_system_effects": false,
+    "executed": "Only bounded local Node controls/syntax and read-only Git/source checks. Selfcheck and reviewer controls create private calibration snapshots in owned cache; no new persisted script or framework.",
+    "excluded": "No browser/PG/provider/target/service/profile/worktree/agent/install; no673/build/canonical rerun; no protected tempkey.txt, documents/Omnis_Notite_Originale.html, .env/keys/vault/raw operator logs/Strix/fixture credentials/PG raw traceback reads or hashes.",
+    "only_new_retained_file": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/review-s1-postlude-observation.json",
+    "not_exhaustive": "Focused ordinary thrown-value and filesystem-failure controls; not universal fault injection against hostile JS runtime objects, resource exhaustion or filesystem/device failure. New-file0600 is not an existing-file permission repair.",
+    "parent_owns": "Adjudication, one admitted consumer, native causal conclusions, global status/integration/cleanup/canonical."
+  }
+}

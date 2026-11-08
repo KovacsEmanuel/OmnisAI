@@ -1,0 +1,81 @@
+{
+  "head": "0b667a64d15deca4b81a116e8c78d9541a40129d",
+  "scope": "PASS_SCOPED_REVIEWED_AFFECTED_S1_B03_B04_NOT_CANONICAL",
+  "actual_argv": [
+    "make",
+    "--no-print-directory",
+    "test-s1-run-ui-pg",
+    "test-b03-e2e",
+    "test-b04-e2e",
+    "UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+  ],
+  "outer_exit": 0,
+  "inner": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "summaries": [
+    "1 passed in 52.27s",
+    "1 passed, 9 deselected in 34.86s",
+    "1 passed, 9 deselected in 28.70s"
+  ],
+  "inputs": 2482,
+  "input_drift": [],
+  "s1": {
+    "passed": true,
+    "secretChecks": true,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "apiRestartReadback": true,
+    "injectedUiHttp503Focus": true,
+    "postlude": {
+      "version": 1,
+      "stage": "AFTER",
+      "phase": "BROWSER_CLOSE_DONE",
+      "firstFailure": null,
+      "tasks": 6,
+      "receipts": 6,
+      "errors": 0,
+      "writeFailed": false
+    },
+    "receipt_count_is_not_recorded_delivery_count": true
+  },
+  "native_cases": {
+    "b03": {
+      "passed": true,
+      "secretChecks": true,
+      "cleanup_verified": true,
+      "server_log_secret_check": true,
+      "externalRequests": 0,
+      "pageErrors": 0
+    },
+    "b04": {
+      "passed": true,
+      "secretChecks": true,
+      "cleanup_verified": true,
+      "server_log_secret_check": true,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "backend_restart_verified": true
+    }
+  },
+  "b04_diagnostic_receipt_states": {
+    "before": {
+      "RECORDED": 7,
+      "RATE_LIMITED": 16
+    },
+    "after": {
+      "RECORDED": 3
+    }
+  },
+  "b04_reader": "Real ownedAPI stderr unique event/correlation/capture + negative secret probe and nonempty RECORDED per generation asserted by unchanged actual Python caller; UNCONFIRMED cannot satisfy that positive.",
+  "container": "e546ceb7f796deb1126532c070e61d1207dc7cc33840ad6abba57ec83227e67b",
+  "project": "omnis-p01-12995f1b13f9471d9ef7e83ae236b514",
+  "exact_runtime_absent": true,
+  "PGDATA_retained": true,
+  "retention_root": "/home/kali/.hermes/cache/scratch/uab-pa5xql32/db-947cc3945d3742f6",
+  "private_artifacts": 37,
+  "historical_limits": "Current S1/B03/B04 complete PASS; historicalbadACK subtype/canonical120s/B03timeout causes remainUNKNOWN, no exclusivecause or fullnative10/currentcanonical composition. No product code change or newprovider/target/S2.",
+  "counter": 2
+}

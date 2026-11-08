@@ -1,0 +1,99 @@
+{
+  "status": "BLOCKED_NATIVE_CAUSAL_PROOF_INCOMPLETE",
+  "deliverable": "Bounded causal analysis/native reproducer only; no repository edit",
+  "baseHEAD": "9f4fc0dc71aea493bd2a5826b0e7c66078cd3c63",
+  "head_after": "9f4fc0dc71aea493bd2a5826b0e7c66078cd3c63",
+  "tracked_clean_before_and_after": true,
+  "repo_changes": "NONE",
+  "decision": "Validator gap NOT_DEMONSTRATED by the admitted native attempt. Healthy control passed; the attempt stopped with finite ERROR before further control summaries were retained. Abort/malformed native predicates are NOT_VERIFIED. No correction implemented or adjudicated, no second invocation.",
+  "retained_failure": {
+    "record": "remaining-9f4fc0dc-fail-result.json",
+    "facts": "S1 BEFORE1FAIL37.45s at existing diagnosticErrors assertion:36tasks/35receipts/1INVALID_DIAGNOSTIC_ACK, firstFailure DIAGNOSTICS_DONE/ASSERTION, cleanup BROWSER_CLOSE_DONE. Body, viewport and injected503 checks completed. Models/remove UI passed in that run. Restart/full10E2E/CLI/release not reached.",
+    "attribution": "The actual failed ACK subtype in that run remains UNKNOWN. Original canonical120s timeout cause also remains UNKNOWN. A healthy response control here attributes neither historical failure."
+  },
+  "source_analysis": {
+    "producer": "bindDiagnostics admits finite metadata, combines owner lifetime with AbortSignal.timeout(750) via AbortSignal.any, reads response.json and treats failure as false best-effort; no retry and no control-blocking propagation.",
+    "consumer": "Exact original response listener validates request/correlation/status, awaits202 response.json, strictly validates ACK shape/version/accepted/event_id/state and appends receipt. One catch maps any rejection, including possible body-read transport loss, to INVALID_DIAGNOSTIC_ACK.",
+    "contract": "UiAck requires version1, accepted=true, matching UUID event_id, one of six finite delivery states, no additional properties. HTTP headers alone do not establish delivery of an ACK body or RECORDED/domain success.",
+    "hypothesis": "An intentional producer abort after202 headers may be conflated with malformed delivered ACK. This remains a source-supported hypothesis, not a demonstrated native classification defect after this incomplete calibration.",
+    "producer_scope": "Probe reused exact signal expression only, not the whole authenticated producer binding; no credentials/auth/session/pairing or product server was exercised."
+  },
+  "exact_inputs": {
+    "web/tests/e2e/run.mjs": "583adc2427cac0b74db8584a47572c79ecd03e740329858d164f76b30a99735a",
+    "web/src/shared/uiDiagnostics.ts": "f86d4bdcb895459bc2a4e0dd3e7072022af45e14966c55a505dced80735f134c",
+    "contracts/omnis.openapi.json": "7543d8c26712cbd9b5b2d1490efb16a5e93de848a2dafce5a6fd10bb1ab0bfa4",
+    "original_response_listener_bytes": "d42c0b4a0465f041a0f2c38a5995c281ee1345ce844a8138ef7c83b4c8ce0343",
+    "original_request_predicate_bytes": "1592de80c105d48b94a6353a33b113b17681730f802be7bbb3da302080bfab96",
+    "original_empty_errors_assertion_bytes": "92f52a73d473bb7f75bc84315335b85ea8eb2fa682b2b91f3451df8f85525064",
+    "exact_abort_expression": "AbortSignal.any([signal, AbortSignal.timeout(750)])",
+    "abort_expression_sha256": "16ad7631c630dcee787227493b941996116c262124dbe1049324d2ae37329e1f",
+    "binding": "Listener, predicate and assertion extracted in memory from frozen driver; whole driver and callback SHA checked before launch. No replacement ACK validator implementation."
+  },
+  "native_attempt": {
+    "script": "/home/kali/.hermes/cache/scratch/ux-diagnostic-abort-causal-7xw10kwh/repro.mjs",
+    "script_sha256": "69d22632d5627a48311767eeb67498f5e4ee5455f33430d932ae3d34d1dcb9b5",
+    "proof": "/home/kali/.hermes/cache/scratch/ux-diagnostic-abort-causal-7xw10kwh/native-proof.json",
+    "proof_sha256": "643830fb4cc0c9f4485615416094ca99f7692b465f14b20984a352410f2cead7",
+    "command": ["node", "/home/kali/.hermes/cache/scratch/ux-diagnostic-abort-causal-7xw10kwh/repro.mjs"],
+    "environment": {
+      "HOME": "/home/kali/.hermes/cache/scratch/s1-env-20261104/home",
+      "PATH": "/home/kali/.local/share/omnis-toolchains/bin:/usr/local/bin:/usr/bin:/bin",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch",
+      "LANG": "C.UTF-8"
+    },
+    "budget_seconds": 60,
+    "native_invocations": 1,
+    "exit": 1,
+    "duration_seconds": 6.531,
+    "stderr_present": false,
+    "failure_class": "ERROR",
+    "scope": "Owned ephemeral127.0.0.1:auto HTTP server, one fresh Chromium, nonpersistent contexts, synthetic UiEvent/ACK input only. No operator/profile/controller/product DB/provider/target interaction.",
+    "planned_controls": "Healthy complete202; same valid ACK with body withheld1500ms against exact750ms producer abort; complete malformed ACK accepted=false. Only healthy summary was retained before failure.",
+    "healthy_observed": {
+      "validator": "GREEN",
+      "tasks": 1,
+      "receipts": 1,
+      "errors": 0,
+      "requestFailures": 0,
+      "matchingRequestFailure": false,
+      "responseComplete": true,
+      "jsonRejected": false,
+      "producer_fetch_body_completed": true,
+      "producer_signal_aborted": false,
+      "serverRequests": 1,
+      "headersFlushed": true,
+      "bodyEndCalled": true,
+      "synthetic_event_sha256": "a468c8673d277f72e2dedf360dcc9ff18ca973884c0e90edace0998cf7388a78",
+      "synthetic_ack_sha256": "e42b494171191255e5d6bb5830b457de136bc5abe27a78dcc166408b62a19dbe"
+    },
+    "abort_control": "NOT_VERIFIED: no retained counters/response/requestfailure summary. Exact stopping boundary after healthy summary is unavailable; it could also precede entry into this control. Do not infer an observed producer abort or validator RED.",
+    "malformed_control": "NOT_VERIFIED: no retained malformed-control summary; strict native negative control not established by this attempt.",
+    "failure_limit": "Only finite ERROR class was retained. No raw exception/body/header/message/stack dump was made. Source alone cannot recover the actual native stopping phase. No source or calibration repair followed by another invocation is authorized here."
+  },
+  "checks": [
+    { "command": "git status --short --branch; git rev-parse HEAD; git diff --stat", "exit": 0, "result": "Requested HEAD and clean tracked state before attempt; protected preexisting untracked paths untouched" },
+    { "command": "No-launch installed Playwright executable access preflight under QA HOME/pinned PATH", "exit": 0, "result": "Nodev24.21.0; Chromium executable available" },
+    { "command": "node --check /home/kali/.hermes/cache/scratch/ux-diagnostic-abort-causal-7xw10kwh/repro.mjs", "exit": 0 },
+    { "command": "One native Node invocation with60s outer budget", "exit": 1, "result": "Healthy GREEN only; incomplete causal proof, not a validator-fix PASS" },
+    { "command": "Post-attempt exact HEAD/clean tracked state and SHA256 comparison", "exit": 0, "result": "Driver, producer and contract match before/after frozen bytes" }
+  ],
+  "cleanup": {
+    "failed": false,
+    "contexts_remaining": 0,
+    "browser_disconnected": true,
+    "server_closed": true,
+    "timers_remaining": 0,
+    "sockets_remaining": 0,
+    "node_exited": true,
+    "forced_group_kill": false,
+    "evidence": "Native script finally awaited context/browser disposal and HTTP server close, cleared owned timers and destroyed owned sockets; retained finite cleanup readback has zero remaining resources."
+  },
+  "proposal_disposition": "No minimum correction recommended as established: required abort RED and complete-malformed RED controls were not retained. Keep all complete-delivery validation, secret/census/negative controls and deadlines intact. Transport loss may only be reclassified UNCONFIRMED/UNAVAILABLE after matching explicit native requestfailure versus complete malformed ACK is demonstrated and parent adjudicates. No exemption from202/body parse or blanket catch suppression is justified by this positive alone.",
+  "limits": {
+    "counter": "Existing observation-only counter2 retained; this bounded causal calibration added no product observer and did not reset history. No third observer layer, second native invocation, whole-S1/full-gate replay or canonical debug loop.",
+    "historical": "No attribution of remaining-run badACK subtype, old120s timeout or old390 focus exclusive cause from this probe.",
+    "effects": "Only owned scratch repro/proof and this new result were written. No Git/source/doc changes, full tests/build, services persisting, subagents, install, live model/provider/target or S2. Protected tempkey.txt, documents/Omnis_Notite_Originale.html, .env/keys/vault/browserstorage/raw operator logs/separate Strix excluded all reads/hashes. OperatorSTOPPED62 not queried or changed.",
+    "scratch_retention": "Repro/proof are in own scratch cache and may be pruned; finite facts and hashes retained here."
+  },
+  "next": "STOP at BLOCKED boundary. Parent adjudicates the incomplete causal proof; no implementation or further native attempt is launched by this developer under the exhausted one-invocation admission."
+}

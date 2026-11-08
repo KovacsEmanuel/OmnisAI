@@ -1,0 +1,34 @@
+{
+  "head": "9f4fc0dc71aea493bd2a5826b0e7c66078cd3c63",
+  "scope": "PASS_SCOPED_CLI_RELEASE_ONLY_NOT_CANONICAL_OR_E2E",
+  "argv": [
+    "make",
+    "--no-print-directory",
+    "check-cli",
+    "check-release-install",
+    "UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19"
+  ],
+  "outer_exit": 0,
+  "inner": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "summaries": [
+    "Ran 471 tests in 214.792s",
+    "OK",
+    "Ran 471 tests in 213.879s",
+    "OK",
+    "1 passed in 3.78s",
+    "Ran 84 tests in 18.853s",
+    "OK (skipped=3)"
+  ],
+  "inputs": 2481,
+  "input_drift": [],
+  "container": "e4bd522cc3d77af3dde59ab0537d5fc7db296ded523a0187ed87f8e34b37b5b7",
+  "project": "omnis-p01-a5cc90a7f69f43a28b1b1261ab95dbca",
+  "exact_runtime_absent": true,
+  "PGDATA_retained": true,
+  "retention_root": "/home/kali/.hermes/cache/scratch/ucl-w16a_zfw/db-7b449d33def94ab1",
+  "limits": "Actual required CLI source471/wheel471 + PGstatus + release84OK3SKIP; no new runtime image opt-ins. Native S1 ACK blocker/full10E2E/canonical remain open; no composition or universal claim."
+}

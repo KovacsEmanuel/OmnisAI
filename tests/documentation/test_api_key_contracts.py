@@ -149,6 +149,18 @@ class ApiKeyContracts(unittest.TestCase):
             with self.subTest(token=token), self.assertRaises(AssertionError):
                 t2_functional_core(original.replace(token, "REMOVED_REQUIREMENT"))
 
+    def test_t2_status_summaries_keep_the_amended_core_exit(self):
+        status = (DOCS / "verification/implementation-status.md").read_text()
+        for marker in ("**Nucleul T2 în inventarul SL:**", "**Firul critic:**"):
+            summaries = [line for line in status.splitlines() if line.startswith(marker)]
+            self.assertEqual(len(summaries), 1, marker)
+            for token in ("S2b", "S3b", "S4b", "S5", "DEFERRED_BY_OPERATOR"):
+                self.assertIn(token, summaries[0])
+            self.assertNotIn("A separat blocat", summaries[0])
+        lab = next(line for line in status.splitlines() if line.startswith("| M-LAB /"))
+        self.assertIn("S4b", lab)
+        self.assertNotIn("raport/retest rămân T5", lab)
+
 
 if __name__ == "__main__":
     unittest.main()

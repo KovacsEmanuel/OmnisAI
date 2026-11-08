@@ -85,9 +85,11 @@ AES-256-GCM cu nonce unic per criptare și AAD legat de engagement/identitate/ti
 
 ## 5. Recon, browser și parsere
 
+**Plasare T2 amendată, fără schimbare de pinuri:** S2a folosește HTTPX existent; S2b aduce Playwright Python/Chromium și shell/Python în executor confinat, obligatorii înainte S7. S3b consumă observațiile lor; biblioteca de QA `@playwright/test` nu livrează executorul produsului. Strix folosește agent-browser0.26.0 prin shell; nu îl importăm în paralel cu Playwright și nu pretindem un driver browser Python Strix de extras. Adaptor batch tipizat pe primitivele standard ale executorului este alegerea minimă pentru scripts; SDK Shell ar cere alt backend de sesiune/authority/result, nu este drop-in. Pinul/imaginea interpretorului, limitele concrete și G-TOOLS/G-NET se fixează înaintea QA, fără install în task. B01e de mai jos rămâne prerequisite neînchis, nu compatibilitate obținută prin acest amendament.
+
 | Componentă | Pin / moment |
 |---|---|
-| Playwright Python | **1.63.0**, mediu executor separat; P3b |
+| Playwright Python | **1.63.0**, mediu executor separat; T2/S2b core, P3b extensii |
 | Chromium | Buildul livrat pentru Playwright 1.63.0, plus digest al imaginii; nu Chrome personal sau `latest` |
 | JSON | stdlib Python, cu byte/depth/time limits |
 | XML robots/sitemap | `defusedxml==0.7.1`; DTD/entities interzise, limită de resurse |
@@ -179,6 +181,10 @@ Proveniența exactă, intervalele/hashurile și schimbările necesare rămân î
 | `vxcontrol/pentagi` | `ea665308baaff015b226f308438a68d929d0f29b` |
 
 ### 10.2. Unități de import cu consumator și probe
+
+**Selecția curentă pentru T2:** [SR01–SR09 + extensia functional_core_amendment](verification/strix-7574-porting-cards.json) fixează Strix v1.7.0/`55bc07991aacb1c26a81b43e7ca53148730d2019`, ranges/SHA/closure/teste și ownerii reali; tabelele U/S de mai jos păstrează proveniența pinurilor anterioare. Source-kit `content/strix-s234-catalog@1885d3f9dd9d498008a84d005ad6197f4807db2f` are79originale și6adaptări pregătite, necalificate/neintegrate în checkoutul curent. Se refolosesc corpurile coordination/handoff/HTTP/recon/IDOR/validation, nu alte copii de la zero;70originale sunt identice și9diferă de pinul nou. Conservăm ambele proveniențe și schimbăm numai delta relevantă, nu eticheta pinului peste bytes vechi. Browser/python methodology se adaptează în același kit. Calificarea/package manifests/binding/SECURITY eval preced activarea; nu se montează întregul source-kit în runtime.
+
+**Reuse fără runtime duplicat:** SDK/sender/catalog/PG/owner/seif Omnis KEEP; note/index/model/amendamente, metodologia și rubricile/handoffurile PORT/ADAPT; HTTPX și Playwright USE_PACKAGE; policy/identity/evidence/D14/HTML-snapshot sunt NEW glue la consumer unde sursa nu oferă contractul Omnis. Writerul Strix `report/writer.py:148–220,223–396` produce Markdown/CSV/JSON, nu un export HTML Omnis; adaptăm ansamblul rubricilor/istoricului în S4b fără ReportState global/default=str/temp-rename tratat ca protocol durable. Fără LiteLLM, Caido runtime, agent-browser daemon, Pygments/PDF/SARIF sau alte dependențe doar pentru imitare. Licențele/notices și diff-ul rămân; noile consumeri sunt NOT_RUN, nu compatibility PASS din6teste de coercion.
 
 C = copiere/adaptare de sursă+teste; PORT = algoritm portat cu atribuire; P = pachet/executabil fixat prin adaptor; N = suprafață nativă păstrată. Nu portăm un engine Go în Python și nu adăugăm Go/Rust/Twisted/Temporal în control plane pentru helpers. Fiecare import păstrează licența/notices, upstream commit, hash de fișier și diff de adaptare. Snapshotul original poate rămâne quarantine, nemontat runtime-ului; doar releaseul selectat intră în catalog.
 

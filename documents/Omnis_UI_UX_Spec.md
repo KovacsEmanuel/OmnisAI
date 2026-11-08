@@ -1,6 +1,6 @@
 # Omnis — specificație UI/UX API-key-only · baseline vizual acceptat
 
-**VISUAL_ACCEPTED · Prototip df17a29 · Surface: Operate / Monitor, cu inspector contextual · S1 inițial CLOSED_SCOPED; felia produs UI referință + light/dark ADMITTED_IN_PROGRESS, nu acceptare vizuală nouă**
+**VISUAL_ACCEPTED · Prototip df17a29 · Surface: Operate / Monitor, cu inspector contextual · S1 inițial CLOSED_SCOPED; produs VISUAL_CHANGES_REQUESTED.** Amendamentul Strix7574 fixează Activity/Feed/Agents și UI-ul nucleului T2; este specificație, nu implementare sau aprobare estetică nouă.
 
 [DESIGN.md](../DESIGN.md) este sursa tokenurilor; [prototipul offline](Omnis_UI_Prototype.html) este o demonstrație navigabilă, nu frontendul implementat. Conținutul sintetic este etichetat DEMO și nu poate executa requesturi, autentificări sau scanări. Limbajul UI MVP: engleză pentru etichete tehnice consecvente, documentație română; excepția explicit cerută este setupul de misiune cu etichetele românești de mai jos. Nu implementăm i18n complet, dar textele rămân centralizate.
 
@@ -43,7 +43,19 @@ Rollbackul prototipului folosește commiturile acelei felii, fără schimbări d
 
 Corecție obligatorie a operatorului: **Settings → Models rămâne gândit ca acum, inclusiv căutare, selecții, pași și comportament; numai CSS/grafic pentru teme și consistență.** Theme toggle este global, inclusiv în pairing, persistă numai preferința nesensibilă și nu resetează setup/filtre/inspector. Controalele, Stop/focus, consimțământul, stările și identitatea rămân. Findings/Coverage/Reports primesc tema/carcasă, nu funcțiile viitoare. Verificarea în browser real și reviewul pe bytes finali preced acceptarea; estetica finală este a operatorului. Snapshoturile P0.3/S0 de mai sus sunt istorice, nu starea actuală S1/UI.
 
-**Corecții UX ulterioare — implementare explicit admisă înainte de S2:** [checklistul unic `ux-*`](verification/ui-reference-light-dark.md) cere control soare/lună fidel referinței, creare fără panou Test model, calendar popover rotunjit și dată lizibilă, checkbox de interval opțional, Overview compact și scrollbars discrete. Fără diagnostic permanent sau o nouă pagină debug; Stop și recuperarea incertitudinii rămân accesibile contextual. Inspectorul agentului este **DOAR CITIRE**. Brain are o capsulă scurtă de activitate reală și, dedesubt, un mic arbore de delegare persistentă cu stare text+bulină și click→inspector; această excepție înlocuiește interdicția de arbore, NU admite cortex/council/attack graph/canvas draggable din template. Instrucțiunile/uneltele/rezultatele sunt numai cele păstrate/redactate, nu transcript complet ori gândire internă fabricate. Lipsa producerilor recon/JS/hunting nu se maschează prin demo sau execuții S1 pentru populare. Sunt admise backendul strict necesar perioadei opționale din arhitectură§9 și traseul privat bounded de diagnostic inspectabil pe ownerii existenți; nu S2, provider/target, migrare/upgrade implicit sau framework/dependențe noi. Modelele păstrează semantica; excepția la înghețarea byte-identică este numai contractul comun generat/decoderul/clientul necesare noilor DTO/corelației, nu rescrierea fluxului Models.
+**Corecțiile UX anterioare sunt în [checklistul unic `ux-*`](verification/ui-reference-light-dark.md):** soare/lună, creare fără Test model, calendar lizibil, interval opțional, Overview compact, scrollbars și diagnostic privat. După feedbackul uman, prezentarea activității este înlocuită explicit de contractul următor: **Feed și Agents separate**, nu arbore și toate transcripturile stivuite. Stop, recuperarea incertitudinii, focusul și semantica Models se păstrează. Date reale numai, fără recon/JS/hunting demo ori inferențe pentru populare. Backendul/DTO/decoderul minim se livrează cu producerul; nu alt serviciu de diagnostic sau store de transcript. Implementarea este în pauză; mandatul curent modifică documentele, nu reia UI/S2 sau instalația operatorului.
+
+### Activity, Overview și inspector — contractul S1-UX extins cu producerii
+
+**Eticheta curentă este Activity**, în loc de Brain stream. Referințele istorice la Brain stream și numele fișierelor/ruta `/stream` rămân compatibile; nu cer redenumire de module. Navigația este **Overview · Activity · Findings · Coverage · Reports**. Păstrăm compoziția/paleta Omnis și Settings/Models; nu copiem brandingul, canvasul ReactFlow, sidebarul cloud sau exportul prin email Strix.
+
+- **Overview:** now-bar → Needs you → metrici/findings/severity → context/consum. Run details arată durata wall-clock din start/final/as_of persistente (inclusiv pauzele, etichetat), LLM requests observate și pending/unknown separat, input cu cached inclus, output cu reasoning inclus, total tokens, cost observat cu coverage și moneda numai dacă sursa o stabilește, total agenți/taskuri distincte incluzând Brain. Attempts și actorii auxiliari contabili sunt separați. Nu restartăm durata la mount, nu numim allocations „requests”, nu adunăm cached/reasoning încă o dată și nu calculăm totalul din pagina rosterului. UNKNOWN/PARTIAL/stale nu devin zero.
+- **Activity / Feed:** cronologie scurtă a runului, actor + verb semantic + rezultat/stare + timp + link. Spawn/decizie/tool-called/tool-result/notă/model/candidat/validare/predare/control sunt tipizate după livrarea producerului. Argumentele și detaliile protocolului nu sunt deschise implicit. Filtrele pe întregul run cer query/cursor server-side; filtrul unei pagini este etichetat loaded-page.
+- **Activity / Agents:** ierarhie/listă compactă expandabilă după spawn real, nume/misiune scurtă, rol și stare text+indicator. Nu agent permanent per skill sau multiplicare pentru fiecare attempt. Lista are paginare și total independent; parent absent din pagină nu se inventează. Waiting/blocked/completed/stopped/unknown sunt distincte, liveness vine de la owner. Fără agent activ → stare explicită și istoric accesibil. Pollingul5s/focus/reconnect existent păstrează selecția/focusul/scrollul.
+- **Click pe agent → inspector DOAR CITIRE:** header stabil, misiune/rol/model/stare; cronologie delegare → observație/decizie înregistrată → call/pending/result/error → note/model → candidat/validare → handoff/gaps. Prompt/input permis efectiv, pinned skills/referințe încărcate ulterior, usage și proveniența sunt disclosures secundare. Instrucțiunile nu ocupă implicit tot inspectorul. Istoric multi-step paginat pe agent, nu filtrarea unei pagini globale sau singurul ultim tool. Call/result se leagă prin run/task/attempt/call_id; output nesuportat apare explicit, nu dispare sau devine no-results. Păstrăm Inspect consuming Brain și basis refs.
+- **Citire confortabilă:** header fix, scroll propriu, auto-follow numai aproape de final și indicator pentru evenimente noi când operatorul citește mai sus; fără salt forțat. Escape/Close întorc focusul, Stop al runului exact rămâne accesibil inclusiv în overlay, reduced motion și 44px/contrast rămân. Output extern inert/redactat/bounded; preview/truncation/completeness/paginarea explicite. Nu afișăm secrete sau hidden reasoning; eticheta Thinking din Strix nu este obligație de expunere a deliberărilor interne.
+
+**Livrare pe S:** S1-UX dovedește o vedere etalon pe date existente; S2 request/hops/identity/HTTP/browser/process/output/artifact/erori; S3 note/map/threat-model/citire→brief; S4 candidat/triage/D13/D14/finding/review/export; S5 mesaje/consum/successor/prioritate/recovery; S6–S7 întregul circuit. Findings păstrează PoC/probele validatorului, nu duplică transcriptul. Coverage arată operații/params/identități/observed-inferred/obligații/gaps din aceeași proiecție; Reports descarcă snapshotul real. Refuzul create-report nu devine finding confirmat. Estetica implementării cere acceptarea operatorului, separat de teste.
 
 ### Proveniența elementelor, nu funcții aprobate implicit
 
@@ -68,9 +80,9 @@ Dashboard
 
 Engagement / Invoice lab
   țintă + run / Pause · Stop
-  Overview · Brain stream · Findings · Coverage · Reports
+  Overview · Activity · Findings · Coverage · Reports
   Overview: stadiu → Needs you → metrici → findings/severity → buget/context
-  Brain stream: log compact tipizat, cu stadiu și linkuri la obiecte
+  Activity: Feed compact / Agents ierarhic → inspector cronologic selectat
   Coverage: matrice/checks și subvedere Endpoints
   Setup și Candidates: acțiuni secundare în context
 
@@ -99,7 +111,7 @@ Topbar menține numele engagementului, run state și sync state. Stop rămâne a
 | `/engagements/new` | Wizard cu pași verticali și form central | Rezumat sticky desktop; Save draft permanent, Next/Back; nimic nu pornește |
 | `/engagements/:id/setup` | Revizie/draft, scope și context | Edit numai oprit; active → motiv + link Stop, fără editare mascată |
 | `/engagements/:id/overview` | Now-bar/stadiu, aprobări, metrici, Top findings, Severity, Budget și context | Review finding/operator sau acțiune exactă; streamul rămâne separat |
-| `/engagements/:id/stream` | Stadiu + evenimente compacte tipizate, timestamp/actor/sumar/link; filtre de tip și actor | Tool called/result, decizie, endpoint, validare; fără graph/council/deliberări interne |
+| `/engagements/:id/stream` | Activity cu Feed / Agents; filtre/cursori și selecție run/agent validate, ruta existentă păstrată | Inspector read-only cu istoric tipizat/paginat; tool called/result/erori/gaps/consum; fără graph/council/deliberări interne |
 | `/engagements/:id/coverage` | Matrice suprafață × identitate × familie, filtre | Click celulă → procedură, test, control și evidence; numitor/snapshot vizibile |
 | `/engagements/:id/coverage?tab=endpoints` | Tree host/path, tabel metodă/path/auth/sursă/stare | Operație selectată: params, observations, request/response, related |
 | `/engagements/:id/investigations` | Tabel/queue taskuri cu ipoteză, rol, skill, attempt, blocaj/verdict | Timeline investigator→validator; reason, budget, results și stop task dacă suportat |
@@ -206,7 +218,7 @@ Acestea sunt extensii funcționale aprobate **în specificație**, nu layouturi 
 
 ### M-LAB: triage și validare
 
-Investigations/inspector arată candidatul IDOR/BOLA, TriageAssessmentV1 (motiv, evidence, gaps/dispoziție) și validatorul independent. Triage este skill al orchestratorului, nu alt tab/agent obligatoriu. Un triage favorabil nu produce CONFIRMED. Skill original QUARANTINED și validator extern CANDIDATE_SOURCE_PENDING nu apar „executabile” înainte de adaptare/eval. M-LAB are rezultat inspectabil/reload/Stop; report review/export/retest generale vin în T5, fără butoane fictiv funcționale înainte.
+Investigations/inspector arată candidatul IDOR/BOLA, TriageAssessmentV1 (motiv, evidence, gaps/dispoziție) și validatorul independent. Triage este skill al orchestratorului, nu alt tab/agent obligatoriu. Un triage favorabil nu produce CONFIRMED. Skill original QUARANTINED și validator extern CANDIDATE_SOURCE_PENDING nu apar „executabile” înainte de adaptare/eval. M-LAB/S4a are rezultat inspectabil/reload/Stop; **review și export HTML/JSON vin obligatoriu în T2/S4b**, retestul în T5. Butoanele nu sunt funcționale înaintea producerilor și gate-urilor lor.
 
 D13 completitudine și D14 verdict sunt afișate separat: task parțial cu gaps poate avea candidat trimis validatorului fără task-success fals. Confirmarea are probe proprii independente; owner/shared/fixed/benign/login invalid nu devin findings. Nereprodus/capabilitate lipsă nu este FP automat. Acest subset este T2/S4–S6, apoi extindere T4; minimum un finding confirmat independent este criteriu de închidere T2, nu o metrică fabricată pentru a-l îndeplini.
 
@@ -268,7 +280,7 @@ Frontendul nu cunoaște tokenul admin Hermes, secretul proxy, credentialul AI sa
 
 ### 7.1. Evoluția UI după migrare
 
-Plan §15.1 și §7 leagă funcții/skills/tooluri de UI, fără backlog vizual separat. T1 Settings/consum/Test/Stop; T2/S1 control/roster/Needs you/stream/inspector, S2 HTTP/auth/evidence, S3 hartă/recon, S4 candidat/triage/validator/finding minim; T3/T4 extind subsetul. T5 păstrează review/export/retest; T6 plan/clarificări/coverage/recon/browser extinse, editor/profiluri și comparații de consum. Browser necesar unui caz are gate înainte de folosire, nu suport UI pretins. Tabelele folosesc aceleași proiecții reale, cu unknown/stale și fără costuri demo. Păstrăm VISUAL_ACCEPTED/df17a29, tokenurile și cele cinci taburi; schimbarea direcției/graph/canvas/taburi noi cere acord separat. Keyboard/focus/Stop și accesibilitatea nu sunt polish opțional. Auto-pair A rămâne BLOCKED_ADMISSION conform arhitectură §4; manualul nu îl închide sau amână implicit.
+Plan §15.1 și §7.2 leagă funcții/skills/tooluri de UI, fără backlog vizual separat. T1 Settings/consum/Test/Stop; S1-UX Activity/Feed/Agents/inspector și metrici; S2a HTTP/auth/evidence, **S2b browser/SANDBOX_EXEC obligatoriu pentru S7**; S3 recon/notițe/hartă/model pe aceste transporturi; S4a candidat/triage/validator/finding și S4b review/export; S5 continuări adaptive/STEER/prioritate/consum/recovery; S6/S7 calibrare/readback. T3/T4 completează numai scope-ul rămas, T5 retest, T6 familii/recon/focus/path/editor/Jev și auxiliare. Nicio funcție transversală promisă nucleului nu rămâne amânată sub eticheta T6. Stările unavailable/unknown/stale sunt oneste; tema nu certifică backendul. VISUAL_ACCEPTED/df17a29, tokenurile, Stop/focus/a11y și acceptarea estetică separată rămân. **A = DEFERRED_BY_OPERATOR**, pairing manual suficient pentru S7, fără a declara automatizarea livrată.
 
 ## 8. Date necesare și legătura UI–backend
 

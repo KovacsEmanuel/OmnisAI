@@ -180,6 +180,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <p><strong>Amendament de calitate Python:</strong> <code>ruff==0.16.9</code> și <code>mypy==2.3.1</code> sunt fixate în grupul dev al API și în lock, nu în runtime. Ruff verifică lint/format, mypy strict verifică sursele și testele cu pluginul oficial Pydantic tipizat, fără casts sau excluderi pentru a ascunde erori. <code>make lint-api</code>/<code>make typecheck-api</code> intră în gate-ul comun și au controale pozitive/negative executabile. <a href="verification/p02-python-quality.md">Proveniența, rezultatele pe checkout curat și limitele</a> sunt separate de probele istorice de dependențe de mai sus; acestea nu sunt rescrise drept certificare a produsului.</p>
 <p>AES-256-GCM cu nonce unic per criptare și AAD legat de engagement/identitate/tip de secret; cheie în afara DB/repo/backup. Nonce-ul fix din proba disposable este folosit o singură dată cu cheie proaspătă și text sintetic; nu este modelul de implementare a seifului. Cheia lipsă produce LOCKED. Threat modelul nu protejează de root/același UID compromis.</p>
 <h2 id="5-recon-browser-si-parsere">5. Recon, browser și parsere</h2>
+<p><strong>Plasare T2 amendată, fără schimbare de pinuri:</strong> S2a folosește HTTPX existent; S2b aduce Playwright Python/Chromium și shell/Python în executor confinat, obligatorii înainte S7. S3b consumă observațiile lor; biblioteca de QA <code>@playwright/test</code> nu livrează executorul produsului. Strix folosește agent-browser0.26.0 prin shell; nu îl importăm în paralel cu Playwright și nu pretindem un driver browser Python Strix de extras. Adaptor batch tipizat pe primitivele standard ale executorului este alegerea minimă pentru scripts; SDK Shell ar cere alt backend de sesiune/authority/result, nu este drop-in. Pinul/imaginea interpretorului, limitele concrete și G-TOOLS/G-NET se fixează înaintea QA, fără install în task. B01e de mai jos rămâne prerequisite neînchis, nu compatibilitate obținută prin acest amendament.</p>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
 <thead>
 <tr>
@@ -190,7 +191,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <tbody>
 <tr>
 <td>Playwright Python</td>
-<td><strong>1.63.0</strong>, mediu executor separat; P3b</td>
+<td><strong>1.63.0</strong>, mediu executor separat; T2/S2b core, P3b extensii</td>
 </tr>
 <tr>
 <td>Chromium</td>
@@ -384,6 +385,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tbody>
 </table></div>
 <h3 id="102-unitati-de-import-cu-consumator-si-probe">10.2. Unități de import cu consumator și probe</h3>
+<p><strong>Selecția curentă pentru T2:</strong> <a href="verification/strix-7574-porting-cards.json">SR01–SR09 + extensia functional_core_amendment</a> fixează Strix v1.7.0/<code>55bc07991aacb1c26a81b43e7ca53148730d2019</code>, ranges/SHA/closure/teste și ownerii reali; tabelele U/S de mai jos păstrează proveniența pinurilor anterioare. Source-kit <code>content/strix-s234-catalog@1885d3f9dd9d498008a84d005ad6197f4807db2f</code> are79originale și6adaptări pregătite, necalificate/neintegrate în checkoutul curent. Se refolosesc corpurile coordination/handoff/HTTP/recon/IDOR/validation, nu alte copii de la zero;70originale sunt identice și9diferă de pinul nou. Conservăm ambele proveniențe și schimbăm numai delta relevantă, nu eticheta pinului peste bytes vechi. Browser/python methodology se adaptează în același kit. Calificarea/package manifests/binding/SECURITY eval preced activarea; nu se montează întregul source-kit în runtime.</p>
+<p><strong>Reuse fără runtime duplicat:</strong> SDK/sender/catalog/PG/owner/seif Omnis KEEP; note/index/model/amendamente, metodologia și rubricile/handoffurile PORT/ADAPT; HTTPX și Playwright USE_PACKAGE; policy/identity/evidence/D14/HTML-snapshot sunt NEW glue la consumer unde sursa nu oferă contractul Omnis. Writerul Strix <code>report/writer.py:148–220,223–396</code> produce Markdown/CSV/JSON, nu un export HTML Omnis; adaptăm ansamblul rubricilor/istoricului în S4b fără ReportState global/default=str/temp-rename tratat ca protocol durable. Fără LiteLLM, Caido runtime, agent-browser daemon, Pygments/PDF/SARIF sau alte dependențe doar pentru imitare. Licențele/notices și diff-ul rămân; noile consumeri sunt NOT_RUN, nu compatibility PASS din6teste de coercion.</p>
 <p>C = copiere/adaptare de sursă+teste; PORT = algoritm portat cu atribuire; P = pachet/executabil fixat prin adaptor; N = suprafață nativă păstrată. Nu portăm un engine Go în Python și nu adăugăm Go/Rust/Twisted/Temporal în control plane pentru helpers. Fiecare import păstrează licența/notices, upstream commit, hash de fișier și diff de adaptare. Snapshotul original poate rămâne quarantine, nemontat runtime-ului; doar releaseul selectat intră în catalog.</p>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
 <thead>
@@ -758,5 +761,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 [19] https://pypi.org/pypi/cryptography/48.0.1/json — cryptography 48.0.1 advisory metadata
 [21] https://www.sqlalchemy.org/download.html — SQLAlchemy maintained branches
 [22] https://raw.githubusercontent.com/docker-library/docs/master/postgres/README.md — PostgreSQL official image volume and PGDATA</p>
-<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>206f663c2e50b4f947c77f2f965236b5a48811322467f68b224d7a60a115c11a</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>4af68c0ae9b0b0a5bef816ce309e4582f38ddce38153a8be06c9589faa031b2e</code>.</p></footer>
 </main></div></body></html>

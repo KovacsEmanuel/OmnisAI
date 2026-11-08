@@ -46,6 +46,34 @@ def runtime_contract(text):
         assert token in compatibility, token
 
 
+def t2_functional_core(text):
+    """Guard the admitted delivery boundary, not runtime capability or parity."""
+    contract = section(text, "### 7.2. Contract de portare pe consumer — S1–S7")
+    required = {
+        "S1-UX": ("SR08", "Activity", "Agents", "inspector"),
+        "S1-core": ("stagn", "UNKNOWN"),
+        "S2a": ("SR04", "SR05", "OPERATOR_CHECK", "identity"),
+        "S2b": ("OBLIGATORIU_S7", "browser", "SANDBOX_EXEC", "G-NET"),
+        "S3a": ("SR01", "SR02", "Brain", "brief"),
+        "S3b": ("S2b", "browser", "provenien"),
+        "S4a": ("SR03", "SR09", "D13", "D14", "D03"),
+        "S4b": ("SR09", "HTML/JSON", "claim_revision", "AVAILABLE"),
+        "S5": ("SR06", "G-LOOP", "consum", "UNKNOWN"),
+        "S6": ("ShopShfere", "autonom", "D03"),
+        "S7": ("S2b", "S3b", "S4b", "S5", "NOT_RUN"),
+    }
+    rows = re.findall(r"(?m)^\| (S[1-7][a-z]?(?:-[A-Za-z]+)?) \|(.+)$", contract)
+    assert len(rows) == len(required), "unique consumer rows"
+    assert {key for key, _ in rows} == set(required), "complete consumer inventory"
+    for key, row in rows:
+        assert len(row.split("|")) == 6, (key, "producer/reuse/consumer/check/exit columns")
+        for token in required[key]:
+            assert token in row, (key, token)
+    assert "A = DEFERRED_BY_OPERATOR" in contract
+    assert "nu blochează S7" in contract
+    assert "nu certifică paritatea" in contract
+
+
 class ApiKeyContracts(unittest.TestCase):
     def test_runtime_contracts_have_real_roots_and_truthful_outcomes(self):
         runtime_contract(document("MVP_Architecture"))
@@ -110,6 +138,16 @@ class ApiKeyContracts(unittest.TestCase):
         ui = section(document("UI_UX_Spec"), "### 7.1. Evoluția UI după migrare")
         for token in ("§15.1", "T1", "T4", "T5", "T6", "unknown/stale", "Stop"):
             self.assertIn(token, ui)
+
+    def test_t2_requires_the_complete_core_but_keeps_first_finding_intermediate(self):
+        t2_functional_core(document("Implementation_Plan"))
+
+    def test_t2_cannot_silently_drop_browser_reports_or_manual_pairing_disposition(self):
+        original = document("Implementation_Plan")
+        t2_functional_core(original)
+        for token in ("OBLIGATORIU_S7", "A = DEFERRED_BY_OPERATOR", "| S4b |"):
+            with self.subTest(token=token), self.assertRaises(AssertionError):
+                t2_functional_core(original.replace(token, "REMOVED_REQUIREMENT"))
 
 
 if __name__ == "__main__":

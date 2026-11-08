@@ -2,6 +2,124 @@
   "schema_version": 1,
   "status": "SOURCE_INSPECTED_NOT_IMPORTED_NOT_PRODUCT_RUN",
   "omnis_revision": "177266f82b65eabdd4273b2f91fa605753763ebf",
+  "functional_core_amendment": {
+    "omnis_base": "1843c7bf89afe6014cc1101ae69d301a5fc6167b",
+    "status": "CANONICAL_PLAN_INPUT_SOURCE_INSPECTED_RUNTIME_NOT_RUN",
+    "authority": "Ordinea și acceptarea sunt numai în Omnis_Implementation_Plan.md §7.2. Acest obiect completează aceleași SR01–SR09, nu creează alt catalog/plan sau mandat de implementare.",
+    "approved_exit": "S7 cere nucleul HTTP/browser/SANDBOX_EXEC/recon/notes/map/threat-model/delegare adaptivă/D13/D14/raport HTML+JSON/UI; IDOR/BOLA prima familie, D03 intermediar. A DEFERRED_BY_OPERATOR; pairing manual suficient.",
+    "source_kit": {
+      "branch": "content/strix-s234-catalog",
+      "revision": "1885d3f9dd9d498008a84d005ad6197f4807db2f",
+      "upstream_revision": "6b7ae2ebe4d47037a927aade23265ff4e4f27e84",
+      "state": "PREPARED_IN_OTHER_BRANCH_UNQUALIFIED_NOT_IMPORTED_IN_ACTIVE_CHECKOUT",
+      "originals": 79,
+      "identical_to_strix_1_7_0": 70,
+      "changed_originals": ["strix/agents/prompts/scope.jinja", "strix/agents/prompts/system_prompt.jinja", "strix/skills/analysis/counterevidence.md", "strix/skills/analysis/source_aware_discovery.md", "strix/skills/coordination/root_agent.md", "strix/skills/custom/dependency_cve_scanning.md", "strix/skills/scan_modes/diff.md", "strix/skills/tooling/agent_browser.md", "strix/skills/vulnerabilities/xss.md"],
+      "prepared_root": "skills/strix-catalog/prepared/",
+      "prepared": [
+        {"path": "coordination.md", "lines": [9, 117], "bytes": 7377, "sha256": "095880214fa6d20df75bada306240f3a72fa80ae30be298777609259e0345d11", "consumer": "Brain S3/S5; root-only instructions"},
+        {"path": "handoff.md", "lines": [12, 99], "bytes": 9506, "sha256": "8612f2bb908c9bfb108237840942ea95b04158725647bd2aca8ec7494d12c5d3", "consumer": "Brief/MethodPlan/TaskResult S3/S4/S5"},
+        {"path": "s2-http-auth/SKILL.md", "lines": [19, 120], "bytes": 7066, "sha256": "3df68d35398b4a4e5a62db3260398c8b79addddaedf3a181d33d0854ed894931", "consumer": "S2a principal/epoch/login/health/capture/replay"},
+        {"path": "s3-web-recon/SKILL.md", "lines": [19, 115], "bytes": 6458, "sha256": "4297faccc5ee7a7a27bbece56949c67de03183ff58d7827335a8e785eb72ef4f", "consumer": "S3a/b discovery/operations/workflows/model"},
+        {"path": "s4-idor-bola/SKILL.md", "lines": [21, 138], "bytes": 9993, "sha256": "c49e201558608b08b862cfe5787847881d658a81e3bddc355e2fd843cbb92aae", "consumer": "S4a investigator, variant-specific obligations"},
+        {"path": "s4-validation/SKILL.md", "lines": [20, 134], "bytes": 7990, "sha256": "64a761820b07637a72af5b49310dad32a5c5773932ad980761989927cc730415", "consumer": "S4a independent replay/control/counterevidence"}
+      ],
+      "prepared_total_bytes": 48390,
+      "decision": "REUSE prepared content, preserve original pin/provenance and apply only relevant new-pin deltas. Do not create duplicate skills/web-recon or skills/idor-bola. Add package manifests/procedures/schemas/bindings only with consumer; freeze/review/evaluate before Publish. Runtime receives only qualified selected material, never the whole source-kit or .hermes development skills.",
+      "sizing": "IDOR9993bytes exceeds current composer8192 before core/brief/tools/history; all prepared48390 is not a prompt. Preserve full methodology in catalog, select applicable variant+mandatory obligations and retrieve qualified optional references. Measure full SDK wire32768/response131072 and deny mandatory overflow; no silent truncation/tacit limit increase."
+    },
+    "native_extension_bundle": {
+      "root": "api/src/omnis/",
+      "existing": ["supervisor/agent_runner.py:Exchange/ToolCall/StepInput:44–89,AgentStep.projection:128–194,run:196–475", "modules/runs/run_runtime.py:AgentRunOwner.new_attempt:255–312,work:602–839,execute_tool:841–942,complete:1072–1243,drain_run/recover:1245–1377", "modules/runs/run_contract.py:BrainDecision/WorkerFinal:51–67", "modules/runs/run_store.py:event:327–378,add_inbox/consume:407–443", "modules/tasks/agent_composition.py:compose_publication:41–117", "modules/runs/projections.py:usage_summary:88–157,summary/events:254–360"],
+      "change_together": "Versioned role/tool/history/brief/result DTOs, selected qualified packages, trusted tool registry, owner handlers/persisted receipts, final wire projection, DATA/Stop/drain, projections/OpenAPI/contracts/TS decoder/RunPanel and affected tests. Current role BRAIN/RECON, read_context/finish, history max1 and core-only composer are inert restrictions, not general pentest support.",
+      "do_not_create_for_old_names": ["agent_run_owner.py", "agent_run_service.py", "agent_run_store.py"],
+      "existing_tests": ["api/tests/test_run_agent_source.py::test_owned_sdk_step_stops_after_persisted_tool", "api/tests/test_run_agent_source.py::test_sdk_initial_post_tool_and_brain_consume_are_separate_steps", "api/tests/test_run_owner_source.py::test_brain_consumption_requires_exact_pending_refs_before_write", "api/tests/test_run_finish_source.py::test_finish_sdk_waits_for_owner_receipt_and_settlement_never_duplicates"],
+      "test_status": "EXISTENCE_SOURCE_CHECKED_NOT_RERUN"
+    },
+    "extensions": [
+      {
+        "card": "SR02",
+        "placement": "S3a/S3b",
+        "source": "strix/tools/notes/tools.py:_mark_authorship:140–152,_to_note_listing_entry:155–177,_create_note_impl:180–234,_list_notes_impl:237–266,_get_note_impl:269–287; strix/tools/threat_model/tools.py:_REQUIRED_SECTIONS:53–58,_missing_sections:269–271,_save_impl:327–389,_append_amendment:392–415,_amend_impl:418–459",
+        "retain": "PORT attributed contribution→index→read→amendment bundle and required model rubrics, COPY_ADAPT recon/root methodology from source-kit; not merely heading validator.",
+        "replace": "global dict/RLock/UUID/git target resolver/JSON mirror/later-save-wins with existing PG/ExactRefs/CAS and append-only revisions; foreign refs deny, exact operation identity preserved",
+        "first_consumer": "S2 receipt→recon contribution→Brain index/point/evidence read→decision→investigator brief",
+        "tests": ["tests/test_notes.py::test_list_notes_exposes_author_and_flags_caller", "tests/test_threat_model_tool.py::test_amendments_accumulate_without_overwriting", "tests/test_threat_model_tool.py::test_save_clears_amendments_and_says_so"],
+        "test_adaptation": "Last test is REJECTED_SEMANTICS; new native CAS409/foreign-ref/lost-reply/contradiction+Brain-consume checks, not upstream suites claimed passed."
+      },
+      {
+        "card": "SR03",
+        "placement": "S4a",
+        "source": "strix/skills/vulnerabilities/idor.md:10–63,65–94,111–121,139–161,170–193,202–213; file SHA already in SR03",
+        "retain": "Subject×Object×Action, ID provenance, read/write/bulk/jobs/storage/tenant/representation/parser/cache variants, matched controls and false-positive analysis. Prepared s4-idor-bola already adapts these bodies; no generic replacement prompt.",
+        "replace": "Unsupported protocol/race/source-aware variants remain methodology-only; no two-transports requirement, target repair or non-owner=vulnerable shortcut. Every executed variant needs actual tool+effect+oracle qualification.",
+        "first_consumer": "Qualified selected procedure in INVESTIGATOR, factual candidate handed to independent VALIDATOR; no finding forced",
+        "tests": ["Candidate branch tests/documentation/test_strix_catalog.py::test_method_and_output_obligations_are_explicit is structural only; NEW native SECURITY eval with vulnerable/fixed/benign/shared/auth-invalid and exact observed effect controls"]
+      },
+      {
+        "card": "SR05",
+        "placement": "S2b OBLIGATORIU_S7, consumed by S3b/S4",
+        "source": "strix/skills/tooling/agent_browser.md:25–37,61–72,81–140,168–190,302–339,398–417,524–531; strix/runtime/caido_handle.py:25–60; strix/core/runner.py:646–664",
+        "source_hashes": {"strix/skills/tooling/agent_browser.md": "db15a63b79ada55911b945da954254f34934ff0fe28aed457e3846097d58fcd3", "strix/runtime/caido_handle.py": "b4c5bfbd755b59819bb961767e91ea8526b827644751e740c2d5cca79ffc17d4"},
+        "mode": "USE_PACKAGE existing canonical Playwright Python1.63.0 in separate executor; COPY_ADAPT methodology; REFERENCE_ONLY lifecycle, not imaginary browser Python port",
+        "retain": "snapshot→act→resnapshot, DOM/form/navigation/post-auth observations, stale refs, explicit sessions and resource settlement",
+        "replace": "agent-browser0.26.0 CLI/daemon, shared SDK SandboxAgent/Docker/Caido runtime, mutable image and proxy-env-only isolation. No new browser library pin or no-sandbox fallback.",
+        "destination": "NEW browser executor at existing architecture executor boundary; owner execute_tool/drain_run, ToolDefinition/Invocation/Result and typed UI extend together",
+        "prerequisites": "Playwright/driver/Chromium/image/CA pinned together; rejected mitmproxy12.2.3 remains BLOCKED. B01e build LAB_TEST_ONLY then integrated G-NET/G03b/G-EFFECT/G-TOOLS before effects. Request/hop/subrequest authorization and network denial, not just capture.",
+        "bounds": "Per-attempt auth/context_generation/action window; no overlapping windows, delayed old-generation request denied. ToolLimits effective=min(registry,config,task,run); workflow/subrequest caps, no personal browser or credential transfer to validator.",
+        "tests": ["tests/test_caido_handle.py::test_caller_cancellation_does_not_cancel_the_shared_bootstrap", "tests/test_caido_handle.py::test_aclose_cancels_an_in_flight_bootstrap", "tests/test_runner_teardown.py::test_a_live_child_is_settled_before_sessions_close"],
+        "new_tests": "Real SPA/login/DOM/XHR→map→Brain and validator context; sink allow/deny offscope/redirect/DNS/IPv6/host/old generation; addon absent fail-closed; actual process/network Stop. Upstream lifecycle tests do not prove confinement."
+      },
+      {
+        "card": "SR05",
+        "placement": "S2b OBLIGATORIU_S7, consumed by S3b/S4",
+        "source": "strix/agents/factory.py:_wrap_exec_command:435–461,_wrap_write_stdin:464–483,_configure_shell_tools:486–499; strix/skills/tooling/python.md:6–20,77–105",
+        "source_hashes": {"strix/skills/tooling/python.md": "672bb2511081a19ac125cd8d33f732328ab73f617597d6858764239650dc5f72"},
+        "mode": "KEEP standard interpreter/process primitives in admitted executor + NEW typed batch adapter; COPY_ADAPT useful Python/script methodology",
+        "alternative_evaluated": "SDK0.19.0 MIT agents/sandbox/capabilities/tools/shell_tool.py ExecCommandTool:152–249 and WriteStdinTool:253–324 require BaseSandboxSession backend, authority wrapper and text-result adaptation; not drop-in. Do not import full SandboxAgent/Docker runtime to get shell.",
+        "destination": "NEW confined sandbox/script executor at architecture boundary; same owner handles/cancel/readback, native evidence and SR04 preview",
+        "input_output": "script artifact+input refs+fixed argv/interpreter digest+private workspace→process receipt/output/artifact/effect refs. No shell interpolation of arguments, host execution, installs or ambient credential/env.",
+        "bounds": "ToolLimits already canonical: timeout1..1200s,stdout1..5242880,stderr1..1048576,memory16..4096MiB,cpu1..1200000ms,pids1..128,disk0..1073741824,max_target_actions0..300. These are maxima, not defaults; fix concrete values before QA. Every script socket/request stays brokered; max2workers is not a thread/socket limit.",
+        "tests": ["tests/test_agent_factory_shell.py::test_wrap_exec_command_preserves_smaller_explicit_output_cap", "tests/test_agent_factory_shell.py::test_wrap_exec_command_clamps_oversized_explicit_output_cap", "tests/test_runner_teardown.py::test_a_live_child_is_settled_before_sessions_close"],
+        "new_tests": "Useful script result consumed by recon/investigator; streamed output/fork/disk/CPU/pids caps, timeout/late child/owner loss/Stop readback, wrong digest/foreign path/symlink/direct egress denial; exit0 is not confirmed finding.",
+        "deferred": "Persistent PTY/REPL only for a later demonstrated consumer, with typed lifecycle; not required to run/edit/rerun attributed batch scripts. Poll/read/cancel of a live owned process remains mandatory."
+      },
+      {
+        "card": "SR06",
+        "placement": "S3/S4 sequential handoff; S5 full adaptive continuation",
+        "source": "strix/tools/agents_graph/tools.py:create_agent:495–607,send_message_to_agent:170–270,agent_finish:611–752,_render_completion_report:63–114; strix/core/agents.py:AgentCoordinator.send:417–456,consume_pending:479–516; strix/core/execution.py:_run_until_lifecycle:491–606",
+        "source_hashes": {"strix/core/agents.py": "8fae5b32c1773a7cbdfcbfea52643cbad7e484933e5840fcd494de7a359220a2"},
+        "retain": "Task name/goal/selected methodology/context, summary/observations/open_items/recommendations/report refs, Brain evidence-led reprioritization and follow-up; source-kit coordination/handoff reused",
+        "replace": "Parent full-history, shared authority context, mailbox clear-before-persist, notice-before-send, interactive revival of terminal agents and lifecycle nudge as completeness proof",
+        "first_consumer": "TxA worker result+inbox+event→Brain reads exact refs→TxB decision+consume+checkpoint→new eligible task; negative clue can change task while preserving negative conclusion",
+        "tests": ["tests/test_agent_graph_coordination.py::test_agent_finish_lists_the_reports_the_child_filed", "tests/test_execution.py::test_terminal_child_wakes_parked_parent"],
+        "new_tests": "negative→clue→read→successor, contradiction/model revision, original-gap→successor resolution, validator next-slot/max2 incldrain, more lifetime tasks than slots, duplicate/late/UNKNOWN/Stop no wake/resend; current nonempty consumed_refs reset does not prove progress"
+      },
+      {
+        "card": "SR08",
+        "placement": "S1-UX then each S2–S5 producer; S7 restart",
+        "source": "strix/interface/viewer/frontend/src/components/live/AgentDetailModal.tsx:17–31,75–112,125–160; AgentTranscript.tsx:209–215,241–305 and tool-renderers; App.tsx:693,839",
+        "mode": "ADAPT presentation/near-bottom follow/typed families, KEEP native events/projections/RunPanel; no ReactFlow/Tailwind/new transcript store",
+        "first_consumer": "Overview full-run usage and Activity Feed/Agents→selected agent chronological history; body only permitted redacted recorded data",
+        "new_tests": "DTO→decoder→renderer together for terminal text, HTTP entries/page_info/hits, errors/empty/has_more/unmatched, rejected report, gaps; >one roster/event page and whole-run counts; focus/Stop/scroll/reload no effects; source visual approval separate"
+      },
+      {
+        "card": "SR09",
+        "placement": "S4a D14/finding then S4b report review/export, mandatory S7",
+        "source": "strix/report/writer.py:render_vulnerability_md:223–361,render_update_history:364–396,safe_fence:56–66,write_vulnerabilities:148–198,atomic_write_text:201–220; strix/tools/reporting/tool.py:_do_create:780–963",
+        "source_hashes": {"strix/report/writer.py": "32e0d389d04c887d0234231a1b24032665f71077daab11de534af8690503a200"},
+        "mode": "ADAPT full finding+revision rubric/presentation bundle, not only helpers; NEW native snapshot/HTML serializer glue because upstream writer supplies Markdown/CSV/JSON, not Omnis HTML",
+        "replace": "ReportState globals, arbitrary dict/default=str, nonfatal export writes, temp+rename without durable file/DB protocol, report-ID checks or LLM dedupe used as technical validator",
+        "destination": "NEW api/src/omnis/modules/findings/report_review.py and modules/reports/{service,render}.py with first consumer; existing routes/contracts/generated/decoder/UI extended together",
+        "first_consumer": "D14 own evidence+confirmed claim→revision-bound review→coherent immutable snapshot→durable supervisor job→STAGING/fsync/rename/AVAILABLE→actual HTML/JSON download/history/restart",
+        "bounds": "20MiB artifact/1GiB run, DTO allowlist; offline escaped HTML/attachment/nosniff/CSP, no active target markup or trusted-doc renderer. Missing mandatory evidence blocks new eligibility; Hold allowed; old snapshot not rewritten.",
+        "tests": ["tests/test_report_writer.py::test_render_vulnerability_md_poc_code_cannot_break_out_of_fence", "tests/test_report_writer.py::test_render_vulnerability_md_snippet_cannot_break_out_of_fence", "tests/test_report_writer.py::test_atomic_write_text_keeps_payload_byte_for_byte", "tests/test_report_writer.py::test_render_vulnerability_md_surfaces_calibration_metadata"],
+        "new_tests": "download HTML+JSON not just preview, injected markup inert/secrets absent, candidate/foreign/stale/review-change deny, Hold/retention/claim race snapshot consistent, crash/quota idempotent publication and restart identical; report review never promotes candidate",
+        "deferred": "B13d retest T5; CSV/PDF/SARIF not required for core parity; no new reportlab/pygments/Caido dependency"
+      }
+    ],
+    "test_status": "Citations/source/ranges inspected; upstream and new product suites NOT_RUN. Previous six-test strict-coercion spike retained only at its original scope."
+  },
   "inspector_followup": {
     "omnis_revision": "828445d25257e3a9c39d826e1641fb4429bc9a47",
     "status": "SOURCE_TRACE_AND_PRIVATE_SPIKE_NOT_PRODUCT_IMPORT",
@@ -128,7 +246,7 @@
       "placement": [
         "S2: păstrează infrastructura S1",
         "S3/S4: extindere multi-pachet, acum composer acceptă numai omnis-agent-core",
-        "S5: numai extinderea sloturilor"
+        "S5: adaptive continuation and two-worker composition on the same owner"
       ],
       "bounds": [
         "Composer MAX_CONTEXT_BYTES=8192 pentru forma canonică",
@@ -253,11 +371,11 @@
       ],
       "destinations": [
         {
-          "path": "skills/web-recon/SKILL.md",
-          "state": "PROPOSED_NOT_CREATED"
+          "path": "skills/strix-catalog/prepared/s3-web-recon/SKILL.md",
+          "state": "PREPARED_IN_OTHER_BRANCH_UNQUALIFIED"
         },
         {
-          "path": "skills/web-recon/omnis.yaml",
+          "path": "skills/strix-catalog/prepared/s3-web-recon/omnis.yaml",
           "state": "PROPOSED_NOT_CREATED"
         },
         {
@@ -403,11 +521,11 @@
       ],
       "destinations": [
         {
-          "path": "skills/idor-bola/SKILL.md",
-          "state": "PROPOSED_NOT_CREATED"
+          "path": "skills/strix-catalog/prepared/s4-idor-bola/SKILL.md",
+          "state": "PREPARED_IN_OTHER_BRANCH_UNQUALIFIED"
         },
         {
-          "path": "skills/idor-bola/omnis.yaml",
+          "path": "skills/strix-catalog/prepared/s4-idor-bola/omnis.yaml",
           "state": "PROPOSED_NOT_CREATED"
         },
         {
@@ -635,7 +753,7 @@
       "output": "Receipt/outcome/UNKNOWN, principal/epoch, hops, completeness și evidence refs persistate înaintea rezultatului model",
       "first_consumer": "Operator Verify login/health S2 și primul worker HTTP; recon S3",
       "placement": [
-        "S2; browser numai dacă necesar după gate-ul transportului său"
+        "S2a HTTP first; S2b browser and SANDBOX_EXEC mandatory before S7, each after its own transport gate"
       ],
       "bounds": [
         "Scope/redirect/DNS/Host/identity/DATA/Stop la același sink înainte de bytes",
@@ -1233,10 +1351,10 @@
     "Codex/OAuth/Hermes runtime în produs",
     "Shell/Filesystem/MCP/browser/scanners active prin skill",
     "Bootstrap installers, config personal, .env, provider/target effects",
-    "Reanaliza logurilor Omnis/temp delegate altor analisti",
+    "Raw logs, credentials, hidden reasoning and exploit recipes in versioned artifacts or future investigator context",
     "Import activ sau schelete de produs",
-    "Report export universal/T5 ori catalog75înaintea primei BOLA"
+    "Full catalog75 or all Strix families before first IDOR; retest/CSV/PDF/SARIF are not core prerequisites, but HTML/JSON export is now required in S4b before S7"
   ],
-  "scope": "ANALYSIS_ONLY / CANDIDATE_REUSE / NOT_IMPORTED / NO_IMPLEMENTATION_AUTHORITY",
+  "scope": "ANALYSIS_AND_CANONICAL_PLAN_AMENDMENT / SOURCE_SELECTION / NOT_IMPORTED / NO_PRODUCT_IMPLEMENTATION_OR_EFFECT_AUTHORITY",
   "private_source_analysis": "/home/kali/.local/share/omnis-reference-artifacts/strix-20261108-7574/analysis-reuse.md"
 }

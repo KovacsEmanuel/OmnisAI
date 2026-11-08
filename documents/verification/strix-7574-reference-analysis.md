@@ -1,6 +1,6 @@
 # Strix 7574 — referință funcțională, UI și adaptări propuse pentru Omnis
 
-**ANALYSIS_COMPLETE / CANDIDATE_AMENDMENTS / NOT_IMPLEMENTED.** Studiu cerut de operator după respingerea vizuală a UI, înainte de S2. Documentul explică ce preluăm/adaptăm și unde; nu este plan concurent, amendament canonic aplicat, autorizare de implementare, trafic sau cheltuieli. S1 rămâne acceptat numai la scope-ul său inert; aspectul Omnis rămâne VISUAL_CHANGES_REQUESTED. Reviewul și verificările acestui dosar sunt documentare, nu QA a produsului.
+**ANALYSIS_COMPLETE / CANONICAL_AMENDMENT_IN_REVIEW / NOT_IMPLEMENTED.** Studiul inițial și suplimentul18inspectori rămân la probele lor. **§14 aplică noua decizie a operatorului:** nucleu funcțional complet până la S7, IDOR/BOLA prima familie și pairing manual, A amânat. Ordinea/acceptarea sunt în [plan §7.2](../Omnis_Implementation_Plan.md); dosarul și fișele SR sunt proveniență tehnică, nu plan concurent sau autorizare de implementare/efecte. S1 rămâne acceptat numai la scope-ul inert, UI VISUAL_CHANGES_REQUESTED. Verificările acestui amendament sunt documentare, nu QA runtime sau paritate.
 
 ## 1. Decizia de produs și rezultatul studiului
 
@@ -8,7 +8,7 @@
 
 Ce merită adaptat: metodologia și rubricile relevante, observațiile atribuite și corectabile, citirea progresivă index→punct→probe, handoffurile cu gaps/next clues și inspectorul contextual tipizat. Ce păstrăm nativ: identitățile run/task/attempt, PG, inbox/consum, seiful, admission/fence/Stop, senderul provider, catalogul calificat și proiecțiile. Ce nu copiem: moștenirea integrală a istoricului, Shell/Filesystem pentru orice rol, completion numai cu warning, noul coordinator/SQLite/viewer, dependențele integrale Strix sau auto-retry/wake peste UNKNOWN/HOLD/Stop.
 
-**Pairing — dispoziția discuției:** operatorul preferă mecanismul manual existent dacă automatizarea sigură ar complica produsul. Nu continuăm investigația HTML/bootstrap/browser controlat și nu facem din auto-pair prioritate înainte de S2. Aceasta nu este auto-pair livrat sau permisiune pentru bearer în URL/argv. Propunerea de reconciliere a ramurii A este deferral explicit, cu fallback manual, fără serviciu/dependență nouă; poarta canonică A/S7 nu este modificată de prezentul dosar. Modificarea formală a acelei dispoziții rămâne separată de cercetare.
+**Pairing — decizie explicită ulterioară:** **A = DEFERRED_BY_OPERATOR**, mecanismul manual existent este suficient pentru T2/S7. Dispoziția este acum transpusă în plan/arhitectură/UI; nu auto-pair livrat sau permisiune pentru bearer în URL/argv. Nu continuăm investigația automatizării și nu păstrăm un blocker S7 latent; redeschidere numai la cerere nouă, cu propriile probe de frontieră.
 
 **Criteriul util pentru Omnis:** prima demonstrație trebuie să folosească propriul recon/context/tool/validator și să producă un rezultat verificabil. Nu promitem aceleași36 rapoarte, același traseu, cost sau durată; runul de referință nu este ground truth și aplicația a fost modificată prin testare.
 
@@ -271,9 +271,9 @@ Sub mandatul suplimentar explicit, developerul a pregătit `agent-deep-dive/grou
 
 Raportul privat `agent-deep-dive/spike-independent-review.json` include argv/output/exit/mediu și hashurile before/after; SHA256 `0021fb8487ce0834760c7df0a6894db8fc670a46a5475ec807c84b949311cf67`. Manifestul spikeului este `d7ab92e76377556f1a69895b3dfd5a416afb2af3edbc5afb5ac9d290afb57b0f`; niciun fișier al spikeului nu s-a schimbat la review/QA. Nu se rerulează proba neschimbată doar pentru alt raport.
 
-## 13. Delta exactă de aplicat în aceleași S-uri
+## 13. Delta inițială — proveniență înlocuită de amendamentul §14
 
-Acesta este amendamentul candidat pregătit pentru discuția/implementarea ulterioară, **nu plan canonic deja editat și nu autorizație de lansare S2**. Ordinea S0–S7 și IDOR primul nu se schimbă. Fiecare rând include funcția vizibilă, producerul și refuzul care schimbă admiterea, fără a cere toate familiile Strix înaintea primului finding.
+Tabelul următor păstrează **propunerea inițială**, înaintea alegerii explicite a nucleului complet. Limitarea la HTTP/IDOR, exportul lăsat T5 și ordinea strict liniară au fost înlocuite în plan§7.2/§14 de mai jos. Nu sunt instrucțiuni concurente sau autorizație de lansare S2; rezultatele istorice de sursă/UI/spike nu sunt rescrise drept integrare.
 
 | Loc în planul existent | Ce se modifică precis | Consumer și ieșire verificabilă |
 |---|---|---|
@@ -289,6 +289,64 @@ Acesta este amendamentul candidat pregătit pentru discuția/implementarea ulter
 Familiile browser/XSS/CSRF, OAST/XXE/SSRF, traversal, SQLi/scannere, RCE/deserializare/business/race și attack paths folosesc rubricile comune, dar își păstrează transporturile/oracles/sandbox/eval proprii înainte de activare. Nu sunt șterse din plan și nu devin toate prerequisite ale IDOR. Primul circuit util și evoluția către amploarea Strix rămân două niveluri diferite.
 
 **Prima schimbare recomandată:** închiderea scope-ului S1-UX pe o singură vedere etalon Activity→Agents→inspector, cu proiecțiile necesare și metricile deja disponibile, apoi propagare după feedback uman; remediul de stagnare se tratează separat înainte de efectele S2. Nu alt audit general sau alt runtime. Source-kit-ul/spike-ul rămâne candidat privat neintegrat; integrarea reală cere developer, review și QA pe consumerul afectat, nu promisiunea „va merge din prima”.
+
+## 14. Amendamentul nucleului complet și verificarea suplimentară
+
+### 14.1 Decizia, sursele și ce schimbă față de studiul lui Sol
+
+Operatorul a ales explicit: **S7 = nucleu HTTP/browser/scripturi sandboxate/recon/notițe/hartă/threat model/delegare adaptivă/validare independentă/raport și UI**, inițial evaluat pe IDOR/BOLA; A amânat, pairing manual suficient. Nu este clonă a runtime-ului Strix, promisiune de36findinguri sau mandat de implementare. Criteriile și dependențele au fost mutate în plan§7.2 și reconciliate cu arhitectură/UI/stack; propunerile anterioare §8/§13 și M11 nu guvernează noul exit.
+
+Baza Omnis este `1843c7bf89afe6014cc1101ae69d301a5fc6167b`; sursa Strix rămâne `55bc07991aacb1c26a81b43e7ca53148730d2019`. Cele35intrări de sursă din SR01–SR09,21căi distincte, au fost recalculate de părinte: SHA și intervale valide, fără drift. Doi analiști read-only au confruntat sursa originală cu DB/logurile, nu doar rezumatul anterior. Rapoartele originale sanitizate sunt păstrate privat sub `t2-amendment/` în baza§2, cu hashes `8d04921107b1078a01b31df203c4b78eb496470e0fc573815da54fcfcd79ba9a` (orchestrare) și `2755f155aa9ee22119a820aed91a00331fb0b5a7e8bcff77517a408c2a53d75f` (transporturi). Concluziile aplicabile sunt aici și în aceleași [fișe SR](strix-7574-porting-cards.json), nu într-un backlog nou.
+
+Originalul corect este runul **nested7574** sub directorul exterior d7f4 furnizat de operator; cele două runuri nu se însumează. Snapshotul11fișiere este identic cu originalele nested; WAL original0bytes, copie statică deschisă immutable/read-only. Inventarul sursă a reconciliat18sesiuni/17copii direcți,2987records,928perechi call/output fără orfani,27tooluri și21skills explicit selectate. Inspecția browser suplimentară a redeschis Overview/Agents/Issues și Root/IDOR/Race/Chain, cu114/34/46/35blocuri și expandările11/1/8/1; **nu revendică o a doua lectură integrală18/18**. Suplimentul anterior§10 rămâne dovada acelei lecturi. Un selector de diagnostic a eșuat pe un nod SVG fără innerText și a fost corectat la selectorul nodurilor; nu defect al produsului și nu QA Omnis.
+
+### 14.2 Legăturile care trebuie portate, nu numai lista toolurilor
+
+| Lanț original la pin | Ce dovedește / ce primește Omnis |
+|---|---|
+| `core/runner.py:462–535` → `agents/factory.py:657–777` → `agents/prompt.py:24–149` → `core/execution.py:711–889` | Factory comună; specializare prin misiune/skills/context/tools, nu clase per vulnerabilitate. SDK execută; coordinatorul gestionează lifecycle. `load_skill` adaugă referințe în context, nu permisiuni; în run nu a fost apelat. KEEP SDK/owner/composer nativ, EXTEND rolurile/pachetele/toolurile reale. |
+| `tools/agents_graph/tools.py:495–607` → callback runner506–518 → `execution.spawn_child_agent:343–404` → `inputs.child_initial_input:336–371` |17copii direcți, toate cer inherit_context. Ultimul input316511bytes nu este compatibil cu request32KiB; context selectat+mandatory facts+refs este adaptare Omnis explicită. Omnis păstrează modelul pinned per rol, nu același model global presupus pentru orice copil. |
+| Recon DB210/211→nota a8160b→Root261/262read→265/266model→299–316nouă delegări | Toate nouă briefuri citează nota. Producer→read→decizie este proba necesară S3, nu doar „delivered”. CLI127–505 confirmă traseul public fără a importa credentialele/rețetele în investigator. |
+| CORS DB1945–1948→nota623860→Root2069/2072→Remember2077/2079→read2088/2091 | Rezultat limitat/negativ cu indiciu util → specializare nouă și investigație proprie. Nu este nesting și nu transformă negativul în finding; S5 păstrează concluzia și admite successorul pe noul basis. |
+| Gaps coupon IDOR934/935 și Root1080; BusinessLogic handoff2493/2543→Root2750–2751→Race2757/2759 și Chain2758/2760 | Ipoteza utilizatorului este corectă pentru acest run: Root creează taskul special din informația deja obținută, nu are un agent permanent de cupon. Race face5create attempts,3acceptate și2refuzate; completed/open_items nu certifică toate probele. CLI831–933 și1029–1098. |
+| `agent_finish:611–752` → `_render_completion_report:63–114` → `core/agents.py:417–516` | Păstrăm summary/observații/gaps/recomandări/refs. NOT_PORT mailbox clear-before-persist, notice-before-send ori revival interactive terminal; Omnis folosește cele două tranzacții native și successor readmis. Nudge-ul `_run_until_lifecycle:491–606` nu este D13. |
+
+**Frontiera Omnis care lipsește realmente:** `agent_runner.py:44–89` are numai BRAIN/RECON, read_context/finish, arguments `{}` și history max1; `projection:128–194` reconstruiește read_context. `agent_composition.py:69–86` acceptă doar omnis-agent-core. `run_runtime.py:new_attempt:255–312` selectează brain/recon, iar `complete:1128–1130` resetează stagnarea pe consumed_refs nevid. Planul cere extensia **împreună** a DTO/registry/compoziție/history/owner/receipt/DATA/Stop/proiecții/decoder/UI și remediul finit al progresului fals; nu simpla adăugare a unui skill și nu refactorizarea fundației. Paths vechi `agent_run_owner.py`/`agent_run_service.py` nu sunt fișiere existente: ownerul real este `run_runtime.py:AgentRunOwner`.
+
+### 14.3 Conținut pregătit deja: nu îl rescriem
+
+Branch-ul `content/strix-s234-catalog@1885d3f9dd9d498008a84d005ad6197f4807db2f` conține79originale și6adaptări `skills/strix-catalog/prepared/`. Părintele a verificat bytes/SHA și comparația:70originale identice/9diferite față de v1.7.0; IDOR/standard/deep/severity/python sunt identice. Coordination/handoff/HTTP/recon/IDOR/validation se refolosesc; browser/python methodology se completează în același kit. Fișele indică fiecare cale/range/hash, delta relevantă, manifest/procedură/schema/binding și primul consumer. Nimic nu a fost cherry-pick-uit/publicat aici.
+
+Cele6adaptări au **48390bytes**; IDOR singur9993bytes față de composer8192. Păstrăm corpul metodologiei, nu îl reducem la un prompt generic: variantă aplicabilă+obligații mandatory și referințe opționale calificate la cerere, cu măsurarea requestului SDK complet. Lipsesc handlerii reali, calificarea SECURITY și consumerii, nu textul în sine. Eval înainte Publish, fără soluții ShopShfere în datele investigatorului și fără allowance de prompt dedus din API64KiB.
+
+### 14.4 Browser, scripturi și raport: reuse la granița corectă
+
+- **Browser:** Strix execută agent-browser0.26.0 din shell (`containers/Dockerfile:111–135`), nu furnizează un driver Python ascuns. Păstrăm biblioteca **Playwright Python1.63.0** canonică; adaptăm metoda snapshot→act→resnapshot/sesiuni, nu adăugăm CLI/daemon/Node/runtime Strix. Sesiune denumită în prompt nu este binding de attempt. Browser hardened+transport/CA+G-NET/G03b/G-EFFECT preced fiecare efect.
+- **Scripturi:** factory435–499 adaptează SDK Shell exec/poll; Python este shell, nu kernel separat. SDK Shell0.19.0 a fost comparat: cere BaseSandboxSession/authority/result adaptation și are semantică timeout/fallback/output incompatibilă pentru import direct. Minimum ales: interpretoare fixate + adaptor batch tipizat în executorul privat, artifact/workspace/process/outputs și poll/cancel/readback; fără alt coordinator sau REPL permanent. Modelul poate pregăti/edita scriptul ca date, dar nu instalează tools și nu acordă egress. Fiecare request din threads/subprocese este admis/contorizat la sink.
+- **HTTP/evidence:** KEEP HTTPX; captura→read/search→modify/replay și testele framing sunt utile. Caido nu este clientHTTP autonom de extras; parserul dict pierde duplicate, timeoutul replay nu autorizează retry. Preview UTF8 nu este cap incremental sau evidence durabil.
+- **Raport:** portăm ansamblul rubricilor finding+istoric din `report/writer.py:223–396`, nu doar safe_fence. Writerul upstream148–220 produce Markdown/CSV/JSON și temp+rename, **nu HTML Omnis sau snapshot PG/fsync**. S4b introduce glueul necesar HTML/JSON inert/eligibil/imutabil; report-tool/LLM dedupe rămân distincte de D14. B13d retest și PDF/CSV/SARIF nu devin prerequisite primului core.
+
+**Blocker tehnic real înainte S2b:** mitmproxy12.2.3 rămâne respins. Admiterea unei versiuni/remedieri și closure-ului fixate precede QA; B01e-build LAB_TEST_ONLY apoi integrated/confinement preced traficul. Nu am făcut lookup de latest, install, downgrade crypto sau test de proxy în această analiză; planul nu îl declară rezolvat. HTTPX trusted distinct nu este blocat retroactiv.
+
+### 14.5 Performanța observată și măsurarea Omnis
+
+| Axă | Observat în referință | Interpretare corectă pentru S6 |
+|---|---|---|
+| Durată run |2139.176149s = **35.65minute** | Wall start→end, nu timp CPU/LLM/target separat și nu deadline Omnis promis. |
+| LLM |661requests;18agenți+dedupe=19actori,40cereri dedupe | Tool calls și target requests se contorizează separat; dedupe nu este validator tehnic. |
+| Tokens |84364528input, din care78364433cached (**92.89%**);763181output, din care425614reasoning;85127709total | Cache/reasoning sunt componente. Costul mic nu permite extrapolare fără aceeași rutare/cache/model; nu pretindem atâtea tokenuri unice sau gândire internă inspectată. |
+| Cost |1.8153400036USD persistat, UI1.82USD | Cost per-agent repartizat proporțional upstream, nu factură individuală. Omnis nu inventează moneda dintr-un DTO fără contract monetar. |
+| Exec/poll |372exec_command+56write_stdin;356outputs exit0,12nenule,60running |428outputs nu sunt428procese; poll running nu este terminare. Mediană wall a apelului/poll0.63845s, maxim30.1256s, nu latență E2E a jobului. |
+| Trafic logat |22644access records în **24.47minute**, inclusiv30malformate;16933status404,153status500 | Fereastră parțială fără fus explicit; matching temporal nu este join autorizant. HTTP200/exit0 nu confirmă findingul. |
+| Burst/degradare |10678records în minutul19:31, vârf266într-o secundă;128lockuri SQLite din153tracebacks | Nu in-flight concurrency măsurată și nu cauzalitate dovedită a lockurilor. Nu portăm avalanșa de requesturi ca obiectiv de viteză. |
+
+S6 măsoară pe consumerul normal deja necesar: timp până la prima observație/task util/candidat/confirmare, queue/admission/execute/capture/check/readback, calluri LLM/target/tool distincte, tokens/cache/cost cu observație, procese/bytes/cancel, replay/intervenții/gaps/cleanup. Numitorul eficacității este setul adjudecat suportat, nu36rapoarte. Lipsesc ground-truth sigilat/FN census/CPU-RSS/request ledger complet și condiții egale; **nu paritate sau superioritate demonstrată**. Protecția target minimă (rate/health/429) rămâne înaintea efectelor; algoritmi avansați de rate-limit pot veni ulterior, nu suspendă protecția de bază. MONITOR fără plafon total LLM rămâne.
+
+### 14.6 Frontiera amendamentului și verificare
+
+Schimbări admise: plan/arhitectură/UI/stack, fișele SR, proiecțiile de status și regresii documentare. Fără modificări în api/web/cli de produs, source-kit, manifest/lock, servicii/DB/date/seif/operator/Strix. Originalele din temp și fișierele protejate rămân neatinse. Revertul commiturilor documentare inversează numai specificația, nu date sau efecte externe.
+
+RED documentar real: cele două noi teste de nucleu eșuează pentru lipsa contractului§7.2, nu pentru import/harness. Controalele ulterioare cer toate incrementele și detectează eliminarea browserului obligatoriu, exportului sau dispoziției A. Reviewurile independente și GREEN final se consemnează pe snapshotul exact; proba veche6/6strict-decoder nu se rerulează și nu certifică noul nucleu.
 
 ## Sources
 

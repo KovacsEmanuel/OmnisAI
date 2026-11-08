@@ -55,8 +55,8 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <h2 id="2-obiectiv-si-non-obiective">2. Obiectiv și non-obiective</h2>
 <p>Un operator configurează din web conexiuni API-key și modele, creează un engagement Web/API autorizat și urmărește recon, ipoteze, workerii cu skills/tooluri admise, triage, validare și rezultate. Omnis deține autorizația, DATA, persistența și Stop. Consum LLM MONITOR fără plafon total artificial; limitele target/per operație rămân. HOLD pentru întregul run la credit/quota, Resume manual cu revalidare; un engagement poate dura ore/zile fără să păstreze o comandă individuală blocată nelimitat.</p>
 <p>MVP-ul include ambii routeri OpenRouter/OrcaRouter prin API keys, default + override pe roluri, Settings complet și guvernanță Skills. Un singur provider/config poate demonstra primul consumer; al doilea router și combinațiile mixte au probe separate înainte de a fi declarate suportate. Fără Codex subscription/OAuth în produs; Hermes/Codex sunt tooling de dezvoltare.</p>
-<p>Prima probă este <strong>M-LAB IDOR/BOLA + triage + validator</strong>, înaintea harnessului amplu. Triage este skill al orchestratorului, nu agent permanent nou. Validatorul folosește replay/context independent și oracle, nu reputația unui skill. M1 adaugă raport/retest; MVP-ul păstrează browser/post-auth, XSS reflectat, traversal-canary, G-LOOP/FOCUS/PATH și Jev evaluat. Nu multi-tenancy, Redis/Kubernetes, framework de workeri sau catalog executabil nelimitat. Shell/scripturi/workspace în sandbox sunt capabilități ale execuției în engagement, nu terminal host sau drepturi din prompt.</p>
-<p><strong>Prima dovadă T1:</strong> Settings → seif/conexiune → operație sistem → sender → răspuns/consum/readback/Stop. <strong>Dovada agentică T2/S1:</strong> model → rol/task → tool inert cerut realmente → rezultat consumat → următoarea decizie; un smoke de model nu o înlocuiește. <strong>Închiderea T2</strong> cere suplimentar S2–S7: circuitul propriu autonom ShopShfere, minimum un finding confirmat independent D03, controale/readback și dispoziția explicită a ramurii A; nu numai această probă tehnică.</p>
+<p>Prima probă este <strong>M-LAB IDOR/BOLA + triage + validator</strong>, înaintea harnessului amplu. Triage este skill al orchestratorului, nu agent permanent nou. Validatorul folosește replay/context independent și oracle, nu reputația unui skill. <strong>Amendamentul Strix7574 extinde T2 până la nucleul funcțional complet:</strong> HTTP/browser, scripturi sandboxate, recon, note/hartă/threat model, specializare și continuări adaptive, validare independentă, review/raport HTML/JSON și UI inspectabilă. Prima familie evaluată rămâne IDOR/BOLA; primul finding este prag intermediar, nu întreaga acceptare S7. T5 completează retestul/M1; MVP-ul mai păstrează XSS reflectat, traversal-canary, FOCUS/PATH și Jev evaluat. Nu multi-tenancy, Redis/Kubernetes, framework de workeri sau catalog executabil nelimitat. Shell/scripturi/workspace în sandbox sunt capabilități ale execuției în engagement, nu terminal host sau drepturi din prompt.</p>
+<p><strong>Prima dovadă T1:</strong> Settings → seif/conexiune → operație sistem → sender → răspuns/consum/readback/Stop. <strong>Dovada agentică T2/S1:</strong> model → rol/task → tool inert cerut realmente → rezultat consumat → următoarea decizie; un smoke de model nu o înlocuiește. <strong>Închiderea T2</strong> cere toate ieșirile S2–S7 din §7.2: circuitul propriu autonom ShopShfere, minimum un finding confirmat independent D03 și întreg nucleul descris mai sus, nu numai HTTP/IDOR. <strong>A = DEFERRED_BY_OPERATOR</strong>, pairing manual păstrat; auto-pairingul nu blochează S7 și nu este declarat livrat. Extinderea planului nu autorizează implementarea sau efectele.</p>
 <p><strong>Prima dovadă de produs:</strong> pornind de la URL și contextul autorizat, reconul descoperă operația, Brainul formulează ipoteza, investigatorul și validatorul produc un finding corect, controlul sigur nu este confirmat, raportul și retestul au probe.</p>
 <h3 id="21-fluxul-operational-si-livrarea-lui">2.1. Fluxul operațional și livrarea lui</h3>
 <p>Acesta este fluxul <strong>produsului</strong>, nu ordinea scrierii tuturor modulelor. RF sunt puncte de citire/discuție, nu încă un scheduler sau faze executate o singură dată. Arhitectură §5–§9 rămâne contractul de comportament; §4.2 de mai jos arată exact unde îl construim incremental.</p>
@@ -171,7 +171,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <h2 id="4-etape-si-dependente-revizuite">4. Etape și dependențe revizuite</h2>
 <p><strong>G-DESIGN — VISUAL_ACCEPTED / df17a29.</strong> Structura api/web/cli și contractul omnis sunt acceptate; fundația are probe istorice P0/P1, nu se redeschide implicit. Afirmațiile vechi despre launcher neimplementat/G00 deschis sunt snapshoturi istorice, nu statusul curent. T0 nu aprobă o estetică nouă și nu înlocuiește acordul provider/date/ținte.</p>
 <h3 id="ordine-verificabila">Ordine verificabilă</h3>
-<p>Ordinea de livrare: <strong>T0 → T1 Settings/Test model → T2/S0–S7 (loop, subset HTTP/auth/recon/IDOR/validator, calibrare și acceptare) → restul T3/T4 → T5 → extensii</strong>. T2 încorporează numai subsetul T3/T4 necesar din §7, nu cere închiderea etapelor succesoare ca prerequisite; T3 determinist rămâne dezvoltabil după T0/acordul efectelor, iar T4 complet consumă T1/T2/T3 reale. T5 păstrează raport/export/retest. Acceptările P0/P1/T1 se reutilizează scoped, nu se relansează pentru badge-uri. Dependențele de mai jos sunt de închidere; nicio paralelizare nu lărgește mandatul actual S0.</p>
+<p>Ordinea de livrare: <strong>T0 → T1 Settings/Test model → T2/S0–S7 (nucleu complet, IDOR/BOLA inițial) → restul T3/T4 → T5/retest → extensii</strong>. T2 preia explicit din etapele existente HTTP/auth, browser/SANDBOX_EXEC, recon/map, investigație/validare, B13a–c și B18a/G-LOOP; nu așteaptă închiderea succesorilor care consumă aceste componente. T3/T4/T5/P3b/P-LOOP păstrează numai extensiile și probele neacoperite, nu încă o implementare a nucleului sau rerulări ale dovezilor neschimbate. §7.2 fixează dependențele dintre incrementele S și pragul IDOR timpuriu. Acceptările P0/P1/T1/S1 se reutilizează scoped; tabelul de mai jos descrie închiderea etapelor largi, nu amână producerii mutați în T2. Mandatul actual este documentar, fără implementare sau efecte.</p>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
 <thead>
 <tr>
@@ -194,12 +194,12 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <tr>
 <td>T2</td>
 <td>T1</td>
-<td>S0–S7: Agent/Runner, control/readback, subset HTTP/auth/recon/map/IDOR/D13/D14, calibrare autonomă și D03; A separat BLOCKED_ADMISSION, fără închidere integrală tacită</td>
+<td>S0–S7: nucleu funcțional complet §7.2, IDOR/D13/D14/D03, HTTP/browser/SANDBOX_EXEC, recon/map/notes, G-LOOP, report review/export HTML/JSON, control/readback; A DEFERRED_BY_OPERATOR</td>
 </tr>
 <tr>
 <td>T3</td>
 <td>T0</td>
-<td>HTTP trusted/evidence/identity A/B/validator și UI: subsetul necesar se livrează în T2/S2, restul aici; G03a/G-AUTH-HTTP/G-NET înainte de efect, sandbox cu primul consumer/gate propriu</td>
+<td>Producerii HTTP/auth/browser/sandbox necesari sunt livrați în T2/S2a–b; aici numai restul de transport/capabilități cu gate propriu. G03a/G03b/G-AUTH-HTTP/G-NET/G-TOOLS înaintea efectului respectiv</td>
 </tr>
 <tr>
 <td>T4</td>
@@ -209,7 +209,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <tr>
 <td>T5</td>
 <td>T4</td>
-<td>B13a/b/c/d: findings/review/export/retest, închide M1/G05a/G06a complet</td>
+<td>B13d retest și restul G05a/G06a/M1; reutilizează B13a/b/c findings/review/export deja cerute în T2/S4a–b, fără dublarea producerilor</td>
 </tr>
 <tr>
 <td>T6</td>
@@ -224,12 +224,12 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <tr>
 <td>P3b</td>
 <td>T5, B01e-build</td>
-<td>Browser/SPA și B01e-integrated/G-NET/G03b/G-EFFECT, rămâne MVP</td>
+<td>Extensii browser/SPA peste B09a/b și G03b/G-EFFECT probate obligatoriu în T2/S2b; B01e-integrated precede deja primul browser, nu este amânat aici</td>
 </tr>
 <tr>
 <td>P-LOOP</td>
 <td>T5</td>
-<td>B18a continuări/STEER/replan, apoi B18a.r critic/rework; G-LOOP/G-METHOD</td>
+<td>Extinde B18a/G-LOOP deja livrat în T2/S5 cu B18a.r critic/rework și consumerii ulteriori; nu prima continuare adaptivă</td>
 </tr>
 <tr>
 <td>P-FOCUS</td>
@@ -289,7 +289,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <p>DAG-ul decide închiderea, nu cere live înaintea unui consumer determinist. Nu începem o fază nouă fără mandat. M-LAB nu așteaptă editor/Jev/research sau întregul catalog; dacă aplicația/cazul cere browser, login/context/subrequest confinement și gate-urile lui preced folosirea, chiar în T2/S2. Altfel rămâne gap/BLOCKED, nu suport pretins din prompt sau amânare de siguranță până la T6. DATA/admission/Stop/secrete și HOLD/restart/Resume preced efectul; S5/P7/P8 extind, nu le introduc retroactiv. Wordlist CORE precede B15, gate integrat urmează consumerul; focused complet cere STEER după M1, peste Needs you minim S1.</p>
 <h3 id="42-subfelii-ce-pastram-modificam-si-introducem">4.2. Subfelii: ce păstrăm, modificăm și introducem</h3>
 <p>Acesta este registrul de livrare al <strong>aceluiași plan</strong>, nu un nou backlog concurent. ID-urile SL sunt rânduri de trasabilitate; ticketurile B rămân canonice. Un rând cu „apoi” se livrează în commituri separate, fiecare coerent, nu într-un mega-commit. <strong>Snapshot istoric al inventarului inițial:</strong> la introducerea registrului existau fundația P0.1–P0.3 și CLI-ul P0.4 parțial; starea adjudecată pentru reluare este în §19/§19.2 și în <a href="verification/implementation-status.md">harta curentă</a>. Căile viitoare se creează numai cu primul consumator. „Extindem” în fazele ulterioare înseamnă artefactele livrate de fazele precedente, nu că toate funcțiile promise sunt deja implementate.</p>
-<p><strong>Transpunere T2 fără renumerotare SL/B:</strong> S1 avansează SL07–SL13 și readback/Needs you minim SL16/SL25; S2 avansează subsetul SL15/SL17 și SL14/SL18 numai dacă browserul necesar este admis; S3 avansează SL19–SL20; S4 SL21–SL23; S5 nucleul SL35 cu doi workeri; S6/S7 calibrează/acceptă aceste rânduri. Etichetele T3/T4/T6 din inventar desemnează și restul rămas după acest subset, nu amânarea consumerilor necesari sau credit pentru rândul întreg. Scope-ul concret și ieșirea S0–S7 de mai jos decid prima livrare.</p>
+<p><strong>Transpunere T2 fără renumerotare SL/B:</strong> S1 păstrează SL07–SL13 și corectează finit SL16/stagnarea; S2a avansează SL15/SL17, <strong>S2b obligatoriu pentru S7</strong> SL14/SL15/SL18; S3a/b SL19–SL20; S4a SL21–SL23 și S4b review/export din SL23–SL24; S5 B18a/SL25 plus nucleul SL35 cu doi workeri; S6/S7 calibrează/acceptă toate aceste rânduri. Etichetele T3/T4/T5/T6 din inventar includ restul rămas, nu amânarea primei livrări din §7.2 sau credit pentru un rând întreg. Retestul SL24/B13d, criticul B18a.r și celelalte extensii își păstrează porțile.</p>
 <p>Prefixe exacte pentru căile scurtate: <code>M/</code> = <code>api/src/omnis/modules/</code>; <code>H/</code> = <code>integrations/hermes/src/omnis_hermes/</code>; <code>W/</code> = <code>web/src/features/</code>; <code>V</code> = <code>api/src/omnis/migrations/versions/</code>. Fișierele root CLI/executori/integrations sunt numite explicit. Reuse IDs trimit la stack §10/manifeste, cu pins/teste/notices, nu la module copiate deja.</p>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
 <thead>
@@ -409,27 +409,27 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 </tr>
 <tr>
 <td>SL14</td>
-<td>T6 / B01e-build</td>
+<td>T2/S2b / B01e-build, rest T6</td>
 <td>proxy/executori → browser/scanner/network sandbox</td>
-<td>DEFER/REBASE proxy universal; păstrăm respingerea buildului nesigur</td>
+<td>Păstrăm respingerea buildului nesigur; remediu/pin înainte consumer</td>
 <td>Build/lock/audit și transport inspectabil cu consumerul său</td>
-<td>B01e-build LAB_TEST_ONLY apoi integrated/G-NET; nu prerequisite HTTP trusted</td>
+<td>B01e-build LAB_TEST_ONLY apoi integrated/G-NET înainte S2b; nu prerequisite HTTP trusted S2a</td>
 </tr>
 <tr>
 <td>SL15</td>
-<td>T3 / B07</td>
+<td>T2/S2a–b, rest T3 / B07</td>
 <td>policy/evidence + executori → HTTP și sandbox admis</td>
 <td>Extindem owner/ledger target și A05, nu bypass</td>
-<td>HTTP trusted/capture/OPERATOR_CHECK; SANDBOX_EXEC cu primul caller util</td>
+<td>HTTP trusted/capture/OPERATOR_CHECK S2a; SANDBOX_EXEC S2b obligatoriu înainte S7</td>
 <td>Allow/deny la sink, host/secret/direct egress/Stop/crash file-DB; G03a/G-NET/G-TOOLS</td>
 </tr>
 <tr>
 <td>SL16</td>
-<td>T3/T4 / B08</td>
+<td>S1-UX apoi fiecare producer T2 / B08</td>
 <td>runs/events + web → inspector operator</td>
 <td>KEEP UI baseline/proiecții/cursor, fără date demo</td>
-<td>Summary/stream/evidence/consum/HOLD readback minim</td>
-<td>Reload/restart/cursor străin/Stop/stale/partial/unknown; G03a UI</td>
+<td>Activity Feed/Agents/inspector cronologic, agregate Overview/usage, evidence/consum/HOLD</td>
+<td>Roster/event pagination, DTO→decoder→renderer, reload/restart/cursor străin/Stop/stale/partial/unknown; estetică separată</td>
 </tr>
 <tr>
 <td>SL17</td>
@@ -441,11 +441,11 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 </tr>
 <tr>
 <td>SL18</td>
-<td>T6 / P3b / B09a–B09b; după B09h, paralel cu BOLA</td>
-<td>executors/browser + identities/proxy → SPA/XSS</td>
-<td>Extindem același port/authority și auth HTTP, nu alt motor</td>
-<td>contexts.py/action_window.py/runner/capture, Chromium hardened și assisted login</td>
-<td>Browser subrequests/generații/HTTPS/CSRF/refresh; SW/WS/QUIC/direct egress refuzate; G03b/G-NET/G-EFFECT</td>
+<td>T2/S2b / B09a–B09b; după B09h, extensii P3b ulterior</td>
+<td>executors/browser + identities/proxy → recon/post-auth/validator, XSS ulterior</td>
+<td>Playwright canonic + același authority/auth/evidence, nu alt motor</td>
+<td>contexts.py/action_window.py/runner/capture numai cu consumerul, Chromium hardened și assisted login</td>
+<td>Browser subrequests/generații/HTTPS/CSRF/refresh; SW/WS/QUIC/direct egress refuzate; G03b/G-NET/G-EFFECT obligatorii înainte S7</td>
 </tr>
 <tr>
 <td>SL19</td>
@@ -481,27 +481,27 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 </tr>
 <tr>
 <td>SL23</td>
-<td>T4/T5 / B13a apoi B13b</td>
+<td>T2/S4a–b / B13a apoi B13b, rest T4/T5</td>
 <td>findings + web → rezultat și review</td>
-<td>Subset inspectabil la M-LAB; editorial după</td>
-<td>Candidate/CONFIRMED/REJECTED/INCONCLUSIVE, apoi report-review CAS</td>
-<td>Readback/restart și evidence; Accept nu confirmă candidat; M-LAB apoi M1</td>
+<td>Finding intermediar, apoi editorial pe exact claim/evidence</td>
+<td>Candidate/CONFIRMED/REJECTED/INCONCLUSIVE, report-review CAS</td>
+<td>Readback/restart și evidence; Accept nu confirmă candidat; ambele înainte S7</td>
 </tr>
 <tr>
 <td>SL24</td>
-<td>T5 / B13c apoi B13d</td>
+<td>T2/S4b B13c; T5 B13d</td>
 <td>reports/findings → export/retest</td>
-<td>KEEP snapshot/formatter și istoric</td>
-<td>Export real HTML/JSON și retest cu probe noi</td>
-<td>Missing/stale/retention/CAS/crash; M1/G05a/G06a complet, nu prerequisite M-LAB</td>
+<td>KEEP rubrici/formatter și istoric, snapshot nativ</td>
+<td>Export real HTML/JSON în nucleul T2; retest cu probe noi ulterior</td>
+<td>Missing/stale/retention/CAS/crash/download; M1/G05a/G06a complet după retest, nu prerequisite primului finding</td>
 </tr>
 <tr>
 <td>SL25</td>
-<td>T6 / P-LOOP / B18a apoi B18a.r; după G06a</td>
+<td>T2/S5 B18a/G-LOOP; T6 B18a.r după G06a</td>
 <td>M/tasks/runs + supervisor → Brain</td>
-<td>Extindem inbox B06, nu îl reconstruim; U09/S03/S05</td>
-<td>continuations.py/handoffs.py, ResultQualification/dedup/re-entry, STEER și method_review.py/REVIEWER bounded</td>
-<td>Clue→alt task ori no-op motivat, M1 valid după M2 vs auth invalid; duplicate și post-Stop fără wake; critic/rework fără refill; G-LOOP/G-METHOD</td>
+<td>Extindem owner/inbox existent și conținutul coordination/handoff, nu alt scheduler</td>
+<td>Rezultat→consum→prioritate/replan/STEER/successor; MethodReview/REVIEWER numai ulterior</td>
+<td>Clue→alt task ori no-op motivat, M1 valid după M2 vs auth invalid; duplicate și post-Stop fără wake; origin-gap resolution; G-LOOP înainte S7, G-METHOD extins ulterior</td>
 </tr>
 <tr>
 <td>SL26</td>
@@ -598,10 +598,10 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <ul>
 <li><strong>M0/G00 și P1:</strong> acceptări istorice scoped, fundație reutilizată; noul release are regresii affected, fără reaudite universale.</li>
 <li><strong>T1/G-MODEL/G-DATA-EARLY/G04a:</strong> web Settings/seif/system operation → call autentic → rezultat persistent/Stop; fără engagement/catalog/Publish; nu tool loop.</li>
-<li><strong>T2/G-RUNTIME:</strong> S1 dovedește rol/task/tool/result consumat, control/checkpoint/HOLD/Resume/no-resend. Închiderea T2 cere S2–S7 și D03: minimum un finding validat independent din circuitul propriu, negativele/lifecycle/readback și A rezolvat sau explicit dispus; tehnic SDK ≠ calibrare ≠ exit D03.</li>
+<li><strong>T2/G-RUNTIME:</strong> S1 dovedește rol/task/tool/result consumat, control/checkpoint/HOLD/Resume/no-resend. Închiderea cere toate rândurile §7.2, inclusiv browser/SANDBOX_EXEC, recon pe aceste transporturi, G-LOOP și raport HTML/JSON, plus D03 din circuitul propriu și controale/readback. D03 timpuriu nu închide S7; tehnic SDK ≠ calibrare ≠ paritate. A este amânat explicit, pairingul manual rămâne.</li>
 <li><strong>T3/G03a/G-AUTH-HTTP/G-NET/G-TOOLS:</strong> efectele și identitățile reale, evidence/readback; fiecare sandbox/tool înainte de utilizare, nu doar un container pornit.</li>
 <li><strong>M-LAB/T4:</strong> completează IDOR/BOLA + triage + validator peste subsetul T2, discovery proprie și controale vulnerable/fixed/benign/shared/auth-invalid; Stop/restart și rezultat inspectabil. Nu cere relansarea dovezilor neschimbate și nu este M1 complet, raport final sau întregul MVP.</li>
-<li><strong>M1/T5:</strong> B13 review/export/retest și G05a/G06a complet, după M-LAB.</li>
+<li><strong>M1/T5:</strong> B13d retest și G05a/G06a complet, după M-LAB; review/export B13b/c au primul consumer obligatoriu T2/S4b.</li>
 <li><strong>M2/T6:</strong> M1 + browser/G03b/G-EFFECT, recon/G05b/G06b, G-LOOP/G-FOCUS/G-PATH, G-JEV/G-SKILL/G-METHOD/G-JS și G04b. G-MODULE/G-REVISION/G-TOOLS/G-RESEARCH/G-WORDLIST/G-IMPROVE/G-RUNTIME-BOUND-CORE apoi complet rămân pentru funcțiile promise, nu prerequisite M-LAB.</li>
 <li><strong>Release:</strong> G07/G08/G-DATA/G-OPS, backup/restore/held-out și artefact instalat; runtime NOT_RUN nu se închide prin documente. E1–E4 rămân extensii explicite, B21m opțional.</li>
 </ul>
@@ -720,9 +720,9 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <h2 id="7-t1t2-executie-omnis-si-riscuri-eliminate-inainte-de-consumer">7. T1/T2 — execuție Omnis și riscuri eliminate înainte de consumer</h2>
 <p><strong>B05/B06:</strong> ownerul existent, schema aditivă și contractele arhitectură §5/§8.1 înlocuiesc runtime-host/RPC/management Hermes pentru noua execuție. T1 produce rootul system_operation; T2 produce run/task/attempt reale și leagă identitatea trusted înainte de model/tool. Modelul nu revendică task ID/rol/grant. Library API publică, context separat și registry de tools; fără patch de constructor/loop sau native IDs false.</p>
 <p><strong>B06m / G-MODEL</strong> — caller → admitere/permit/ledger → SENT comis → veto transport → outcome/readback. MONITOR fără plafon total LLM; FINITE_TEST separat. Per-apel deadline/dimensiuni/concurență și protecția la stagnare rămân; fără rezervă financiară VALIDATION. Rezultatele/consumul necunoscut nu se șterg; retry/fallback implicit dezactivate în client și Runner. G-DATA-EARLY/B06c verifică întreg payloadul final, tool schemas/observații/error/log înainte de disclosure; datele target noi cer proba lor T3, nu transferul NO-IO.</p>
-<p><strong>T2 este agentic și include primul circuit util, nu alt smoke:</strong> S1 începe cu Brain + un slot worker, model explicit și skill calificat → tool inert cerut realmente → rezultat persistat → decizie Brain care citează și consumă rezultatul. Extensia RUN/rol RECON/selection este versionată, păstrând T1 și V1/V2 istorice; inbox/checkpoint/usage rămân ale Omnis. S2–S4 aduc subsetul T3/T4 necesar HTTP/auth/recon/map/IDOR/D13/D14, S5 compunerea recovery/doi workeri, S6 calibrarea și S7 acceptarea. Fără compresie/research/auxiliare ascunse, shell fallback ori al doilea owner/runtime. Contractele de comportament sunt arhitectură §5/§6/§9–§11; proveniența și selecțiile de portare sunt <a href="verification/t2-discussion.md">T2 §8–§9.7</a>, nu mandate concurente.</p>
-<p><strong>Ordine internă S0 → S1 → S2 → S3 → S4 → S5 → S6 → S7; A independentă de core, separat blocată.</strong> UI/readback, schema/migrația/DTO/decoder și testele se livrează cu fiecare producer, nu într-un lot final. S0 este închis scoped; mandatul inițial admitea S1 în izolare, iar mandatul ulterior din§11 admite separat livrarea în instanța existentă. S2–S7/A rămân neadmise; inferența este legată de acordul separat provider/model/date/apeluri/cost/deadline. O închidere documentară nu acordă inferență ori rollout și nu înlocuiește probele.</p>
-<p><strong>Felie UI separată după S1, înainte de S2 — corecții UX IMPLEMENTING / NOT_YET_VERIFIED / VISUAL_CHANGES_REQUESTED:</strong> <a href="verification/ui-reference-light-dark.md">registru unic/checklist <code>ux-*</code></a>. Mandatul explicit cere livrare locală utilizabilă, nu încă un plan: UI curată/Stop contextual, soare-lună, creare fără Test model, calendar și termen opțional real API→persistență→readback, Overview compact, scrollbars, activitate/arbore/inspector read-only din date reale și diagnostic privat inspectabil. Backendul minim al acestor corecții este admis conform arhitectură§9; fără migrare/upgrade implicit, program recurent ori auto-Resume. Un developer, două reviewuri complementare pentru Stop/autorizare, QA pe consumerii reali în fixture existent, commituri granulare și canonical final. Aceeași instalație este <strong>STOPPED54</strong> normal înaintea editării surselor montate; browserul/sesiunea și datele sunt păstrate. <strong>Istoric UI: IMPLEMENTED_VERIFIED_LOCAL / TECH_ACCEPTED_SCOPED / VISUAL_APPROVAL_PENDING la <code>13f0b19a</code>, canonical integral <code>99d8a72f</code> PASS și READY53 readback</strong>, cu FAIL-urile/reviewurile/probele păstrate numai la bytes lor. S1 inițial rămâne CLOSED_SCOPED; S2–S7/A,HTTP de țintă,inferență nouă de produs/live S1 și push UI rămân neadmise. Acceptarea estetică finală a operatorului nu se deduce din teste; nu assessment/MVP complet ori CI remote PASS.</p>
+<p><strong>T2 livrează nucleul funcțional, nu numai primul finding:</strong> păstrăm S1 Brain/worker/tool/result consumat și extindem aceiași owneri la HTTP/browser/SANDBOX_EXEC, recon/map, IDOR/D13/D14, raport și replan adaptiv. Selecțiile Settings, inbox/checkpoint/usage și readerii istorici rămân Omnis. Fără compresie/research/auxiliare ascunse, shell host fallback ori al doilea owner/runtime. Contractele sunt arhitectură §5/§6/§9–§11. <a href="verification/strix-7574-reference-analysis.md">Analiza Strix7574</a> și <a href="verification/strix-7574-porting-cards.json">SR01–SR09</a> sunt sursa tehnică a amendamentului; vechile fișe U din registrul T2 rămân proveniență la pinul lor, nu instrucțiuni concurente.</p>
+<p><strong>Aceleași S0–S7, livrate incremental conform §7.2, nu o cascadă care amână primul consumer.</strong> Traseul scurt este S1-UX/core → S2a → S3a → S4a → prima probă S6/D03; apoi completăm S2b → S3b, S4b și S5 înaintea calibrării integrate S6 și acceptării S7. Dacă primul caz necesită browser, S2b/S3b îl preced: nu există bypass. UI/readback, migrația/DTO/decoder și testele vin cu fiecare producer. <strong>A = DEFERRED_BY_OPERATOR</strong>, manual păstrat. Mandatul actual autorizează analiza/amendamentul, nu lansarea implementării S1-UX/core sau S2–S7; provider/model/date/țintă/efecte/cleanup și rollout cer acordul lor separat. Dovezile S0/S1 rămân scoped.</p>
+<p><strong>S1-UX înainte de efectele S2 — IMPLEMENTATION_PAUSED / VISUAL_CHANGES_REQUESTED:</strong> <a href="verification/ui-reference-light-dark.md">registrul/checklistul <code>ux-*</code></a> păstrează implementările și acceptările tehnice istorice, inclusiv13f0b19a/99d8a72f și eșecurile ulterioare, nu readiness live. Feedbackul6/10 nu este acceptare estetică. §7.2 și UI/UX§0 fixează acum Overview cu metrici reale și Activity→Feed/Agents→inspector etalon. Calendarul/termenul opțional/tema/Models/Stop/datele/profilul se păstrează; fără redesign global, inferență pentru populare sau migrare/upgrade implicit. Remediul de stagnare S1-core este distinct. Mandatul actual este amendamentul documentar; implementarea, reviewurile/QA produs și eventualul rollout se admit separat.</p>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
 <thead>
 <tr>
@@ -741,7 +741,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 </tr>
 <tr>
 <td>S2</td>
-<td>Verify login/health prin OPERATOR_CHECK → auth principal/rol/epoch → target sink autorizant → evidence/readback; anonymous fără seif. Namespace/codec target distinct, provider-vault/T1 neschimbate. Allow și scope/redirect/identity/DATA/Stop deny pe același sink; captură incrementală bounded/corupt/missing/oversize. HTTP/auth și, dacă necesar, browser/login/subrequest confinement probate înainte de efect; fără shell/proxy universal implicit.</td>
+<td>S2a HTTP/auth/OPERATOR_CHECK/captură/read/replay; S2b browser/login/SPA și shell/Python/workspace SANDBOX_EXEC, obligatorii înainte S7. Fiecare transport are scope/identity/DATA/Stop, captură bounded și G-NET înainte de efect; anonymous fără seif. Browserul nu condiționează primul API HTTP, dar nu mai este opțional pentru nucleul final.</td>
 </tr>
 <tr>
 <td>S3</td>
@@ -749,27 +749,27 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 </tr>
 <tr>
 <td>S4</td>
-<td>Investigator IDOR/BOLA → D13 owner pe direct-final/finish/errors → candidat/gaps → triage Brain → D14 validator cu attempt/auth/probe/control proprii → oracle/writer → finding inspectabil. Obligație/ref fals/false N/A nu produc success; candidatul complet din task parțial poate fi validat separat. DENY+efect privat real+replay/controale pot confirma; owner/shared/fixed/benign/login200 nu confirmă, auth-invalid/missing evidence nu devin secure/FIXED.</td>
+<td>S4a investigator IDOR/BOLA → D13 pe toate finalizările → candidat/gaps → triage Brain → D14 cu attempt/auth/probe/control proprii → oracle/writer → finding inspectabil; candidatul complet din task parțial poate fi validat separat. S4b review editorial și raport HTML/JSON eligibil, descărcat/readback real. Owner/shared/fixed/benign/login200/auth-invalid/missing evidence nu confirmă. Primul finding nu așteaptă exportul; exportul este obligatoriu pentru S7.</td>
 </tr>
 <tr>
 <td>S5</td>
-<td>Extinde circuitul S1–S4 la <strong>maximum doi workeri activi incluzând draining/validator</strong>, Brain separat și validator la următorul slot eligibil. Același owner/inbox/relay; FENCE/DRAIN la saturație, retirement fără stale replay; owner/ACK loss, late/duplicate, Stop reserve/send, quota HOLD, reconnect și Resume explicit numai pentru lucru readmis. Protecțiile S1 nu sunt amânate aici.</td>
+<td>B18a/G-LOOP: consum de note/rezultate → prioritate motivată → replan/recon suplimentar/specialist nou ori no-op justificat; mesaje la frontieră sigură și STEER bounded fără schimbare ROE. Maximum doi workeri incluzând draining/validator, Brain separat, validator next-slot. Același owner/inbox/relay; late/duplicate/owner loss/HOLD/UNKNOWN/Stop fără wake/resend; Resume explicit. Protecțiile S1 preced deja efectele.</td>
 </tr>
 <tr>
 <td>S6</td>
-<td>Prima calibrare autonomă pe <strong>ShopShfere</strong>, prin UI/consumerii normali, după URL/snapshot/baseline post-Strix, identități/ROE/private/shared/efecte/cleanup/date/cost aprobate. Discovery proprie, fără endpoint vulnerabil/PoC/truth de la evaluator; tentativele autonome se păstrează, hints ulterioare sunt diagnostic asistat separat. Un negativ/blocaj util nu închide D03: minimum un finding confirmat independent rămâne obligatoriu. Nu demo substitut sau CLI pentest paralel.</td>
+<td>Protocol autonom <strong>ShopShfere</strong>, prima tentativă imediat după S4a când prerechizitele cazului sunt satisfăcute, apoi verificarea comportamentelor noi după completarea nucleului. UI/consumeri proprii, baseline post-Strix/identități/ROE/controale/efecte/cleanup/date/cost aprobate; fără soluția evaluatorului. Tentativa originală se păstrează; hints asistate separat. D03 cere minimum un finding confirmat independent; negativul/blocajul util nu îl închide.</td>
 </tr>
 <tr>
 <td>A</td>
-<td>Auto-pair <strong>BLOCKED_ADMISSION</strong>: bearer-fragment→argv este inadmisibil; sentinel/canal/frontieră browser înainte de secret, apoi binding purpose/instance/generation/epoch la consum, sesiune validă păstrată, expiry/replay/logout/concurență/headless și QA installed. Fără excepție URL/argv, regex slăbit sau hardening OS tacit. Fallback manual nu închide și nu amână implicit A; dispoziția cere decizie explicită.</td>
+<td><strong>DEFERRED_BY_OPERATOR:</strong> pairing manual existent, suficient pentru T2/S7; nu auto-pair livrat și nu excepție URL/argv. Redeschidere numai la cerere nouă, cu canal sigur și probele proprii; nu mai ocupă calea critică.</td>
 </tr>
 <tr>
 <td>S7</td>
-<td>Artefact final S1–S6 + dispoziție A → gate canonic pe bytes integrați, QA installed pe copie proprie, findings/istoric/control după reload/restart fără rerun. Livrarea aceleiași instalații operator cere mandat, backup/restaurare și tranziție compatibilă explicită; upgradeul finit T1 nu este generic. A blocat fără dispoziție explicită, D03 sau probe restante → T2 NOT_CLOSED.</td>
+<td>Toate ieșirile §7.2, inclusiv S2b/S3b/S4b/S5, D03 și calibrarea integrată → gate canonic pe bytes integrați, QA installed proprie, DB/UI/raport și control după reload/restart fără rerun. Manual pairing suficient. Rollout operator separat, cu backup/restaurare/tranziție compatibilă; probe lipsă → T2 NOT_CLOSED, nu parity badge.</td>
 </tr>
 </tbody>
 </table></div>
-<p><strong>Portare minimă, nu fișe duplicate:</strong> U01 SDK public/sender existent; U02 core/composer/catalog calificat — calificarea viitorului pachet S1/S3/S4 nu este livrată prin serializarea S0; U03 delegare/finish/Needs you; U04 HTTPX/auth/evidence; U05 recon/map; U06 IDOR/D13/D14; U07 event pairing/inspector; U08 control; U09 A. Selecțiile exacte, simbolurile și aserțiunile upstream rămân în proveniența §9.5–§9.7 a registrului. Developerul extrage numai closure-ul necesar, cu tipuri stricte/licențe/notices/digest; helper Omnis echivalent înaintea duplicării, incompatibilitate concretă înaintea rescrierii. Fără <code>.hermes/skills/</code> de dezvoltare în produs, runtime/factory/SQLite Strix sau schelete fără consumer. Candidate freeze/review/evaluate preced Publish; SECURITY are evaluare separată pe fixture autorizat, nu prerequisite circular al propriului finding ShopShfere.</p>
+<p><strong>Portare minimă, nu fișe duplicate:</strong> SR01–SR09 și <code>functional_core_amendment</code> din <a href="verification/strix-7574-porting-cards.json">fișele unice</a> sunt selecția curentă; U01–U09 din registru rămân proveniență la pinul vechi. <strong>Refolosim <code>content/strix-s234-catalog@1885d3f9dd9d498008a84d005ad6197f4807db2f</code>:</strong> <code>skills/strix-catalog/prepared/</code> are coordination/handoff/s2-http-auth/s3-web-recon/s4-idor-bola/s4-validation, nu se creează copii concurente <code>skills/web-recon</code>/<code>skills/idor-bola</code>. Sunt candidate neintegrate/necalificate, nu capabilități executabile. Cele79originale au70identice/9diferite față de pinul nou; se adaptează delta relevantă cu proveniență/digest nou, nu se schimbă pinul în metadata fără schimbarea bytes. Developerul păstrează closure/licențe/notices/tipuri stricte; helper nativ echivalent înaintea duplicării, incompatibilitate concretă înaintea rescrierii. Fără <code>.hermes/skills/</code> de dezvoltare, runtime/factory/SQLite Strix sau schelete fără consumer. Freeze/review/evaluate preced Publish; SECURITY se evaluează pe fixture autorizat, nu prin prerequisite circular al propriului finding ShopShfere.</p>
 <p><strong>Verificare finită:</strong> TECH (S0/S1), BOUNDARY (S2), COMPLETENESS (S1 plumbing/S4), FUNCTIONAL (S6), VALIDATOR (S4/S6), FAULT/READBACK (S1 minim/S5/S7). Cerință→consumer→risc→decizie, RED→GREEN, FREEZE și două reviewuri complementare pentru autoritate/Stop/secret/dispatch, apoi QA reală. Preflight fără efecte înainte PG/browser/provider: argv/opt-in, pin/import, dimensiuni/UID/mount/socket, oracle pozitiv+negativ și fixture proprie. <code>--probe-only</code> provisionează DB, nu este dry-run; targeturile noi T2 sunt NOT_VERIFIED până la producer. Folosim runnerul/Makefile/testele existente, fără mini-runner general; <code>make check UV=&lt;uv-pinuit&gt;</code> numai la frontiera integrată. Două cicluri harness-only fără progres pe aceeași acceptance row între sesiuni → îngustare/BLOCKED, nu alt verifier. Git revert nu retrage DB/credentiale/efecte; migrații aditive și backup/restore înaintea instalării, fără restore peste date mai noi.</p>
 <h3 id="71-dispozitia-h01h08-si-contractelor-native-istorice">7.1. Dispoziția H01–H08 și contractelor native istorice</h3>
 <p>P2-inert/P4a/P2-live vechi și mandatul Codex/openfix/batch2 sunt <strong>LEGACY_ONLY / fără autoritate de continuare</strong>. Probe/FAIL/UNKNOWN și readerii lor sunt păstrați în registre/Git; nu se reiau ca prerequisite T1. H01–H08 identifică obligațiile transferate, nu metode RPC ale produsului nou:</p>
@@ -825,6 +825,116 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 </tbody>
 </table></div>
 <p>G-HERMES-BOUND-CORE și G-HERMES-BOUND sunt aliases istorice retrase; <strong>G-RUNTIME-BOUND-CORE/G-RUNTIME-BOUND</strong> păstrează ownership/slot/DATA/Stop înainte de maintenance și extinderea recovery. Contractele V1 și schemele 0001–0013 nu sunt relaxate pentru V2. Fără reexecuție pentru citirea istoriei.</p>
+<h3 id="72-contract-de-portare-pe-consumer-s1s7">7.2. Contract de portare pe consumer — S1–S7</h3>
+<p><strong>Amendament cerut și ales explicit de operator: nucleu complet, IDOR/BOLA inițial; A = DEFERRED_BY_OPERATOR și nu blochează S7.</strong> Acesta este registrul de execuție al acelorași S-uri, nu un al doilea plan. <code>a/b</code> sunt incremente dependente, nu versiuni alternative între care se alege. Codul de produs este neschimbat de amendament; ieșirile noi sunt NOT_IMPLEMENTED/NOT_RUN. Echivalența de mecanism urmărită <strong>nu certifică paritatea</strong> de eficacitate, breadth, durată sau cost cu Strix.</p>
+<p><strong>Sursa de achiziție:</strong> <a href="verification/strix-7574-porting-cards.json">SR01–SR09</a>, Strix <code>55bc07991aacb1c26a81b43e7ca53148730d2019</code>/v1.7.0/Apache-2.0; fiecare card păstrează file/symbol/range/SHA, closure, seams înlocuite, destinații existente versus propuse și teste. Căile Omnis de mai jos sunt la baza <code>1843c7bf89afe6014cc1101ae69d301a5fc6167b</code>; nu sunt fișiere noi pretins implementate. <code>M/</code> = <code>api/src/omnis/modules/</code>, <code>W/</code> = <code>web/src/</code>. Păstrăm originalul/notices și digestul adaptării; importul folosește unitatea utilă compatibilă, nu descrierea ei rescrisă sau runtime-ul Strix întreg. Source-kit-ul candidat separat se verifică înainte de o copie nouă; nu se publică automat.</p>
+<div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
+<thead>
+<tr>
+<th>Increment</th>
+<th>Producer / prerechizit</th>
+<th>Reuse și owner nativ</th>
+<th>Legătura / limitele care trebuie fixate înainte de cod</th>
+<th>Probă pozitivă, refuz și diagnostic</th>
+<th>Ieșire observabilă</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1-UX</td>
+<td>Run/usage/events/attempts existente; fără populare prin inferență nouă</td>
+<td>SR08; <code>W/features/engagement/RunPanel.tsx:59–145,232–347</code>, <code>W/shared/api/runs.ts</code>, <code>M/runs/projections.py:254–360</code></td>
+<td>Activity → Feed / Agents → inspector cronologic read-only; Overview runtime/requests/input-cached/output-reasoning/total/cost/agents. Totaluri server-side, roster și istoric agent cu cursor; DTO/OpenAPI/decoder împreună, nu store transcript nou.</td>
+<td>Mai mult de o pagină: fiecare agent accesibil, total independent; call/result/error/unmatched/pending/gaps vizibile. Read/reconnect zero efect; focus/scroll/Stop și context-run păstrate. Metrică fără sursă → UNKNOWN. Diagnostic la projection/decoder/renderer, nu alt live run.</td>
+<td>O vedere etalon acceptată vizual de operator; apoi aceeași prezentare pe producerii S2–S5. Baseline df17a29 și Models păstrate, fără graph canvas.</td>
+</tr>
+<tr>
+<td>S1-core</td>
+<td>Reproducerul de stagnare din dosar, înaintea oricăror efecte S2</td>
+<td>KEEP <code>M/runs/run_runtime.py:1072–1243</code>/<code>AgentRunOwner.complete</code>, <code>run_store.consume</code>; strict decoder nativ</td>
+<td>ID nou ori listă consumed_refs nevidă nu sunt singure informație nouă. Cheie semantică: obiectiv/procedură/inputs/revizii/auth/precondiții + observație/dovadă/deltă relevantă; reproductibilitatea legitimă are obligație/scop distinct.</td>
+<td>Worker→Brain→worker pe inputuri echivalente cu IDs noi nu resetează stagnarea; precondiție schimbată/control necesar poate justifica progres. Probe SOURCE apoi PG prin ownerul real; fără model plătit pentru numărătoare. UNKNOWN/Stop/HOLD rămân bariere.</td>
+<td>Remediu finit separat de UI; feedback/gaps și LIMITED corecte, fără plafon total LLM sau reset la fiecare successor.</td>
+</tr>
+<tr>
+<td>S2a</td>
+<td>Setup/ROE și identitate → OPERATOR_CHECK login/health înainte de Brain; anonymous valid</td>
+<td>SR04/SR05; KEEP HTTPX/seif/control, EXTEND <code>AgentRunOwner.execute_tool</code>, NEW <code>policy/target_actions.py</code>, <code>executors/http.py</code>, <code>M/identities/</code>, <code>M/evidence/</code> numai cu consumer</td>
+<td>Registry tipizat + SDK schema/history → broker → request admis → receipt/evidence → output/inspector → următorul turn. Context trusted exterior argumentelor; identity principal/rol/epoch, hops și completeness. 1MiB request/5MiB wire-decompressed-retained, ratio20:1; 30s/acțiune, cel mult5redirecturi readmise; API64KiB nu este prompt budget.</td>
+<td>Allow→sink/captură/readback și modelul consumă rezultatul; off-scope/foreign identity/redirect/Stop→zero bytes nepermise. Duplicate headers/query și body neschimbat păstrate; read/search fără replay, replay admitere nouă. Missing/corrupt/oversize/auth-invalid/500 nu devin secure.</td>
+<td>Primul HTTP util prin Omnis până în inspector. Poate alimenta S3a/S4a fără browser; transportul provider nu este reutilizat ca client target.</td>
+</tr>
+<tr>
+<td>S2b</td>
+<td>S2a și admiterea explicită build+integrare B01e; poate avansa separat de S3a/S4a pe interfețe fixate</td>
+<td>SR05 extins; USE_PACKAGE Playwright fixat și procese OS/OCI existente; ADAPT lifecycle/output Strix, nu SDK SandboxAgent/factory/runtime partajat; NEW executori browser/sandbox numai cu primul caller</td>
+<td><strong>OBLIGATORIU_S7:</strong> browser cu navigare/DOM/formulare/login/post-auth și SANDBOX_EXEC shell/Python/workspace privat. Același broker/evidence/Stop; context/generație per attempt, fiecare subrequest autorizat. Procese/cwd/files/artifacts atribuite; G-NET/G-TOOLS/G03b/G-EFFECT înainte de efect. Binar/container pornit și proxy env nu sunt confinare.</td>
+<td>Browser SPA/login→request corelat→captură; script real produce artifact/output/exit și request brokered. Control negativ pe aceeași cale: direct egress/host/seif/Docker socket/off-scope/veche generație/Stop, plus output partial/proces viu după timeout. Pin/proxy neadmis → BLOCKED, fără fallback sau majorare oarbă.</td>
+<td>Unelte reale pentru investigator și validator, nu numai butoane sau guide Markdown. Browser/shell nefolosit în primul finding tot trebuie probat înainte S7; nu obligație de a-l folosi inutil în fiecare task.</td>
+</tr>
+<tr>
+<td>S3a</td>
+<td>S2a produce observații proprii; catalogul admite pachetele recon și core înaintea lor</td>
+<td>SR01/SR02/SR07; EXTEND <code>M/tasks/agent_composition.py:41–117</code>, <code>supervisor/agent_runner.py:128–194</code>, <code>M/runs/run_runtime.py</code>; NEW <code>M/engagements/map_models.py</code>/<code>map_service.py</code>, pachet recon calificat</td>
+<td>Copiem/adaptăm corpul metodologiei recon/root și rubricile notes/model, nu un crawler fictiv. Compunere base→rol→brief→metodă→overlay; rolul/numele/misiunea/skills/context/tools formează specializarea. Punct16KiB/16refs, index paginat; Brain citește index→punct→probe și creează brief cu basis/contradicții. Request complet32KiB/response128KiB, mandatory overflow deny.</td>
+<td>HTTP receipt→notă atribuită→model revizionat→citire Brain→decizie→task investigator, nu doar delivered. CAS stale409, foreign ref/unqualified/shadow/missing skill deny; soft404 nu devine endpoint confirmat. Două observații legitime nu se pierd la corecție.</td>
+<td>Recon util și harta/notițele/threat modelul citite efectiv. Investigatorul nu primește exportul Strix sau truth evaluator. Contextul selectat înlocuiește explicit upstream full-parent-history.</td>
+</tr>
+<tr>
+<td>S3b</td>
+<td>S2b și S3a; aceleași parsere/records/tool registry</td>
+<td>SR01/SR02/SR07; EXTEND același recon/map/inspector, nu al doilea crawler/knowledge store</td>
+<td>Browser observă DOM/forms/XHR, scriptul analizează materialul permis; extragerea JS/OpenAPI păstrează proveniența și INFERRED până la observație. Aceleași operation/identity refs ajung în hartă și context. Transferul auth HTTP/browser este explicit probat, nu cookie jar comun presupus.</td>
+<td>O operație accesibilă prin UI/post-auth intră prin propriul recon și este folosită în brief; observația inferred sau contextul expirat nu devine tested/secure. Eroare parser/transport indică producerul și gapul, nu inventar gol „complet”.</td>
+<td>Reconul funcționează pe ambele transporturi promise; obligatoriu pentru S7, fără a cere toate scanerele/familiile Strix.</td>
+</tr>
+<tr>
+<td>S4a</td>
+<td>S3a și capabilitățile necesare cazului; PACKAGE_EVAL înainte Publish SECURITY</td>
+<td>SR03/SR09; ADAPT metodologia IDOR complet aplicabilă + counterevidence/severity/triage; KEEP <code>method_checks.py</code>/<code>result_qualification.py</code>, EXTEND owner; NEW <code>M/validation/</code> și <code>M/findings/</code> cu consumer</td>
+<td>D13 obligații înainte lucru, toate direct-final/finish/error; candidat complet poate exista din task parțial. Triage Brain → D14 attempt/context/auth/probe/control proprii → oracle business → writer→finding. Rețetă și probe factuale, fără voturi/convingerea colegilor sau grant din skill.</td>
+<td>Positiv DENY+principal valid+acces privat+control+replay; owner/shared/fixed/benign/login200 nu confirmă, auth-invalid/missing evidence→inconclusive. Prima probă autonomă S6/D03 se admite aici când prerequisites reale trec; nu așteaptă S4b/S5 sau S2b dacă HTTP este suficient.</td>
+<td><strong>Primul finding D03 intermediar</strong>, inspectabil până la acțiunile validatorului. Un report-tool return/ref nu ține loc de persistență sau confirmare.</td>
+</tr>
+<tr>
+<td>S4b</td>
+<td>S4a produce finding și probe; nu cere întâi închiderea T5</td>
+<td>SR09 extins; PORT rubrici/formatter <code>strix/report/writer.py</code>, KEEP schema/revizii/proiecții; NEW <code>M/findings/report_review.py</code>, <code>M/reports/</code> cu B13b/c</td>
+<td>ReportReview separat de verdict, legat de claim_revision/evidence/review_revision/policy; snapshot coerent eligibil→STAGING→AVAILABLE→HTML/JSON real. Renderer inert/DATA, nu rendererul documentelor trusted și nu exportul paginii browser.</td>
+<td>Accept candidat/foreign/stale/material schimbat refuzat; Hold permis conform policy; download exact după restart. Missing/corrupt/retention/crash nu publică AVAILABLE fals ori bytes indisponibili. Snapshot vechi neschimbat la modificări ulterioare.</td>
+<td>Raport util descărcabil cu confirmate eligibile, scope/metodologie/impact/pași/controale/limite/gaps. Raport gol/parțial nu înseamnă aplicație sigură. Retest B13d rămâne T5.</td>
+</tr>
+<tr>
+<td>S5</td>
+<td>Rezultate/candidați/note S3/S4 și ownerul S1; nu depinde de retest T5</td>
+<td>SR06/SR07; KEEP <code>run_store.add_inbox/consume:407–443</code>, <code>AgentRunOwner.complete/new_attempt/work</code>, EXTEND aceleași DTO/registry/decisions; B18a/G-LOOP</td>
+<td>Brain citește delte, persistă consum și decide successor/recon/no-op justificat cu cauză/refs. Mesaj pentru task activ la frontieră sigură; terminal→task nou, fără nesting/mesh. Prioritate: control/HOLD, validator eligibil next-slot, apoi ipoteză cu relevanță/probe/precondiții/capabilitate; motivul rankării inspectabil. Doi workeri incluzând draining/validator, Brain separat.</td>
+<td>Negativ+indiciu→specializare nouă→probe proprii; contradicție→model corectat→brief schimbat; duplicate/late/persist-failure/owner-loss/UNKNOWN/post-Stop fără consum dublu/wake/resend. STEER/Needs you bounded nu schimbă scope/auth și nu Resume HOLD.</td>
+<td>G-LOOP funcțional pentru familia inițială, nu calendar fix de agenți. Toate gaps și recomandările ajung la consumator; completarea/stagnarea se decid din obligații și dovezi, nu task count.</td>
+</tr>
+<tr>
+<td>S6</td>
+<td>Prima probă după S4a, calibrare integrată după S2b/S3b/S4b/S5; URL/snapshot/ROE/identități/oracle/date/cost/cleanup aprobate</td>
+<td>Consumerii UI și executori proprii pe <strong>ShopShfere</strong>; protocolul comparativ §15, nu harness/CLI pentest paralel</td>
+<td>Tentativa autonomă originală și configurația se păstrează; truth/loguri/PoC Strix excluse din investigator. Comparăm etapele și capabilitățile, nu replicăm pașii/promptul cu răspunsul inclus. Baseline post-Strix și fereastra logului sunt limite explicite.</td>
+<td>D03 minimum un finding confirmat independent; continuare adaptivă, browser și script observate în probele adecvate, nu utilizate artificial pentru scoring. Măsurăm timp/LLM/target/tokens/cost/gaps/intervenții/replay separat; lipsa unei capabilități nu se ascunde drept FN al modelului.</td>
+<td>Dovadă funcțională și diagnostic la producerul lacunei. Prima tentativă negativă/blocată se păstrează, nu PASS forțat sau benchmark held-out. Rerun numai pentru delta afectată.</td>
+</tr>
+<tr>
+<td>S7</td>
+<td>Toate rândurile, explicit S2b + S3b + S4b + S5, D03 și probele S6; A amânat</td>
+<td>Artefactul integrat, runner/release/backup existente; QA installed pe copie proprie</td>
+<td>Același snapshot DB/API/UI/HTML/JSON, taskuri/candidați/coverage/consum/UNKNOWN/cleanup reconciliate; reload/restart fără reexecuție. UI etalon aprobat uman și toate suprafețele funcționale legate; rollout operator separat.</td>
+<td><code>make check</code> pe bytes integrați la frontieră și readback real installed; control/Stop/refuzuri efective păstrate. Orice rând obligatoriu NOT_RUN/BLOCKED ține T2 NOT_CLOSED; nu compunem un PASS global din rezultate ale altor bytes.</td>
+<td>Nucleu reutilizabil complet, evaluat IDOR/BOLA; nu toate clasele Strix, retest/focus/path/Jev/held-out sau eficacitate universală.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Ordine fără blocaj circular:</strong> S1-UX și S1-core au schimbări/reviewuri distincte; ambele preced efectele. S2a→S3a→S4a este drumul scurt. Prima tentativă S6/D03 nu așteaptă extensii de care cazul nu are nevoie. S2b nu așteaptă T5, dar cere build/proxy/confinare admise înainte de rețea; S3b îl consumă. S4b pornește după primul finding eligibil; S5 consumă rezultatele S3/S4 și poate fi probat înaintea exportului. S6 integrat și S7 cer toate ieșirile, nu omit ramurile incomode. Acesta înlocuiește ordinea strict liniară din proveniența M11; nu sunt două planuri executabile.</p>
+<p><strong>Producerii care nu pot rămâne impliciți:</strong> în S2a, <code>AgentStep.Exchange/ToolCall/StepInput</code> și proiecția sa strictă, ownerul și <code>run_contract</code> trec versionat de la read_context/finish/history1 la tooluri/roluri/istoric tipizate; nu slăbim consumerul inert/T1. În S2b, toolurile de workspace create/read/edit/list ale aceluiași executor produc <strong>script_ref</strong> înainte de execuție: bytes/model-output sunt date neîncrezătoare, path relativ scoped, limite/fără symlink escape, revizie/digest și artifact finalizat; editarea creează revizie nouă. Execuția consumă exact acel Ref și input refs, cu admitere nouă; poll/read/cancel nu retransmit scriptul. Nu presupunem că un script_ref se generează singur sau că întreg SDK Filesystem poate primi home/host. Testul util acoperă create→edit→execute→output/artifact→consum, plus foreign/digest/path/refuz la aceeași frontieră.</p>
+<p><strong>Sizing și conținut:</strong> kitul pregătit are48390bytes, IDOR9993bytes singur depășește composer8192. În S3/S4 păstrăm metodologia integrală în catalog și compunem varianta aplicabilă+obligațiile mandatory, cu citire calificată a referințelor opționale; nu o rescriem generic și nu trunchiem cerințe pentru a trece limita. Extensia multi-package/role/reference-reader se livrează înaintea consumerului ei. Dacă bundle-ul minim complet nu încape în wire32768 cu tools/history/envelope, prerechizitul rămâne BLOCKED și cere amendament punctual justificat de măsurare; nu plafon mărit tacit. ToolLimits concrete se aleg din maximele arhitectură§9.6 înainte de QA, nu se acordă toate maximele implicit.</p>
+<p><strong>Preflight și comenzi reale:</strong> definițiile/callerii și limitele se fixează înainte de atribuirea codului. <code>Makefile:38–48</code> are deja <code>test-s1-run-physical-pg</code>, <code>test-s1-run-pg</code>, <code>test-s1-run-ui-pg</code>; <code>ops/run_test_db_gate.py --check --target ... --uv &lt;uv-pinuit&gt;</code> este runnerul real, cu timeout finit admis. <code>make lint-api typecheck-api</code>, <code>make test-contracts</code>, <code>make lint-web typecheck-web test-web build-web</code> sunt verificări existente. S2–S7 adaugă selecțiile/testele cu primul consumer în același runner; nu există încă argv de calibrare ShopShfere sau target generic S2 care să poată fi prezentat drept verificat. Exemplarele SDK fără rețea măsoară cererea completă pentru fiecare nou bundle/tool/history înainte de PG/model; testele wire/digest nu se înlocuiesc cu estimare de tokens. După RED→GREEN și reviewurile necesare se exercită consumerul real bounded, apoi se adaugă breadth; gate integral la integrare, nu la fiecare helper.</p>
+<p><strong>Cum diagnosticăm fără buclă inutilă:</strong> context pierdut→composer/retrieval; observație absentă→recon/transport; rezultat păstrat dar nefolosit→Brain/inbox/decision; output invizibil→producer DTO/decoder/renderer; verdict greșit→metodologie/oracle; request blocat→policy/identity; timeout nesettled→owner/executor. Păstrăm rezultatul inițial, controlul negativ și reasonul exact. Două cicluri numai harness pe aceeași acceptance row, inclusiv între sesiuni, duc la îngustare/BLOCKED, nu schimbarea deadline-ului pentru verde. Nicio analiză nu poate garanta zero debugging sau zero FP.</p>
 <h2 id="8-t1-settings-si-test-model-independent">8. T1 — Settings și Test model independent</h2>
 <p><strong>Finalizare T1 CLOSED_SCOPED, nu T2:</strong> <a href="verification/settings-finalization-prompt.md">mandatul</a> a livrat puntea finită release0.1.0/schema0016→release0.1.1/schema0017 pentru aceeași instanță/date, conform arhitecturii§5.5, cu reviewuri complementare și QA upgrade/backup-restaurare/rollback/refuzuri. <a href="verification/settings-c-evidence/ui-result.json">Registrul</a> păstrează Removeed611aa, punteabb760e5, integrareaa8a1827/b428478 și istoricul rolloutului. Recuperarea post-reboot1cb25de/59ed5dd, backup0017 restaurat, same-data readback și confirmarea manuală Models sunt acceptate scoped; statusul actual este READY30. Remedierea developer-only fadf396 are două reviewuri, instalare/audit0; canonicalul integral ulterior ba6c6ff este exit0/drained în bugetul5400s, fără teste/guarduri slăbite. Cauzele întârzierilor istorice supervisor/web rămân UNKNOWN și FAIL-urile/counter2 rămân la probele lor, nu sunt șterse sau declarate cauzal reparate. Ultima pregătire a necesitat doar TMPDIR mai scurt (counter1 distinct, același guard107). Cleanupul exact propriu este verificat; retenția istorică nu devine cleanup global. T2 rămâne neînceput și cere mandat separat.</p>
 <p><strong>Primul consumer implementabil:</strong> Settings → conexiune OpenRouter/seif → <code>system_operation</code> → ModelDispatchV2/sender → ModelOutcomeV2/usage/readback. Este <strong>fără engagement</strong>, scope/ROE target, MissionSpec, catalog, Publish, provision/restart nativ. API, supervisor și UI sunt aceeași felie verticală; un buton mereu indisponibil sau un helper izolat nu o livrează.</p>
@@ -835,7 +945,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <p><strong>G04a/G-MODEL/G-DATA-EARLY:</strong> pozitiv pe produs instalat web→seif→owner→sender→răspuns persistent; negativ cheie greșită, master key lipsă, config străină/stale/revocată, duplicate/conflict, Stop între reserve/send și conexiune reutilizată, error/incomplete/lost reply fără resend, secret absent din output/log/model. Probe simulare vs live distincte. Schema/readiness/CLI/bundle, API/OpenAPI/decoder manual TS/UI și testele aferente se schimbă împreună. Seiful/restore minim și verificarea artefactului sunt aici, nu amânate P8. <strong>T1 este conectivitate controlată, nu tool loop; T2 urmează separat.</strong></p>
 <p><strong>Livrare și mandat curent de utilizabilitate:</strong> development6aa4d5e și polish7795b66 au fost livrate scoped pe aceeași instalație, cu review/QA reală, backup/restaurare anterioare și date/chei păstrate, conform <a href="verification/settings-c-evidence/ui-result.json">registrului unic</a>. Candidatul de updater manualcbe5fc8 a fost retras; arhitectura§5.5 separă buildul local/sursele de releaseul imuabil. Mandatul curent repară intrarea CLI/browser și simplifică Settings/Save &amp; connect prin consumatorii existenți. Ordine: producer/limite reale → amendament punctual → felie funcțională → review exact → QA reală; regresiile negative sintetice nu sunt înlocuite cu apeluri plătite. QA live folosește numai modelele/apelurile aprobate separat. Cleanupul rămâne pe resurse exacte și retenție, fără prune; canonical TIMEOUT și default check-web FAIL/UNKNOWN nu sunt șterse. Pairing manual primul/expirat, fără Prompt B/autopair, T2 sau framework de deployment.</p>
 <h2 id="9-t3-http-evidence-si-executie-autorizata">9. T3 — HTTP, evidence și execuție autorizată</h2>
-<p><strong>B07, subsetul necesar în T2/S2, restul în T3:</strong> ToolDefinition/ToolInvocation/ToolResult, HTTPX trusted A05 cu policy L7 înainte de TLS, apoi evidence/events și OPERATOR_CHECK pe același owner. Nu proxy universal înaintea primului API HTTP, nu HTTP direct din endpoint sau din model. DISPATCHING precede bytes. SANDBOX_EXEC se adaugă cu primul consumer real în engagement: shell/scripturi/workspace private, fără host/DB/AI keys/Docker socket, fiecare request prin transportul autorizant. G-TOOLS/G-NET/Stop înainte de activare, nu doar prompt/container pornit.</p>
+<p><strong>B07 în T2/S2a–b, extensii în T3:</strong> ToolDefinition/ToolInvocation/ToolResult, HTTPX trusted A05 cu policy L7 înainte de TLS, evidence/events și OPERATOR_CHECK pe ownerul existent. Nu proxy universal înaintea primului API HTTP sau HTTP direct din endpoint/model. DISPATCHING precede bytes. S2b livrează obligatoriu SANDBOX_EXEC: shell/Python/scripturi/workspace private, fără host/DB/AI keys/Docker socket și trafic numai prin transport autorizant. Interpretoare standard/pinuri executor + adaptor batch tipizat, script_ref/input refs/argv fixat; read/poll/cancel ale procesului deținut, fără REPL/PTTY nou în lipsa consumerului. Limitele process/bytes/time/disk/pids și requesturile din threads sunt impuse separat de numărul workerilor. G-TOOLS/G-NET/Stop preced activarea, nu doar prompt/container pornit.</p>
 <p>Launcherul integrează numai serviciile fixe ale consumerului admis; el controlează containerele, nu supervisorul/modelul prin Docker socket. HTTP trusted are propriul G-NET fără B01e; browser/scanner/sandbox network care folosesc proxy cer B01e-build + integrated și self-test negativ. Harnessul de QA are fixture/sinks autorizate și nu califică automat instalarea operatorului; bootul nu pornește assessment.</p>
 <p><strong>B08, incremental din T2/S1:</strong> rezultat/inventar/evidence inspector și proiecții Overview/Brain stream în UI, polling receive-only5s numai vizibil + focus/reconnect/manual refresh în locul SSE inițial. Event store, cursor/replay, sesiune/auth, snapshot coerent și Stop rămân obligatorii. <code>ProjectionEnvelope</code>, summary server-side și <code>phase_active</code>, plus phase_key/subphase_key/instance_id/plan_revision_ref/active_task_refs din §6.3, urmează arhitectură §6/§9.1; phase/status nu se deduc din chat. S2 adaugă HTTP, S3 harta, S4 findingul/probele; câmpurile încă indisponibile nu sunt umplute cu demo.</p>
 <p><strong>G03a:</strong></p>
@@ -849,7 +959,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <li><code>CURSOR_CONTEXT_MISMATCH</code> pentru token din alt run/engagement; paginare și citiri concurente nu amestecă revizii. După Stop/Pause, reconnect sau review/rerender, faza nu reapare activă. Summaries sunt server-side și nu totaluri ale paginii clientului.</li>
 </ul>
 <h2 id="10-t3-auth-http-subset-t2s2-browser-inaintea-consumerului">10. T3 auth HTTP; subset T2/S2, browser înaintea consumerului</h2>
-<p><strong>B09h/G-AUTH-HTTP</strong>, după G03a și înainte de G05a, subset necesar în S2: consumă OPERATOR_CHECK/CheckPlan/CheckReceipt B07 pentru Verify login/health înainte de Start, fără copil sau MissionSpec fictive; Cancel/readback și revizii/expiry sunt probate după restart. Apoi livrează anonymous/Basic/token/cookie, seiful comun T1 extins cu namespace/codec target, login bounded/principal/rol/epoch/lease/refresh owner și replay cu controale noi. Readerii provider și limita lor512ASCII rămân neschimbate; storageState nu este cheie provider. Rotated secret durabil înainte de epoch; drift/crash→AUTH_UNKNOWN/INCONCLUSIVE; izolarea A/B/validator și DATA se probează pe canalul folosit. Dacă aplicația/cazul necesită browser, B09a/b și G03b/G-NET/G-EFFECT pentru acel consumer preced S6, nu sunt amânate la T6. Restul browser/SPA rămâne T6. Preflightul BOLA include health/efecte; excepția de HTTP trusted nu elimină G03b din MVP.</p>
+<p><strong>B09h/G-AUTH-HTTP în S2a</strong>, după G03a și înainte de G05a: consumă OPERATOR_CHECK/CheckPlan/CheckReceipt B07 pentru Verify login/health înainte de Start, fără copil/MissionSpec fictive; Cancel/readback/revizii/expiry după restart. Anonymous/Basic/token/cookie, seif comun T1 cu namespace/codec target, login bounded/principal/rol/epoch/lease/refresh owner și replay cu controale noi. Readerii provider și limita512ASCII rămân neschimbate; storageState nu este cheie provider. Secret rotit durabil înainte de epoch; drift/crash→AUTH_UNKNOWN/INCONCLUSIVE; izolarea A/B/validator și DATA pe canalul folosit. <strong>S2b livrează B09a/b și G03b/G-NET/G-EFFECT pentru browser/login/SPA de bază înaintea S7, chiar dacă primul IDOR a fost HTTP-only.</strong> Dacă primul caz cere browser, îl preced. Numai complexitatea auth/protocoalele nepromise rămân P3b/T6; health/efecte preced concluziile probatorii.</p>
 <p><strong>B09a:</strong> Chromium izolat și sandbox activ, proxy MITM numai în laborator, request buffering înaintea policy, toate subrequesturile corelate și limitate. SW/WS/QUIC/download neautorizat/passthrough oprite. TLS upstream verificat, CA numai în executor.</p>
 <p><strong>B09b:</strong> identități/seif, anonymous/Basic/token/cookie, login asistat în context engagement și dovadă pozitivă principal/rol. Serializare per auth context/obiect și refresh cu owner unic. Același provider AI nu înseamnă aceeași identitate pe țintă.</p>
 <p><strong>G03b:</strong> fixture SPA cu login și API post-auth; token refresh rotativ sub cereri concurente; CSRF consumabil; auth expirat între baseline/probă; cookies izolate și validator pe stare resetată. Fluxul necesar se reproduce fără slăbirea auth de pe țintă. Auth nesuportat nu blochează recon anonim și nu produce negativ.</p>
@@ -860,9 +970,9 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <p>M-LAB începe prin subsetul T2/S3–S6; T4 completează porțile/consumerii rămași după T1/T2/T3 reale, <strong>nu întregul MVP</strong> și nu M1 complet. Nu este prerequisite circular pentru S4 sau evaluarea propriului candidat. Input: URL, obiectiv, scope/ROE, identități și reguli business; nu endpoint vulnerabil, PoC sau truth evaluator. Discovery/reuse minim B10a/b produce observații/provenance/hartă și ipoteza. Investigatorul B11 colectează baseline/probă/control, D13 verifică toate finalizările, iar skillul de <strong>triage</strong> al orchestratorului produce TriageAssessmentV1 cu evidence/gaps/dispoziție, fără verdict sau agent permanent nou. Validatorul B12/D14 are attempt/context auth/probe independente, metodologie fixată și oracle determinist.</p>
 <p><strong>Conținutul candidatului:</strong> IDOR/BOLA + triage + validare, fixate/revizuite și evaluate în PACKAGE_EVAL, fără editor general sau Publish înaintea propriei evaluări. Originalul <code>skills/bug-bounty-triage/SKILL.md</code> rămâne QUARANTINED, licență/proveniență păstrate; adaptarea elimină never-redact, evidence-as-authority și grants de tools/efecte. Skillul extern de validator este <strong>CANDIDATE_SOURCE_PENDING</strong> până primim sursa/revizia/licența și trece review/eval. Lipsa lui nu blochează T1/T2 și nu elimină validatorul: folosim metodologia minimă first-party evaluată. Skill bine scris ≠ oracle sau rezultat validat.</p>
 <p><strong>G-M-LAB:</strong> același produs descoperă operația, cere tooluri și folosește un rezultat pentru o decizie ulterioară. Lab resetabil, date sintetice, A/B/validator, private/shared și variante vulnerable/fixed/benign/auth-invalid. Confirmarea cere principal valid + regulă DENY + date private canary + replay/controale; HTTP 200/owner diferit/vot LLM nu ajung. Shared/owner/fixed/benign nu sunt confirmate; auth invalid → INCONCLUSIVE. Triage și decizia validatorului persistă cu refs/limite; UI minimă le inspectează, reload/restart fără rerun, Stop și off-scope deny reale. O capabilitate sandbox/shell folosită are G-TOOLS/G-NET înainte; nu certificăm shell general din proba HTTP. Evaluare de integrare/dezvoltare, nu benchmark held-out.</p>
-<p>B10c research/B10d wordlist/Katana breadth/Jev/editor/provider secundar rămân la consumerii lor; browserul necesar unui caz nu ocolește gate-ul înainte de efect. T2/S4 livrează B13a minim inspectabil, T4 extinde; <strong>T5</strong> păstrează raport/export/retest și închide G05a/G06a/M1, fără credit automat din laborator. D03 cere minimum un finding confirmat independent pentru T2, nu fiecare tentativă; nereprodus/unsupported rămâne diagnostic, nu FP automat sau închidere forțată.</p>
+<p>B10c research/B10d wordlist/Katana breadth/Jev/editor/provider secundar rămân la consumerii lor. S2b/S3b browser și scripts sunt obligatorii pentru nucleul T2, nu toate scanerele. <strong>T2/S4a livrează B13a, S4b B13b/c review/export; T5 păstrează B13d retest și restul G05a/G06a/M1</strong>, fără credit automat din laborator. D03 cere minimum un finding confirmat independent, nu unul la fiecare tentativă; nereprodus/unsupported rămâne diagnostic, nu FP automat sau închidere forțată.</p>
 <h3 id="111-t5-primul-finding-complet-raport-si-retest">11.1. T5 — primul finding complet, raport și retest</h3>
-<p><strong>B13 — felii legate, nu un singur ticket vag:</strong></p>
+<p><strong>B13 — felii legate, nu un singur ticket vag:</strong> B13a–c au primul consumer în T2/S4a–b și sunt obligatorii pentru S7; această secțiune păstrează contractele complete și restul T5/B13d, nu le amână prima implementare.</p>
 <ul>
 <li><strong>B13a:</strong> finding + occurrences/RunFindingLink, impact demonstrat, severitate/CWE, claim_revision, remediere și disclosure-ul acceptat, cu migrare/API/DTO/UI împreună.</li>
 <li><strong>B13b:</strong> policy <code>report_review_policy</code> din revizia runului (OPERATOR_REQUIRED preselectat explicit sau VALIDATOR_ONLY), persistență ReportReview/decizii, review_revision separat de material, comanda idempotentă și audit/readback; UI Accept for report/Hold. Owner findings, contract arhitectură §9.2.</li>
@@ -992,7 +1102,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <p><strong>B17:</strong> <code>path-traversal-canary</code>: numai canaryul de laborator autorizat, oracle/proveniență în evaluator, niciodată citire de secrete reale. Valoarea/soluția nu este pusă în prompt/skill.</p>
 <p><strong>G05b/G06b:</strong> rută fără link descoperită din JS/OpenAPI, API post-login, parametri body, soft-404, paginare/context mic, identități distincte și contradicții care schimbă taskul următor fără rescanare globală. Fiecare familie are fixture vulnerabil/remediat, procedură pozitivă/negativă, validator, limite și suite de regresie. Pachetele nevalidate sunt methodology-only, nu cresc catalogul executabil.</p>
 <h2 id="14-p7-bucle-concurenta-si-fault-injection-extinse">14. P7 — bucle, concurență și fault injection extinse</h2>
-<p><strong>B18a/G-LOOP</strong>, imediat după G06a: aplică matricea ResultQualification și cheile RedeliveryKey/ObligationKey/ExecutionKey din arhitectură §6.3, păstrând M1 valid după M2 aditiv, dar refuzând calificarea după invalidarea auth/precondițiilor. Rezultatul post-Stop intră în audit/reconciliere fără wake. Apoi reutilizează inbox/ACK/consumed B06, adaugă STEER bounded și replan vizibil. Clue relevant→delta→revizie hartă/ipoteză→task diferit care citează basis; contraexemplul poate închide/no-op justificat. Replay/crash nu dublează taskul; Stop blochează wake; lipsă progres→LIMITED, research eșuat nu blochează fir independent. Nu așteaptă B15/B16/B17/editor/Jev.</p>
+<p><strong>B18a/G-LOOP are primul consumer obligatoriu în T2/S5, după rezultatele S3/S4, fără prerequisite G06a/T5:</strong> aplică ResultQualification și RedeliveryKey/ObligationKey/ExecutionKey din arhitectură §6.3; păstrează M1 valid după M2 aditiv, refuză după auth/precondiții invalidate. Rezultat post-Stop→audit fără wake. Refolosește inbox/ACK/consumed, STEER bounded și replan vizibil. Clue→deltă→revizie hartă/ipoteză→task diferit cu basis; contraexemplu→no-op justificat sau altă pistă. Replay/crash nu dublează taskul; Stop blochează wake; stagnare→LIMITED. În P-LOOP/T6 rămân B18a.r și consumerii auxiliari, nu prima buclă adaptivă. Nu așteaptă B15/B16/B17/editor/Jev.</p>
 <p><strong>B18a.r / G-METHOD:</strong> în aceeași etapă P-LOOP, după seam-ul B18a și primul G06a, introduce <code>tasks/method_review.py</code> peste <code>method_checks.py</code> B06b și promptul REVIEWER în coordonarea Omnis. Role/ModelDispatch METHOD_REVIEW, profile policy CHECK_ONLY/INDEPENDENT, MethodReviewRequest/Feedback/Receipt și MethodResolution append-only cerință originară→rezultat/cerință succesoare, migrare strict a payloadurilor Task/Attempt/Inbox și UI15/17 se livrează împreună. Scenariu: control/branch omis→critic citează gap→Brain cere numai remediul→receipt califică obligația inițială; oprire/stagnare/buget epuizat păstrează LIMITED. Run nou cu review recipe publicată înainte de Start; niciun hot-swap în runul primei BOLA. Checkerul nu certifică vulnerabilitatea, criticul nu face target IO și nu consumă rezerva VALIDATION. G07 extinde crash/recovery; niciun serviciu nou sau harness P0.</p>
 <p><strong>B18c/G-PATH</strong>, după G-LOOP și G06b: canary traversal→operație nouă→BOLA în misiune; pașii și tranziția au replay/evidence/identity-state compatibile. <code>needs-review</code>/no-evidence/edge străin nu intră în frontieră ca probat. Counts root-cause nu includ path sau occurrence; UI timeline este extensie delimitată, cu verificare vizuală separată.</p>
 <p><strong>B18b/G07:</strong> extinde concurența/recovery la maximum doi copii inclusiv validator/researcher/reviewer, task dependencies, stagnare și rezervă validare. Completed runtime ≠ task valid ≠ engagement completed.</p>
@@ -1031,22 +1141,22 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <td>D03 minim și vulnerable/fixed/benign/shared/auth-invalid; rezultat inspectabil, nu întregul MVP</td>
 </tr>
 <tr>
-<td>T5 M1 / SL23–SL24</td>
-<td>Findings/dedup, review editorial, raport HTML/JSON și retest</td>
-<td>Disclosure util, Accept/Hold, export/history/retest cu stări reale</td>
-<td>Download și retest probate; verdictul tehnic nu este decis de operator/LLM</td>
+<td>T2/S4a–b, apoi T5 M1 / SL23–SL24</td>
+<td>Findings/review/raport HTML/JSON în T2, retest B13d ulterior</td>
+<td>Disclosure, Accept/Hold, download/history reale înainte S7; retest ulterior</td>
+<td>Snapshot/download și retest au probe distincte; verdictul tehnic nu este decis de operator/LLM</td>
 </tr>
 <tr>
-<td>T2/S1/S5 minim, T6 extins / SL25–SL26, SL35</td>
-<td>Needs you/control și taskuri cauzale S1, doi workeri/recovery S5; replan/STEER/focused extins T6</td>
-<td>Plan/task/phase/roster, motive HOLD/Needs you, fără council/brain graph</td>
-<td>Schimbare justificată după tool result, no duplicate/late effects, recovery real</td>
+<td>T2/S1/S5, T6 extins / SL25–SL26, SL35</td>
+<td>Needs you/control, doi workeri/recovery, replan/STEER/G-LOOP în S5; focused/critic extins ulterior</td>
+<td>Activity/plan/task/phase/roster, motive HOLD/Needs you, fără council/brain graph</td>
+<td>Rezultat negativ→clue→successor real, consum unic, no duplicate/late effects, recovery</td>
 </tr>
 <tr>
-<td>T6 / SL18, SL27–SL30</td>
-<td>Browser/post-auth, recon/JS, wordlists, Katana/Nuclei; XSS reflectat și traversal-canary</td>
-<td>Coverage/Endpoints mai utile, proveniență și gaps, inspector browser/tool; semnale distincte de findings</td>
-<td>Adaptor/transport/oracle/eval per capabilitate; catalog larg nu înseamnă execuție certificată</td>
+<td>T2/S2b/S3b, T6 breadth / SL18, SL27–SL30</td>
+<td>Browser/post-auth și scripts/recon necesare nucleului în T2; wordlists/Katana/Nuclei/XSS/traversal ulterior</td>
+<td>Coverage/Endpoints/proveniență/gaps și inspector browser/process/tool; semnale distincte de findings</td>
+<td>G-NET/G-TOOLS/G03b înainte efect; familiile noi cer propriul oracle/eval, nu altă logică de owner</td>
 </tr>
 <tr>
 <td>T6 / SL31–SL34</td>
@@ -1114,7 +1224,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <li>Toate tentativele sunt publicate conform invalidărilor prestabilite; nu best-of/selectarea doar a reușitelor. „Comparabil” cere marja prestabilită și incertitudine; „mai bun” cere câștig pe metrica aleasă fără regresie tacită în siguranță/FP. Cost mai mic cu mai multe ratări este trade-off, nu victorie generală. Niciun rezultat nu este inventat dacă gate-ul este BLOCKED/NOT-RUN.</li>
 </ol>
 <h3 id="nucleu-mvp-si-extindere-competitiva">Nucleu MVP și extindere competitivă</h3>
-<p>M0 = fundația istorică P0/G00; M-LAB = subset T2/S3–S6 extins în T4, IDOR/BOLA + triage + validator cu rezultat inspectabil și negative controls; M1 = T5/G05a/G06a cu raport/retest; M2 = harnessul coerent T6 cu ambele moduri, browser, recon, familii, Jev și ramurile promise. Research/improvement sunt opționale per run, obligatoriu probate înainte de certificarea funcției promise. B21m periodic rămâne ulterior/opțional. E1–E4 păstrează subfamiliile, nu sunt rescrierea motorului sau shell sandboxat de bază.</p>
+<p>M0 = fundația istorică P0/G00; M-LAB = primul IDOR/BOLA/triage/validator și controale, demonstrabil devreme după S4a; <strong>T2/S7 = nucleu complet §7.2, inclusiv browser/scripts/adaptiv/raport</strong>, nu numai M-LAB. M1 = rest T4/T5/G05a/G06a cu retest și probele neacoperite; M2 = T6 cu ambele moduri complete, familii, path/Jev și auxiliarele promise. Research/improvement sunt opționale per run, obligatoriu probate înaintea certificării lor. B21m ulterior/opțional. E1–E4 nu rescriu motorul și nu introduc pentru prima oară shellul sandboxat de bază.</p>
 <div class="table-wrap" role="region" aria-label="Tabel cu derulare orizontală" tabindex="0"><table>
 <thead>
 <tr>
@@ -1155,7 +1265,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <h2 id="16-uiux-ca-acceptare-nu-doar-stil">16. UI/UX ca acceptare, nu doar stil</h2>
 <p><strong>Baseline vizual acceptat în df17a29:</strong> compoziția, pastilele, densitatea, stadiul și panourile cerute se păstrează în componentele conectate; G-DESIGN nu mai așteaptă încă o rundă de aprobare estetică. B04 verifică apoi experiența conectată la API; B08 prima dovadă integrată; B13 primul finding real. Prototipul rămâne DEMO permanent. Niciun ecran real nu preia rândurile/metricile demo.</p>
 <ul>
-<li>Navigare globală Home/Dashboard · Engagement · Settings; navigare contextuală <strong>Overview · Brain stream · Findings · Coverage · Reports</strong>. Candidates/Investigations și Setup sunt acțiuni secundare, iar Endpoints este subvedere Coverage. Identitatea/epoch/snapshot selectat rămân vizibile la dovezi și matrice; Settings nu intră în taburile engagementului.</li>
+<li>Navigare globală Home/Dashboard · Engagement · Settings; navigare contextuală <strong>Overview · Activity · Findings · Coverage · Reports</strong>. Activity are Feed / Agents și inspector contextual; ruta <code>/stream</code> și linkurile existente se păstrează. Candidates/Investigations și Setup sunt secundare, Endpoints subvedere Coverage. Identitatea/epoch/snapshot rămân vizibile; Settings nu intră în taburile engagementului.</li>
 <li>Stop persistent, <code>STOPPING</code> verificat, Start cu preflight/rezumat; approve necesită detaliile acțiunii exacte, nu un buton vag „permite agentului”.</li>
 <li>Formular setup cu scope, context/reguli business, identități opționale, efecte/bugete/data policy și review; salvare draft fără a consuma buget.</li>
 <li>Tree + tabel + inspector; matrice coverage filtrabilă, evidență raw escapata și redactată implicit; findings confirmate separat de candidates/inconclusive.</li>
@@ -1191,10 +1301,10 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 </tr>
 <tr>
 <td>UI03</td>
-<td>Brain stream: filtre tip/actor, replay și linkuri</td>
-<td>DomainEvent/polling Omnis5s numai vizibil + focus/reconnect/manual; cursor engagement-order legat de run, actor/refs redactate</td>
-<td>T2/S1, extins B08 / G03a</td>
-<td>read-only/replay/resync/session expiry; duplicate/out-of-order și token străin; nu log/chain-of-thought; linkul restabilește obiect/context</td>
+<td>Activity: Feed / Agents → inspector cronologic, filtre și linkuri</td>
+<td>DomainEvent/projections/polling5s vizibil + focus/reconnect/manual; roster și istoric agent paginate, cursor scoped, DTO/decoder/renderer legate</td>
+<td>S1-UX apoi fiecare producer S2–S5/B08</td>
+<td>&gt;o pagină și totaluri independente; errors/has_more/gaps/unmatched/refuz vizibile; read-only/replay/resync/session expiry, Stop/focus/scroll; fără chain-of-thought</td>
 </tr>
 <tr>
 <td>UI04</td>
@@ -1221,8 +1331,8 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <td>UI07</td>
 <td>Reports: generate/history/HTML/JSON/print</td>
 <td>reports + snapshot/artifact refs; job durabil, POST reports/list/download salvat</td>
-<td>B13c / G06a</td>
-<td>confirmed eligibile, excluderi/partial, generare concurentă, STAGING/crash/quota; bytes descărcați și istoric imuabil după Hold/retention</td>
+<td>T2/S4b B13c, rest G06a ulterior</td>
+<td>confirmed eligibile, excluderi/partial, generare concurentă, STAGING/crash/quota; bytes descărcați și istoric imuabil după Hold/retention, obligatoriu înainte S7</td>
 </tr>
 <tr>
 <td>UI08</td>
@@ -1282,10 +1392,10 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 </tr>
 <tr>
 <td>UI16</td>
-<td>Runtime readiness și invocation inspector, inclusiv SANDBOX_EXEC</td>
-<td>registry ToolDefinition + ToolInvocation/Action/evidence; workspace/process group și egress bounded; metadata/DTO/migrare cu primul caller</td>
-<td>T3/T4 B07, apoi B09/B15; G-TOOLS/G-NET</td>
-<td>Shell/script util în sandbox; host/seif/DB/cross-run/direct egress/late child/Stop refuzate; exit 0 nu verdict</td>
+<td>Runtime readiness și invocation inspector, browser/SANDBOX_EXEC</td>
+<td>ToolDefinition/Invocation/Action/evidence; workspace/process group/context_generation, egress și rezultate tipizate, DTO/migrare cu primul caller</td>
+<td>T2/S2b B07/B09 obligatoriu înainte S7; B15 breadth ulterior; G-TOOLS/G-NET/G03b</td>
+<td>Browser/script util consumat; host/seif/DB/cross-run/direct egress/late child/Stop refuzate; exit0/poll running nu verdict sau quiescență</td>
 </tr>
 <tr>
 <td>UI17</td>
@@ -1629,7 +1739,7 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 </table></div>
 <p><strong>Snapshot istoric al amendamentului documentar:</strong> WIP protejat, neintegrat: <code>api/src/omnis/core/db.py</code>, <code>api/tests/test_fixture_ownership.py</code>, <code>ops/compose.test.yaml</code>, <code>api/tests/test_database_url.py</code>, <code>ops/run_test_db_gate.py</code>, <code>tests/development/test_test_db_gate.py</code>. Snapshot de bytes la început și readback la final; nicio includere în commiturile amendamentului. Nu se execută DB/scans/paid models/accounts pentru această verificare. <code>make check</code>/<code>make test</code>: BLOCKED (fixture neintegrat și configurația DB dedicată absentă); CI remote NOT-RUN; G00 deschis. Testele de documente/Chromium offline nu schimbă această stare. <strong>Înlocuit pentru starea curentă:</strong> operatorul a autorizat apoi integrarea acestor șase fișiere; contractul unificat și probele sunt în <a href="verification/p04-test-db-integration.md">p04-test-db-integration.md</a>. Numai HTML-ul original primit rămâne separat/nestaged; funcțiile viitoare nu au fost create în P0.</p>
 <h3 id="192-urmatoarea-felie-implementabila">19.2. Următoarea felie implementabilă</h3>
-<p><strong>AICI — S1 inițial închis scoped; fără lansarea automată a altor felii.</strong> <a href="verification/t2-discussion.md#11-registru-s1--implementare-admisa">§11</a> păstrează circuitul real cerut în§7/S1, reviewurile, Ctrl+R și restart/readback fără altă inferență; canonical integral f11653ab exit0/drained, nu transfer de PASS. Aceeași instalație este READY47 pe main local, după cleanupul celor7checkouturi vechi. Operatorul confirmă că <code>content/strix-s234-catalog</code> provine din sesiunea lui paralelă și rămâne pentru S2/S3/S4, separat/neintegrat: excepție autorizată de la checkout unic, nu cleanup restant S1. Push-ul main este autorizat și cere readback SHA remote; CI rămâne o probă separată. Viitorul consumer S2 este Verify login/health→sink HTTP/evidence din§7, numai după mandat distinct; păstrarea catalogului nu este certificarea skillurilor la execuție sau admitere runtime. Nu relansa live/upgrade/recover/publicare, nu schimba sursele DEVELOPMENT active și nu transforma Shopshere în sink S1. FAIL/UNKNOWN/counter2 și HTTP/S2–S7/A neadmise sunt păstrate.</p>
+<p><strong>AICI — S1 inițial închis scoped, implementare în pauză, amendament T2 în review.</strong> <a href="verification/t2-discussion.md#11-registru-s1--implementare-admisa">S1§11</a> păstrează live/canonical/readback la bytes istorici; nu lansare automată a altei felii sau nou status READY. <a href="#72-contract-de-portare-pe-consumer-s1s7">§7.2</a> este traseul curent: S1-UX etalon și remediu S1-core, apoi S2a→S3a→S4a și prima probă D03 când autorizată; restul nucleului obligatoriu până S7. Refolosim source-kit-ul separat <code>content/strix-s234-catalog@1885d3f9dd9d498008a84d005ad6197f4807db2f</code> fără import/publicare implicită. A amânat explicit, pairing manual. Fără implementare/live/upgrade/recover/modificarea surselor DEVELOPMENT, model/target, main/push/CI în mandatul documentar; FAIL/UNKNOWN/counter2/date/protected păstrate. Următoarea sesiune cere mandatul de implementare, nu reia studiul general sau runtime-ul Hermes.</p>
 <p><strong>Gate-ul integral T1 este PASS scoped, fără transfer la T2 și fără rescrierea eșecurilor.</strong> După fixul minim fadf396/R1+R2 și pregătirea verificată, runnerul canonic integral pe ba6c6ff (<code>proc_8df9893d0692</code>) a returnat exit0/family_drained:3202API/70skip/7deselected,23migrare,354web,435CLI source+435wheel, statusPG1, release83cu3skip, Models+Remove+10E2E, audit0 și toate quality/build/contracts. Fixture-ul exact este absent, datele/logurile păstrate,2308fișiere și7assets live identice. Prima tentativă nouă a refuzat calea socket109&gt;107; scurtarea exclusivă a TMPDIR și check-development56PASS au precedat rerunul în bugetul rămas. Canonical2 istoric6dbaec5/124 și <a href="verification/settings-c-evidence/components-result.json">rezultatele CLI/release</a>, <a href="verification/settings-c-evidence/controls-result.json">controls</a>, auditFAIL și webUNKNOWN rămân la scope-ul lor; nu au fost transformate retroactiv în PASS. Nu selecție slăbită, efect provider suplimentar ori push implicit.</p>
 <p><strong>T1 și finalizarea Settings C rămân CLOSED_SCOPED; S0 este acum închis scoped.</strong> <a href="verification/api-key-runtime-t1.md">Registru și limite</a> și <a href="verification/api-key-runtime-t1-evidence/final-live/parent-acceptance.json">acceptarea istorică</a> păstrează produs5d5bbfb/integrare0b7d675, bundle a5b8939, Canonical11 și rezultatele live adjudecate. S1 cere atribuire/mandat separat pentru producerii RUN/task/attempt și loopul real; admiterea izolată SDK nu îi acordă acceptare. SOURCE/DB/installed/live sunt frontiere distincte, istoricul neprobat nu primește compatibilitate implicită. Nu reluăm Hermes/Codex/P2, acceptările neschimbate, provider/ținte sau push.</p>
 <h4 id="istoric-checkpointuri-fara-autoritate-de-continuare">Istoric — checkpointuri fără autoritate de continuare</h4>
@@ -1645,5 +1755,5 @@ După quiescență: lesson aprobat → maintenance → draft/eval/publish → ru
 <p><strong>Adjudecare SL03 scoped local la codul/testele <code>4f7cda6</code>: PASS_LOCAL_RECORDED / APPROVED_SCOPED.</strong> Secvența <code>make check</code> → <code>make check-installed-start</code> → L05 pair/open are exit0/0/0 pe ultimii bytes; <a href="verification/p04-pair-open.md">registrul SL03</a> păstrează reviewurile independente, false-green-urile istorice remediate, recepțiile și cleanupul exact, precum și limitele negative substituite. Acest rezultat permite începerea SL04 ca felie nouă, dar nu certifică fereastra GUI OS, nu închide G00/CI remote și nu mută M03/M21/M22 în PASS.</p>
 <p><strong>Excepție de predare:</strong> README consemnează INSTRUCTIONS_UPDATE_BLOCKED. Statusul vizual vechi din AGENTS.md nu a putut fi actualizat deoarece aprobarea interactivă a expirat; fișierul protejat rămâne nemodificat. Pentru acea corecție este necesar acord separat prin mecanismul de protecție; nu se încearcă bypass sau o schimbare implicită a regulilor sale. Auditul tehnic și pașii de mai sus sunt păstrați în documentele permise.</p>
 <p><strong>Scope P0 local ulterior acestui istoric:</strong> decizia din §5 înlocuiește inventarul numerotat retras: G00 local verifică utilizarea inertă instalată, datele și refuzurile conservative; viitorul release se verifică pe efectele existente atunci, cu CI și izolarea mediului de portare. Rezultatele SL02/SL03/SL04 de la reviziile lor sunt citabile numai dacă bytes consumatorului nu s-au schimbat; <a href="verification/implementation-status.md">harta actuală</a> consemnează verdictul local și limitele lui, separat de verificările viitoare pentru efecte și distribuire. Nu porni P1 efectual, provideri sau ținte din acest amendament.</p>
-<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>0d6b919491b0266c4d4836da64803afcfbc510dd31cb1883a320935d9293f362</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Implementation_Plan.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>ab83afe9d6fba025ceea884450e62a3392d06eb7831415b37a6716461e19752c</code>.</p></footer>
 </main></div></body></html>

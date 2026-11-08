@@ -39,7 +39,7 @@ class BaselineContracts(unittest.TestCase):
         self.assertEqual(sorted(ids), [f"R{i:02d}" for i in range(1, 13)])
 
     def test_accepted_navigation_has_matching_plan_and_feature_owners(self):
-        tabs = 'Overview · Brain stream · Findings · Coverage · Reports'
+        tabs = 'Overview · Activity · Findings · Coverage · Reports'
         for name in ['Omnis_UI_UX_Spec.md', 'Omnis_Implementation_Plan.md', 'Omnis_MVP_Architecture.md']:
             text = (DOCS / name).read_text(encoding='utf-8')
             self.assertTrue(tabs in text, name + ': accepted engagement tabs missing')

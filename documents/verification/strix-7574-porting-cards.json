@@ -1,0 +1,1222 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_INSPECTED_NOT_IMPORTED_NOT_PRODUCT_RUN",
+  "omnis_revision": "177266f82b65eabdd4273b2f91fa605753763ebf",
+  "strix": {
+    "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+    "tag": "v1.7.0",
+    "license": "Apache-2.0",
+    "installed_static_equal_files": 82,
+    "binary_reconstructed": false,
+    "binary_runtime_semantics_verified": false
+  },
+  "cards": [
+    {
+      "id": "SR01",
+      "canonical_units": [
+        "U01",
+        "U02",
+        "U08"
+      ],
+      "title": "Păstrăm ansamblul Omnis compoziție calificată → SDK step → owner/transport",
+      "mode": "KEEP_OMNIS",
+      "decision": "PĂSTRĂM; nu rescriem factory/runner după Strix",
+      "sources": [
+        {
+          "origin": "OMNIS",
+          "revision": "177266f82b65eabdd4273b2f91fa605753763ebf",
+          "path": "api/src/omnis/modules/tasks/agent_composition.py",
+          "symbol": "compose_publication",
+          "line_range": [
+            41,
+            117
+          ],
+          "file_sha256": "5456775bb7bf75356015bce4368d3a9d1144dfe83fd655e0e8fe5c92d085c1cf"
+        },
+        {
+          "origin": "OMNIS",
+          "revision": "177266f82b65eabdd4273b2f91fa605753763ebf",
+          "path": "api/src/omnis/supervisor/agent_runner.py",
+          "symbol": "AgentStep",
+          "line_range": [
+            123,
+            475
+          ],
+          "file_sha256": "029ea7c1fdf46558a1164bd127a416f02daf903e710abfcdb7afdc2602a3da54"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/agents/prompt.py",
+          "symbol": "_resolve_skills: ordered dedupe",
+          "line_range": [
+            69,
+            75
+          ],
+          "file_sha256": "d70343408e042018ba34380c6235e32a882c2b4a14e34a6f3752eb5cefd95122"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/agents/factory.py",
+          "symbol": "build_strix_agent",
+          "line_range": [
+            657,
+            743
+          ],
+          "file_sha256": "ad0c5bde487d5d2954ddd70b6753b1f0de90089d697198682522d74b37ccce09"
+        }
+      ],
+      "largest_compatible_unit": "Compoziția, catalogul/publicarea și loopul owner existent împreună, nu dedupe reimplementat ori Strix SandboxAgent integral. NOTICE Omnis păstrează pinul istoric 6b7ae2e..., nu se înlocuiește retrospectiv cu v1.7.0.",
+      "retain_dependencies": [
+        "api/pyproject.toml: openai-agents==0.19.0 fără extras",
+        "openai==2.45.0",
+        "httpx==0.28.1",
+        "pydantic==2.13.5",
+        "SQLAlchemy==2.0.54",
+        "cryptography==50.0.1",
+        "catalog Candidate/Publication și ExactRef existente"
+      ],
+      "replace_or_refuse_dependencies": [
+        "Strix factory/SandboxAgent/Shell/Filesystem implicit",
+        "LiteLLM, Codex/OAuth, Docker/Caido runtime, tracing/telemetry",
+        "cryptography<49 din manifestul Strix incompatibil cu pinul Omnis",
+        "loader/Jinja global, skill missing→skip și parent-history implicit"
+      ],
+      "destinations": [
+        {
+          "path": "api/src/omnis/modules/tasks/agent_composition.py",
+          "state": "EXISTING"
+        },
+        {
+          "path": "api/src/omnis/supervisor/agent_runner.py",
+          "state": "EXISTING"
+        },
+        {
+          "path": "api/src/omnis/modules/runs/run_runtime.py",
+          "state": "EXISTING"
+        },
+        {
+          "path": "skills/omnis-agent-core/",
+          "state": "EXISTING"
+        }
+      ],
+      "producer": "Catalog frozen/reviewed/evaluated/publicat + selecție owner-bound",
+      "input": "Rol și release refs exacte, brief proiectat, model explicit; nu goal declarat ca grant",
+      "output": "Compoziție imuabilă/digest/proveniență → step → rezultat/receipt persistat",
+      "first_consumer": "AgentStep.run, apoi AgentRunOwner.work/execute_tool; extensia HTTP S2 și pachetele S3/S4",
+      "placement": [
+        "S2: păstrează infrastructura S1",
+        "S3/S4: extindere multi-pachet, acum composer acceptă numai omnis-agent-core",
+        "S5: numai extinderea sloturilor"
+      ],
+      "bounds": [
+        "Composer MAX_CONTEXT_BYTES=8192 pentru forma canonică",
+        "SDK request complet 32768bytes/response131072bytes la frontiera existentă; nu buget separat per skill",
+        "300s/operație; mandatory overflow deny",
+        "S1 un worker; S5 maximum doi incluzând validator/draining"
+      ],
+      "upstream_tests": [
+        {
+          "path": "tests/test_skill_dir_extension.py",
+          "symbol": "test_ambiguous_bare_skill_requires_qualified_name",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        },
+        {
+          "path": "tests/test_skill_dir_extension.py",
+          "symbol": "test_missing_skill_is_skipped",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        }
+      ],
+      "existing_omnis_tests": [
+        "api/tests/test_agent_core_catalog.py",
+        "api/tests/test_agent_core_publication.py",
+        "api/tests/test_agent_sdk_admission.py",
+        "api/tests/test_run_agent_source.py"
+      ],
+      "proposed_tests": [
+        "Cu primul pachet nou: calificare multi-pachet strictă, shadow/missing/unqualified deny, payload SDK complet inclusiv escaping; nu copiem testul missing-skip ca acceptare"
+      ],
+      "license": {
+        "upstream_spdx": "Apache-2.0",
+        "license_path": "upstream-v1.7.0/LICENSE",
+        "obligations": "Păstrează LICENSE, copyright/attribution și eventualele notices aplicabile; documentează modificările și digestul nou. Fără licențiere implicită a dependențelor sau a întregului produs. Nu este aviz juridic.",
+        "upstream_root_notice": "Nu există fișier NOTICE la rădăcina pinului inspectat."
+      },
+      "limits": "Source review nu probează semantica SDK instalat sau operarea live; nicio dependență instalată aici."
+    },
+    {
+      "id": "SR02",
+      "canonical_units": [
+        "U02",
+        "U05"
+      ],
+      "title": "Pachet recon + contribuții atribuite + threat-model revizuit",
+      "mode": "PORT_CODE",
+      "supporting_modes": [
+        "COPY_CONTENT",
+        "NEW_GLUE"
+      ],
+      "decision": "ADAPTĂM ansamblul util; store-ul rămâne Omnis",
+      "sources": [
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/skills/coordination/root_agent.md",
+          "symbol": "Scope Decomposition / Establish the Threat Model",
+          "line_range": [
+            19,
+            36
+          ],
+          "file_sha256": "1405ce4ba9fc38862195c7e65de2f6a1768f02a0490cdf8cb153137ee667834c"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/skills/scan_modes/deep.md",
+          "symbol": "Blackbox recon / Business Logic Deep Dive",
+          "line_range": [
+            36,
+            59
+          ],
+          "file_sha256": "a2716675ba0a12da93511460036106d6fd6f3655758f505e1933bd200771fa0b"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/tools/notes/tools.py",
+          "symbol": "_mark_authorship + _to_note_listing_entry",
+          "line_range": [
+            140,
+            177
+          ],
+          "file_sha256": "1ffaba18f1a8ba39fd67566d72d51c18ad5ca3397fdd8b252bd8a1e6d2ddf164"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/tools/threat_model/tools.py",
+          "symbol": "_REQUIRED_SECTIONS",
+          "line_range": [
+            53,
+            58
+          ],
+          "file_sha256": "be7c5909ac7ef8558c2d0674d6054a06a921c89b21eaecb4dce66531c4adfd0e"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/tools/threat_model/tools.py",
+          "symbol": "_missing_sections",
+          "line_range": [
+            269,
+            271
+          ],
+          "file_sha256": "be7c5909ac7ef8558c2d0674d6054a06a921c89b21eaecb4dce66531c4adfd0e"
+        }
+      ],
+      "largest_compatible_unit": "Workflow recon→observații/notes→threat model+amendamente→brief investigator. Nu există crawler/recon parser autonom upstream de extras.",
+      "retain_dependencies": [
+        "Numai logica pură stdlib și conținut selectat",
+        "catalog/composer/ExactRef Omnis",
+        "EngagementService CAS și tranzacții PostgreSQL existente"
+      ],
+      "replace_or_refuse_dependencies": [
+        "dict/RLock/JSON mirror, UUID scurt, git/subprocess pentru identitatea țintei",
+        "preview caracter-limitat considerat byte-bound",
+        "deep: exhaustivitate/swarm/test-all și scanner instalat prin skill",
+        "save_threat_model care înlocuiește și șterge amendamente fără revizie exactă"
+      ],
+      "destinations": [
+        {
+          "path": "skills/web-recon/SKILL.md",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "skills/web-recon/omnis.yaml",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/engagements/map_service.py",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/engagements/map_models.py",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/runs/run_runtime.py",
+          "state": "EXISTING"
+        }
+      ],
+      "producer": "Receipt HTTP/evidence S2 autentic + contribuție worker atribuită de owner",
+      "input": "kind/text/epistemic/source_refs/links, command_id și expected ref; identitate operație păstrată exact",
+      "output": "Punct/revizie PG și Ref verificabil; model și amendamente inspectabile",
+      "first_consumer": "Brain citește punctul/evidence și creează brief investigator cu refs produse, nu inventarul evaluatorului",
+      "placement": [
+        "S3 după transportul S2"
+      ],
+      "bounds": [
+        "16KiB și16refs per punct conform fișei U05",
+        "query SQL paginat înaintea materializării",
+        "root guidance numai Brain; recon numai rolul său",
+        "inferred/observed/contradicted distincte; heading prezent nu dovedește metodă completă"
+      ],
+      "upstream_tests": [
+        {
+          "path": "tests/test_notes.py",
+          "symbol": "test_list_notes_exposes_author_and_flags_caller",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        },
+        {
+          "path": "tests/test_threat_model_tool.py",
+          "symbol": "test_rejects_model_missing_required_sections",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        },
+        {
+          "path": "tests/test_threat_model_tool.py",
+          "symbol": "test_amendments_accumulate_without_overwriting",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        }
+      ],
+      "existing_omnis_tests": [
+        "api/tests/test_engagements.py"
+      ],
+      "proposed_tests": [
+        "api/tests/test_engagement_map.py: HTTP receipt→contribuție→Brain read→brief; CAS409/concurență/foreign refs; reload fără I/O",
+        "Preview byte-limit inclusiv metadata și amendament peste bază păstrat append-only"
+      ],
+      "license": {
+        "upstream_spdx": "Apache-2.0",
+        "license_path": "upstream-v1.7.0/LICENSE",
+        "obligations": "Păstrează LICENSE, copyright/attribution și eventualele notices aplicabile; documentează modificările și digestul nou. Fără licențiere implicită a dependențelor sau a întregului produs. Nu este aviz juridic.",
+        "upstream_root_notice": "Nu există fișier NOTICE la rădăcina pinului inspectat."
+      },
+      "limits": "Handlerele noi și pachetul nu există; numai selecție/propunere, fără import activ."
+    },
+    {
+      "id": "SR03",
+      "canonical_units": [
+        "U06"
+      ],
+      "title": "Metodologie IDOR + counterevidence + calibrare, ca pachet revizuit",
+      "mode": "COPY_CONTENT",
+      "decision": "ADAPTĂM conținutul, nu încărcăm întreg catalogul",
+      "sources": [
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/skills/vulnerabilities/idor.md",
+          "symbol": "Testing Methodology / Validation / False Positives",
+          "line_range": [
+            170,
+            193
+          ],
+          "file_sha256": "2b97ead5254ab3e3fec92c3edafcd3eb619e59264c9f743c844bdadfcc1d0659"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/skills/analysis/counterevidence.md",
+          "symbol": "Closure states / recording / controls",
+          "line_range": [
+            16,
+            143
+          ],
+          "file_sha256": "3e729859564e68859eb588862d3c20a1fd65d88b49418b3e0e18f34eebae1d2d"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/skills/analysis/counterevidence.md",
+          "symbol": "Before You File a Report",
+          "line_range": [
+            145,
+            167
+          ],
+          "file_sha256": "3e729859564e68859eb588862d3c20a1fd65d88b49418b3e0e18f34eebae1d2d"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/skills/analysis/severity_calibration.md",
+          "symbol": "Reachability/counterevidence before severity",
+          "line_range": [
+            8,
+            25
+          ],
+          "file_sha256": "87fde3fa53590168c5b19f99239066c19f62158dc3c9aab83d097f923b487a58"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/skills/analysis/severity_calibration.md",
+          "symbol": "Downgrade / Acceptance Checklist",
+          "line_range": [
+            95,
+            130
+          ],
+          "file_sha256": "87fde3fa53590168c5b19f99239066c19f62158dc3c9aab83d097f923b487a58"
+        }
+      ],
+      "largest_compatible_unit": "Un singur pachet IDOR/BOLA cu rețetă investigator și rubrici triage/validator, nu un agent nou per Markdown și nu o copie a tuturor75ghidurilor.",
+      "retain_dependencies": [
+        "Catalog candidate freeze/review/evaluate înainte Publish",
+        "identity/evidence/attempt S2",
+        "compoziție și MethodRequirements Omnis"
+      ],
+      "replace_or_refuse_dependencies": [
+        "owner diferit→vulnerabil implicit",
+        "două transporturi obligatorii universal",
+        "tool grants/Arjun/shell/lab truth în skill",
+        "static-only report upstream echivalat cu CONFIRMED Omnis"
+      ],
+      "destinations": [
+        {
+          "path": "skills/idor-bola/SKILL.md",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "skills/idor-bola/omnis.yaml",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/agent_composition.py",
+          "state": "EXISTING"
+        }
+      ],
+      "producer": "Material candidat cu LICENSE/NOTICE/referințe și digest nou",
+      "input": "Regulă business, principal/obiect/acțiune, baseline/probe/control refs și gaps",
+      "output": "Metodologie calificată și candidat/gaps; severitate motivată, nu verdict din prompt",
+      "first_consumer": "INVESTIGATOR S4; triage Brain și VALIDATOR pe attempt/context separate",
+      "placement": [
+        "S4 după S2/S3; evaluare PACKAGE_EVAL autorizată înainte activare SECURITY"
+      ],
+      "bounds": [
+        "Minimum identitățile necesare regulii business, nu echivalăm owner/non-owner cu ALLOW/DENY",
+        "Probe minimale cu efect admis; nu maximizăm exfiltrarea",
+        "Dimensiunea pachetului intră în requestul SDK complet; paginare explicită pentru date opționale"
+      ],
+      "upstream_tests": [],
+      "upstream_test_gap": "Nu există test upstream care să dovedească eficacitatea skillului/validatorului; Markdown nu este test.",
+      "existing_omnis_tests": [
+        "api/tests/test_agent_core_publication.py"
+      ],
+      "proposed_tests": [
+        "PACKAGE_EVAL cu private DENY, shared/owner/fixed/benign și auth-invalid; sentinel DATA; complete≠confirmed",
+        "Prompt/candidate instruction injection nu acordă auth/efecte; mandatory overflow deny"
+      ],
+      "license": {
+        "upstream_spdx": "Apache-2.0",
+        "license_path": "upstream-v1.7.0/LICENSE",
+        "obligations": "Păstrează LICENSE, copyright/attribution și eventualele notices aplicabile; documentează modificările și digestul nou. Fără licențiere implicită a dependențelor sau a întregului produs. Nu este aviz juridic.",
+        "upstream_root_notice": "Nu există fișier NOTICE la rădăcina pinului inspectat."
+      },
+      "limits": "Textul poate ajuta metoda; nu demonstrează singur obediență, confinare sau eficacitate."
+    },
+    {
+      "id": "SR04",
+      "canonical_units": [
+        "U04",
+        "U07"
+      ],
+      "title": "Preview UTF-8 și paginare evidence",
+      "mode": "PORT_CODE",
+      "decision": "ADAPTĂM closure-ul pur, cu remedierea limitei mici; nu copiem spill",
+      "sources": [
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/tools/output_store.py",
+          "symbol": "_byte_len/_take_prefix/_take_suffix/_head_tail/_join/bound_text",
+          "line_range": [
+            47,
+            140
+          ],
+          "file_sha256": "79c4c1f5436a931b53a9b22de046fa97a3747ece1c52bc13aa3609054db3775b"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/tools/proxy/tools.py",
+          "symbol": "_format_text_page",
+          "line_range": [
+            376,
+            387
+          ],
+          "file_sha256": "2e0819fef34d45e0d09a58f08d0a3202f822638d7cd2b59f22337b3a5645d2f6"
+        }
+      ],
+      "largest_compatible_unit": "Întregul helper pur de preview și contractul paginii, nu prefix trunchiat ad-hoc. Transferul în storage/model rămâne pipeline Omnis.",
+      "retain_dependencies": [
+        "stdlib numai",
+        "read API/projections și evidența owned Omnis"
+      ],
+      "replace_or_refuse_dependencies": [
+        "bound_and_store/configure_spill_writer și fișier raw comun /workspace/.tool-output",
+        "regex arbitrar nebounded din _format_search_hits",
+        "întreg body buffered înainte limită",
+        "fallback de preview care ascunde lipsa evidence originale"
+      ],
+      "destinations": [
+        {
+          "path": "api/src/omnis/modules/evidence/service.py",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/runs/projections.py",
+          "state": "EXISTING"
+        }
+      ],
+      "producer": "Evidence persistată/restrictată și proiecție DATA înaintea previewului",
+      "input": "Text deja permis/redactat + cap UTF-8/metadata + page/cursor bounded",
+      "output": "Preview explicit omitted/has_more + ref opac owned; raw nu ajunge implicit la model",
+      "first_consumer": "Evidence reader S2; Brain/inspector S3/S4",
+      "placement": [
+        "S2 cu primul evidence reader",
+        "S3/S4 extensia inspectorului"
+      ],
+      "bounds": [
+        "Cap include notice/separatoare și JSON encoding; tiny cap invalid/refuz ori notice bounded",
+        "max page și encoded bytes explicite; empty/end/out-of-range coerente",
+        "fixture capture incremental1MiB request/5MiB wire+decompressed+retained, ratio20:1; API64KiB/pagină ≠ prompt budget"
+      ],
+      "upstream_tests": [
+        {
+          "path": "tests/test_output_store.py",
+          "symbol": "test_multibyte_characters_not_split",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        },
+        {
+          "path": "tests/test_output_store.py",
+          "symbol": "test_workspace_preview_honours_byte_budget",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        }
+      ],
+      "existing_omnis_tests": [
+        "api/tests/test_run_readback_source.py"
+      ],
+      "proposed_tests": [
+        "Tiny-cap10, notice prea lung, multibyte/CRLF/JSON escaping, page0/negativ/empty/end; foreign refs și secret sentinel",
+        "Integrat: evidence absent/corupt/oversize nu devine AVAILABLE; nici GET sau reload nu reexecută"
+      ],
+      "executed_probe": {
+        "kind": "PURE_SYNTHETIC_SOURCE_ONLY",
+        "command": "python -B, runpy.run_path(output_store.py); bound_text(\"α\\n\"*100,max_lines=2,max_bytes=10)",
+        "observed_output_bytes": 43,
+        "requested_max_bytes": 10,
+        "verdict": "FAIL_CAP_INVARIANT",
+        "upstream_suites_run": false
+      },
+      "license": {
+        "upstream_spdx": "Apache-2.0",
+        "license_path": "upstream-v1.7.0/LICENSE",
+        "obligations": "Păstrează LICENSE, copyright/attribution și eventualele notices aplicabile; documentează modificările și digestul nou. Fără licențiere implicită a dependențelor sau a întregului produs. Nu este aviz juridic.",
+        "upstream_root_notice": "Nu există fișier NOTICE la rădăcina pinului inspectat."
+      },
+      "limits": "Nici output bounding nici paginarea nu sunt DLP ori sandbox; nu se copiază helperul nemodificat ca enforcement."
+    },
+    {
+      "id": "SR05",
+      "canonical_units": [
+        "U04"
+      ],
+      "title": "Captură→citire→modificare explicită→replay prin HTTPX admis",
+      "mode": "NEW_GLUE",
+      "supporting_modes": [
+        "REFERENCE"
+      ],
+      "decision": "PĂSTRĂM HTTPX; scriem numai adaptorul de policy/evidence lipsă după admiterea S2",
+      "sources": [
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/tools/proxy/tools.py",
+          "symbol": "view_request",
+          "line_range": [
+            270,
+            348
+          ],
+          "file_sha256": "2e0819fef34d45e0d09a58f08d0a3202f822638d7cd2b59f22337b3a5645d2f6"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/tools/proxy/tools.py",
+          "symbol": "repeat_request",
+          "line_range": [
+            391,
+            453
+          ],
+          "file_sha256": "2e0819fef34d45e0d09a58f08d0a3202f822638d7cd2b59f22337b3a5645d2f6"
+        },
+        {
+          "origin": "OMNIS",
+          "revision": "177266f82b65eabdd4273b2f91fa605753763ebf",
+          "path": "api/src/omnis/modules/runs/run_runtime.py",
+          "symbol": "AgentRunOwner.execute_tool",
+          "line_range": [
+            841,
+            942
+          ],
+          "file_sha256": "230d47fa885c7bc599111e9b9c33adcb06efc835ce89a5842f2cb2627101d704"
+        }
+      ],
+      "largest_compatible_unit": "Workflow-ul funcțional este reutilizabil; pachetul Caido+browser/shell nu este cel mai mare ansamblu compatibil. Client HTTP independent upstream nu există aici.",
+      "retain_dependencies": [
+        "httpx==0.28.1 deja fixat în api/pyproject.toml",
+        "Vault AEAD/AAD/write durability existent",
+        "owner admission/dispatch/evidence Ref și Stop Omnis"
+      ],
+      "replace_or_refuse_dependencies": [
+        "Caido SDK/bootstrap/client retry și Docker din upstream",
+        "parse_raw_request/apply_modifications cu dict query/header și overlay cookies",
+        "Host/auth/credential override model-facing",
+        "shell/scanner/browser ca ocolire a brokerului"
+      ],
+      "destinations": [
+        {
+          "path": "api/src/omnis/policy/target_actions.py",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/executors/http.py",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/identities/schemas.py",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/evidence/service.py",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/runs/run_runtime.py",
+          "state": "EXISTING"
+        }
+      ],
+      "producer": "Tool intent sau OPERATOR_CHECK Verify login/health; owner construiește context trusted",
+      "input": "Request/operation ref și modificări bounded, identity ref admis, scope/auth revisions; secret injectat backend-only",
+      "output": "Receipt/outcome/UNKNOWN, principal/epoch, hops, completeness și evidence refs persistate înaintea rezultatului model",
+      "first_consumer": "Operator Verify login/health S2 și primul worker HTTP; recon S3",
+      "placement": [
+        "S2; browser numai dacă necesar după gate-ul transportului său"
+      ],
+      "bounds": [
+        "Scope/redirect/DNS/Host/identity/DATA/Stop la același sink înainte de bytes",
+        "1MiB request,5MiB wire/decompressed/retained,ratio20:1;20MiB artefact/1GiB run în fixture",
+        "DISPATCHING înainte efect; lost ACK→UNKNOWN, nu retry",
+        "MONITOR fără plafon total LLM; limitele target nu se confundă cu token budget"
+      ],
+      "upstream_tests": [
+        {
+          "path": "tests/test_proxy_client.py",
+          "symbol": "test_build_raw_request_recomputes_content_length_for_modified_body",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        },
+        {
+          "path": "tests/test_proxy_client.py",
+          "symbol": "test_build_raw_request_drops_transfer_encoding_for_modified_body",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        },
+        {
+          "path": "tests/test_proxy_client.py",
+          "symbol": "test_build_raw_request_drops_stale_content_length_for_empty_body",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        }
+      ],
+      "existing_omnis_tests": [
+        "api/tests/test_model_sender.py",
+        "api/tests/test_run_refusals_source.py"
+      ],
+      "proposed_tests": [
+        "Sink autorizat allow/deny; redirect/offscope/identity/Stop zero effect; duplicated header/query și exact bytes; lost ACK/crash/capture corrupt",
+        "Target vault namespace/codec și auth epoch distinct de provider; A/B/validator isolation; OPERATOR_CHECK fără task inventat"
+      ],
+      "license": {
+        "upstream_spdx": "Apache-2.0",
+        "license_path": "upstream-v1.7.0/LICENSE",
+        "obligations": "Păstrează LICENSE, copyright/attribution și eventualele notices aplicabile; documentează modificările și digestul nou. Fără licențiere implicită a dependențelor sau a întregului produs. Nu este aviz juridic.",
+        "upstream_root_notice": "Nu există fișier NOTICE la rădăcina pinului inspectat."
+      },
+      "limits": "S2 nu este implementat; nu este nevoie de dependență nouă sau proxy universal pentru primul HTTP trusted; proxyul respins nu este readmis."
+    },
+    {
+      "id": "SR06",
+      "canonical_units": [
+        "U03",
+        "U08"
+      ],
+      "title": "Delegare/predare cu inbox și completion gate existente",
+      "mode": "KEEP_OMNIS",
+      "supporting_modes": [
+        "PORT_CODE"
+      ],
+      "decision": "PĂSTRĂM ownerul; portăm numai rubrici/format de handoff necesare consumerului",
+      "sources": [
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/tools/agents_graph/tools.py",
+          "symbol": "_render_completion_report",
+          "line_range": [
+            63,
+            114
+          ],
+          "file_sha256": "bd09f70c154c11a285e7d2365cf1a7e45b200de612cb6d7cf9e29f6edb22c003"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/tools/agents_graph/tools.py",
+          "symbol": "create_agent: validation to spawner",
+          "line_range": [
+            568,
+            585
+          ],
+          "file_sha256": "bd09f70c154c11a285e7d2365cf1a7e45b200de612cb6d7cf9e29f6edb22c003"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/core/inputs.py",
+          "symbol": "child_initial_input",
+          "line_range": [
+            336,
+            371
+          ],
+          "file_sha256": "3a8f1e5f38aef875cb626ef278c38ac4f06a719aebf4a36ac8c73ecc0cc1a358"
+        },
+        {
+          "origin": "OMNIS",
+          "revision": "177266f82b65eabdd4273b2f91fa605753763ebf",
+          "path": "api/src/omnis/modules/runs/run_runtime.py",
+          "symbol": "AgentRunOwner.complete",
+          "line_range": [
+            1072,
+            1243
+          ],
+          "file_sha256": "230d47fa885c7bc599111e9b9c33adcb06efc835ce89a5842f2cb2627101d704"
+        },
+        {
+          "origin": "OMNIS",
+          "revision": "177266f82b65eabdd4273b2f91fa605753763ebf",
+          "path": "api/src/omnis/modules/runs/run_store.py",
+          "symbol": "add_inbox/consume",
+          "line_range": [
+            407,
+            443
+          ],
+          "file_sha256": "c765b2384afdbf3ba7401f30154dc90b37ddb767e2adbf2110ac82d681e86539"
+        }
+      ],
+      "largest_compatible_unit": "Omnis RUN/task/attempt + TxA rezultat/inbox și TxB Brain decision/consum/checkpoint; Strix AgentCoordinator+SQLiteSession nu înlocuiește acest ansamblu.",
+      "retain_dependencies": [
+        "Omnis run_runtime/store/contracts și relay",
+        "Rubrici summary/findings/open_items/recommendations, autor/timestamp persistat",
+        "Ref/schema checks existing"
+      ],
+      "replace_or_refuse_dependencies": [
+        "parent_history/ctx.turn_input implicit: toate17create_agent ale runului au inherit_context=true",
+        "spawn_child_agent/_start_child_runner/respawn Strix",
+        "wake-all/timeout autoresume și success implicit",
+        "report count sau agent_completed folosit ca metodă validată"
+      ],
+      "destinations": [
+        {
+          "path": "api/src/omnis/modules/runs/run_runtime.py",
+          "state": "EXISTING"
+        },
+        {
+          "path": "api/src/omnis/modules/runs/run_store.py",
+          "state": "EXISTING"
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/agent_tools.py",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/agent_completion.py",
+          "state": "PROPOSED_NOT_CREATED"
+        }
+      ],
+      "producer": "Ownerul persistă task/attempt/brief și apoi finalizarea pe toate ieșirile",
+      "input": "Rol/obiectiv/release/context refs și cauză; identități emise în backend",
+      "output": "Handoff bounded cu refs/gaps; inbox persistat și consum unic",
+      "first_consumer": "Brain după worker recon S3 și investigator/validator S4; slot2 în S5",
+      "placement": [
+        "S3/S4 pe seam-ul S1",
+        "S5 concurență maximum2 incluzând draining/validator"
+      ],
+      "bounds": [
+        "Brief minim, fără istoric brut al părintelui",
+        "Handoff8KiB stored/ref; IPC command3600/body4096/frame4096 separate",
+        "Direct-final/finish/error/cancel nu ocolesc D13; post-Stop receive-only fără wake"
+      ],
+      "upstream_tests": [
+        {
+          "path": "tests/test_inputs.py",
+          "symbol": "test_child_initial_input_single_message_without_history",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        },
+        {
+          "path": "tests/test_agent_graph_coordination.py",
+          "symbol": "test_agent_finish_lists_the_reports_the_child_filed",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        },
+        {
+          "path": "tests/test_agent_graph_coordination.py",
+          "symbol": "test_message_to_finished_non_interactive_child_is_not_delivered",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        }
+      ],
+      "existing_omnis_tests": [
+        "api/tests/test_run_finish_source.py",
+        "api/tests/test_run_owner_source.py",
+        "api/tests/test_run_runtime_pg.py",
+        "api/tests/test_run_drain_source.py"
+      ],
+      "proposed_tests": [
+        "Receipt/decision referă efectiv probele HTTP; lost notify/ACK, duplicate/foreign refs și final direct",
+        "S5 satu­rație2+FENCE/DRAIN, late result/Resume explicit/reconnect fără resend"
+      ],
+      "license": {
+        "upstream_spdx": "Apache-2.0",
+        "license_path": "upstream-v1.7.0/LICENSE",
+        "obligations": "Păstrează LICENSE, copyright/attribution și eventualele notices aplicabile; documentează modificările și digestul nou. Fără licențiere implicită a dependențelor sau a întregului produs. Nu este aviz juridic.",
+        "upstream_root_notice": "Nu există fișier NOTICE la rădăcina pinului inspectat."
+      },
+      "limits": "Upstream single user message nu înseamnă context minim: funcția poate încorpora parent history în corpul mesajului."
+    },
+    {
+      "id": "SR07",
+      "canonical_units": [
+        "U05",
+        "U06"
+      ],
+      "title": "Coverage: concluzii revizuibile și contradicții fără false secure",
+      "mode": "PORT_CODE",
+      "decision": "ADAPTĂM validările/rubricile, nu autoritatea ledgerului agent-reported",
+      "sources": [
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/tools/coverage/tools.py",
+          "symbol": "_validate",
+          "line_range": [
+            152,
+            168
+          ],
+          "file_sha256": "10b77c2bd092ef7ec8cd5f80933ed537bd1d8753a36409229d7dd6816996b6c1"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/tools/coverage/tools.py",
+          "symbol": "_duplicate_of_locked",
+          "line_range": [
+            171,
+            188
+          ],
+          "file_sha256": "10b77c2bd092ef7ec8cd5f80933ed537bd1d8753a36409229d7dd6816996b6c1"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/tools/coverage/tools.py",
+          "symbol": "_update_impl: superseded history",
+          "line_range": [
+            286,
+            305
+          ],
+          "file_sha256": "10b77c2bd092ef7ec8cd5f80933ed537bd1d8753a36409229d7dd6816996b6c1"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/skills/analysis/counterevidence.md",
+          "symbol": "Closure is not permanent",
+          "line_range": [
+            118,
+            126
+          ],
+          "file_sha256": "3e729859564e68859eb588862d3c20a1fd65d88b49418b3e0e18f34eebae1d2d"
+        }
+      ],
+      "largest_compatible_unit": "Schema outcome+evidence+supersedes, legată de operație/identitate și revalidare. Nu copiem ledgerul global sau numărătorul raportului.",
+      "retain_dependencies": [
+        "Validări nonempty și enums cunoscute (adaptate strict)",
+        "PostgreSQL CAS/ExactRef și ResultQualification existente",
+        "istoric append-only al contradicției/reviziei"
+      ],
+      "replace_or_refuse_dependencies": [
+        "lowercase/strip/replace care repară enum invalid sau unește encoded paths diferite",
+        "no_issue_found/reported fără probă obligatorie",
+        "dict/RLock/JSON mirror și cheie surface text lowercase",
+        "agent statement ca coverage calificată ori no_issue ca dovadă secure"
+      ],
+      "destinations": [
+        {
+          "path": "api/src/omnis/modules/engagements/map_models.py",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/engagements/map_service.py",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/result_qualification.py",
+          "state": "EXISTING"
+        }
+      ],
+      "producer": "Procedură executată cu receipts/identitate/precondiții sau gap explicit",
+      "input": "Operație exactă, risk/method ref, auth/state epoch, outcome, evidence refs și expected revision",
+      "output": "Observație/concluzie revizuită cu supersedes; numerator calificat separat de ledgerul declarat",
+      "first_consumer": "Brain citește contradicția în S3/S4; S6/S7 compară DB/UI la același cursor",
+      "placement": [
+        "S3 minim observation/gaps",
+        "S4 metoda/validator",
+        "S6/S7 reconciliere/readback"
+      ],
+      "bounds": [
+        "UNKNOWN/auth-invalid/missing evidence nu înseamnă secure",
+        "Scope/method/path/identity material diferite nu sunt deduplicate",
+        "query bounded și history păstrat; nici actualizarea nu șterge sursele"
+      ],
+      "upstream_tests": [
+        {
+          "path": "tests/test_coverage_tool.py",
+          "symbol": "test_evidence_required_for_asserted_outcomes",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        },
+        {
+          "path": "tests/test_coverage_tool.py",
+          "symbol": "test_update_moves_outcome_and_keeps_history",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        },
+        {
+          "path": "tests/test_coverage_tool.py",
+          "symbol": "test_concurrent_records_of_one_surface_yield_a_single_row",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        }
+      ],
+      "existing_omnis_tests": [
+        "api/tests/test_result_qualification.py",
+        "api/tests/test_run_readback_source.py"
+      ],
+      "proposed_tests": [
+        "no_issue/reported fără receipts deny; outcome token greșit deny, encoded path case distinct; concurrent amendments CAS/replay",
+        "Negative auth-invalid nu crește numerator; shared/owner/fixed controls; post-restart aceeași denominator_revision"
+      ],
+      "license": {
+        "upstream_spdx": "Apache-2.0",
+        "license_path": "upstream-v1.7.0/LICENSE",
+        "obligations": "Păstrează LICENSE, copyright/attribution și eventualele notices aplicabile; documentează modificările și digestul nou. Fără licențiere implicită a dependențelor sau a întregului produs. Nu este aviz juridic.",
+        "upstream_root_notice": "Nu există fișier NOTICE la rădăcina pinului inspectat."
+      },
+      "limits": "Cele86record și28update din run arată disciplină de bookkeeping, nu86suprafețe securizate și nici procent de coverage."
+    },
+    {
+      "id": "SR08",
+      "canonical_units": [
+        "U07"
+      ],
+      "title": "Corelare call/result în proiecțiile existente, nu viewer nou",
+      "mode": "KEEP_OMNIS",
+      "supporting_modes": [
+        "REFERENCE"
+      ],
+      "decision": "PĂSTRĂM event store/projections/UI; adoptăm doar cazul test de corelare upstream",
+      "sources": [
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/interface/tui/live_view.py",
+          "symbol": "TuiLiveView._record_tool_call_data/_record_tool_output_data",
+          "line_range": [
+            325,
+            385
+          ],
+          "file_sha256": "354c211530471fdfeb760d0c76a81875f2c042e1a193600303a98d0c0e4d381f"
+        },
+        {
+          "origin": "OMNIS",
+          "revision": "177266f82b65eabdd4273b2f91fa605753763ebf",
+          "path": "api/src/omnis/modules/runs/run_store.py",
+          "symbol": "event",
+          "line_range": [
+            327,
+            378
+          ],
+          "file_sha256": "c765b2384afdbf3ba7401f30154dc90b37ddb767e2adbf2110ac82d681e86539"
+        },
+        {
+          "origin": "OMNIS",
+          "revision": "177266f82b65eabdd4273b2f91fa605753763ebf",
+          "path": "api/src/omnis/modules/runs/projections.py",
+          "symbol": "events",
+          "line_range": [
+            306,
+            360
+          ],
+          "file_sha256": "0670108eee7b70d552a9a76b9c667fa41c459bf731c8e2f4ae7743012c0a2763"
+        }
+      ],
+      "largest_compatible_unit": "RunEvent persistent→ProjectionEnvelope→Brain stream/inspector existent. Importul React/Zustand/viewer server creează owner și UI concurente.",
+      "retain_dependencies": [
+        "Omnis run store/projections/routes și shell UI acceptat",
+        "context key(run,task,attempt,call_id)",
+        "sesiune/readPrivate și snapshot/cursor Omnis"
+      ],
+      "replace_or_refuse_dependencies": [
+        "id(item), timestamp nou la fiecare replay",
+        "result fără call marcat success/completed implicit",
+        "update call care poate downgrada completed→running la reorder",
+        "viewer server/auth/telemetry, permisiv JSON parsing, imagini raw"
+      ],
+      "destinations": [
+        {
+          "path": "api/src/omnis/modules/runs/run_store.py",
+          "state": "EXISTING"
+        },
+        {
+          "path": "api/src/omnis/modules/runs/projections.py",
+          "state": "EXISTING"
+        },
+        {
+          "path": "api/src/omnis/modules/runs/run_contract.py",
+          "state": "EXISTING"
+        }
+      ],
+      "producer": "Ownerul persistă tool_called/tool_result cu lineage trusted și sequence",
+      "input": "DTO strict/DATA projected și refs, nu arguments/output integrale nefiltrate",
+      "output": "Evenimente distincte corelate, stable ID/cursor și inspector receive-only",
+      "first_consumer": "Brain stream/inspector S2 HTTP, S3 hartă și S4 finding, în baseline-ul curent",
+      "placement": [
+        "S2–S4 cu producerii",
+        "S5 reorder/duplicate",
+        "S7 restart/readback"
+      ],
+      "bounds": [
+        "20rânduri default/50max și64KiB/pagină,16KiB/eveniment,256caractere summary în encoded cap",
+        "missing-call→unmatched, nu succes",
+        "GET/reload/reconnect nu produc model/target; polling vizibil5s conform planului"
+      ],
+      "upstream_tests": [
+        {
+          "path": "tests/test_viewer.py",
+          "symbol": "test_build_run_state_keeps_same_call_id_separate_per_agent",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        }
+      ],
+      "existing_omnis_tests": [
+        "api/tests/test_run_inspection_source.py",
+        "api/tests/test_run_readback_source.py",
+        "api/tests/test_run_usage_source.py"
+      ],
+      "proposed_tests": [
+        "Same-call-ID pe două attempts/agents, result-before-call, duplicate/reorder fără downgrade; secret sentinel și foreign cursor deny",
+        "Browser verifică atribuirea/ref și staleness pe buildul real; nu aprobare estetică dedusă din teste"
+      ],
+      "license": {
+        "upstream_spdx": "Apache-2.0",
+        "license_path": "upstream-v1.7.0/LICENSE",
+        "obligations": "Păstrează LICENSE, copyright/attribution și eventualele notices aplicabile; documentează modificările și digestul nou. Fără licențiere implicită a dependențelor sau a întregului produs. Nu este aviz juridic.",
+        "upstream_root_notice": "Nu există fișier NOTICE la rădăcina pinului inspectat."
+      },
+      "limits": "Frumusețea viewerului nu este motiv pentru schimbarea autorității; buildul static egal nu certifică biblioteca/runtime-ul."
+    },
+    {
+      "id": "SR09",
+      "canonical_units": [
+        "U06"
+      ],
+      "title": "D13/D14: păstrăm checkerele și adăugăm validatorul security absent",
+      "mode": "NEW_GLUE",
+      "supporting_modes": [
+        "KEEP_OMNIS",
+        "REFERENCE"
+      ],
+      "decision": "PĂSTRĂM Ref/method checks; REFUZĂM report-writer ca oracle live",
+      "sources": [
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/tools/reporting/tool.py",
+          "symbol": "_verify_http_exchange_ids",
+          "line_range": [
+            231,
+            265
+          ],
+          "file_sha256": "506553761d95dff6e7a7267e41b3e1406626a1d93e75b7e6be475e92ae64e628"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/tools/reporting/tool.py",
+          "symbol": "_validate_analysis_fields",
+          "line_range": [
+            303,
+            332
+          ],
+          "file_sha256": "506553761d95dff6e7a7267e41b3e1406626a1d93e75b7e6be475e92ae64e628"
+        },
+        {
+          "origin": "STRIX",
+          "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
+          "path": "strix/skills/vulnerabilities/idor.md",
+          "symbol": "Validation / False Positives",
+          "line_range": [
+            179,
+            193
+          ],
+          "file_sha256": "2b97ead5254ab3e3fec92c3edafcd3eb619e59264c9f743c844bdadfcc1d0659"
+        },
+        {
+          "origin": "OMNIS",
+          "revision": "177266f82b65eabdd4273b2f91fa605753763ebf",
+          "path": "api/src/omnis/modules/runs/run_runtime.py",
+          "symbol": "AgentRunOwner.complete",
+          "line_range": [
+            1072,
+            1243
+          ],
+          "file_sha256": "230d47fa885c7bc599111e9b9c33adcb06efc835ce89a5842f2cb2627101d704"
+        }
+      ],
+      "largest_compatible_unit": "D13 owner/completeness + candidat/triage + attempt independent D14 + oracle/writer. ReportState/dedupe/model severity nu constituie această unitate.",
+      "retain_dependencies": [
+        "tasks/method_checks.py și result_qualification.py la scope-ul istoric",
+        "HTTP/evidence/auth S2, map/brief S3, pachet SR03 calificat",
+        "run_runtime completion seam și Ref validators Omnis"
+      ],
+      "replace_or_refuse_dependencies": [
+        "create_vulnerability_report ca autoritate CONFIRMED",
+        "LLM dedupe sau confidence high ca verificare independentă",
+        "CVSS dependency nou doar pentru câteva validări",
+        "upstream findings fără HTTP refs la outage ca dovadă suficientă Omnis"
+      ],
+      "destinations": [
+        {
+          "path": "api/src/omnis/modules/validation/object_access.py",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/validation/schemas.py",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/findings/service.py",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/findings/schemas.py",
+          "state": "PROPOSED_NOT_CREATED"
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/method_checks.py",
+          "state": "EXISTING"
+        },
+        {
+          "path": "api/src/omnis/modules/tasks/result_qualification.py",
+          "state": "EXISTING"
+        }
+      ],
+      "producer": "Investigator→candidat/gaps, triage Brain→obligații/refuri; owner D13 pe orice finalizare",
+      "input": "Regulă ALLOW/DENY și principal valid, obiect/acțiune, recipe și refs originale, auth/state revisions",
+      "output": "Replay/control refs proprii validatorului; verdict confirmed/rejected/inconclusive separat de completeness; finding revision/event persistent",
+      "first_consumer": "Finding inspector S4; prima calibrare autonomă S6 și readback S7",
+      "placement": [
+        "S4 implementare/eval",
+        "S6 minimum un finding confirmat independent după mandat separat",
+        "S7 QA/gate pe bytes integrați"
+      ],
+      "bounds": [
+        "Validator attempt/auth/probe/control proprii, slot numărat în maximum2 din S5",
+        "HTTP200, owner diferit, named chain sau titlul Chain Validation nu confirmă singure",
+        "Partial task poate produce candidat complet separat; auth-invalid/evidence absent→INCONCLUSIVE",
+        "Nici target secret în model nici replay din citirea istoricului"
+      ],
+      "upstream_tests": [
+        {
+          "path": "tests/test_reporting_fields.py",
+          "symbol": "test_create_report_requires_counterevidence",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        },
+        {
+          "path": "tests/test_reporting_fields.py",
+          "symbol": "test_http_exchange_ids_are_dropped_when_proxy_cannot_be_queried",
+          "exists_at_pin": true,
+          "execution": "NOT_RUN",
+          "reuse": "asserțiune/caz de adaptat; nu se importă fixture-ul runtime upstream"
+        }
+      ],
+      "upstream_test_gap": "Nu există în selecție test upstream al unui oracle IDOR independent echivalent D14; toate testele live Omnis de mai jos sunt propuse.",
+      "existing_omnis_tests": [
+        "api/tests/test_contract_method_checks.py",
+        "api/tests/test_result_qualification.py",
+        "api/tests/test_run_finish_source.py"
+      ],
+      "proposed_tests": [
+        "private DENY+canary+replay confirmă; owner/shared/fixed/benign respinse; login200/auth-invalid/evidence-missing inconclusive",
+        "D13 direct-final/finish/errors cu obligații false/refuri străine/false N/A; finding reload→identitate/acțiune/probe fără rerun",
+        "S6 discovery fără endpoint/truth oferit evaluatorului și bugete egale; tentative păstrate, nu selectăm doar succesul"
+      ],
+      "license": {
+        "upstream_spdx": "Apache-2.0",
+        "license_path": "upstream-v1.7.0/LICENSE",
+        "obligations": "Păstrează LICENSE, copyright/attribution și eventualele notices aplicabile; documentează modificările și digestul nou. Fără licențiere implicită a dependențelor sau a întregului produs. Nu este aviz juridic.",
+        "upstream_root_notice": "Nu există fișier NOTICE la rădăcina pinului inspectat."
+      },
+      "limits": "La v1.7.0 IDs neverificate sunt DROPPED cu warning, spre deosebire de analiza pinului vechi; aceasta nu transformă raportarea într-un validator. Nicio confirmare nouă a vulnerabilităților runului aici."
+    }
+  ],
+  "excluded": [
+    "Runtime/factory/store Strix integral",
+    "Codex/OAuth/Hermes runtime în produs",
+    "Shell/Filesystem/MCP/browser/scanners active prin skill",
+    "Bootstrap installers, config personal, .env, provider/target effects",
+    "Reanaliza logurilor Omnis/temp delegate altor analisti",
+    "Import activ sau schelete de produs",
+    "Report export universal/T5 ori catalog75înaintea primei BOLA"
+  ],
+  "scope": "ANALYSIS_ONLY / CANDIDATE_REUSE / NOT_IMPORTED / NO_IMPLEMENTATION_AUTHORITY",
+  "private_source_analysis": "/home/kali/.local/share/omnis-reference-artifacts/strix-20261108-7574/analysis-reuse.md"
+}

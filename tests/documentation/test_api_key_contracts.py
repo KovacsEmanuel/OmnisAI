@@ -161,6 +161,13 @@ class ApiKeyContracts(unittest.TestCase):
         self.assertIn("S4b", lab)
         self.assertNotIn("raport/retest rămân T5", lab)
 
+    def test_lab_first_finding_does_not_defer_the_core_report(self):
+        lab = section(document("MVP_Architecture"), "### 11.0. M-LAB — IDOR/BOLA, triage și validator")
+        for token in ("B13b/c", "S4b", "S7", "B13d", "T5"):
+            self.assertIn(token, lab)
+        self.assertNotIn("raport/export/retest general rămân T5", lab)
+        self.assertNotIn("acestea rămân T5/M1", lab)
+
 
 if __name__ == "__main__":
     unittest.main()

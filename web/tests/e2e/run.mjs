@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
-import { writeSync } from 'node:fs';
+import { writeSync, writeFileSync } from 'node:fs';
 import { createConnection } from 'node:net';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -42,6 +42,19 @@ const diagnosticPath = '/api/v1/diagnostics/ui-events';
 const diagnosticContract = JSON.parse(await readFile(new URL('../../../contracts/omnis.openapi.json', import.meta.url), 'utf8')).components.schemas;
 const diagnosticEvents = new Map(), diagnosticReceipts = [], diagnosticTasks = [], diagnosticErrors = [];
 let negativeDiagnostic = null, diagnosticProbeCorrelation = null;
+let postludePhase = 'NOT_ENTERED', postludeFailure = null, postludeWriteFailed = false;
+function observePostlude(phase, error) {
+  if (scenario !== 's1-run') return;
+  if (arguments.length > 1 && postludeFailure === null) postludeFailure = { phase: postludePhase,
+    kind: error instanceof assert.AssertionError ? 'ASSERTION' : error instanceof Error ? 'ERROR' : 'NON_ERROR' };
+  postludePhase = phase;
+  try {
+    const data = JSON.stringify({ version: 1, stage: process.env.OMNIS_E2E_STAGE === 'before' ? 'BEFORE' : process.env.OMNIS_E2E_STAGE === 'after' ? 'AFTER' : 'UNKNOWN',
+      phase, firstFailure: postludeFailure, tasks: diagnosticTasks.length, receipts: diagnosticReceipts.length, errors: diagnosticErrors.length, writeFailed: postludeWriteFailed });
+    if (Buffer.byteLength(data) > 1024) { postludeWriteFailed = true; return; }
+    writeFileSync(join(output, 's1-postlude.json'), data, { mode: 0o600 });
+  } catch { postludeWriteFailed = true; }
+}
 function diagnosticPost(request) { return request.method() === 'POST' && request.url() === `${origin}${diagnosticPath}`; }
 function diagnosticBody(value) {
   assert.ok(value && typeof value === 'object' && !Array.isArray(value));
@@ -246,7 +259,9 @@ try {
   } else if (scenario === 'catalog') {
     catalogEvidence = await runCatalog({ page, check, paired, output, origin, screenshot, secretChecks });
   } else if (scenario === 's1-run') {
+    observePostlude('SCENARIO_ENTER');
     catalogEvidence = await runS1({ page, check, paired, origin, output, screenshot, secretChecks, remember });
+    observePostlude('SCENARIO_DONE');
   } else if (scenario === 'settings-remove') {
     catalogEvidence = await runSettingsRemove({ page, check, paired, origin, output, screenshot, secretChecks, remember });
   } else if (['settings-models', 'settings-stop-read', 'settings-cancel-probe', 'settings-cancel-current'].includes(scenario)) {
@@ -399,20 +414,33 @@ try {
     }
     await writeFile(join(output, 'contrast.json'), JSON.stringify(contrast, null, 2));
   } else throw new Error('Unknown E2E case');
+  observePostlude('SECRETS_ENTER');
   await secretChecks();
+  observePostlude('SECRETS_DONE');
+  observePostlude('DIAGNOSTICS_ENTER');
   await Promise.all(diagnosticTasks);
+  observePostlude('DIAGNOSTICS_DONE');
   assert.deepEqual(diagnosticErrors, []);
   if (scenario === 'b04') await writeFile(join(output, `ui-diagnostics-${process.env.OMNIS_E2E_STAGE}.json`), JSON.stringify({
     receipts: diagnosticReceipts, probe_correlation: diagnosticProbeCorrelation, complete: false,
   }));
+  observePostlude('RESULT_ENTER');
   await writeFile(join(output, 'browser-result.json'), JSON.stringify({ scenario, passed: scenario === 'settings-cancel-probe' ? null : true, browser: browser.version(),
     ...(scenario === 'b04' ? { stage: process.env.OMNIS_E2E_STAGE } : {}),
     ...(catalogEvidence ? { catalog: catalogEvidence } : {}),
     requestCount: requests.length, externalRequests: external.length, pageErrors: pageErrors.length,
     secretChecks: true, scope: 'owned PostgreSQL/API/supervisor + built assets, synthetic pairing only' }, null, 2));
+  observePostlude('RESULT_DONE');
   console.log(`E2E ${scenario === 'settings-cancel-probe' ? 'DIAGNOSTIC' : 'PASS'} ${scenario}: real backend, synthetic pairing, browser ${browser.version()}`);
+} catch (error) {
+  observePostlude('FAILURE', error);
+  throw error;
 } finally {
   if (blocker) { blocker.stdin.end('release\n'); await new Promise(resolve => { blocker.once('exit', resolve); setTimeout(() => { blocker.kill(); resolve(); }, 3000).unref(); }); }
-  await context.close();
-  await browser.close();
+  observePostlude('CONTEXT_CLOSE_ENTER');
+  await context.close().catch(error => { observePostlude('FAILURE', error); throw error; });
+  observePostlude('CONTEXT_CLOSE_DONE');
+  observePostlude('BROWSER_CLOSE_ENTER');
+  await browser.close().catch(error => { observePostlude('FAILURE', error); throw error; });
+  observePostlude('BROWSER_CLOSE_DONE');
 }

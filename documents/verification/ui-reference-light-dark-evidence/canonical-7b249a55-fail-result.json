@@ -1,0 +1,45 @@
+{
+  "head": "7b249a559e12dbbb71aaeace39f3c443b85cbfa2",
+  "command": "make check UV=/home/kali/.local/share/omnis-toolchains/uv-0.12.19",
+  "outer_exit": 2,
+  "inner": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "inputs": 2493,
+  "input_drift": [],
+  "stages": {
+    "API": "3726PASS75SKIP7deselected3341.27s",
+    "migrations": "23PASS68.76s",
+    "web": "673PASS30files",
+    "models_ui": "1PASS119.79s",
+    "remove_ui": "1PASS93.26s",
+    "s1_ui": "1PASS46.70s/AFTER/BROWSER_CLOSE_DONE/noerror/restart",
+    "native_e2e": "10PASS141.96s",
+    "CLI_source": "471testsOK207.504s",
+    "CLI_wheel": "471testsERRORS1/205.420s"
+  },
+  "primary_failure": {
+    "case": "test_model_relay_fence.PhysicalFenceTest.test_fence_held_dns_denies_late_connect_and_drain_waits_for_resolver",
+    "path": "cli/tests/test_model_relay_fence.py:263",
+    "actual": "BUSY",
+    "expected": "OK",
+    "phase": "DRAIN immediately after release.set() and already cancelled OPEN DENIED receipt"
+  },
+  "secondary_failure": {
+    "path": "cli/src/omnis_cli/forwarder.py:72",
+    "class": "ValueError",
+    "finite_reason": "Auth resolver drainage unverified; real resolver_alive stilltrue during wait_closed cleanup"
+  },
+  "source_causal_boundary": "DRAIN correctly staysBUSY while Connection.pending() sees resolver.is_alive. OPEN cancellation receipt is not resolver termination; test has no physical join before immediate DRAIN. Minimal test synchronization candidate, not productbug/relaxedfence until controlled Source RED/GREEN/review.",
+  "NOT_REACHED": [
+    "CLI installed PGstatus",
+    "release"
+  ],
+  "exact_runtime_absent": true,
+  "PGDATA_retained": true,
+  "retention_root": "/home/kali/.hermes/cache/scratch/ucr-bwdnxpls/db-b3634944ad4748cd",
+  "counter_S1_observer": 2,
+  "limits": "No new fullrun admitted for luck; actual allnativeUI PASS does not make canonicalPASS. No product authority/limit/provider/target/S2 effects."
+}

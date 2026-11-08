@@ -1,0 +1,110 @@
+{
+  "status": "ONE_FILE_TEST_CANDIDATE_FROZEN_PENDING_COMPLEMENTARY_INDEPENDENT_REVIEWS",
+  "writer_stopped": true,
+  "baseHEAD": "7b249a559e12dbbb71aaeace39f3c443b85cbfa2",
+  "head_at_freeze": "7b249a559e12dbbb71aaeace39f3c443b85cbfa2",
+  "branch": "checkpoint/ux-d-pause-20261107",
+  "scope": "Literal CLI fixture synchronization only; no product/UI/protocol/timeout fix",
+  "original_RED": {
+    "record": "canonical-7b249a55-fail-result.json",
+    "sha256": "bd82ec8bb0f54b844463e8e542b5afb5ffe4e92195c8640a7d2650fcb4cb57d2",
+    "retained": "Original sanitized failure record and parent trace untouched",
+    "primary": "Installed wheel471 case PhysicalFenceTest.test_fence_held_dns_denies_late_connect_and_drain_waits_for_resolver: final DRAIN at original line263 returned BUSY instead of OK immediately after DNS release and OPEN DENIED",
+    "secondary": "forwarder.py72 ValueError Auth resolver drainage unverified during cleanup; actual resolver still alive",
+    "canonical": "outer2/inner2/drained/2493identical; exact owned runtime/network/socket gone, PGDATA retained. API3726/migrations23/web673/3UI dependencies/all10nativeE2E/CLI_source471 passed in that invocation. Installed PGCLIstatus/release not reached.",
+    "reuse_limit": "No fresh baseline race rerun or471/fullgate repetition. Original canonical failure is RED evidence, not a fabricated deterministic fresh failure."
+  },
+  "mechanism_and_decision": {
+    "production": "Connection.pending() checks tasks or resolver.is_alive(). FENCE closes/cancels OPEN; OPEN finally discards coroutine task and sends DENIED without joining the resolver. DRAIN therefore correctly remains BUSY while physical resolver survives.",
+    "fixture_gap": "release.set() permits DNS callback to return but is not thread termination; awaiting already-cancelled OPEN DENIED is not a physical worker barrier. A scheduling delay between those operations is admissible. No specific host scheduling cause or product defect is inferred.",
+    "caller_and_sibling": "Existing API relay drain loop already handles BUSY without a product change. cli/tests/test_auth_forwarder.py149-152 uses bounded100x0.005 polling of public listener.resolver_alive before closure.",
+    "change": "After release and original OPEN DENIED assertion, add the same condition-based100x0.005 public resolver_alive poll, then assertFalse before original final DRAIN_OK. One why comment states that cancelled OPEN receipt is not worker exit.",
+    "unchanged": "Original first DRAIN_BUSY while DNS held, FENCE/OPEN assertions, connects-empty checks before/after release, all frames/protocol/write authority and time limits, and entire finally cleanup remain byte-identical. Poll contains no RPC, dispatch retry, blind unconditional sleep, new helper/service/observer or global framework.",
+    "control_choice": "No injected scheduling/mutation control was needed: retained actual BUSY/live-worker failure plus exact producer definitions establish the missing physical precondition. Both real affected-case runs preserve and execute held-DNS BUSY, late-connect denial and final physical termination controls. No injected control or fresh historical-cause reproduction is claimed."
+  },
+  "change_freeze": {
+    "path": "cli/tests/test_model_relay_fence.py",
+    "before_sha256": "a5a048108192ed6a865cb1a6e522db79d6430aab64b86f4bcef887ec8469c21c",
+    "after_sha256": "4a2fe2999ee346c48c550b76f0ee0d455d20b2414c88721beadbdab7df96569d",
+    "diff_sha256": "5be147e880f4129c0f110efa94e84f59aa9c23220a5b37372fc1f812d7345413",
+    "patch": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-cli-dns-drain-candidate.patch",
+    "proof": "Removing exactly six inserted comment/poll/assert lines restores entire original test file byte-exact. No other tracked file changed; index empty."
+  },
+  "origin_binding": {
+    "preflight_before_test": "Both actual interpreters imported product modules from external cwd before editing and executing. __file__ and SHA bound, both Python3.13.15; repeated assertions inside each test command and matching hashes checked after tests.",
+    "source_python": "/home/kali/OmnisAI/cli/.venv/bin/python",
+    "source_package": "/home/kali/OmnisAI/cli/src/omnis_cli/",
+    "installed_python": "/home/kali/.hermes/cache/scratch/ucr-bwdnxpls/omnis-p04-cli-check/bin/python",
+    "installed_package": "/home/kali/.hermes/cache/scratch/ucr-bwdnxpls/omnis-p04-cli-check/lib/python3.13/site-packages/omnis_cli/",
+    "unchanged_equal_modules": {
+      "model_relay.py": "05c146e6ab33de212d7aa4d688a842ff806d58783776316ef29e7758d60134c5",
+      "forwarder.py": "56e5aa4335f7b9185d81d462741cbc3adb370eca688657f1ede5e56ce65015f0",
+      "model_relay_protocol.py": "673af60bca073d8fd0787bf8ad3f7f64f946601d0cddfa4601a1ed99cc568365"
+    },
+    "test_import": "Only /home/kali/OmnisAI/cli/tests inserted on isolated child sys.path. Installed child explicitly asserts cli/src absent and product origins under retained real-copy site-packages. Test module __file__ is the external current owned test file in both runs; no installed CLI rewrite/reinstall or source override.",
+    "cwd": "/home/kali/.hermes/cache/scratch/ux-cli-dns-q6ra7w7d",
+    "HOME": "/home/kali/.hermes/cache/scratch/s1-env-20261104/home",
+    "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/ux-cli-dns-q6ra7w7d/config",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch",
+    "bytecode": "-I -B and PYTHONDONTWRITEBYTECODE=1; AST parsing only, no project py_compile/cache writes"
+  },
+  "checks": [
+    {
+      "command": "/home/kali/OmnisAI/cli/.venv/bin/python -I -B -c <exact isolated unittest/origin wrapper> source",
+      "exit": 0,
+      "selection": "test_model_relay_fence.PhysicalFenceTest.test_fence_held_dns_denies_late_connect_and_drain_waits_for_resolver",
+      "result": "1 test OK in0.077s; zero owned DNS threads remain; own config still empty",
+      "log": "ux-cli-dns-drain-source.log"
+    },
+    {
+      "command": "/home/kali/.hermes/cache/scratch/ucr-bwdnxpls/omnis-p04-cli-check/bin/python -I -B -c <same exact isolated unittest/origin wrapper> installed",
+      "exit": 0,
+      "selection": "test_model_relay_fence.PhysicalFenceTest.test_fence_held_dns_denies_late_connect_and_drain_waits_for_resolver",
+      "result": "1 test OK in0.082s against unchanged failed real-copy installed product; zero owned DNS threads remain; own config still empty",
+      "log": "ux-cli-dns-drain-installed.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff check --no-cache --config /home/kali/OmnisAI/api/pyproject.toml /home/kali/OmnisAI/cli/tests/test_model_relay_fence.py",
+      "exit": 0,
+      "log": "ux-cli-dns-drain-ruff.log"
+    },
+    {
+      "command": "/home/kali/OmnisAI/api/.venv/bin/python -I -B -m ruff format --check --no-cache --config /home/kali/OmnisAI/api/pyproject.toml /home/kali/OmnisAI/cli/tests/test_model_relay_fence.py",
+      "exit": 0,
+      "log": "ux-cli-dns-drain-format.log"
+    },
+    { "command": "Source Python -I -B ast.parse owned test", "exit": 0, "log": "ux-cli-dns-drain-ast.log" },
+    { "command": "git diff --check; one-file/base/index/reverse-edit comparison; unchanged scope/installed module/build hash checks", "exit": 0 }
+  ],
+  "exact_command_argv_file": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-cli-dns-drain-checks.json",
+  "command_wrapper": "Exact argv, including complete -c code, cwd, exits and logs are retained in checks JSON. Wrapper imports real product, validates origins/hashes, inserts only cli/tests, runs the unchanged unittest method selection and verifies zero named DNS workers. It does not instrument or substitute product/test execution.",
+  "safety_and_cleanup": {
+    "control_assertions": "Both test successes include original first BUSY while DNS held, OPEN DENIED, real public resolver_alive=false before final OK, and connects-empty both before and after release. No retry of RPC/dispatch.",
+    "effects": "Actual owned UDS listener/client plus existing socket.getaddrinfo double and sock_connect denial only; no INET/provider/target call. Local test IPC capability is not copied/printed as a credential.",
+    "drain": "Original writer close/wait_closed per RPC, listener close/wait_closed, IsolatedAsyncioTestCase runner and TemporaryDirectory cleanup complete without exception in both runs. Both child processes exit0 and explicitly report zero owned DNS threads; no global cleanup or background service.",
+    "remaining_workdir": "Only own external cwd/empty config and evidence retained, not a live listener/socket fixture. Operator lifecycle/profile was not queried or mutated; parent can manage READY independently."
+  },
+  "unchanged_inputs": {
+    "manifest": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-cli-dns-drain-inputs-before.json",
+    "manifest_sha256": "a2012d44918df235c96f8ebcb52a10276aebd1dcff3082193d3ff35ff2166458",
+    "count": 39,
+    "all_verified_after_checks": true,
+    "scope": "Tracked CLI production/interface files, CLI pyproject/lock, untouched auth-forwarder sibling, API relay and Ruff config, five web build files. Installed three consumed relay modules separately matched source before and after.",
+    "preserved_limits": "timeout_ms1000, RPC2s, write authority0.4s, DNS fixture3s, scope30s; no production predicate/poll/protocol adjustment",
+    "build5": {
+      "web/dist/assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+      "web/dist/assets/index-CETyBSLz.css": "80f6f33fcdeb6617a3757b083cb07f6a1a00cda8ca32a65ebf8c56220de2876b",
+      "web/dist/assets/index-qtVd4vTL.js": "4340ba37b007caa5f6d046105f6f8182f5fc7db1f966ce83fcc2ddcd518aae5f",
+      "web/dist/index.html": "c34c7c81aea67b276e3b57a3c2a684860cf0e6db0723562376b4c7ba273f6612",
+      "web/dist/omnis-web.json": "b523d2dd24530f85aca767abab15aa39233a44ef1cf999120666d09687dba759"
+    }
+  },
+  "limits": {
+    "acceptance": "Complementary independent reviews pending on exact frozen one-file candidate. Full remaining CLI/installed PG status/release/canonical remain parent-owned. Focused tests do not make failed full gate GREEN.",
+    "historical": "No UI/product regression claim and no exclusive host-scheduling cause beyond retained BUSY/live-thread mechanism. Original failure, primary assertion and secondary cleanup error remain preserved.",
+    "counter": "S1 observer counter2 unchanged; this distinct literal CLI fixture correction does not reset it or add any observer layer.",
+    "not_run": "No full471 source/wheel repeat, build, PG, API/web/native UI/canonical or review repetition",
+    "forbidden": "No Git writes/commit, agents, installs, dependencies, production/API/web/installed CLI changes, app start/stop/rebuild, provider/target or S2 preparation. Protected tempkey.txt, documents/Omnis_Notite_Originale.html, .env/keys/vault/browser storage/raw operator logs/separate Strix excluded reads/hashes."
+  },
+  "next": "Parent verifies one-file source/diff and unchanged source/installed/build identities, obtains complementary reviews and owns remaining full consumers. Source writes stopped at freeze."
+}

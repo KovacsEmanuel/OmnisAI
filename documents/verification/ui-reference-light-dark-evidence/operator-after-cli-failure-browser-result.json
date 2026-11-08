@@ -1,0 +1,17 @@
+{
+  "state": "OPERATIONAL_READY63_AUTHENTICATED_OVERVIEW_OBSERVED_NOT_FINAL_CANONICAL",
+  "instance_id": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+  "epoch": 35,
+  "browser_pid": 1997867,
+  "window_id": 69206099,
+  "source": "455990a4 product,0b667a64 sharedtestfixture only;7b249a55 documentation",
+  "capture": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/operator-after-cli-failure-overview.png",
+  "sha256": "a56a3ca200ebada113a58fac45f3e3b335229cbb529c429e8d507c9d28a59be4",
+  "dimensions": [
+    1456,
+    1028
+  ],
+  "observed": "Existing authenticated Chrome renders real Overview light, persisted draft read-only, original S1 LIMITED, unavailable assessment metrics shown honestly, objective and blocked declaredscope visible. No pairing surface. Auxvision actualcapture observation, not new aesthetic/reference approval.",
+  "actions": "NormalStart once + independentCLIstatus/fourservedassetidentity; existingwindow normalGET Overview. No Start/Resume/Save/testmodel/provider/target action, no cookie/CSRF export. Do not infer noHTTPPOST from navigation; normaldiagnostics permitted.",
+  "limits": "No new byteexact historycomparison after latestStart yet; finalcanonical/cleanup/main/CI remainopen. Browser/controller/profile retained; Source CLI-test-only writer independent of operationalAPI/web."
+}

@@ -1,0 +1,60 @@
+{
+  "before": {
+    "admission_open": false,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "control_ready": false,
+    "dashboard_ready": false,
+    "generation": 62,
+    "instance_id": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+    "mode": "DEVELOPMENT",
+    "origin": "http://127.0.0.1:8780",
+    "reason": null,
+    "release": "0.1.2",
+    "schema": "0019_agent_runs",
+    "state": "STOPPED"
+  },
+  "start_exit": 0,
+  "after": {
+    "admission_open": true,
+    "api_ready": true,
+    "assessment_ready": false,
+    "browser_opened": false,
+    "control_ready": true,
+    "dashboard_ready": true,
+    "generation": 63,
+    "instance_id": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+    "mode": "DEVELOPMENT",
+    "origin": "http://127.0.0.1:8780",
+    "reason": null,
+    "release": "0.1.2",
+    "schema": "0019_agent_runs",
+    "state": "READY",
+    "supervisor_epoch": 35
+  },
+  "served": {
+    "assets/fonts-OFL-bSaZbgNk.txt": {
+      "status": 200,
+      "sha256": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4"
+    },
+    "assets/index-CETyBSLz.css": {
+      "status": 200,
+      "sha256": "80f6f33fcdeb6617a3757b083cb07f6a1a00cda8ca32a65ebf8c56220de2876b"
+    },
+    "assets/index-qtVd4vTL.js": {
+      "status": 200,
+      "sha256": "4340ba37b007caa5f6d046105f6f8182f5fc7db1f966ce83fcc2ddcd518aae5f"
+    },
+    "index.html": {
+      "status": 200,
+      "sha256": "c34c7c81aea67b276e3b57a3c2a684860cf0e6db0723562376b4c7ba273f6612"
+    }
+  },
+  "same_build": true,
+  "scope": "OPERATIONAL_READY_ONLY, not finalcanonical/CI or privatehistoryreadback. OldS1/domain data not mutated by agent; no inference/target/pairing. Must normalStop before futurewebrebuild/fullgate.",
+  "inverse": [
+    "/home/kali/.local/bin/omnis",
+    "stop",
+    "--json"
+  ]
+}

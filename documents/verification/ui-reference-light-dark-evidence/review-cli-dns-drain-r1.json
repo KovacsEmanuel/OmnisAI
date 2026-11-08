@@ -1,0 +1,198 @@
+{
+  "review_id": "CLI-DNS-DRAIN-R1",
+  "role": "independent_read_only_reviewer",
+  "verdict": "APPROVED_SCOPED",
+  "verdict_scope": "Aprob exclusiv sincronizarea de șase linii din testul PhysicalFenceTest pe candidatul exact; fără acceptare de produs, integrare, release sau canonical.",
+  "findings": [],
+  "admission": {
+    "requirement": "DRAIN_OK se verifică numai după ieșirea fizică a resolverului DNS; anularea coroutinei OPEN nu demonstrează terminarea threadului.",
+    "consumer": "Testul existent PhysicalFenceTest și relay-ul CLI real din copia instalată reținută, cu DNS double și IPC UDS propriu.",
+    "risk": "Confundarea OPEN_DENIED cu worker exit sau slăbirea controalelor negative de FENCE/DRAIN/no-connect.",
+    "decision": "Aprobarea exactă a sincronizării de fixture dacă precondiția observă threadul real și controalele rămân stricte; altfel blocker concret.",
+    "scope_paths": ["cli/tests/test_model_relay_fence.py:263-268"],
+    "callers_fixtures_config_exports": "Un singur test schimbat. Reutilizează proprietatea publică existentă resolver_alive și tiparul sibling; fără caller, configurare, export, dependență sau API nou."
+  },
+  "freeze": {
+    "repository": "/home/kali/OmnisAI",
+    "branch": "checkpoint/ux-d-pause-20261107",
+    "base_commit": "7b249a559e12dbbb71aaeace39f3c443b85cbfa2",
+    "candidate_commit": "455c24de9f0a09fb2c341a0b8bbc9ee4d1569425",
+    "head_at_entry_and_exit": "455c24de9f0a09fb2c341a0b8bbc9ee4d1569425",
+    "changed_paths": ["cli/tests/test_model_relay_fence.py"],
+    "insertions": 6,
+    "deletions": 0,
+    "base_test_sha256": "a5a048108192ed6a865cb1a6e522db79d6430aab64b86f4bcef887ec8469c21c",
+    "candidate_test_sha256": "4a2fe2999ee346c48c550b76f0ee0d455d20b2414c88721beadbdab7df96569d",
+    "worktree_equals_candidate": true,
+    "removing_exact_six_line_block_restores_complete_base_file": true,
+    "diff_identity": {
+      "argv": ["git", "diff", "--no-ext-diff", "--unified=3", "7b249a559e12dbbb71aaeace39f3c443b85cbfa2", "455c24de9f0a09fb2c341a0b8bbc9ee4d1569425", "--", "cli/tests/test_model_relay_fence.py"],
+      "sha256": "5be147e880f4129c0f110efa94e84f59aa9c23220a5b37372fc1f812d7345413"
+    },
+    "files": [
+      {
+        "path": "cli/tests/test_model_relay_fence.py",
+        "base_blob": "00c3794ae2801c493057cbd99f3b4b719f2532c5",
+        "candidate_blob": "6263669222a9102f9e27a605a11ce73d3274e7af",
+        "candidate_sha256": "4a2fe2999ee346c48c550b76f0ee0d455d20b2414c88721beadbdab7df96569d",
+        "base_equal_candidate": false,
+        "worktree_equal_candidate": true
+      },
+      {
+        "path": "cli/tests/test_auth_forwarder.py",
+        "base_blob": "c265995f605c8d0a92707f1f537ad19ba33c507a",
+        "candidate_blob": "c265995f605c8d0a92707f1f537ad19ba33c507a",
+        "candidate_sha256": "a3ffdae98e059f8ab4aacf10152865a91ce23eabff41a4157d6daaf798d904fc",
+        "base_equal_candidate": true,
+        "worktree_equal_candidate": true
+      },
+      {
+        "path": "cli/src/omnis_cli/forwarder.py",
+        "base_blob": "ebe1cddb438e96f6665a624c4070764735aef058",
+        "candidate_blob": "ebe1cddb438e96f6665a624c4070764735aef058",
+        "candidate_sha256": "56e5aa4335f7b9185d81d462741cbc3adb370eca688657f1ede5e56ce65015f0",
+        "base_equal_candidate": true,
+        "worktree_equal_candidate": true
+      },
+      {
+        "path": "cli/src/omnis_cli/model_relay.py",
+        "base_blob": "9ced8069fcb17ce4e7150d0a68d0f886818ba444",
+        "candidate_blob": "9ced8069fcb17ce4e7150d0a68d0f886818ba444",
+        "candidate_sha256": "05c146e6ab33de212d7aa4d688a842ff806d58783776316ef29e7758d60134c5",
+        "base_equal_candidate": true,
+        "worktree_equal_candidate": true
+      },
+      {
+        "path": "cli/src/omnis_cli/model_relay_protocol.py",
+        "base_blob": "cd8fa7c2644448e3a1d386db4050f4a98a158638",
+        "candidate_blob": "cd8fa7c2644448e3a1d386db4050f4a98a158638",
+        "candidate_sha256": "673af60bca073d8fd0787bf8ad3f7f64f946601d0cddfa4601a1ed99cc568365",
+        "base_equal_candidate": true,
+        "worktree_equal_candidate": true
+      }
+    ],
+    "tracked_worktree_diff": "empty",
+    "staged_diff": "empty",
+    "preexisting_protected_untracked_paths": ["documents/Omnis_Notite_Originale.html", "tempkey.txt"],
+    "protected_paths_disposition": "Doar numele returnate de git status; fără citire, hash, modificare sau ștergere."
+  },
+  "review_evidence": [
+    {
+      "criterion": "Precondiție fizică, nu receipt logic",
+      "code": ["cli/src/omnis_cli/model_relay.py:42-53", "cli/src/omnis_cli/model_relay.py:144-154", "cli/src/omnis_cli/model_relay.py:198-220", "cli/src/omnis_cli/model_relay.py:285-299", "cli/src/omnis_cli/forwarder.py:45-47"],
+      "assessment": "FENCE închide conexiunea și anulează taskul OPEN; pending păstrează BUSY cât timp resolver.is_alive(). OPEN poate răspunde DENIED după discardul taskului, înainte de ieșirea threadului. Proprietatea publică observă exact threadul asignat de acest unic OPEN; fixture-ul nu poate suprascrie referința prin alt OPEN."
+    },
+    {
+      "criterion": "Modificare minimă și bounded",
+      "code": ["cli/tests/test_model_relay_fence.py:261-269", "cli/tests/test_auth_forwarder.py:145-154"],
+      "assessment": "100 de verificări cu sleep de 5 ms reutilizează tiparul existent. assertFalse cere efectiv resolver_alive=false înainte de DRAIN_OK original. Nu reîncearcă RPC-ul și nu schimbă predicatele ori deadline-urile produsului. Eliminarea blocului restabilește byte-exact întregul test inițial."
+    },
+    {
+      "criterion": "Controale negative originale intacte",
+      "code": ["cli/tests/test_model_relay_fence.py:190-205", "cli/tests/test_model_relay_fence.py:251-262", "cli/tests/test_model_relay_fence.py:269-275"],
+      "assessment": "DNS este ținut prin Event; FENCE_OK, DRAIN_BUSY și connects gol se cer înainte de release. OPEN_DENIED și connects gol după DRAIN_OK rămân obligatorii. Orice sock_connect non-UDS este înregistrat și refuzat fără syscall INET. Blocul finally de release/close/wait_closed este neschimbat."
+    },
+    {
+      "criterion": "Limite și cleanup neslăbite",
+      "code": ["cli/tests/test_model_relay_fence.py:184", "cli/tests/test_model_relay_fence.py:193-194", "cli/tests/test_model_relay_fence.py:218-249", "cli/tests/test_model_relay_fence.py:271-275", "cli/src/omnis_cli/forwarder.py:60-74", "cli/src/omnis_cli/model_relay.py:327-336"],
+      "assessment": "Cadrele de 1000 ms, timeout RPC 2 s, write_deadline 0.4 s, DNS fixture 3 s, scope 30 s și refuzul drainage-ului neconfirmat rămân neschimbate. Așteptarea nouă are buget nominal 0.5 s de sleep; dacă threadul rămâne viu testul eșuează, nu declară fals OK."
+    }
+  ],
+  "historical_red": {
+    "status": "PRESERVED_NOT_RERUN",
+    "provenance": "Contextul delegării și mesajul commitului candidat; artefactul/logul canonical nu a fost recitit în acest review limitat.",
+    "base": "7b249a559e12dbbb71aaeace39f3c443b85cbfa2",
+    "observed_in_supplied_record": "Canonical installed CLI 471: cazul afectat a primit DRAIN BUSY în loc de OK la vechea linie 263, apoi wait_closed a refuzat deoarece resolver_alive era încă true.",
+    "disposition": "RED original rămâne RED. Codul explică de ce OPEN_DENIED nu implică ieșirea fizică. Nicio reproducere fresh controlată a baseline-ului și nicio certitudine atribuită schedulerului, produsului sau UI."
+  },
+  "test_exits": [
+    {
+      "name": "exact-delta-and-freeze",
+      "commands": [
+        "git diff --name-only 7b249a559e12dbbb71aaeace39f3c443b85cbfa2 455c24de9f0a09fb2c341a0b8bbc9ee4d1569425",
+        "git diff --numstat 7b249a559e12dbbb71aaeace39f3c443b85cbfa2 455c24de9f0a09fb2c341a0b8bbc9ee4d1569425",
+        "git diff --check 7b249a559e12dbbb71aaeace39f3c443b85cbfa2 455c24de9f0a09fb2c341a0b8bbc9ee4d1569425 -- cli/tests/test_model_relay_fence.py"
+      ],
+      "exit_code": 0,
+      "reverse_exact_block_assertion_exit_code": 0,
+      "final_frozen_file_identity_assertions_exit_code": 0,
+      "result": "Un singur fișier, +6/-0; testul și definițiile relevante sunt exact candidatul, sursele produsului și sibling-ul sunt identice cu baza."
+    },
+    {
+      "name": "affected-unittest-retained-real-installed-cli",
+      "python": "/home/kali/.hermes/cache/scratch/ucr-bwdnxpls/omnis-p04-cli-check/bin/python",
+      "python_version": "3.13.15",
+      "python_flags": ["-I", "-B"],
+      "inline_python": "import hashlib, importlib, json, os, pathlib, sys, threading, time, unittest\nrepo = pathlib.Path('/home/kali/OmnisAI')\nsite = pathlib.Path(sys.prefix) / 'lib/python3.13/site-packages'\nassert sys.flags.isolated and sys.dont_write_bytecode\nassert sys.version_info[:3] == (3, 13, 15), sys.version\nassert os.environ['HOME'] == '/home/kali/.hermes/cache/scratch/s1-env-20261104/home'\nassert not list(pathlib.Path(os.environ['XDG_CONFIG_HOME']).iterdir())\nassert not list(pathlib.Path(os.environ['TMPDIR']).iterdir())\nassert str(repo / 'cli/src') not in sys.path\nsys.path.insert(0, str(repo / 'cli/tests'))\nmodules = ['omnis_cli.forwarder', 'omnis_cli.model_relay', 'omnis_cli.model_relay_protocol']\norigins = {}\nfor name in modules:\n    module = importlib.import_module(name)\n    origin = pathlib.Path(module.__file__).resolve()\n    assert origin.is_relative_to(site.resolve()), str(origin)\n    source = repo / 'cli/src' / pathlib.Path(*name.split('.')).with_suffix('.py')\n    digest = hashlib.sha256(origin.read_bytes()).hexdigest()\n    source_digest = hashlib.sha256(source.read_bytes()).hexdigest()\n    assert digest == source_digest, name\n    origins[name] = {'origin': str(origin), 'installed_sha256': digest, 'source_sha256': source_digest}\nprint(json.dumps({'python': sys.version, 'executable': sys.executable, 'prefix': sys.prefix, 'cwd': os.getcwd(), 'home': os.environ['HOME'], 'xdg_config_home': os.environ['XDG_CONFIG_HOME'], 'tmpdir': os.environ['TMPDIR'], 'flags': {'isolated': sys.flags.isolated, 'dont_write_bytecode': sys.dont_write_bytecode}, 'sys_path': sys.path, 'product_modules': origins}), flush=True)\nassert not [t for t in threading.enumerate() if t.name == 'omnis-model-dns']\ncase = 'test_model_relay_fence.PhysicalFenceTest.test_fence_held_dns_denies_late_connect_and_drain_waits_for_resolver'\nsuite = unittest.defaultTestLoader.loadTestsFromName(case)\nassert suite.countTestCases() == 1\nstarted = time.monotonic()\nresult = unittest.TextTestRunner(verbosity=2).run(suite)\nelapsed = time.monotonic() - started\nthreads = [{'name': t.name, 'alive': t.is_alive()} for t in threading.enumerate() if t.name == 'omnis-model-dns']\nleftovers = [p.name for p in pathlib.Path(os.environ['TMPDIR']).iterdir()]\nxdg = [p.name for p in pathlib.Path(os.environ['XDG_CONFIG_HOME']).iterdir()]\nprint(json.dumps({'case': case, 'tests_run': result.testsRun, 'failures': len(result.failures), 'errors': len(result.errors), 'skipped': len(result.skipped), 'elapsed_seconds': elapsed, 'owned_dns_threads_after': threads, 'own_tmpdir_entries_after': leftovers, 'own_config_entries_after': xdg, 'successful': result.wasSuccessful()}), flush=True)\nassert not threads and not leftovers and not xdg\nsys.exit(0 if result.wasSuccessful() else 1)\n",
+      "argv_format": ["python", "-I", "-B", "-c", "inline_python"],
+      "case": "test_model_relay_fence.PhysicalFenceTest.test_fence_held_dns_denies_late_connect_and_drain_waits_for_resolver",
+      "cwd": "/home/kali/.hermes/cache/scratch/r1-hq6yrra9",
+      "environment": {
+        "PATH": "/usr/bin:/bin",
+        "LANG": "C.UTF-8",
+        "HOME": "/home/kali/.hermes/cache/scratch/s1-env-20261104/home",
+        "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/r1-hq6yrra9/x",
+        "TMPDIR": "/home/kali/.hermes/cache/scratch/r1-hq6yrra9/t",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "timeout_seconds": 20,
+      "test_import_path_added": "/home/kali/OmnisAI/cli/tests",
+      "cli_src_on_import_path": false,
+      "installed_origins_and_hashes": [
+        {
+          "module": "omnis_cli.forwarder",
+          "origin": "/home/kali/.hermes/cache/scratch/ucr-bwdnxpls/omnis-p04-cli-check/lib/python3.13/site-packages/omnis_cli/forwarder.py",
+          "sha256": "56e5aa4335f7b9185d81d462741cbc3adb370eca688657f1ede5e56ce65015f0",
+          "equals_frozen_source": true
+        },
+        {
+          "module": "omnis_cli.model_relay",
+          "origin": "/home/kali/.hermes/cache/scratch/ucr-bwdnxpls/omnis-p04-cli-check/lib/python3.13/site-packages/omnis_cli/model_relay.py",
+          "sha256": "05c146e6ab33de212d7aa4d688a842ff806d58783776316ef29e7758d60134c5",
+          "equals_frozen_source": true
+        },
+        {
+          "module": "omnis_cli.model_relay_protocol",
+          "origin": "/home/kali/.hermes/cache/scratch/ucr-bwdnxpls/omnis-p04-cli-check/lib/python3.13/site-packages/omnis_cli/model_relay_protocol.py",
+          "sha256": "673af60bca073d8fd0787bf8ad3f7f64f946601d0cddfa4601a1ed99cc568365",
+          "equals_frozen_source": true
+        }
+      ],
+      "tests_run": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 0.07331635599257424,
+      "unittest_output": "Ran 1 test in 0.073s; OK",
+      "child_exit_code": 0,
+      "outer_exit_code": 0,
+      "owned_dns_threads_before": 0,
+      "owned_dns_threads_after": 0,
+      "own_tmpdir_entries_after": [],
+      "own_config_entries_after": [],
+      "owned_external_root_removed": true
+    }
+  ],
+  "limits": {
+    "source_execution": "NOT_RUN de reviewer: calea permisă /home/kali/OmnisAI/cli/.venv/bin/python3.13.15 nu există. Nu am substituit alt interpreter SOURCE; execuția independentă folosește copia instalată permisă. Rezultatele SOURCE ale autorului nu sunt prezentate drept execuții proprii.",
+    "sampling": "O singură execuție afectată, nu stress test sau garanție de scheduling; sub încărcare mare aserțiunea bounded poate refuza în siguranță fără să valideze fals drainage-ul.",
+    "historical_red": "Nu am refăcut baseline-ul și nu am modificat ori normalizat dovada canonical FAIL originală.",
+    "not_run": ["full CLI source 471", "full CLI installed 471", "release gates", "full canonical", "API/PostgreSQL", "web/browser/native gates", "provider sau target requests"],
+    "not_claimed": ["full gate PASS", "canonical PASS", "release acceptance", "product/UI fix", "scheduler root-cause certainty", "operational READY readback", "integration approval"],
+    "operator": "Instanța normală READY63/epoch35 nu a fost interogată sau modificată.",
+    "effect_boundary": "Numai UDS propriu, DNS double, sock_connect denial și cleanup temporar propriu; fără apel DNS public sau conectare INET din test.",
+    "protected": "Fără citire/hash pentru tempkey.txt, Omnis_Notite_Originale.html, .env, chei, vault, browser storage, loguri brute ale operatorului sau Strix.",
+    "reticle": "NOT_APPLICABLE",
+    "chisel": "BLOCKED_NO_GO"
+  },
+  "outputs": {
+    "created": ["/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/review-cli-dns-drain-r1.json"],
+    "destination_absent_checked_twice_before_creation": true,
+    "repository_writes": false,
+    "git_writes": false,
+    "source_or_test_edits": false,
+    "persistent_scratch_files": [],
+    "issues": ["Interpreterul SOURCE la calea nominală permisă lipsește; execuția pe copia instalată permisă a trecut, fără blocker pentru acest review."]
+  },
+  "parent_next": "Părintele adjudecă reviewurile complementare și păstrează obligatorii remaining CLI/release/canonical pe bytes finali. Acest R1 nu închide poarta globală."
+}

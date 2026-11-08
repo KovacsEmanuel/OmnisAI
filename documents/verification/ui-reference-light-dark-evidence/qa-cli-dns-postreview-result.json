@@ -1,0 +1,58 @@
+{
+  "head": "455c24de9f0a09fb2c341a0b8bbc9ee4d1569425",
+  "scope": "POST_REVIEW_AFFECTED_REAL_INSTALLED_CLI_FIXTURE_ONLY",
+  "reviews": [
+    "review-cli-dns-drain-r1.json",
+    "review-cli-dns-drain-r2.json"
+  ],
+  "argv": [
+    "/home/kali/.hermes/cache/scratch/ucr-bwdnxpls/omnis-p04-cli-check/bin/python",
+    "-I",
+    "-B",
+    "-c",
+    "import sys,os,json,hashlib,threading,unittest\nfrom pathlib import Path\nfrom omnis_cli import model_relay,forwarder,model_relay_protocol\nexpected={'omnis_cli.model_relay':'05c146e6ab33de212d7aa4d688a842ff806d58783776316ef29e7758d60134c5','omnis_cli.forwarder':'56e5aa4335f7b9185d81d462741cbc3adb370eca688657f1ede5e56ce65015f0','omnis_cli.model_relay_protocol':'673af60bca073d8fd0787bf8ad3f7f64f946601d0cddfa4601a1ed99cc568365'}\norigins={m.__name__:{'file':str(Path(m.__file__).resolve()),'sha256':hashlib.sha256(Path(m.__file__).read_bytes()).hexdigest()} for m in [model_relay,forwarder,model_relay_protocol]}\nassert all(info['sha256']==expected[name] for name,info in origins.items())\nif sys.argv[1]=='installed':\n assert all('/ucr-bwdnxpls/omnis-p04-cli-check/lib/python3.13/site-packages/' in info['file'] for info in origins.values())\n assert '/home/kali/OmnisAI/cli/src' not in sys.path\nelse:assert all(info['file'].startswith('/home/kali/OmnisAI/cli/src/') for info in origins.values())\nsys.path.insert(0,'/home/kali/OmnisAI/cli/tests')\nimport test_model_relay_fence\nassert str(Path(test_model_relay_fence.__file__).resolve())=='/home/kali/OmnisAI/cli/tests/test_model_relay_fence.py'\nprint(json.dumps({'mode':sys.argv[1],'python':sys.version.split()[0],'executable':sys.executable,'cwd':os.getcwd(),'origins':origins,'test_file':test_model_relay_fence.__file__}),flush=True)\nsuite=unittest.defaultTestLoader.loadTestsFromName('test_model_relay_fence.PhysicalFenceTest.test_fence_held_dns_denies_late_connect_and_drain_waits_for_resolver')\nresult=unittest.TextTestRunner(verbosity=2).run(suite)\nremaining=[t for t in threading.enumerate() if t.name=='omnis-model-dns' and t.is_alive()]\nassert not remaining\nprint(json.dumps({'testsRun':result.testsRun,'successful':result.wasSuccessful(),'owned_dns_threads_remaining':len(remaining),'config_empty':not any(Path(os.environ['XDG_CONFIG_HOME']).iterdir())}),flush=True)\nraise SystemExit(0 if result.wasSuccessful() else 1)\n",
+    "installed"
+  ],
+  "cwd": "/home/kali/.hermes/cache/scratch/cqa-szy5iikc",
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "LANG": "C.UTF-8",
+    "HOME": "/home/kali/.hermes/cache/scratch/s1-env-20261104/home",
+    "TMPDIR": "/home/kali/.hermes/cache/scratch/cqa-szy5iikc/t",
+    "XDG_CONFIG_HOME": "/home/kali/.hermes/cache/scratch/cqa-szy5iikc/config",
+    "XDG_CACHE_HOME": "/home/kali/.hermes/cache/scratch/cqa-szy5iikc/cache",
+    "XDG_DATA_HOME": "/home/kali/.hermes/cache/scratch/cqa-szy5iikc/data",
+    "XDG_STATE_HOME": "/home/kali/.hermes/cache/scratch/cqa-szy5iikc/state",
+    "XDG_RUNTIME_DIR": "/home/kali/.hermes/cache/scratch/cqa-szy5iikc/run"
+  },
+  "exit": 0,
+  "elapsed_seconds": 0.26687,
+  "test_summary": "Ran 1 test in 0.074s",
+  "result": {
+    "testsRun": 1,
+    "successful": true,
+    "owned_dns_threads_remaining": 0,
+    "config_empty": true
+  },
+  "bound_product_origins": {
+    "omnis_cli.model_relay": {
+      "file": "/home/kali/.hermes/cache/scratch/ucr-bwdnxpls/omnis-p04-cli-check/lib/python3.13/site-packages/omnis_cli/model_relay.py",
+      "sha256": "05c146e6ab33de212d7aa4d688a842ff806d58783776316ef29e7758d60134c5"
+    },
+    "omnis_cli.forwarder": {
+      "file": "/home/kali/.hermes/cache/scratch/ucr-bwdnxpls/omnis-p04-cli-check/lib/python3.13/site-packages/omnis_cli/forwarder.py",
+      "sha256": "56e5aa4335f7b9185d81d462741cbc3adb370eca688657f1ede5e56ce65015f0"
+    },
+    "omnis_cli.model_relay_protocol": {
+      "file": "/home/kali/.hermes/cache/scratch/ucr-bwdnxpls/omnis-p04-cli-check/lib/python3.13/site-packages/omnis_cli/model_relay_protocol.py",
+      "sha256": "673af60bca073d8fd0787bf8ad3f7f64f946601d0cddfa4601a1ed99cc568365"
+    }
+  },
+  "test_sha256": "4a2fe2999ee346c48c550b76f0ee0d455d20b2414c88721beadbdab7df96569d",
+  "cleanup": {
+    "fixture_temporary_entries_after": [],
+    "owned_dns_workers_after": 0,
+    "root_removed": true
+  },
+  "limits": "Original canonical7b remainsFAIL. No whole471/source/PG/release repetition here; full unchanged canonical includes them. Product unchanged; test-only current externaltest against retained identical failedinstalledcopy, no cli/src shadow. Case retains firstDRAIN_BUSY/DENIED/lateINETdenial/physicalaliveFalse/finalOK. No operator/DB/provider/target/S2 effects. R1 Source NOT_RUN because nominal python3.13.15 suffix path absent; actual source bin/python exists and R2+author tested it; no changedreview verdict."
+}

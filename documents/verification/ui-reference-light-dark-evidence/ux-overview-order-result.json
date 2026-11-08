@@ -1,0 +1,106 @@
+{
+  "status": "SOURCE_CANDIDATE_FROZEN_PENDING_PARENT_REVIEW_AND_REAL_S1",
+  "writer_stopped": true,
+  "baseHEAD": "41b80337f4cd3c75cdf8c4461b430a6dccc72265",
+  "head_at_freeze": "41b80337f4cd3c75cdf8c4461b430a6dccc72265",
+  "branch": "checkpoint/ux-d-pause-20261107",
+  "change": "Move existing intact full-only objective/authorized-scope section into existing RunPanel children after assessment metrics/unavailable message and before Top findings/Severity and Run accounting. Correct existing order assertion to now -> Needs you -> metrics -> context -> accounting. No new feature or direction.",
+  "scope_trace": {
+    "callers": "App routes /engagements/:id and /engagements/:id/:surface render Engagement; default surface is overview. Engagement is the only RunPanel caller. Existing children render after now/Needs you and before accounting, regardless of observed run availability.",
+    "adjacent_styles": "Existing panel/core/overviewContext/scope and run styles inspected; no CSS or token change. Objective retains whitespace and full content; origin/access/port/path/exclusions retain exact rendering and labels.",
+    "adjacent_tests": "Existing Engagement identity/scope/navigation/busy/decoder tests and Run/RunStream behavior retained. No fixture/config/export/helper/harness change needed.",
+    "reference": "Both supplied dark/light operator comparison boards inspected for composition only. State/attention/metrics priority is the admitted correction; different operational states are not treated as equal data. No subjective text/contrast correction.",
+    "security": "Full-only condition and entire scope block are byte-identical before/after relocation. No new state/effect/dispatch, no collapsed/hidden/truncated context, fabricated metrics or changed authorization semantics. All source outside two owned paths unchanged."
+  },
+  "freeze": {
+    "paths": {
+      "web/src/features/engagement/Engagement.tsx": {
+        "before_sha256": "8b0d326658ae3218fca91052daa78d97254c652974c807046b34f695d70af889",
+        "after_sha256": "08eac79756784d03c07c5849def32f0228fdd1be5cded9181206cb58106954dc"
+      },
+      "web/src/app/Engagement.test.tsx": {
+        "before_sha256": "ca65fdfaf9295adf987e66ac27b1370e366b2b4fefcfcecb9e8ef640b7c334f8",
+        "after_sha256": "dd6c80a59669f580c4a50c4e103e6431becabccf8f9bf7721945e733ee4b0109"
+      }
+    },
+    "diff_sha256": "55a40e49eac0239b2a50fee39a8a1999ff6b1d073250c95332b1d55cdc5e4009",
+    "tracked_scope": "Only the two admitted paths modified, no staged files. Git diff --check exit0. Base..HEAD has no drift in owned files.",
+    "relocation_proof": "Source comparison asserts identical full-only scope block and identical remaining Engagement.tsx after removing that block from each version. Thus product change is block relocation only."
+  },
+  "toolchain": { "PATH_prefix": "/home/kali/.local/share/omnis-toolchains/bin", "node": "v24.21.0", "npm": "11.19.0" },
+  "checks": [
+    {
+      "phase": "RED: updated assertion on old product source",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/Engagement.test.tsx -t 'orders Overview'",
+      "exit": 1,
+      "result": "1 failed,7 skipped; order assertion at Engagement.test.tsx:27 expected following but received0;1.75s",
+      "log": "ux-overview-order-red.log"
+    },
+    {
+      "phase": "GREEN: exact affected suites after final edit",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/Engagement.test.tsx src/app/Run.test.tsx src/app/RunStream.test.tsx",
+      "exit": 0,
+      "result": "113 passed in3 files;12.74s",
+      "log": "ux-overview-order-green.log"
+    },
+    {
+      "command": "npm --prefix web test",
+      "exit": 0,
+      "result": "668 passed in30 files;44.52s",
+      "log": "ux-overview-order-full-web.log"
+    },
+    {
+      "command": "npm --prefix web run lint",
+      "exit": 0,
+      "log": "ux-overview-order-lint.log"
+    },
+    {
+      "command": "npm --prefix web run typecheck",
+      "exit": 0,
+      "log": "ux-overview-order-typecheck.log"
+    },
+    {
+      "command": "npm --prefix web run build",
+      "exit": 0,
+      "result": "Contract/design drift checks, TypeScript, production build and trusted4-file manifest pass. Existing >500kB chunk warning retained; no threshold/runner changes.",
+      "log": "ux-overview-order-build.log"
+    },
+    {
+      "command": "Read-only scope/diff and source relocation assertions; SHA256 before/after source/diff; verify all4 built files against omnis-web.json",
+      "exit": 0,
+      "result": "Exact2-file candidate, intact context relocation, all actual built asset hashes match manifest"
+    }
+  ],
+  "checks_json": "ux-overview-order-checks.json",
+  "execution_policy": "Each required affected/full/lint/type/build command executed once after last source edit, with pinned PATH. RED exit1 is the real subprocess exit, not the wrapper exit. No unchanged reruns.",
+  "build_manifest": {
+    "path": "/home/kali/OmnisAI/web/dist/omnis-web.json",
+    "sha256": "4e210cd9daba5a8d5660bc399aef389e2043d4a71100bea3eb355346d4ca7611",
+    "version": 1,
+    "files": {
+      "assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+      "assets/index-CETyBSLz.css": "80f6f33fcdeb6617a3757b083cb07f6a1a00cda8ca32a65ebf8c56220de2876b",
+      "assets/index-DQB_s9jk.js": "89ea3816fce369079706e57caea23556b47e4ca79778e9a22b71a956291ce164",
+      "index.html": "030065ef093af3b3d3ba09efe51d1cd6c5459649f81eeb081b8fbf9372b0cab2"
+    },
+    "verified_actual_file_hashes": 4,
+    "limit": "Built checkout artifact, not developer evidence of deployed/served bytes or live UI acceptance"
+  },
+  "history_preserved": {
+    "original_native_S1": "Historical FAIL61.51s remains receiver NOT_RETAINED/cause UNKNOWN. No causality or focus-fix attribution from later PASS.",
+    "diagnostic_cycle": "Finite observation-only cycle1 in41b80337 retains scoped independent approval; counter remains1, not reset by composition change or later nonreproduction.",
+    "later_native_S1": "Parent-reported PASS1/51.62s outer0/inner0/drained/2466inputs unchanged, both injected UI503 controls plus restart readback, no first-error marker. This is prior-snapshot evidence, not acceptance of this new source relocation.",
+    "B04_Models": "Parent-reported B04 PASS31.04s and Models PASS136.76s reused unchanged, not rerun."
+  },
+  "limits": {
+    "independent_focused_review": "PENDING_PARENT on exact frozen candidate",
+    "real_S1_consumer_after_source_change": "NOT_RUN_BY_DEVELOPER; required parent gate before canonical",
+    "new_visual_acceptance": "NOT_CLAIMED; source order and tests do not prove installed layout at every viewport",
+    "lifecycle": "Parent owns normal STOPPED58 prerequisite and status checks; no developer lifecycle/service query or mutation",
+    "Git": "No stage/commit/push; coherent uncommitted candidate for parent integration",
+    "canonical_READY_publication": "Parent-owned, not completed here",
+    "S2": "NOT_STARTED_OR_PREPARED"
+  },
+  "effects": "No browser/PG/services/provider/target operations, installs, extra agents or Git writes. Only two allowed tracked files changed and normal web/dist build generated. New collision-checked ux-overview-order evidence saved exclusively under admitted private artifact root. Protected tempkey.txt, documents/Omnis_Notite_Originale.html, .env/keys/vault/raw operator logs/Strix were not read/hashed/changed.",
+  "next": "Parent verifies exact source/diff/build manifest, commits/reviews the bounded composition correction and exercises real existing S1 consumer before canonical. Writer stopped at this freeze."
+}

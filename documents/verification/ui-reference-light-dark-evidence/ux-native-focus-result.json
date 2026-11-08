@@ -1,0 +1,112 @@
+{
+  "status": "DIAGNOSTIC_ONLY_SOURCE_CANDIDATE_FROZEN_PENDING_PARENT_REVIEW",
+  "writer_stopped": true,
+  "native_path": "NOT_RUN_BY_DEVELOPER",
+  "native_acceptance": "HISTORICAL_S1_FAIL_RETAINED_NOT_RESOLVED",
+  "base": "04283683c697c7ecf85335600fed2ea8f28c5306",
+  "head_at_freeze": "00d420b9c19b9b9843d1e52d3555bfa5dc977f1e",
+  "branch": "checkpoint/ux-d-pause-20261107",
+  "head_advance": "A documentation/evidence-only commit appeared during checks. All four allowed source/driver paths are identical between the requested base and current HEAD. No developer Git writes were performed.",
+  "diagnosis": {
+    "cause": "UNKNOWN",
+    "historical_failure": "Parent native S1 failed1/61.51s at the original s1-run.mjs:288 heading focus assertion after keyboard Enter in the viewport loop.1440 screenshot exists;390 screenshot does not. Parent identifies390 as the failing iteration. Heading existed but was inactive; actual activeElement receiver was not retained.",
+    "historical_evidence": ["qa-s1-final-fail-result.json", "qa-s1-final-fail/settings-browser.log", "qa-s1-final-fail/s1-inspector-1440.png"],
+    "earlier_controls": "Both injected503 inside/external controls reached later assertions, not whole-S1 acceptance. No original failure or evidence erased.",
+    "source_traced": "Existing real first-RECON button sets URL selection and selectionTrigger; selected effect focuses current heading or existing Close, detail transition effect settles only from body/popup; nonmodal dialog uses local Escape and responsive fixed-position popup CSS. Driver closes, focuses the actual selected agent, presses Enter and asserts heading focus. These sources alone do not identify which native focus transition failed.",
+    "source_red": "NOT_ESTABLISHED: existing49 RunStream controls pass; they do not reproduce or identify this native failure. No guessed product regression/fix added.",
+    "screenshot_limit": "Retained1440 image shows the heading focus outline in that successful iteration. It cannot identify the missing390 receiver or a causal mechanism.",
+    "decision": "Do not alter RunPanel/CSS/tests or claim delay/flakiness. Add only admitted first-error observation to the existing native driver."
+  },
+  "change": {
+    "only_modified_path": "web/tests/e2e/s1-run.mjs",
+    "location": "Existing1440/390/320 keyboard inspector re-entry loop, immediately around the original Enter and unchanged heading toBeFocused assertion",
+    "observations": "One read-only snapshot before activation, one immediately after Enter completes, one at assertion/activation failure before rethrow and teardown.",
+    "retention": "First failure emits S1_NATIVE_FOCUS_FIRST_ERROR followed by finite JSON to existing driver stderr. Existing settings_models_browser captures stderr, applies its existing secret check and writes settings-browser.log in its finally block. A failed observation emits only S1_NATIVE_FOCUS_OBSERVATION_UNAVAILABLE; original error is still rethrown.",
+    "schema": {
+      "version": 1,
+      "width": "requested loop width:1440/390/320",
+      "beforeActivation": "snapshot",
+      "afterActivation": "snapshot or null if Enter/observation failed",
+      "atFailure": "snapshot",
+      "snapshot": {
+        "viewportWidth": "actual innerWidth number",
+        "receiver": ["body", "selected-agent", "heading", "Close", "theme", "dialog", "other"],
+        "selectedAgentFocused": "boolean",
+        "expectedHeadingFocused": "boolean",
+        "popupPresent": "boolean",
+        "popupVisible": "boolean",
+        "headingPresent": "boolean",
+        "headingVisible": "boolean"
+      }
+    },
+    "visibility_definition": "Nonempty client rects and computed visibility not hidden; finite style/box visibility only, not viewport intersection, occlusion or a substitute for focus assertion.",
+    "privacy": "Only static known selectors are inspected; no arbitrary DOM/text/attributes, URLs, request payloads, forms, prompts, cookies/storage, secrets or error stacks enter the new observation. No global event listener, network tracker, instrumentation framework or new harness.",
+    "preserved": "Original Enter activation, agent focus prerequisite, exact heading focus assertion, all viewport sizes, deadlines, runner/selection/profile and downstream checks remain. No expected-heading focus call, assertion relaxation, retry, skip or product mutation.",
+    "request_states": "NOT_INSTRUMENTED: first observation is intentionally limited to active receiver and popup/heading state; no new request instrumentation was necessary for this bounded admission.",
+    "timing_limit": "Read-only evaluation awaits can affect scheduling. A fresh native PASS without a failure observation is not evidence of a product fix or a diagnosed cause. No delay/flakiness assertion is made."
+  },
+  "checks": [
+    {
+      "command": "node --check web/tests/e2e/s1-run.mjs",
+      "exit": 0,
+      "log": "ux-native-focus-syntax.log"
+    },
+    {
+      "command": "npm --prefix web run lint",
+      "exit": 0,
+      "log": "ux-native-focus-lint.log"
+    },
+    {
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/RunStream.test.tsx",
+      "exit": 0,
+      "result": "49 passed in1 file,8.50s; unchanged SOURCE controls, not native failure reproduction or observer runtime evidence",
+      "log": "ux-native-focus-source.log"
+    },
+    {
+      "command": "git diff --check; tracked/staged scope checks; compare requested base..HEAD for four owned paths; SHA256 source/diff",
+      "exit": 0,
+      "result": "Only s1-run.mjs modified; no staged files; product/CSS/RunStream byte-identical to requested base"
+    }
+  ],
+  "checks_json": "ux-native-focus-checks.json",
+  "freeze": {
+    "diff_sha256": "3f3f43de671c2281c70f041092299385353cce4a19e39efec1ab66708ed49181",
+    "paths": {
+      "web/tests/e2e/s1-run.mjs": {
+        "before_sha256": "3367f9f1fc87e0057750b11aa548f52d85a078c64f6eff64c85c35abac79db85",
+        "after_sha256": "b612d58d3531d3547f56fc4dcc6d5429a8401d4ae40593f4b4fc88c58262f5cd"
+      },
+      "web/src/features/engagement/RunPanel.tsx": {
+        "unchanged": true,
+        "sha256": "9350e9d1df7067e8343e32fb2e20c94de58034a3944bd56a1e737041c9d15acf"
+      },
+      "web/src/features/engagement/Engagement.module.css": {
+        "unchanged": true,
+        "sha256": "4bdb0ec398cf1bda0baa06e9a4b22a3d5115e39005904e5464318d176c349554"
+      },
+      "web/src/app/RunStream.test.tsx": {
+        "unchanged": true,
+        "sha256": "0f6854790c6b05d9a8460fd99b5b7a07e102c0b7bdc4187d06e83cbfb212d46a"
+      }
+    }
+  },
+  "failed_precondition_check": "Initial exact-HEAD check returned exit1 because HEAD advanced to00d420b9. Read-only Git inspection established documentation/evidence-only advance and no owned-source drift; subsequent scoped verification passed. No reset/stash/history manipulation.",
+  "harness_only_cycles": {
+    "acceptance_row": "Current native S1 keyboard re-entry focus failure at390",
+    "before": 0,
+    "this_driver_only_cycle": 1,
+    "current": 1,
+    "product_progress": false,
+    "historical_exact_label_cycle": "Previously closed, not reset or combined with this current counter",
+    "limit": "After two harness-only cycles without product progress, narrow the proof boundary/report BLOCKED; no third harness cycle. Preserve this counter across sessions."
+  },
+  "not_rerun": {
+    "B04": "Parent-reported PASS1/31.04s retained unchanged",
+    "Models": "Parent-reported PASS1/136.76s retained unchanged",
+    "full668_type_build": "Not rerun because TS/TSX/CSS and built app unchanged; user admitted syntax/lint/existing SOURCE scope for driver-only observation",
+    "native_S1": "NOT_RUN; parent review and separate admission required"
+  },
+  "scope_acceptance": "Original and secondary SOURCE-scoped reviews remain closed in unchanged product scope. This new diagnostic-only driver candidate requires parent focused review; no native acceptance or whole-checklist closure is asserted.",
+  "effects": "No services/PG/browser/provider/target actions, installs, extra agents, Git writes, profiles or runner changes. Protected files/secrets/.env/vault/raw operator logs/Strix excluded. Only new collision-checked ux-native-focus syntax/lint/source logs, checks JSON and this result were written under the admitted evidence root. Parent applicationSTOPPED56 was not changed by developer. No S2 preparation.",
+  "next": "Parent verifies this frozen driver hash, reviews the diagnostic-only change and may admit one fresh existing S1 run. Retain the first-error finite marker before teardown. Use its receiver/phase evidence to decide a demonstrated product RED/fix; if it does not reproduce, keep cause unknown rather than treating instrumentation as a fix."
+}

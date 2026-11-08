@@ -1,0 +1,33 @@
+{
+  "head": "455990a4a7ab43fe7f7d49d40c9eef4bba069f46",
+  "target": "test-s1-run-ui-pg",
+  "outer_exit": 0,
+  "inner": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "test_summary": [
+    "1 passed in 46.56s"
+  ],
+  "inputs": 2466,
+  "input_drift": [],
+  "container": "ea77b20394317cfa090df63adb5a186934cd78a4b297b3aca268ad32353e2573",
+  "project": "omnis-p01-fe4be56174654a6184353cefd6af6f24",
+  "runtime_absent": true,
+  "data_retained": true,
+  "retention_root": "/home/kali/.hermes/cache/scratch/ur-kdvzw_wf/db-6561fd9931ac410e",
+  "artifact_count": 10,
+  "browser": {
+    "passed": true,
+    "secretChecks": true,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "apiRestartReadback": true,
+    "injectedUiHttp503Focus": true
+  },
+  "classification": "REAL_BROWSER_API_PG_SCRIPTED_SDK_TLS_NOT_PROVIDER_LIVE;503_ONLY_INJECTED_UI_FAILURE",
+  "scope": "Read-only inspector, keyboard1440/390/320, Stop/recovery/causal refs/no-replay and restart pass on unchanged driver after one-line product reactivation fix",
+  "historical_390": "Original61.51s FAIL remains receiverNOT_RETAINED/causeUNKNOWN; no exclusive retroactive attribution",
+  "harness_only_cycles": 1
+}

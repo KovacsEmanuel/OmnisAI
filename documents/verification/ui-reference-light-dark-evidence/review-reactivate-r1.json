@@ -1,0 +1,266 @@
+{
+  "review_id": "review-reactivate-r1",
+  "verdict": "APPROVED_SCOPED",
+  "scope": "Independent focused SOURCE re-review of explicit same-agent/event inspector reactivation; not native/runtime/aesthetic/S1 acceptance.",
+  "snapshot": {
+    "head": "455990a4a7ab43fe7f7d49d40c9eef4bba069f46",
+    "base": "5c92d7294959efb181b129ad8ed2172cb10edcfc",
+    "identities": {
+      "web/src/features/engagement/RunPanel.tsx": {
+        "sha256": "acb6e6c4d8eeb319cb5c30452584295768832b0c7c436909134d8a971fa8f4ee",
+        "git_blob": "b5a314e5958a7cade75402d02acf7b0c6d7842eb",
+        "working_bytes_match": true
+      },
+      "web/src/app/RunStream.test.tsx": {
+        "sha256": "4724352b8c48e985c5aa41683b0cce12846ae4b7e43ad60e697791a3d1a92ccb",
+        "git_blob": "16254898b017c2d170c4663a2fb4a916a6709750",
+        "working_bytes_match": true
+      },
+      "web/tests/e2e/s1-run.mjs": {
+        "sha256": "b612d58d3531d3547f56fc4dcc6d5429a8401d4ae40593f4b4fc88c58262f5cd",
+        "git_blob": "37292b10caf212927702f595516c0810c689c233",
+        "working_bytes_match": true
+      },
+      "web/src/features/engagement/Engagement.tsx": {
+        "sha256": "08eac79756784d03c07c5849def32f0228fdd1be5cded9181206cb58106954dc",
+        "git_blob": "0662271c1464ad5293d46695405846659f1cec62",
+        "working_bytes_match": true
+      }
+    },
+    "diff_sha256": "f5b73060fb395e48d643d095e51977cffa1fb9d6eb4e6a1468e38841014a1c6c",
+    "original_49_cases_source_byte_exact": true,
+    "tracked_unstaged_or_staged_changes": false,
+    "status": "## checkpoint/ux-d-pause-20261107\n?? documents/Omnis_Notite_Originale.html\n?? tempkey.txt\n",
+    "output_absent_before_create": true
+  },
+  "freeze_source": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-inspector-reactivate-result.json",
+  "freeze_match": true,
+  "delta": {
+    "product_added_lines": 1,
+    "test_added_lines": 79,
+    "changed_paths": 2,
+    "new_cases": 5,
+    "existing_cases_unchanged": 49
+  },
+  "acceptance": {
+    "requirement": "Explicit keyboard activation of the already selected attempt/source must focus its existing read-only inspector despite an unchanged URL pair.",
+    "consumer": "RunPanel shared setSelected, invoked by real agent/event buttons; existing RunStream consumer tests.",
+    "risk": "Idempotent URL update does not rerun selected/detail effects and leaves focus on selected-agent/event trigger.",
+    "decision": "Close the demonstrated implementation gap at SOURCE scope; parent retains real unchanged-driver S1 and canonical gates."
+  },
+  "findings": [],
+  "blocker_disposition": {
+    "scenario": "Already selected actor; move focus to its agent/event button; press Enter without changing attempt/source.",
+    "status": "CLOSED_SOURCE_SCOPED",
+    "location": "web/src/features/engagement/RunPanel.tsx:86-90 (new line89)",
+    "minimal_remedy": "Existing single added guard is sufficient: focus current inspectorHeading or existing Close only for nonnull unchanged attempt/source after updateView. No further source change requested.",
+    "proof": "Same exact candidate tests against base product: four focus failures and two positive controls; against candidate: six pass.",
+    "native_limit": "Actual native320 FAIL50.41 retained and consistent with this reproduced gap; no native rerun or S1 PASS granted here. Earlier390 FAIL61.51 receiver NOT_RETAINED/cause UNKNOWN remains unattributed."
+  },
+  "callers": [
+    {
+      "location": "web/src/features/engagement/RunPanel.tsx:238",
+      "caller": "agentButton",
+      "assessment": "Stores current button in selectionTrigger; default null source. Same pair explicitly refocuses; fresh pair leaves original effects in control."
+    },
+    {
+      "location": "web/src/features/engagement/RunPanel.tsx:308",
+      "caller": "event actor",
+      "assessment": "Stores actual event trigger; same shared focus repair. Escape restores the event trigger."
+    },
+    {
+      "location": "web/src/features/engagement/RunPanel.tsx:332",
+      "caller": "Inspect consuming Brain",
+      "assessment": "Passes consumer attempt plus source worker; different pair bypasses new branch. Existing summary/actor/sameRef/consumed_refs guards at101-123 remain exact. Keyboard causal test retains consumer and both result-ref digests and exact attempt/source parameter values."
+    },
+    {
+      "location": "web/src/features/engagement/RunPanel.tsx:129",
+      "caller": "closeInspector",
+      "assessment": "setSelected(null) is excluded by new nonnull guard. Existing trigger/run-heading restoration and Escape listener remain unchanged."
+    }
+  ],
+  "invariants": [
+    "Loaded same pair focuses guarded heading; pending/error same pair focuses existing Close. Same pair preserves exact URL and attempts-read count.",
+    "Fresh selection and causal transition are unchanged; independent causal positive control passes on both base and candidate.",
+    "New tests assert GET-only calls, Escape closure, identity URL clearing, and actual trigger restoration. No new API read or domain-write call in product delta.",
+    "Focus effects, state, refs, manager, polling, timeouts, telemetry call, nonmodal semantics and outside-control behavior are unchanged.",
+    "Independent existing Stop no-steal test passes for pending settlement and retained detail refetch on both variants.",
+    "All49 original cases retained byte-exact outside new insertion; original native driver and approved Overview source hashes unchanged.",
+    "Unchanged D/auth/Stop authority approvals reused only in their prior scopes; no general effects/security audit reopened."
+  ],
+  "independent_execution": {
+    "boundary": "SOURCE/jsdom, fetch double; no browser/API/PG/provider/target effects.",
+    "workdir": "/home/kali/OmnisAI",
+    "env": {
+      "PATH_prefix": "/home/kali/.local/share/omnis-toolchains/bin",
+      "NODE_ENV": "test",
+      "TMPDIR": "/home/kali/.hermes/cache/scratch",
+      "REVIEW_VARIANT": [
+        "base",
+        "head"
+      ]
+    },
+    "argv": [
+      "node",
+      "--input-type=module",
+      "-e",
+      "\nimport { execFileSync } from 'node:child_process';\nimport { mkdtempSync, rmSync, existsSync } from 'node:fs';\nimport { join } from 'node:path';\nimport { startVitest } from '/home/kali/OmnisAI/web/node_modules/vitest/dist/node.js';\nimport react from '/home/kali/OmnisAI/web/node_modules/@vitejs/plugin-react/dist/index.js';\nconst repo = '/home/kali/OmnisAI', root = repo + '/web';\nconst base = '5c92d7294959efb181b129ad8ed2172cb10edcfc';\nconst head = '455990a4a7ab43fe7f7d49d40c9eef4bba069f46';\nconst variant = process.env.REVIEW_VARIANT;\nif (!['base', 'head'].includes(variant)) throw new Error('Invalid variant');\nconst cacheDir = mkdtempSync(join(process.env.TMPDIR, 'review-reactivate-r1-'));\nconst source = p => execFileSync('git', ['show', (p === 'web/src/features/engagement/RunPanel.tsx' && variant === 'base' ? base : head) + ':' + p], { cwd: repo, encoding: 'utf8' });\nconst testNamePattern = 'reactivates the already selected|keeps keyboard causal selection|does not steal focus from Stop when a pending inspection settles';\nlet ctx, result;\ntry {\n  ctx = await startVitest('test', ['src/app/RunStream.test.tsx'], {\n    root, config: false, run: true, watch: false, cache: false,\n    environment: 'jsdom', setupFiles: [root + '/tests/setup.ts'],\n    restoreMocks: true, clearMocks: true, maxWorkers: 1, fileParallelism: false,\n    testNamePattern, reporters: [{ onFinished() {} }],\n  }, {\n    configFile: false, envDir: false, publicDir: false, cacheDir,\n    plugins: [{ name: 'exact-git-snapshot-review', enforce: 'pre', load(id) {\n      const path = id.split('?')[0];\n      if (path.startsWith(root + '/src/') || path.startsWith(root + '/tests/')) {\n        const rel = path.slice(repo.length + 1);\n        if (/\\.(tsx?|css)$/.test(rel)) return source(rel);\n      }\n    } }, react()],\n  });\n  const tests = [];\n  function collect(t) {\n    if (t.type === 'test') tests.push({ name: t.name, state: t.result?.state ?? t.mode,\n      errors: t.result?.errors?.map(e => String(e.message).slice(0, 350)) ?? [] });\n    for (const child of t.tasks ?? []) collect(child);\n  }\n  const files = ctx.state.getFiles();\n  for (const f of files) collect(f);\n  const errors = ctx.state.getUnhandledErrors().map(e => String(e.message).slice(0, 400));\n  const selected = tests.filter(t => t.state !== 'skip');\n  const passed = selected.filter(t => t.state === 'pass').length;\n  const failed = selected.filter(t => t.state === 'fail').length;\n  result = { variant, product_sha: variant === 'base' ? base : head, tests_sha: head,\n    testNamePattern, passed, failed, skipped: tests.length - selected.length,\n    tests: selected, unhandled_errors: errors, cacheDir };\n  if (selected.length !== 6 || files.length !== 1 || errors.length) process.exitCode = 2;\n  else process.exitCode = failed ? 1 : 0;\n} finally {\n  if (ctx) await ctx.close();\n  rmSync(cacheDir, { recursive: true, force: true });\n  if (result) { result.cache_removed = !existsSync(cacheDir); console.log('REVIEW_RESULT=' + JSON.stringify(result)); }\n}\n"
+    ],
+    "mechanism": "Vitest programmatic API with unchanged jsdom/setup/restoreMocks/clearMocks; configFile/envDir/publicDir disabled, maxWorkers1. Vite pre-load serves tracked src/tests .ts/.tsx/.css directly from exact Git blobs. Candidate tests used in both runs; only RunPanel product SHA differs. Owned scratch cacheDir removed after each run; no shared node_modules cache writes requested.",
+    "runs": [
+      {
+        "variant": "base",
+        "product_sha": "5c92d7294959efb181b129ad8ed2172cb10edcfc",
+        "tests_sha": "455990a4a7ab43fe7f7d49d40c9eef4bba069f46",
+        "testNamePattern": "reactivates the already selected|keeps keyboard causal selection|does not steal focus from Stop when a pending inspection settles",
+        "passed": 2,
+        "failed": 4,
+        "skipped": 48,
+        "tests": [
+          {
+            "name": "reactivates the already selected agent by keyboard during loaded readback",
+            "state": "fail",
+            "errors": [
+              "\u001b[2mexpect(\u001b[22m\u001b[31melement\u001b[39m\u001b[2m).toHaveFocus()\u001b[22m\n\nExpected element with focus:\n  \u001b[32m<h3\n  tabindex=\"-1\"\n>\n  RECON\n   ··\n  Synthetic delegated task\n</h3>\u001b[39m\nReceived element with focus:\n  \u001b[31m<button\n  aria-label=\"RECON · 00000000-0000-4000-8000-000000000010 · INCONCLUSIVE · parent 00000000-0000-4000-8000-000000000001\"\n  aria-pressed=\""
+            ]
+          },
+          {
+            "name": "reactivates the already selected agent by keyboard during pending readback",
+            "state": "fail",
+            "errors": [
+              "\u001b[2mexpect(\u001b[22m\u001b[31melement\u001b[39m\u001b[2m).toHaveFocus()\u001b[22m\n\nExpected element with focus:\n  \u001b[32m<button>\n  Close inspector\n</button>\u001b[39m\nReceived element with focus:\n  \u001b[31m<button\n  aria-label=\"RECON · 00000000-0000-4000-8000-000000000010 · INCONCLUSIVE · parent 00000000-0000-4000-8000-000000000001\"\n  aria-pressed=\"true\"\n  data-attempt-id=\"0000000"
+            ]
+          },
+          {
+            "name": "reactivates the already selected agent by keyboard during error readback",
+            "state": "fail",
+            "errors": [
+              "\u001b[2mexpect(\u001b[22m\u001b[31melement\u001b[39m\u001b[2m).toHaveFocus()\u001b[22m\n\nExpected element with focus:\n  \u001b[32m<button>\n  Close inspector\n</button>\u001b[39m\nReceived element with focus:\n  \u001b[31m<button\n  aria-label=\"RECON · 00000000-0000-4000-8000-000000000010 · INCONCLUSIVE · parent 00000000-0000-4000-8000-000000000001\"\n  aria-pressed=\"true\"\n  data-attempt-id=\"0000000"
+            ]
+          },
+          {
+            "name": "reactivates the already selected event actor by keyboard and restores its event trigger",
+            "state": "fail",
+            "errors": [
+              "\u001b[2mexpect(\u001b[22m\u001b[31melement\u001b[39m\u001b[2m).toHaveFocus()\u001b[22m\n\nExpected element with focus:\n  \u001b[32m<h3\n  tabindex=\"-1\"\n>\n  RECON\n   ··\n  Synthetic delegated task\n</h3>\u001b[39m\nReceived element with focus:\n  \u001b[31m<button>\n  result\n   ··\n  Old first-page activity\n</button>\u001b[39m\n\nIgnored nodes: comments, script, style\n\u001b[36m<html\u001b[39m\n  \u001b[33mdata-theme\u001b[39m=\u001b"
+            ]
+          },
+          {
+            "name": "keeps keyboard causal selection on the validated consumer rather than the previous worker",
+            "state": "pass",
+            "errors": []
+          },
+          {
+            "name": "does not steal focus from Stop when a pending inspection settles or its retained detail refetches",
+            "state": "pass",
+            "errors": []
+          }
+        ],
+        "unhandled_errors": [],
+        "cacheDir": "/home/kali/.hermes/cache/scratch/review-reactivate-r1-kbrryt",
+        "cache_removed": true,
+        "subprocess_exit": 1
+      },
+      {
+        "variant": "head",
+        "product_sha": "455990a4a7ab43fe7f7d49d40c9eef4bba069f46",
+        "tests_sha": "455990a4a7ab43fe7f7d49d40c9eef4bba069f46",
+        "testNamePattern": "reactivates the already selected|keeps keyboard causal selection|does not steal focus from Stop when a pending inspection settles",
+        "passed": 6,
+        "failed": 0,
+        "skipped": 48,
+        "tests": [
+          {
+            "name": "reactivates the already selected agent by keyboard during loaded readback",
+            "state": "pass",
+            "errors": []
+          },
+          {
+            "name": "reactivates the already selected agent by keyboard during pending readback",
+            "state": "pass",
+            "errors": []
+          },
+          {
+            "name": "reactivates the already selected agent by keyboard during error readback",
+            "state": "pass",
+            "errors": []
+          },
+          {
+            "name": "reactivates the already selected event actor by keyboard and restores its event trigger",
+            "state": "pass",
+            "errors": []
+          },
+          {
+            "name": "keeps keyboard causal selection on the validated consumer rather than the previous worker",
+            "state": "pass",
+            "errors": []
+          },
+          {
+            "name": "does not steal focus from Stop when a pending inspection settles or its retained detail refetches",
+            "state": "pass",
+            "errors": []
+          }
+        ],
+        "unhandled_errors": [],
+        "cacheDir": "/home/kali/.hermes/cache/scratch/review-reactivate-r1-XZdjAi",
+        "cache_removed": true,
+        "subprocess_exit": 0
+      }
+    ],
+    "launch_issue": "One Python command construction attempt raised KeyError on JavaScript braces before any terminal subprocess/test/cache creation; replaced prefix substitution only. No product/test assertion or test timeout changed."
+  },
+  "readback_of_existing_evidence": {
+    "native_report": "qa-s1-overview-final-fail-result.json",
+    "native_head": "5c92d7294959efb181b129ad8ed2172cb10edcfc",
+    "native_summary": "1 failed in50.41s",
+    "native_focus": {
+      "version": 1,
+      "width": 320,
+      "beforeActivation": {
+        "viewportWidth": 320,
+        "receiver": "selected-agent",
+        "selectedAgentFocused": true,
+        "expectedHeadingFocused": false,
+        "popupPresent": true,
+        "popupVisible": true,
+        "headingPresent": true,
+        "headingVisible": true
+      },
+      "afterActivation": {
+        "viewportWidth": 320,
+        "receiver": "selected-agent",
+        "selectedAgentFocused": true,
+        "expectedHeadingFocused": false,
+        "popupPresent": true,
+        "popupVisible": true,
+        "headingPresent": true,
+        "headingVisible": true
+      },
+      "atFailure": {
+        "viewportWidth": 320,
+        "receiver": "selected-agent",
+        "selectedAgentFocused": true,
+        "expectedHeadingFocused": false,
+        "popupPresent": true,
+        "popupVisible": true,
+        "headingPresent": true,
+        "headingVisible": true
+      }
+    },
+    "developer_gates": "Reported118affected/673web/lint/typecheck/build exit0 retained as developer evidence, not independently rerun or promoted.",
+    "parent_source_helper": "Read parent-inspector-reactivate-repro-20261108.mjs only; independent Git-blob RED/GREEN executed instead of modifying/rerunning that helper."
+  },
+  "effects": {
+    "repository_and_git": "Read-only; no edits, commits, index/branch/worktree changes.",
+    "created_file": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/review-reactivate-r1.json",
+    "scratch": "Two owned temporary cache directories created and removed; no saved helper/log files.",
+    "excluded": "No services, browser, PG, provider, target, installs, agents or profile changes. No reads/hashes/changes of tempkey.txt, documents/Omnis_Notite_Originale.html, .env/keys/vault/raw operator logs/Strix."
+  },
+  "limits": [
+    "No full673 suite, build/lint/typecheck rerun or general runtime/effects audit.",
+    "No real browser/native S1, viewport geometry, screen reader or aesthetic acceptance. Reticle NOT_RUN (not admitted runtime here); Chisel BLOCKED_NO_GO.",
+    "No canonical/READY, cleanup/integration/push/CI approval; parent-owned. No S2 work.",
+    "SOURCE closure does not retrospectively assign a cause to historical390 failure. Current native acceptance remains open until parent runs the admitted affected S1 path."
+  ],
+  "next": "Parent adjudicates complementary focused reviews and runs the existing unchanged native S1 consumer on exact455990a4 before canonical acceptance."
+}

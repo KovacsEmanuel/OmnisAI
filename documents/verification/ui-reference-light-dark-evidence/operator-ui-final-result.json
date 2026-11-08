@@ -1,0 +1,68 @@
+{
+  "head": "455990a4a7ab43fe7f7d49d40c9eef4bba069f46",
+  "installation": "Same UUID d694129b-a3e5-446d-9e5b-fe9bc19abed8; READY59/epoch33 during QA; normal STOPPED60 before canonical rebuild",
+  "served_build": "operator-reviewed-served.json:4filesHTTP200/hash-exact; manifestb523d2dd24530f85aca767abab15aa39233a44ef1cf999120666d09687dba759",
+  "browser": "Operator Chrome1997867/window69206099, existing auth after reload; no profile/cookie/token export or newpairing. Separate retained agent profile is unpaired, not credited as authenticated operator.",
+  "reference": "Actual offline reference HTTP(S)blocked1440x1000, dark/light saved; composition comparisons real; no DEMOdata adopted",
+  "composition": "Real Back\u2192Overview, Run status\u2192Needs you\u21925unknown assessment metrics\u2192intactobjective/scope, dark\u2192light actualcontrol and stable frames; no clipping/overlap identified at this window; not pixelmatch or aesthetic approval",
+  "native_zoom": {
+    "before_docked": {
+      "width": 915,
+      "height": 1000,
+      "DPR": 1,
+      "visualViewportScale": 1
+    },
+    "zoomed_docked": {
+      "width": 458,
+      "height": 500,
+      "DPR": 2,
+      "visualViewportScale": 1,
+      "headingFocused": true,
+      "closeCSSHeight": 46
+    },
+    "native_controls": "Page Ctrl+0 then five Ctrl+plus with DevTools closed; actual DPR2 read back. Ctrl+Shift+I closes DevTools, unlike assumed J behavior. Current metadata is not DevTools frontend zoom.",
+    "keyboard": "UX_RESTORED_CLOSED4575002/1,true,true after real Escape: popup absent and original actualRECONtrigger focused",
+    "full_css_viewport": "NOT_RETAINED; do not infer exact full-layout width from native window or failed console timers",
+    "restore": "Page Ctrl+0 after actual DevTools close, normal-scale Overview pixels, original X/Y/1652x1166 geometry verified exactly; numeric DPR after full restoration NOT_RETAINED",
+    "failed_observers": "Earlier console-input/capture/timer attempts retained privately, including timeout40s. Their unconfirmed200 labels/absent markers are NOT proof; no product edits or gate changes for observer failures."
+  },
+  "frames": [
+    {
+      "path": "operator-final-overview-dark-scoped.png",
+      "source_original": "operator-final-overview-dark.png",
+      "source_size": [
+        1652,
+        1166
+      ],
+      "crop_bottom_pixels": 80,
+      "reason": "Exclude unrelated lower desktop strip from representative shared frame; original private frame retained",
+      "sha256": "6e2f59f017752317bfffa13e98ff24b14b50870d3b25e5ffbf40179f98d05981"
+    },
+    {
+      "path": "operator-final-overview-light-scoped.png",
+      "source_original": "operator-final-overview-light.png",
+      "source_size": [
+        1652,
+        1166
+      ],
+      "crop_bottom_pixels": 80,
+      "reason": "Exclude unrelated lower desktop strip from representative shared frame; original private frame retained",
+      "sha256": "d55334fd9bb22b730d53f23285fdee1046578c8888b23feb18426c759c162250"
+    },
+    {
+      "path": "operator-native200-inspector-scoped.png",
+      "source_original": "operator-native200-full-inspector.png",
+      "source_size": [
+        1652,
+        1097
+      ],
+      "crop_bottom_pixels": 80,
+      "reason": "Exclude unrelated lower desktop strip from representative shared frame; original private frame retained",
+      "sha256": "ea79e9f79996aad251edd363c4a6650f95e6854a622203d2eefb14e4c41d320f"
+    }
+  ],
+  "other_visual_interaction": "Real B04 calendar finiteUTC/nullnull/postSave/noModelTest/CAS/restart and Models SDK/TLS; realS1 current1440/390/320 keyboard/Stop/recovery/readonlyinspection + injected503/restart. Forced-colors/reduced-motion and earlier layout/native evidence reused only on unchanged CSS/controls; canonical affected consumers remain mandatory.",
+  "historical_data_exact_readback": "Pending final normal READY after canonical; old5dispatches/ref receipts retained, no new product inference or target traffic requested by QA",
+  "aesthetic_approval": "HUMAN_PENDING",
+  "limits": "Screenshots/frame comparison are not universal correctness, screenreader/WCAG or all-browser certification; historical390focuscauseUNKNOWN retained"
+}

@@ -1,0 +1,136 @@
+{
+  "review_id": "reactivate-r2",
+  "role": "Independent complementary focused source review: explicit activation versus external focus/Stop; null-close; invalidity; causal guards; unchanged native oracle",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "findings": [],
+  "freeze": {
+    "repository": "/home/kali/OmnisAI",
+    "base": "5c92d7294959efb181b129ad8ed2172cb10edcfc",
+    "head": "455990a4a7ab43fe7f7d49d40c9eef4bba069f46",
+    "head_after_execution": "455990a4a7ab43fe7f7d49d40c9eef4bba069f46",
+    "branch": "checkpoint/ux-d-pause-20261107",
+    "tracked_working_changes_before_and_after": [],
+    "preexisting_protected_untracked_paths_untouched": ["tempkey.txt", "documents/Omnis_Notite_Originale.html"],
+    "diff": [
+      {
+        "path": "web/src/features/engagement/RunPanel.tsx",
+        "added_lines": 1,
+        "deleted_lines": 0,
+        "base_blob": "16eec49c7b7c10595e24926a369304c7b1cb01c1",
+        "head_blob": "b5a314e5958a7cade75402d02acf7b0c6d7842eb",
+        "base_sha256": "9350e9d1df7067e8343e32fb2e20c94de58034a3944bd56a1e737041c9d15acf",
+        "head_sha256": "acb6e6c4d8eeb319cb5c30452584295768832b0c7c436909134d8a971fa8f4ee"
+      },
+      {
+        "path": "web/src/app/RunStream.test.tsx",
+        "added_lines": 79,
+        "deleted_lines": 0,
+        "base_blob": "fc628ef60674efb141cc0442627b8ae53fb60e95",
+        "head_blob": "16254898b017c2d170c4663a2fb4a916a6709750",
+        "base_sha256": "0f6854790c6b05d9a8460fd99b5b7a07e102c0b7bdc4187d06e83cbfb212d46a",
+        "head_sha256": "4724352b8c48e985c5aa41683b0cce12846ae4b7e43ad60e697791a3d1a92ccb"
+      }
+    ],
+    "working_bytes_match_head": true,
+    "original_tests_preserved": "Removing the single inserted test block from head RunStream.test.tsx reconstructs the complete base file byte-for-byte; asserted during execution.",
+    "native_oracle": {
+      "path": "web/tests/e2e/s1-run.mjs",
+      "base_and_head_blob": "37292b10caf212927702f595516c0810c689c233",
+      "base_head_and_working_sha256": "b612d58d3531d3547f56fc4dcc6d5429a8401d4ae40593f4b4fc88c58262f5cd",
+      "unchanged": true
+    }
+  },
+  "scope": {
+    "requirement": "Only explicit unchanged nonnull attempt/source activation restores inspector focus; background settlement/refetch/geometry changes must not reclaim an external control; Close must restore external focus without refocusing popup content; invalid detail cannot supply an old retained heading.",
+    "consumer": "Existing RunPanel setSelected shared by tree agent, event actor, validated causal navigation and closeInspector, exercised through App/MemoryRouter/QueryClient and real user-event keyboard actions.",
+    "decision": "Approve this source delta only if the baseline defect reproduces and final focused positive and negative controls pass without changed guards/oracles. Real S1 and real Stop remain parent-owned acceptance gates.",
+    "touched_callers": [
+      "RunPanel.tsx:86-90 shared setSelected",
+      "RunPanel.tsx:128-134 Close and existing guarded focus effects",
+      "RunPanel.tsx:238 tree trigger records selectionTrigger then calls setSelected",
+      "RunPanel.tsx:308 event actor records selectionTrigger then calls setSelected",
+      "RunPanel.tsx:332 validated consumer/source navigation",
+      "RunPanel.tsx:316-347 guarded inspector content and Close fallback"
+    ],
+    "not_changed_or_reaudited": "API/auth/security/D implementation, state managers, query policy, timers, CSS, fixtures, configuration, exports, dependencies, native harness and product effects. Existing unchanged scoped approvals are not reopened or expanded."
+  },
+  "checks": [
+    {
+      "kind": "Exact identity and static call-path review",
+      "exit_code": 0,
+      "commands": ["git status --short --branch", "git rev-parse HEAD", "git diff --stat", "git diff --name-status 5c92d7294959efb181b129ad8ed2172cb10edcfc 455990a4a7ab43fe7f7d49d40c9eef4bba069f46", "git diff --numstat 5c92d7294959efb181b129ad8ed2172cb10edcfc 455990a4a7ab43fe7f7d49d40c9eef4bba069f46", "git show <exact-commit>:<explicit-admitted-source-path>", "git grep -n -E setSelected|stop-dialog|external.*[Ss]top|externalStop -- web/src/app/RunStream.test.tsx web/src/features/engagement/RunPanel.tsx", "git diff --check"],
+      "result": "Only the admitted two files differ; no tracked working changes. Explicit path SHA256 and Git blob identities checked against actual bytes. No Git writes."
+    },
+    {
+      "kind": "Independent in-memory baseline negative control",
+      "command": "NODE_ENV=test node --input-type=module (stdin program using installed vitest/node startVitest, config:false, jsdom, existing tests/setup.ts, one worker, enforce:pre exact-Git transform)",
+      "product_snapshot": "5c92d7294959efb181b129ad8ed2172cb10edcfc",
+      "test_snapshot": "455990a4a7ab43fe7f7d49d40c9eef4bba069f46 plus five independent cases appended only in memory",
+      "selected_test": "R2 independent same-pair explicit action is the only refocus after external Stop, refresh, refetch and resize",
+      "observed_result": "1 failed, 58 skipped; 59 collected; duration 2.98s",
+      "expected_failure": true,
+      "failure": "External Stop, active-query refetch, resize/scroll and Refresh focus controls passed. Enter on the unchanged selected RECON then failed to focus the existing inspector heading: receiver remained the selected-agent button."
+    },
+    {
+      "kind": "Independent exact-head focused positive and negative controls",
+      "command": "Same NODE_ENV=test node stdin program, installed Vitest 4.1.12, exact head RunPanel source and exact head RunStream source with independent cases appended in memory, config:false, jsdom, existing setup, react plugin, one worker",
+      "test_name_pattern": "R2 independent|reactivates the already selected|keeps keyboard causal selection|does not steal focus from Stop|keeps .*focus usable when loaded|closes the nonmodal inspector|focuses the .* inspector during|reconstructs consuming-Brain URL|revalidates cached inspection",
+      "product_snapshot": "455990a4a7ab43fe7f7d49d40c9eef4bba069f46",
+      "result": "35 passed, 24 skipped; 59 collected; duration 7.54s",
+      "failed": 0,
+      "wrapper_exit_code": 0,
+      "exit_semantics": "The baseline assertion failure was deliberately required. The wrapper resets that expected phase's process exit status, then explicitly fails unless baseline has exactly one failure and head has passing tests and no failures. No failure was relabeled as a passing test.",
+      "independent_cases": [
+        "External Stop focus survives active-query refetch and resize/scroll. Refresh run keeps its own focus through readback. A spy observes no heading.focus calls until explicit same-agent Enter; then exactly one. URL and attempt GET count remain unchanged; all mocked requests are GET-only.",
+        "Escape closes and clears identity URL while restoring the tree trigger, with no heading.focus or Close.focus calls during null-close.",
+        "Keyboard activation of Close has the same null-close behavior and no popup refocus.",
+        "Changing the selected worker's roster model withdraws its loaded detail. External Stop keeps focus, the old heading is disconnected and never refocused; explicit same-agent Enter selects only the existing Close fallback without an attempt reread or write.",
+        "Pending same-pair activation focuses Close. Moving focus to Stop before pending detail settles prevents later focus theft. Escape on external Stop does not close the nonmodal inspector. GET-only."
+      ],
+      "committed_cases_exercised": [
+        "All five newly committed keyboard cases: loaded/pending/error agent reactivation, event actor reactivation, validated keyboard causal transition",
+        "Existing Stop pending-settlement and detail-refetch no-steal control",
+        "Existing loaded causal detail withdrawal by HTTP503 or roster invalidity, inside versus Stop focus, trigger versus deep-link entry",
+        "Existing null-close and opening focus cases",
+        "Existing causal mismatch denials and cached consumer/source roster revalidation"
+      ],
+      "cache_policy": "Each phase used its own mkdtemp cacheDir under /home/kali/.hermes/cache/scratch/omnis-review-r2-*; envDir:false and publicDir:false; no repository cache/config/probe files created. Both owned cache directories removed and their absence checked in finally."
+    }
+  ],
+  "reproducer": {
+    "scenario": "Loaded deep-link ?run=<run.run_id>&attempt=<worker.attempt_id>; wait for valid inspector; focus Stop and refetch active queries; dispatch resize/scroll; click Refresh run and await no pending fetches; focus the already selected RECON trigger and press Enter.",
+    "baseline_observed": "Background/external controls retain focus as required, but explicit same-pair Enter leaves focus on RECON rather than the existing heading.",
+    "candidate_observed": "Same sequence focuses the existing heading once, does not alter the URL and does not issue another attempt read or domain write.",
+    "invalidity_control": "With loaded detail, focus Stop, mutate workerRoster.configured_model, refetch run-summary and await withdrawal. The old heading is disconnected. Same-agent Enter must focus Close, not the old heading; no attempt GET increment.",
+    "null_close_control": "Spy on the loaded heading.focus and Close.focus after initial focus; Escape or keyboard Close must unmount the popup, clear attempt/source and restore the trigger with neither spy called."
+  },
+  "minimal_fix": {
+    "additional_change_required": false,
+    "accepted_location": "web/src/features/engagement/RunPanel.tsx:89",
+    "accepted_line": "if (attempt && attempt === selected && source === consumptionLink) (inspectorHeading.current ?? popup.current?.querySelector('button'))?.focus();",
+    "why_minimal": "Reuses the shared explicit-action handler and already guarded refs. The nonnull check excludes Close. Exact attempt and source equality excludes changed causal pairs; unchanged existing effects handle ordinary selection/detail settlement. No new state, effects, delays or manager."
+  },
+  "causal_and_native_oracle_integrity": {
+    "guards": "RunPanel.tsx:66-75 still validates run/UUID/duplicate query fields and unequal source/attempt. Lines108-117 still reconstruct source on each causal read, validate current roster and require exact consumer, BRAIN role, decision_ref and consumed result_ref. Detail/heading are still guarded at121-124 and319-321. The new focus line cannot recreate unmounted invalid content.",
+    "native_focus_oracle": "s1-run.mjs:281-312 retains the 1440/390/320 re-entry sequence, selected-agent focus, Enter and actual inspector-heading toBeFocused assertion. Finite first-error observation reads state only and rethrows. It does not focus the expected heading to make the assertion pass. Existing native injected503 inside/external controls at227-272 and receive-only assertions remain byte-identical.",
+    "reports_read": ["/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/ux-inspector-reactivate-result.json", "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/qa-s1-overview-final-fail-result.json"],
+    "retained_native_failure": "Parent report records 1FAIL50.41s at320, selected-agent receiver with visible popup and heading, outer2/inner2/family_drained true; not rerun or promoted by this review.",
+    "original_failure_preserved": "Original390 FAIL61.51s remains cause UNKNOWN and receiver NOT_RETAINED. The reproducible current source gap and later320 observation do not establish that historical exclusive cause.",
+    "prior_checks_attribution": "Developer's 118 affected/673 full/lint/type/build results and parent's source pair are readback/context only, not fresh execution by this reviewer."
+  },
+  "limits": [
+    "APPROVED_SOURCE_SCOPED only for this exact two-file delta and focused invariants; no runtime, global security, aesthetic, canonical, READY, CI, release or integration approval.",
+    "Query refetch exercises the same registered background-reader path; elapsed real polling timers, actual viewport geometry and native browser behavior were not exercised by these jsdom checks.",
+    "No real Stop command was sent. Source focus safety and existing negative controls passed; real Stop and unchanged real S1 before canonical remain parent-owned.",
+    "No full673 rerun, lint/type/build rerun, PG, browser, service, provider, target, install, new agent, worktree, profile or Git mutation.",
+    "Protected tempkey.txt, documents/Omnis_Notite_Originale.html, .env, keys, vault, raw operator logs and Strix were not read, hashed or changed.",
+    "No concrete finding requires a further source fix. Parent still adjudicates complementary reviews and runs affected real-consumer QA on final bytes."
+  ],
+  "artifacts": {
+    "new_report": "/home/kali/.local/share/omnis-ui-artifacts/ux-corrections-20261107/review-reactivate-r2.json",
+    "absence_checked_before_creation": true,
+    "repository_files_created_or_modified": [],
+    "probe_storage": "Independent test source and overrides existed only in the executed stdin/in-memory transform. No source/test/harness files were edited; owned caches were removed.",
+    "operational_note": "The initial source batch exceeded terminal capture and required one narrower read of the captured output; no failed harness repair cycle or product change."
+  }
+}

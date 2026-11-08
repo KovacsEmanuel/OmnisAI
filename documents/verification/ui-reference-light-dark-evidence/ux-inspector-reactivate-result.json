@@ -1,0 +1,119 @@
+{
+  "status": "SOURCE_CANDIDATE_FROZEN_PENDING_PARENT_COMPLEMENTARY_REVIEWS_AND_REAL_S1",
+  "writer_stopped": true,
+  "baseHEAD": "5c92d7294959efb181b129ad8ed2172cb10edcfc",
+  "head_at_freeze": "5c92d7294959efb181b129ad8ed2172cb10edcfc",
+  "branch": "checkpoint/ux-d-pause-20261107",
+  "diagnosis": {
+    "confirmed_product_gap": "Explicit keyboard activation of the already selected attempt/source updates the same URL but does not change selected/detail effect dependencies. Focus stays on the operator's agent/event button rather than returning to the existing inspector heading or Close fallback.",
+    "parent_source_evidence": "parent-inspector-reactivate-repro-final.log:1FAIL same-agent explicit activation,1PASS fresh selection. Earlier readiness-omission log retained unchanged; scratch probe was read as evidence, not executed or modified.",
+    "native_evidence": "qa-s1-overview-final-fail-result.json:320 beforeActivation/afterActivation/atFailure all selected-agent, visible popup and heading, expectedHeadingFocused=false. Native1FAIL50.41s, outer2/inner2/drained,2466inputs unchanged, exact runtime absent/PGDATA retained. Consistent with demonstrated reactivation gap, not evidence of an Overview regression.",
+    "historical_limit": "Original390 FAIL61.51s remains receiver NOT_RETAINED/cause UNKNOWN. This fix does not establish its exclusive cause retroactively."
+  },
+  "implementation": {
+    "product": "One line added in shared setSelected: only a nonnull explicit activation whose attempt/source equal current selected/consumptionLink focuses existing inspectorHeading or popup's existing Close. Existing observeControl and updateView remain unchanged.",
+    "callers_traced": {
+      "tree_agent": "Stores actual selectionTrigger then setSelected(item.attempt_id), null source; unchanged pair now explicitly refocuses inspector.",
+      "event_actor": "Stores actual event selectionTrigger then setSelected(event.attempt_id), null source; same shared repair and restoration.",
+      "causal_link": "Existing validated worker consumption link passes consumer_attempt_id plus worker attempt_id as source. Different pair uses unchanged opening/settlement and causal validation. Keyboard sibling regression preserves exact consumer/source/ref behavior.",
+      "close": "closeInspector calls setSelected(null); new branch is excluded and original trigger/run-heading restoration remains unchanged."
+    },
+    "preserved": "No focus effect changes, ref/state/manager/retry/delay added. No focus reclamation on polls/refetch/resize. Valid heading is supplied by unchanged detail guards; missing/invalid detail uses existing Close only. URL semantics, causal validation, finite telemetry, nonmodal markup, external controls and Stop remain unchanged.",
+    "new_tests": "Five existing-consumer cases: same selected tree agent loaded/pending/error; same selected event actor; fresh tree then keyboard causal consumer transition. No expected-heading direct focus. Existing49 RunStream cases retained byte-exact.",
+    "assertions": "Same pair retains exact URL and attempt-read count, focus reaches heading/Close through real keyboard activation, Escape closes/restores actual trigger and clears identity URL. GET-only/no domain writes. Causal sibling checks correct consumer and both retained ref digests. Existing changed-selection, invalidity, detail withdrawal, injected-error Source controls and Stop/external no-steal controls retained."
+  },
+  "checks": [
+    {
+      "phase": "Initial RED before product edit",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/RunStream.test.tsx -t 'reactivates the already selected|keeps keyboard causal selection'",
+      "exit": 1,
+      "result": "5 failed/49 skipped: four actual focus gaps and one newly authored causal-control assertion incorrectly assumed adjacent URL parameter ordering",
+      "log": "ux-inspector-reactivate-red.log"
+    },
+    {
+      "phase": "Adjudicated RED before product edit",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/RunStream.test.tsx -t 'reactivates the already selected|keeps keyboard causal selection'",
+      "exit": 1,
+      "result": "4 failed/1 passed/49 skipped in6.74s. Loaded/pending/error agent and event reactivation fail focus; ordinary keyboard causal transition passes. Only the new test was corrected to assert exact attempt/source independently of their ordering; original oracles unchanged and first log retained.",
+      "log": "ux-inspector-reactivate-red-final.log"
+    },
+    {
+      "phase": "GREEN affected after final edit",
+      "command": "NODE_ENV=test web/node_modules/.bin/vitest run --root web src/app/RunStream.test.tsx src/app/Run.test.tsx src/app/Engagement.test.tsx",
+      "exit": 0,
+      "result": "118 passed in3 files;13.10s",
+      "log": "ux-inspector-reactivate-green.log"
+    },
+    {
+      "command": "npm --prefix web test",
+      "exit": 0,
+      "result": "673 passed in30 files;45.90s",
+      "log": "ux-inspector-reactivate-full-web.log"
+    },
+    {
+      "command": "npm --prefix web run lint",
+      "exit": 0,
+      "log": "ux-inspector-reactivate-lint.log"
+    },
+    {
+      "command": "npm --prefix web run typecheck",
+      "exit": 0,
+      "log": "ux-inspector-reactivate-typecheck.log"
+    },
+    {
+      "command": "npm --prefix web run build",
+      "exit": 0,
+      "result": "Contracts/design drift checks, TypeScript, production build and trusted4-file manifest pass. Existing >500kB chunk warning retained without changing thresholds.",
+      "log": "ux-inspector-reactivate-build.log"
+    },
+    {
+      "command": "git diff --check; exact tracked/staged scope and base..HEAD checks; source comparison and SHA256; verify actual built files against manifest",
+      "exit": 0,
+      "result": "Only2 admitted tracked files modified, no staged files; product differs by exactly one added line; all original RunStream tests unchanged outside inserted cases; native driver/Overview source byte-identical to base; all4 actual asset hashes match manifest"
+    }
+  ],
+  "checks_json": "ux-inspector-reactivate-checks.json",
+  "execution": "Pinned PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH, NODE_ENV=test. Required affected/full/lint/type/build each executed once after final source edit. RED exit1 refers to actual subprocess, not wrapper status.",
+  "freeze": {
+    "paths": {
+      "web/src/features/engagement/RunPanel.tsx": {
+        "before_sha256": "9350e9d1df7067e8343e32fb2e20c94de58034a3944bd56a1e737041c9d15acf",
+        "after_sha256": "acb6e6c4d8eeb319cb5c30452584295768832b0c7c436909134d8a971fa8f4ee"
+      },
+      "web/src/app/RunStream.test.tsx": {
+        "before_sha256": "0f6854790c6b05d9a8460fd99b5b7a07e102c0b7bdc4187d06e83cbfb212d46a",
+        "after_sha256": "4724352b8c48e985c5aa41683b0cce12846ae4b7e43ad60e697791a3d1a92ccb"
+      }
+    },
+    "diff_sha256": "f5b73060fb395e48d643d095e51977cffa1fb9d6eb4e6a1468e38841014a1c6c",
+    "preserved": {
+      "web/tests/e2e/s1-run.mjs": "b612d58d3531d3547f56fc4dcc6d5429a8401d4ae40593f4b4fc88c58262f5cd",
+      "web/src/features/engagement/Engagement.tsx": "08eac79756784d03c07c5849def32f0228fdd1be5cded9181206cb58106954dc"
+    },
+    "native_driver": "All original native focus assertions, injected UI503 controls, finite observation, runner/deadlines/limits are byte-identical. No e2e edit."
+  },
+  "build_manifest": {
+    "path": "/home/kali/OmnisAI/web/dist/omnis-web.json",
+    "sha256": "b523d2dd24530f85aca767abab15aa39233a44ef1cf999120666d09687dba759",
+    "version": 1,
+    "files": {
+      "assets/fonts-OFL-bSaZbgNk.txt": "fb64c1011862d97fe49c633ad9180ffd80a61aab6ff220a2935704e8a0c3a7c4",
+      "assets/index-CETyBSLz.css": "80f6f33fcdeb6617a3757b083cb07f6a1a00cda8ca32a65ebf8c56220de2876b",
+      "assets/index-qtVd4vTL.js": "4340ba37b007caa5f6d046105f6f8182f5fc7db1f966ce83fcc2ddcd518aae5f",
+      "index.html": "c34c7c81aea67b276e3b57a3c2a684860cf0e6db0723562376b4c7ba273f6612"
+    },
+    "actual_file_hashes_verified": 4,
+    "limit": "Checkout build only, not installed served-byte/native acceptance evidence"
+  },
+  "history_and_limits": {
+    "native_consumer_after_this_fix": "NOT_RUN_BY_DEVELOPER; complementary independent reviews and real existing S1 browser/PG consumer are parent-owned acceptance gates",
+    "historical_source_reviews": "Overview approved independently and unchanged. Previously closed scopes remain scoped; this new product repair is not self-approved.",
+    "historical_observation_only_PASS": "Correct duration55.61s per parent correction and5c92 commit message, not51.62s transcribed previously. No first-error marker in that prior PASS does not establish a cause or fix.",
+    "harness_only_counter": "Remains1. This increment is demonstrated product repair, not another diagnostic/harness-only cycle; no reset.",
+    "B04_Models": "Prior scoped evidence retained unchanged; not rerun",
+    "canonical_READY_Git_lifecycle": "Parent-owned; no completion claimed here. Coherent uncommitted candidate for parent integration.",
+    "S2": "NOT_STARTED_OR_PREPARED"
+  },
+  "effects": "No services/PG/browser/product-provider/target operations, installs, agents or Git writes. No API/Models/CSS/dependency/config/driver changes. Parent applicationSTOPPED58 was not changed by developer. Protected tempkey.txt, documents/Omnis_Notite_Originale.html, .env/keys/vault/raw operator logs/Strix were not read/hashed/changed. New collision-checked ux-inspector-reactivate logs/checks/result written only under admitted private artifact root; all original evidence retained.",
+  "next": "Parent verifies frozen2-file/diff/build hashes, integrates and obtains complementary independent reviews, then runs the unchanged real S1 consumer before canonical. Writer stopped at this freeze."
+}

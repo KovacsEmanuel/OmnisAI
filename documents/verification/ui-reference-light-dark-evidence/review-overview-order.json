@@ -1,0 +1,112 @@
+{
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "decision": "No source blocker to parent-owned native S1 for this exact relocation; not runtime, canonical, visual or integration acceptance.",
+  "candidate": "5c92d7294959efb181b129ad8ed2172cb10edcfc",
+  "base": "41b80337f4cd3c75cdf8c4461b430a6dccc72265",
+  "branch": "checkpoint/ux-d-pause-20261107",
+  "frozen_paths": {
+    "web/src/features/engagement/Engagement.tsx": {
+      "base_blob": "fda5b6e2128c06f4a92573d0b58d41d5cf900124",
+      "candidate_blob": "0662271c1464ad5293d46695405846659f1cec62",
+      "sha256": "08eac79756784d03c07c5849def32f0228fdd1be5cded9181206cb58106954dc"
+    },
+    "web/src/app/Engagement.test.tsx": {
+      "base_blob": "3e683fdfd867937faf25ff74964487850645a882",
+      "candidate_blob": "7f31f1708cc93a1ce503a945a1adb71699e3a8a5",
+      "sha256": "dd6c80a59669f580c4a50c4e103e6431becabccf8f9bf7721945e733ee4b0109"
+    }
+  },
+  "diff": {
+    "files": 2,
+    "insertions": 6,
+    "deletions": 6,
+    "sha256": "55a40e49eac0239b2a50fee39a8a1999ff6b1d073250c95332b1d55cdc5e4009",
+    "check_exit": 0
+  },
+  "scope_trace": {
+    "callers": "App.tsx:46-47 existing selected-engagement routes; Engagement.tsx:52 is the sole RunPanel caller. No changed caller, fixture, config, export or dependency required.",
+    "normative": "ux-overview and UI03 state/attention/metrics priority, not aesthetic taste; canonical UI spec retains now/Needs you before metrics and context.",
+    "unchanged_scope_reuse": "Existing complementary source D/auth/focus approvals on04283683 and focused driver approval on41b80337 retained only for unchanged bytes; not reaudited or expanded here."
+  },
+  "requirements": [
+    {
+      "criterion": "Now -> Needs you -> metrics -> context -> accounting",
+      "evidence": "Engagement.tsx:52-69; RunPanel.tsx:261-279; current Engagement.test.tsx:21-37. Independent old-source/current-assertion RED then current-source GREEN."
+    },
+    {
+      "criterion": "Scope remains visible despite missing/loading/unavailable run reads",
+      "evidence": "RunPanel has no outer early return based on a run; unconditional children at RunPanel.tsx:275 follow status fallback at263 and precede summary-only accounting. Overview scope still depends only on the existing full condition and successfully available draft, not on run/summary/consent. Static review; not new live state-transition QA."
+    },
+    {
+      "criterion": "Identity and full authorized scope retained",
+      "evidence": "Byte-equality of complete full-only scope block before/after relocation; removing that one block leaves the entire remaining Engagement.tsx byte-identical. Heading identity, objective whitespace, origin/access/port/path/exclusions and labels unchanged; no new collapse, hidden flag, truncation or DOM control. Existing identity/navigation test passed in independent8."
+    },
+    {
+      "criterion": "Read-only, Stop, consent and keyboard semantics preserved",
+      "evidence": "No hook/state/effect/API/provider/authorization changes; unchanged RunPanel and GlobalStop implementations. Moved scope block has no focusable controls. Existing order test verifies disabled target Start, visible Stop/clarification and GET-only reads; independent existing Engagement suite8 passed. This does not certify installed focus geometry or all keyboard/browser combinations."
+    },
+    {
+      "criterion": "Regression actually catches prior ordering",
+      "evidence": "Updated current assertion fails with old exact Engagement.tsx loaded in memory at Engagement.test.tsx:27:200, expected +0 to be truthy; current product passes all8 existing Engagement tests."
+    }
+  ],
+  "findings": [],
+  "minimal_fix": "None required within reviewed source scope.",
+  "checks": [
+    {
+      "name": "Snapshot/freeze/relocation integrity",
+      "exit": 0,
+      "result": "Exact parent-child commits; only two frozen paths +6/-6; both checkout files equal candidate blobs and all four before/after SHA256 values match developer freeze; scope block and remaining source byte-identical; sole test assertion replacement exact; final HEAD/hashes and Git status unchanged."
+    },
+    {
+      "name": "Initial private-runner setup attempt, NOT behavioral RED",
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH NODE_ENV=test TMPDIR=/home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5 XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5/.cache OMNIS_OVERVIEW_REVIEW_PHASE=old node web/node_modules/vitest/vitest.mjs run --root web --config /home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5/vitest.review.mjs --configLoader runner src/app/Engagement.test.tsx -t 'orders Overview'",
+      "output": "RUN  v4.1.12 /home/kali/OmnisAI/web\n\n ❯ src/app/Engagement.test.tsx (0 test)\n\n⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  src/app/Engagement.test.tsx [ src/app/Engagement.test.tsx ]\nError: Cannot find module '/tests/setup.ts'\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n\n Test Files  1 failed (1)\n      Tests  no tests\n   Start at  02:08:30\n   Duration  676ms (transform 0ms, setup 0ms, import 0ms, tests 0ms, environment 528ms)",
+      "exit_code": 1,
+      "error": null,
+      "disposition": "0 tests; relative setup/root resolution failed (Cannot find module /tests/setup.ts). Only scratch config changed to explicit absolute setupFiles and CLI root; preserved original setup and NODE_ENV=test. No product/test edits."
+    },
+    {
+      "name": "Independent behavioral RED",
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH NODE_ENV=test TMPDIR=/home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5 XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5/.cache OMNIS_OVERVIEW_REVIEW_PHASE=old node web/node_modules/vitest/vitest.mjs run --root /home/kali/OmnisAI/web --config /home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5/vitest.review.mjs --configLoader runner src/app/Engagement.test.tsx -t 'orders Overview'",
+      "output": "RUN  v4.1.12 /home/kali/OmnisAI/web\n\nREVIEW_OLD_SOURCE: 41b80337f4cd3c75cdf8c4461b430a6dccc72265 Engagement.tsx\n ❯ src/app/Engagement.test.tsx (8 tests | 1 failed | 7 skipped) 339ms\n   × orders Overview now, Needs you, metrics, context and exact usage without inventing assessment results 338ms\n\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  src/app/Engagement.test.tsx > orders Overview now, Needs you, metrics, context and exact usage without inventing assessment results\nAssertionError: expected +0 to be truthy\n\n- Expected:\ntrue\n\n+ Received:\n0\n\n ❯ src/app/Engagement.test.tsx:27:200\n\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n\n Test Files  1 failed (1)\n      Tests  1 failed | 7 skipped (8)\n   Start at  02:08:44\n   Duration  1.74s (transform 465ms, setup 104ms, import 619ms, tests 339ms, environment 547ms)",
+      "exit_code": 1,
+      "error": null,
+      "result": "1 failed /7 skipped, exit1,1.74s; exact old source loader observed; current order assertion failed at27:200."
+    },
+    {
+      "name": "Independent current-product GREEN",
+      "command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH NODE_ENV=test TMPDIR=/home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5 XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5/.cache OMNIS_OVERVIEW_REVIEW_PHASE=new node web/node_modules/vitest/vitest.mjs run --root /home/kali/OmnisAI/web --config /home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5/vitest.review.mjs --configLoader runner src/app/Engagement.test.tsx",
+      "output": "RUN  v4.1.12 /home/kali/OmnisAI/web\n\n\n Test Files  1 passed (1)\n      Tests  8 passed (8)\n   Start at  02:08:46\n   Duration  2.44s (transform 484ms, setup 112ms, import 640ms, tests 990ms, environment 563ms)",
+      "exit_code": 0,
+      "error": null,
+      "result": "8 existing Engagement tests passed, exit0,2.44s; no repo edits."
+    }
+  ],
+  "reproducer": {
+    "method": "Existing Vitest CLI and original React/jsdom config/setup; scratch-only config uses enforce:pre load hook to return git show base:Engagement.tsx only in old phase. Current assertion/test file never changed. New phase uses current candidate source normally.",
+    "private_config": "/home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5/vitest.review.mjs",
+    "cache_dirs": [
+      "/home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5/cache-old",
+      "/home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5/cache-new"
+    ],
+    "cache_policy": "Both Vite cacheDir values, TMPDIR and XDG_CACHE_HOME confined to owned scratch; --configLoader runner avoids shared node_modules config-bundle cache. envDir:false prevents dotenv loading.",
+    "red_command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH NODE_ENV=test TMPDIR=/home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5 XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5/.cache OMNIS_OVERVIEW_REVIEW_PHASE=old node web/node_modules/vitest/vitest.mjs run --root /home/kali/OmnisAI/web --config /home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5/vitest.review.mjs --configLoader runner src/app/Engagement.test.tsx -t 'orders Overview'",
+    "green_command": "PATH=/home/kali/.local/share/omnis-toolchains/bin:$PATH NODE_ENV=test TMPDIR=/home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5 XDG_CACHE_HOME=/home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5/.cache OMNIS_OVERVIEW_REVIEW_PHASE=new node web/node_modules/vitest/vitest.mjs run --root /home/kali/OmnisAI/web --config /home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5/vitest.review.mjs --configLoader runner src/app/Engagement.test.tsx",
+    "availability_limit": "Scratch is ephemeral; exact commands, actual outputs, revisions and method retained in this durable review JSON."
+  },
+  "history_and_limits": {
+    "prior_S1": "Parent-provided prior observation on41b80337 was1PASS55.61s, not51.62s transcribed in developer report. Correction is explicit in candidate commit message; no independent native rerun here and no transfer to5c92d729.",
+    "historical_failure": "Historical S1 FAIL61.51s remains receiver NOT_RETAINED / cause UNKNOWN. No retrospective cause/fix claim.",
+    "developer_gates": "Developer-reported affected113/full668/lint/type/build0 remain separate frozen-source evidence; none rerun or claimed as this reviewer execution.",
+    "parent_gates": "Fresh exact-candidate native S1/browser/PG, canonical, lifecycle, served bytes, publication and human aesthetic acceptance belong to parent; NOT_RUN_BY_THIS_REVIEW.",
+    "reticle": "NOT_RUN; runtime UI instrumentation outside this source review.",
+    "chisel": "BLOCKED_NO_GO; not used."
+  },
+  "writes_and_safety": {
+    "repository": "No edits, stage, commit, checkout, worktree, install or service operation. Initial/final Git status identical: only existing protected untracked paths listed, never opened or hashed.",
+    "durable_artifact": "Only new review-overview-order.json under admitted artifact root, absence checked twice and again immediately before write.",
+    "scratch": "/home/kali/.hermes/cache/scratch/overview-order-review-5c92d729-w8vphue5 contains only owned config and runner caches; retained for reproduction and normal scratch expiry.",
+    "excluded": "No reads/hashes/changes of tempkey.txt, documents/Omnis_Notite_Originale.html, .env/keys/vault/raw operator logs/Strix. No browser/profile/PG/target/provider/LLM product effects or new agents."
+  }
+}

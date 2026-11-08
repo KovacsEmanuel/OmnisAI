@@ -1,0 +1,38 @@
+{
+  "head": "455990a4a7ab43fe7f7d49d40c9eef4bba069f46",
+  "instance_id": "d694129b-a3e5-446d-9e5b-fe9bc19abed8",
+  "generation": 59,
+  "container": "33cea8c89403c9b6becbde1cafa37ed229c19699e94f349e457e1aedeb3d3ee0",
+  "project": "omnis-local-7734af95b492440daeaeb5eea953fdce",
+  "start_attempt": "cd44ab6b-b5de-423a-ba78-2d052874031e",
+  "command": "api/.venv/bin/python -I -B scripts/read_ui_diagnostics.py --endpoint unix:///var/run/docker.sock --container EXACT --project EXACT --start-attempt EXACT",
+  "positive_exit": 0,
+  "validated_record_count": 5,
+  "event_kinds": [
+    [
+      "brain_stream",
+      "inspector_open",
+      "OBSERVE"
+    ],
+    [
+      "brain_stream",
+      "navigation",
+      "OBSERVE"
+    ],
+    [
+      "engagement_overview",
+      "navigation",
+      "OBSERVE"
+    ],
+    [
+      "engagement_overview",
+      "theme_toggle",
+      "OBSERVE"
+    ]
+  ],
+  "wrong_start_attempt_exit": 2,
+  "wrong_owner_output_empty": true,
+  "retention": "current container only",
+  "complete": false,
+  "limits": "Browser event claims untrusted; partial current-container capture only. No domain success inference, no raw logs/environment returned; expiry/removal loses capture."
+}

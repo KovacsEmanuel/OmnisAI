@@ -1,0 +1,58 @@
+{
+  "head": "5c92d7294959efb181b129ad8ed2172cb10edcfc",
+  "target": "test-s1-run-ui-pg",
+  "outer_exit": 2,
+  "inner": {
+    "schema_version": 1,
+    "code": 2,
+    "family_drained": true
+  },
+  "test_summary": "1 failed in50.41s",
+  "inputs": 2466,
+  "input_drift": [],
+  "container": "4aabcc88b719248fe3986ea49057e0635acef02f6e73fa385196109b3de3f676",
+  "project": "omnis-p01-e0520e084cd7446ab7e5acc5f3cb100a",
+  "runtime_absent": true,
+  "data_retained": true,
+  "retention_root": "/home/kali/.hermes/cache/scratch/uo-sr404shl/db-d69cc9ee5f6147e8",
+  "artifacts": 8,
+  "focus_first_error": {
+    "version": 1,
+    "width": 320,
+    "beforeActivation": {
+      "viewportWidth": 320,
+      "receiver": "selected-agent",
+      "selectedAgentFocused": true,
+      "expectedHeadingFocused": false,
+      "popupPresent": true,
+      "popupVisible": true,
+      "headingPresent": true,
+      "headingVisible": true
+    },
+    "afterActivation": {
+      "viewportWidth": 320,
+      "receiver": "selected-agent",
+      "selectedAgentFocused": true,
+      "expectedHeadingFocused": false,
+      "popupPresent": true,
+      "popupVisible": true,
+      "headingPresent": true,
+      "headingVisible": true
+    },
+    "atFailure": {
+      "viewportWidth": 320,
+      "receiver": "selected-agent",
+      "selectedAgentFocused": true,
+      "expectedHeadingFocused": false,
+      "popupPresent": true,
+      "popupVisible": true,
+      "headingPresent": true,
+      "headingVisible": true
+    }
+  },
+  "parent_source_repro": "parent-inspector-reactivate-repro-final.log:1FAIL same-agent reactivation,1PASS fresh open; first control readiness omission retained in parent-inspector-reactivate-red.log; no product edits",
+  "mechanism": "Explicit activation of unchanged selected/source pair leaves refs/effect dependencies unchanged; focus remains on selected-agent. Shared selection handler at RunPanel86-89, focus effects131-133",
+  "historical_first_failure": "390 receiverNOT_RETAINED/causeUNKNOWN remains; current320 native first-error and deterministicSource do not recover historical exclusive cause",
+  "harness_only_cycles": 1,
+  "next": "Same developer minimal product fix, unchanged native driver/oracles; complementary focused reviews then affected real consumer"
+}

@@ -1,0 +1,117 @@
+{
+  "review": "independent-focused-native-s1-first-error-observation",
+  "verdict": "APPROVED_SOURCE_SCOPED",
+  "snapshot": {
+    "base": "00d420b9c19b9b9843d1e52d3555bfa5dc977f1e",
+    "head": "41b80337f4cd3c75cdf8c4461b430a6dccc72265",
+    "branch": "checkpoint/ux-d-pause-20261107",
+    "file": "web/tests/e2e/s1-run.mjs",
+    "lines": "287-312",
+    "base_blob": "a1eb5d4850e1f4744662bb8b8acccf4c846bb0bd",
+    "head_blob": "37292b10caf212927702f595516c0810c689c233",
+    "sha256": "b612d58d3531d3547f56fc4dcc6d5429a8401d4ae40593f4b4fc88c58262f5cd",
+    "delta": {
+      "files": 1,
+      "insertions": 26,
+      "deletions": 2
+    },
+    "working_source_matches_head": true,
+    "tracked_or_staged_changes": false,
+    "preexisting_untracked_paths_only": [
+      "documents/Omnis_Notite_Originale.html",
+      "tempkey.txt"
+    ],
+    "protected_contents_read_or_hashed": false
+  },
+  "scope": "Review only the finite observation around the existing native Enter/heading focus assertion. No product repair, causal diagnosis, runtime acceptance, broad D/auth review or integration approval.",
+  "findings": [],
+  "reproducer": "SOURCE-only in-memory execution extracted the exact committed observer and try/catch. In the assertion-error control the existing toBeFocused throws a sentinel; one finite FIRST_ERROR line is emitted before the identical exception is rethrown. No native failure reproduction was attempted.",
+  "minimal_fix": "None required for the admitted diagnostic-only scope.",
+  "criteria": {
+    "known_selectors": "Spawned agents ul and first RECON button traced to RunPanel.tsx:237,300; nonmodal dialog:315; inspector section:318, h3:320; first popup button is Close:319, or fallback Close:345. No arbitrary active-element fields are read.",
+    "finite_privacy": "Exactly one observation before activation, one after Enter if it completes, at most one on catch. Snapshot has only viewportWidth, seven-state receiver enum, and six booleans. No text, identifiers, arbitrary attributes, URLs, payloads, input values, cookies, storage or exception messages enter the new marker.",
+    "failure_capture": "Original heading assertion remains inside try at s1-run.mjs:305. Catch reads and emits before throwing the original error at311; failed catch-time evaluation emits only the fixed unavailable marker. The existing run.mjs finally closes browser before top-level rejection; settings_models_browser captures stderr, checks secrets and appends observations at test_web_e2e.py:372-377 before checking driver success at379; the finally persists settings-browser.log at407-412 on this assertion-failure path.",
+    "unchanged_assertions_and_limits": "Exact reconstruction by replacing only the new observation block with the original Enter/assertion produces the complete base file byte-for-byte. Viewports1440/390/320, prerequisite selected-agent focus, all prior/subsequent assertions, screenshots, secret checks, runner and limits therefore remain unchanged. No expected-heading focus, retry, skip, timeout change or swallowed original assertion exception.",
+    "unchanged_product": "No tracked difference from approved04283683 in web/src, web/dist, web/package.json or web/package-lock.json. No build was run or regenerated; served-build identity not freshly revalidated."
+  },
+  "checks": [
+    {
+      "command": "node --check web/tests/e2e/s1-run.mjs",
+      "exit": 0
+    },
+    {
+      "command": "npm --prefix web run lint",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check 00d420b9c19b9b9843d1e52d3555bfa5dc977f1e 41b80337f4cd3c75cdf8c4461b430a6dccc72265 -- web/tests/e2e/s1-run.mjs",
+      "exit": 0
+    },
+    {
+      "command": "node --input-type=module -e <in-memory exact observer + exact try/catch controls>",
+      "exit": 0,
+      "result": {
+        "snapshot": "41b80337f4cd3c75cdf8c4461b430a6dccc72265",
+        "base": "00d420b9c19b9b9843d1e52d3555bfa5dc977f1e",
+        "source_sha256": "b612d58d3531d3547f56fc4dcc6d5429a8401d4ae40593f4b4fc88c58262f5cd",
+        "exact_original_restored": true,
+        "receiver_cases": 7,
+        "visibility_absence_controls": 4,
+        "flow_cases": [
+          "success",
+          "assertion-error",
+          "activation-error",
+          "after-observation-error",
+          "failure-observation-error",
+          "before-observation-error"
+        ],
+        "maximum_evaluate_calls_per_iteration": 3,
+        "normal_success_marker_count": 0,
+        "maximum_requested_width_line_bytes": 700,
+        "observed_control_max_bytes": 693,
+        "original_assertion_exception_identity_preserved": true,
+        "classification": "SOURCE_SYNTHETIC_NOT_NATIVE"
+      }
+    },
+    {
+      "command": "read-only Git scope, blob, exact-source and final HEAD checks",
+      "exit": 0
+    }
+  ],
+  "inherited_not_rerun": {
+    "source_controls": "49 RunStream tests PASS per ux-native-focus-result.json; not rerun by this reviewer",
+    "B04": "1PASS31.04s unchanged scope only",
+    "Models": "1PASS136.76s unchanged scope only"
+  },
+  "historical_native_failure": {
+    "status": "FAIL_RETAINED",
+    "duration_seconds": 61.51,
+    "width": 390,
+    "actual_receiver": "NOT_RETAINED",
+    "cause": "UNKNOWN",
+    "artifact": "qa-s1-final-fail-result.json"
+  },
+  "next_native_observation": "NOT_RUN_BY_REVIEWER; parent next gate, not a circular source-review blocker. A future PASS without FIRST_ERROR does not demonstrate a product fix or establish the historical cause.",
+  "harness_only_cycles": {
+    "current_row": 1,
+    "limit": 2,
+    "historical_exact_label_cycle": "closed separately; no reset"
+  },
+  "limitations": [
+    "SOURCE/jsdom controls are synthetic; they do not exercise native Chromium focus, rendered React layout or PG/API/browser stderr persistence end to end.",
+    "Observer awaits may alter scheduling. Historical UNKNOWN remains UNKNOWN even if the next attempt passes.",
+    "A beforeActivation evaluation failure occurs outside the try and propagates without the fallback marker; this does not suppress the original assertion-failure path under review. Catch-time loss is represented only by UNAVAILABLE, not an invented receiver.",
+    "Visibility means nonempty client rects and computed visibility not hidden; it is not viewport intersection, occlusion or independent product acceptance.",
+    "The700-byte line bound is the exhaustive field/enum bound at requested/actual loop widths1440,390,320; no new global logger cap is claimed.",
+    "Existing secret-check failure, outer timeout/forced termination or disposal failure can prevent sanitized log persistence. Those unchanged exceptional paths were not expanded or tested."
+  ],
+  "issues_encountered": [
+    "Initial batched read output exceeded inline budget; subsequent reads were narrowed. One read-only discovery cell stopped on an empty search-result KeyError; targeted discovery continued, no repository/runtime effects."
+  ],
+  "effects": "Only this new collision-checked report is created. No source/test/docs/Git writes, agents, services, browser/profiles, PG/provider/target traffic, installs or protected reads/hashes.",
+  "tool_applicability": {
+    "Reticle": "NOT_APPLICABLE_SOURCE_ONLY_REVIEW",
+    "Chisel": "BLOCKED_NO_GO"
+  },
+  "parent_decision": "Adjudicate scoped approval, then admit the next existing native S1 attempt separately with unchanged limits and retained first-failure evidence. No SOURCE blocker is asserted for the missing fresh native observation."
+}

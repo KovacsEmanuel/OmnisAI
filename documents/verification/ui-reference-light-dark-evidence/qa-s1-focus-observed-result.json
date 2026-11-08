@@ -1,0 +1,37 @@
+{
+  "product_head": "41b80337f4cd3c75cdf8c4461b430a6dccc72265",
+  "target": "test-s1-run-ui-pg",
+  "outer_exit": 0,
+  "inner": {
+    "schema_version": 1,
+    "code": 0,
+    "family_drained": true
+  },
+  "inputs": 2466,
+  "input_drift": [],
+  "container": "5e7d3d896d59e99baa9dc705e4d4d8037ec086f043a70d8de521cf0159af2db4",
+  "project": "omnis-p01-d105d03dad294a36a48d3fe085f7f1bd",
+  "runtime_absent": true,
+  "data_retained": true,
+  "test_summary": [
+    "1 passed in 55.61s"
+  ],
+  "browser": {
+    "passed": true,
+    "scenario": "s1-run",
+    "stage": null,
+    "secretChecks": true,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "injectedUiHttp503Focus": true,
+    "apiRestartReadback": true,
+    "marker_source": "Original browser-result.catalog plus s1-run-record.json read back; these fields are nested, not top-level"
+  },
+  "retained_artifact_count": 10,
+  "retention_root": "/home/kali/.hermes/cache/scratch/uf-0n3m8k3d/db-af1971a5a6f2470d",
+  "historical_focus_failure": "RETAINED_CAUSE_UNKNOWN_RECEIVER_NOT_RETAINED_NOT_REPRODUCED_THIS_RUN",
+  "diagnostic_observation": "No first-error marker; bounded evaluations may affect scheduling, NOT a productfix or causal attribution",
+  "harness_only_cycles": 1,
+  "classification": "REAL_BROWSER_API_PG_SCRIPTED_SDK_TLS_NOT_LIVE_PROVIDER;503_ONLY_INJECTED_UI_FAILURE",
+  "acceptance": "Current native consumer PASS scoped; historical cause UNKNOWN is preserved, no universal focus/race guarantee"
+}

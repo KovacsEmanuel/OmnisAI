@@ -4,6 +4,45 @@
   "omnis_revision": "177266f82b65eabdd4273b2f91fa605753763ebf",
   "strix_public_revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
   "private_artifact_root": "/home/kali/.local/share/omnis-reference-artifacts/strix-20261108-7574",
+  "inspector_followup": {
+    "omnis_revision": "828445d25257e3a9c39d826e1641fb4429bc9a47",
+    "status": "ALL_18_RENDERED_UI_INSPECTED_NOT_NATIVE_RAW_COMPLETENESS",
+    "private_directory": "agent-deep-dive",
+    "reconciled_inventory": "agent-deep-dive/reconciled-inspectors.json",
+    "reconciled_inventory_sha256": "a2492e22b714f781d1192789bae0646b83d28c191cdc2c501879628fda8b1f43",
+    "group_reports": ["agent-deep-dive/group-1/report.md", "agent-deep-dive/group-2/report.md", "agent-deep-dive/group-3/report.md"],
+    "counts": {
+      "agents_opened_and_loaded": 18,
+      "rendered_ui_blocks": 1401,
+      "native_calls_reconciled": 928,
+      "show_more_expanded": 96,
+      "remaining_show_more": 0,
+      "primary_captures": 18
+    },
+    "copy_execution": {
+      "directory": "agent-deep-dive/group-2/reuse-spike",
+      "status": "SPIKE_ONLY_NOT_PRODUCT_INTEGRATED",
+      "source_license_copies": 9,
+      "verified_frozen_file_hashes": 15,
+      "question": "Does Strix generic argument coercion preserve native strict finish rejection semantics?",
+      "author_red": {"tests": 6, "expected_assertion_failures": 2, "exit": 1},
+      "author_green": {"tests": 6, "failures": 0, "exit": 0},
+      "author_environment": {"python": "3.13.12", "pydantic": "2.12.5"},
+      "independent_review": "APPROVED_SOURCE_SCOPED",
+      "independent_report": "agent-deep-dive/spike-independent-review.json",
+      "independent_report_sha256": "0021fb8487ce0834760c7df0a6894db8fc670a46a5475ec807c84b949311cf67",
+      "spike_manifest_sha256": "d7ab92e76377556f1a69895b3dfd5a416afb2af3edbc5afb5ac9d290afb57b0f",
+      "native_contract_qa": {"python": "3.13.15", "pydantic": "2.13.5", "tests": 6, "failures": 0, "exit": 0, "unittest_seconds": 0.132},
+      "verdict": "NOT_PORT_GENERIC_COERCION_KEEP_NATIVE_STRICT_BOUNDARY",
+      "scope": "Exact copied pure AST source contracts, not full owner/PG/SDK/provider/target execution"
+    },
+    "limitations": [
+      "Rendered projection/prose and explicitly recorded read extent, not full native raw history or hidden reasoning",
+      "Some source renderers omit terminal/proxy outputs, errors, pagination and handoff gaps before DOM",
+      "Screenshots exist for every agent; visual analysis is representative by family, not all viewport or WCAG acceptance",
+      "No independent replay or certification of the 36 reports; public Python source is not binary attestation"
+    ]
+  },
   "counts": {
     "agents": 18,
     "direct_children": 17,

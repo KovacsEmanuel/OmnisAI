@@ -2,6 +2,26 @@
   "schema_version": 1,
   "status": "SOURCE_INSPECTED_NOT_IMPORTED_NOT_PRODUCT_RUN",
   "omnis_revision": "177266f82b65eabdd4273b2f91fa605753763ebf",
+  "inspector_followup": {
+    "omnis_revision": "828445d25257e3a9c39d826e1641fb4429bc9a47",
+    "status": "SOURCE_TRACE_AND_PRIVATE_SPIKE_NOT_PRODUCT_IMPORT",
+    "details": "strix-7574-reference-analysis.md sections 10-13",
+    "private_directory": "/home/kali/.local/share/omnis-reference-artifacts/strix-20261108-7574/agent-deep-dive",
+    "same_card_ids_no_parallel_catalog": true,
+    "decisions": {
+      "SR01": "KEEP native composer/AgentStep/AgentRunOwner. NOT_PORT generic command coercion: copied-source execution shows duplicate JSON and wrong-type repair erase native denials.",
+      "SR02": "COPY_CONTENT selected root/recon/model rubrics and ADAPT notes._mark_authorship/index with native refs, revision and CAS; no Strix global note/model store or fictional crawler.",
+      "SR03": "COPY_ADAPT relevant IDOR methodology/controls/counterevidence into qualified investigator/triage/validator package; other family executors keep their own admission.",
+      "SR04": "ADAPT UTF8 preview/pagination at first native evidence reader; emitted entries/page_info/hits must match renderer DTO; preview is not full capture or incremental socket cap.",
+      "SR05": "KEEP native HTTPX/owner/vault; ADAPT request framing/capture-read versus newly admitted replay, without Caido runtime/parser/retry stack.",
+      "SR06": "ADAPT pure completion rubric with reports/open_items/recommendations; KEEP durable PG inbox/consume, no best-effort mailbox or auto-wake over Stop/UNKNOWN.",
+      "SR07": "ADAPT attributed correction/supersedes history with exact operation identity and CAS; checklist done/agent reported/coverage label is not an oracle.",
+      "SR08": "ADAPT semantic event families into Activity Feed/Agents and existing RunPanel/projections; preserve outputs/errors/has_more/gaps/rejected operations, no generic permissive renderer coercion or second viewer.",
+      "SR09": "ADAPT report rubrics and small safe-fence/CSV helpers only at their first admitted consumer; NEW SECURITY/D14 binding remains, report-ID lookup/dedupe/export is not independent validation."
+    },
+    "dependency_clarification": "Strix cryptography<49 is explained by macOS Intel/universal2 packaging in pyproject lines51-53; Omnis50.0.1 is not a demonstrated runtime incompatibility. No preventive upgrade/downgrade or lockfile import.",
+    "artifact_rule": "Exact source/license copies and adaptation diff are private and frozen; no product source or dependency has changed."
+  },
   "strix": {
     "revision": "55bc07991aacb1c26a81b43e7ca53148730d2019",
     "tag": "v1.7.0",

@@ -86,6 +86,7 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
   const setSelected = (attempt: string | null, source: string | null = null) => {
     if (attempt && runId) observeControl('inspector_open', { run_id: runId });
     updateView({ attempt, source });
+    if (attempt && attempt === selected && source === consumptionLink) (inspectorHeading.current ?? popup.current?.querySelector('button'))?.focus();
   };
   const setAfter = (after: number) => { setPage({ run: runId, cursors: after === 0 ? [] : [...cursors, after] }); updateView({ after: after ? String(after) : null }); };
   const summary = useQuery({ queryKey: ['private', 'run-summary', runId], queryFn: ({ signal }) => { if (!runId) throw new ApiError('INVALID_INPUT'); return readPrivate(async () => { const result = await api.runSummary(runId, signal); checkRunProgress(result.run, client.getQueryData<RunSummary>(['private', 'run-summary', runId])?.run); checkRunProgress(result.run, client.getQueryData<RunView | null>(currentKey)); return result; }, signal); }, enabled: enabled && !!runId, ...polling });

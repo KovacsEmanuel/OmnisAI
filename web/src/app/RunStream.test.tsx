@@ -238,6 +238,85 @@ it('reloads the actual consuming-Brain link with exact decision/result refs and 
   reloaded.unmount();
 });
 
+it.each(['loaded', 'pending', 'error'])('reactivates the already selected agent by keyboard during %s readback', async state => {
+  let release: (() => void) | undefined;
+  const gate = state === 'pending' ? new Promise<void>(resolve => { release = resolve; }) : undefined;
+  const { view, fetcher } = setup(`?run=${run.run_id}&attempt=${id}`, state === 'error' ? 'missing' : '', undefined, gate);
+  try {
+    const user = userEvent.setup();
+    if (state === 'pending') await screen.findByText('Loading selected agent…');
+    else if (state === 'error') await screen.findByText('Selected record unavailable or inconsistent. No linked result was accepted.');
+    else await screen.findByRole('region', { name: 'Agent inspector' });
+    const popup = screen.getByRole('dialog', { name: 'Recorded agent activity' });
+    const target = state === 'loaded' ? within(popup).getByRole('heading', { level: 3 }) : within(popup).getByRole('button', { name: 'Close inspector' });
+    await waitFor(() => expect(target).toHaveFocus());
+    const trigger = await screen.findByRole('button', { name: /^RECON/ });
+    const url = screen.getByLabelText('View URL').textContent;
+    const reads = fetcher.mock.calls.filter(([path]) => String(path).includes('/attempts/')).length;
+    trigger.focus(); expect(trigger).toHaveFocus();
+    await user.keyboard('{Enter}');
+    await waitFor(() => expect(target).toHaveFocus());
+    expect(screen.getByLabelText('View URL').textContent).toBe(url);
+    expect(fetcher.mock.calls.filter(([path]) => String(path).includes('/attempts/'))).toHaveLength(reads);
+    expect(popup).not.toHaveAttribute('aria-modal', 'true');
+    expect(screen.getByRole('button', { name: 'Stop active run' }).closest('[inert]')).toBeNull();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog', { name: 'Recorded agent activity' })).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+    expect(screen.getByLabelText('View URL')).not.toHaveTextContent('attempt=');
+    expect(screen.getByLabelText('View URL')).not.toHaveTextContent('source=');
+    expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
+  } finally { view.unmount(); release?.(); }
+});
+
+it('reactivates the already selected event actor by keyboard and restores its event trigger', async () => {
+  const { view, fetcher } = setup(`?run=${run.run_id}&attempt=${id}`, 'activity');
+  try {
+    const user = userEvent.setup();
+    const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
+    const heading = within(inspector).getByRole('heading', { level: 3 });
+    await waitFor(() => expect(heading).toHaveFocus());
+    const trigger = await within(screen.getByRole('list', { name: 'Run events' })).findByRole('button', { name: /Old first-page activity/ });
+    const url = screen.getByLabelText('View URL').textContent;
+    const reads = fetcher.mock.calls.filter(([path]) => String(path).includes('/attempts/')).length;
+    trigger.focus(); expect(trigger).toHaveFocus();
+    await user.keyboard('{Enter}');
+    await waitFor(() => expect(heading).toHaveFocus());
+    expect(screen.getByLabelText('View URL').textContent).toBe(url);
+    expect(fetcher.mock.calls.filter(([path]) => String(path).includes('/attempts/'))).toHaveLength(reads);
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog', { name: 'Recorded agent activity' })).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+    expect(screen.getByLabelText('View URL')).not.toHaveTextContent('attempt=');
+    expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
+  } finally { view.unmount(); }
+});
+
+it('keeps keyboard causal selection on the validated consumer rather than the previous worker', async () => {
+  const { view, fetcher, worker, brain } = setup();
+  try {
+    const user = userEvent.setup();
+    const trigger = await screen.findByRole('button', { name: /^RECON/ });
+    trigger.focus(); await user.keyboard('{Enter}');
+    const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
+    await waitFor(() => expect(within(inspector).getByRole('heading', { level: 3 })).toHaveFocus());
+    const link = within(screen.getByRole('dialog', { name: 'Recorded agent activity' })).getByRole('button', { name: /Inspect consuming Brain/ });
+    link.focus(); await user.keyboard('{Enter}');
+    await waitFor(() => expect(screen.getByRole('region', { name: 'Agent inspector' })).toHaveAttribute('data-attempt-id', brain.attempt_id));
+    const consumer = screen.getByRole('region', { name: 'Agent inspector' });
+    await waitFor(() => expect(within(consumer).getByRole('heading', { level: 3 })).toHaveFocus());
+    expect(consumer).toHaveTextContent(brain.decision!.summary);
+    for (const ref of [brain.result_ref!, worker.result_ref!]) expect(consumer).toHaveTextContent(ref.digest);
+    expect(screen.getByLabelText('View URL')).toHaveTextContent(`attempt=${brain.attempt_id}`);
+    expect(screen.getByLabelText('View URL')).toHaveTextContent(`source=${worker.attempt_id}`);
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog', { name: 'Recorded agent activity' })).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+    expect(screen.getByLabelText('View URL')).not.toHaveTextContent('source=');
+    expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
+  } finally { view.unmount(); }
+});
+
 it.each(['trigger', 'deep-link'])('closes the nonmodal inspector to a visible %s focus target', async entry => {
   const { view } = setup(entry === 'deep-link' ? `?run=${run.run_id}&attempt=${id}` : '');
   const user = userEvent.setup();

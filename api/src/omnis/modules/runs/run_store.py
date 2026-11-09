@@ -428,6 +428,7 @@ async def inert_progress(
             raise records.ModelConflict("REF_UNAVAILABLE")
         payload = await records.resolve(db, value.instance_id, reference, reference.kind)
         answer_text = None
+        question_text = None
         if reference.kind == "run-result-v1":
             result = ResultRecord.model_validate(payload)
             actor = await attempt(db, value, result.attempt_id)
@@ -487,6 +488,8 @@ async def inert_progress(
                 or payload.get("scope_change") is not False
             ):
                 raise records.ModelConflict("REF_UNAVAILABLE")
+            # shortcut: literal pairs, not paraphrase equivalence; extend with a semantic producer.
+            question_text = admitted.text
         else:
             raise records.ModelConflict("REF_UNAVAILABLE")
         # Search the whole run's consumed set, not the bounded pending inbox or a recent page.
@@ -497,13 +500,18 @@ async def inert_progress(
                 "WHERE i.instance_id=:instance AND i.run_id=:run "
                 "AND i.consumed_decision_id IS NOT NULL AND NOT i.held AND r.kind=:kind "
                 "AND ((:kind='run-result-v1' AND r.payload->>'state'='SUCCEEDED') "
-                "OR (:kind='run-answer-v1' AND r.payload->>'text'=:answer)) LIMIT 1"
+                "OR (:kind='run-answer-v1' AND r.payload->>'text'=:answer "
+                "AND EXISTS (SELECT 1 FROM run_question q "
+                "WHERE q.instance_id=i.instance_id AND q.run_id=i.run_id "
+                "AND q.question_id::text=r.payload->>'question_id' "
+                "AND q.payload->>'text'=:question))) LIMIT 1"
             ),
             {
                 "instance": value.instance_id,
                 "run": value.run_id,
                 "kind": reference.kind,
                 "answer": answer_text,
+                "question": question_text,
             },
         )
         progress = progress or seen is None

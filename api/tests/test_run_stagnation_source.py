@@ -7,13 +7,21 @@ from uuid import uuid4
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy.sql.elements import TextClause
 
 from omnis.modules.runs import model_test_store as records
 from omnis.modules.runs import run_store as store
 from omnis.modules.runs.model_test_contract import Ref
-from omnis.modules.runs.run_contract import Attempt, BrainDecision, Question, Setup, WorkerFinal
+from omnis.modules.runs.run_contract import (
+    Attempt,
+    BrainDecision,
+    Question,
+    RunView,
+    Setup,
+    WorkerFinal,
+)
 from omnis.supervisor.model_relay_protocol import Scope
-from test_run_controls_source import Owned
+from test_run_controls_source import Owned, command
 from test_run_controls_source import owned as owned
 from test_run_owner_source import fixture_setup_payload
 
@@ -279,3 +287,124 @@ async def test_operator_information_requires_its_admitted_proof(
         await owned.owner.complete(db, owned.run, actor, decision.model_dump_json(), None)
         assert owned.run.stagnation == (0 if mode == "new" else 3)
         assert (owned.run.state == "LIMITED") is (mode == "repeat")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("distinct", [False, True])
+async def test_admitted_yes_answers_are_compared_with_their_questions(
+    owned: Owned, monkeypatch: pytest.MonkeyPatch, distinct: bool
+) -> None:
+    db = object.__new__(AsyncConnection)
+    snapshot = Setup.model_validate(fixture_setup_payload())
+    payloads: dict[str, dict[str, object]] = {}
+    questions: dict[str, Question] = {}
+    pending: list[Ref] = []
+    consumed: list[Ref] = []
+    counters: list[int] = []
+
+    async def put(db: AsyncConnection, instance: str, kind: str, payload: dict[str, object]) -> Ref:
+        ref = Ref(instance_id=instance, kind=kind, id=str(uuid4()), digest=records.digest(payload))
+        payloads[ref.id] = payload
+        return ref
+
+    async def resolve(db: AsyncConnection, instance: str, ref: Ref, kind: str) -> dict[str, object]:
+        assert ref.instance_id == instance and ref.kind == kind and ref.revision == 1
+        payload = payloads[ref.id]
+        assert ref.digest == records.digest(payload)
+        return payload
+
+    async def add(db: AsyncConnection, run: RunView, ref: Ref) -> None:
+        pending.append(ref)
+
+    async def consume(db: AsyncConnection, run: RunView, refs: list[Ref], decision: Ref) -> None:
+        assert refs == pending
+        consumed.extend(refs)
+        pending.clear()
+
+    async def save_question(
+        db: AsyncConnection, run: RunView, question: Question, *, initial: bool = False
+    ) -> None:
+        questions[question.question_id] = question
+        owned.question = question
+
+    async def history(
+        self: AsyncConnection, statement: TextClause, params: dict[str, object]
+    ) -> int | None:
+        sql = str(statement)
+        assert params["instance"] == owned.run.instance_id and params["run"] == owned.run.run_id
+        assert "i.instance_id=:instance AND i.run_id=:run" in sql
+        assert "i.consumed_decision_id IS NOT NULL AND NOT i.held" in sql
+        # SOURCE emulates the SQL predicate; the PG case executes the persisted join.
+        contextual = "q.payload->>'text'=:question" in sql
+        if contextual:
+            assert "q.instance_id=i.instance_id AND q.run_id=i.run_id" in sql
+            assert "q.question_id::text=r.payload->>'question_id'" in sql
+        for ref in consumed:
+            payload = payloads[ref.id]
+            question_id = payload["question_id"]
+            assert isinstance(question_id, str)
+            if (
+                ref.kind == params["kind"]
+                and payload["text"] == params["answer"]
+                and (not contextual or questions[question_id].text == params["question"])
+            ):
+                return 1
+        return None
+
+    monkeypatch.setattr(records, "put", put)
+    monkeypatch.setattr(records, "resolve", resolve)
+    monkeypatch.setattr(store, "setup", AsyncMock(return_value=snapshot))
+    monkeypatch.setattr(store, "save_attempt", AsyncMock())
+    monkeypatch.setattr(store, "save_question", save_question)
+    monkeypatch.setattr(store, "add_inbox", add)
+    monkeypatch.setattr(store, "consume", consume)
+    monkeypatch.setattr(store, "event", AsyncMock(return_value=1))
+    monkeypatch.setattr(AsyncConnection, "scalar", history)
+    details = [
+        "Does synthetic label A denote Alice?",
+        "Does synthetic label B denote Bob?",
+        "Does synthetic label C denote Carol?",
+        "Does synthetic label D denote Diana?",
+    ]
+    if not distinct:
+        details = [details[0]] * 4
+    for index, detail in enumerate([*details, "Read the clarified synthetic context"]):
+        brain = Attempt(
+            instance_id=owned.run.instance_id,
+            run_id=owned.run.run_id,
+            task_id=str(uuid4()),
+            attempt_id=owned.run.active_attempt_id or str(uuid4()),
+            role="BRAIN",
+            parent_task_id=None,
+            state="RUNNING",
+            brief=f"Reworded reasoning {index}",
+            input_refs=list(pending),
+            input_text="Clarification",
+            instructions="Inert",
+            configured_model="fixture/brain",
+            skill_refs=[],
+        )
+        owned.run = owned.run.model_copy(update={"active_attempt_id": brain.attempt_id})
+        decision = BrainDecision(
+            action="delegate" if index == 4 else "ask",
+            summary=f"Reworded clarification {index}",
+            detail=detail,
+            consumed_refs=list(pending),
+        )
+        await owned.owner.complete(db, owned.run, brain, decision.model_dump_json(), None)
+        counters.append(owned.run.stagnation)
+        if index < 4:
+            assert owned.run.state == "RUNNING" and owned.run.question_id is not None
+            receipt = await owned.owner.handle(
+                command(owned, "answer", question_id=owned.run.question_id, answer="Yes")
+            )
+            assert receipt["state"] == "ADMITTED"
+    assert len(questions) == len(consumed) == 4
+    assert all(question.state == "CONSUMED" for question in questions.values())
+    assert [payloads[ref.id]["text"] for ref in consumed] == ["Yes"] * 4
+    assert counters == ([1, 0, 0, 0, 0] if distinct else [1, 0, 1, 2, 3])
+    assert owned.run.state == ("RUNNING" if distinct else "LIMITED")
+    assert (owned.run.active_attempt_id is not None) is distinct
+    assert owned.writes.count("new_attempt") == (5 if distinct else 4)
+    if not distinct:
+        assert owned.run.reason == "STAGNATION"

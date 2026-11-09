@@ -127,9 +127,15 @@ async def test_run_stagnation_pg_retains_progress_across_owner_recreation(
             await store.save_run(db, run)
         run_id = run.run_id
         workers = 0
-        clarified = False
+        clarified = 0
+        questions = [
+            "Does synthetic label A denote Alice?",
+            "Does synthetic label B denote Bob?",
+            "Does synthetic label C denote Carol?",
+            "Does synthetic label D denote Diana?",
+        ]
         expected_stagnation = 0
-        for index in range(10):
+        for index in range(12):
             runtime = owner()  # No in-memory novelty cache survives a consumer boundary.
             async with service.admission(generation, owner_id, epoch) as db:
                 run = await store.run(db, instance, run_id)
@@ -140,11 +146,13 @@ async def test_run_stagnation_pg_retains_progress_across_owner_recreation(
                 expected_stagnation = (
                     0 if workers == 1 or answer else min(3, expected_stagnation + 1)
                 )
-                asking = clarify and not clarified and expected_stagnation == 2
+                asking = (
+                    clarify and clarified < len(questions) and (answer or expected_stagnation == 2)
+                )
                 decision = BrainDecision(
                     action="ask" if asking else "delegate",
                     summary=f"Reworded summary {index}",
-                    detail=f"Equivalent inert task {index}",
+                    detail=questions[clarified] if asking else f"Equivalent inert task {index}",
                     consumed_refs=brain.input_refs,
                 )
                 await runtime.complete(db, run, brain, decision.model_dump_json(), None)
@@ -205,12 +213,12 @@ async def test_run_stagnation_pg_retains_progress_across_owner_recreation(
                                 "expected_generation": generation,
                                 "expected_revision": run.revision,
                                 "question_id": run.question_id,
-                                "answer": "New operator precondition is satisfied",
+                                "answer": "Yes",
                             },
                         }
                     )
                 )
-                clarified = True
+                clarified += 1
                 continue
             assert run.active_attempt_id is not None
             scope = Scope(
@@ -257,10 +265,28 @@ async def test_run_stagnation_pg_retains_progress_across_owner_recreation(
                     )
         else:
             pytest.fail("Equivalent inert inputs did not reach finite STAGNATION")
-        assert clarified is clarify and workers == (6 if clarify else 4)
+        assert clarified == (4 if clarify else 0) and workers == (6 if clarify else 4)
         async with engine.connect() as db:
             readback = await store.run(db, instance, run_id)
             assert readback == run
+            answers = (
+                await db.execute(
+                    text(
+                        "SELECT q.payload->>'text', r.payload->>'text' "
+                        "FROM run_inbox i JOIN model_record_v2 r "
+                        "ON r.instance_id=i.instance_id AND r.id=i.result_id "
+                        "JOIN run_question q ON q.instance_id=i.instance_id AND q.run_id=i.run_id "
+                        "AND q.question_id::text=r.payload->>'question_id' "
+                        "WHERE i.instance_id=:instance AND i.run_id=:run "
+                        "AND r.kind='run-answer-v1' AND i.consumed_decision_id IS NOT NULL"
+                    ),
+                    {"instance": instance, "run": run_id},
+                )
+            ).all()
+            assert len(answers) == clarified
+            assert set(answers) == (
+                {(question, "Yes") for question in questions} if clarify else set()
+            )
             attempts = (
                 (
                     await db.execute(

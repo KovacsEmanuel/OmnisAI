@@ -10,7 +10,7 @@ import { syntheticRun as run, syntheticAttempt, syntheticSummary, inspection, co
 import { decodeAttemptInspection } from '../shared/api/runs';
 
 function Location() { const location = useLocation(); return <output aria-label="View URL">{location.pathname}{location.search}</output>; }
-function setup(query = '', fault = '', summaryGate?: Promise<void>, attemptGate?: Promise<void>) {
+function setup(query = '', fault = '', summaryGate?: Promise<void>, attemptGate?: Promise<void>, runGate?: Promise<void>) {
   const brain = consumingBrain();
   const worker: ReturnType<typeof inspection> = { ...inspection(), consumption: { held: false, decision_ref: brain.result_ref ?? null, consumer_attempt_id: brain.attempt_id } };
   const parent = { ...syntheticAttempt, role: 'BRAIN' as const, task_id: brain.task_id, attempt_id: brain.attempt_id, parent_task_id: null, state: 'SUCCEEDED' as const, result_ref: brain.result_ref, result_summary: brain.result_summary };
@@ -56,6 +56,8 @@ function setup(query = '', fault = '', summaryGate?: Promise<void>, attemptGate?
         events: [{ event_id: id, run_id: run.run_id, task_id: id, attempt_id: id, sequence: after === 0 ? 1 : run.through_cursor, kind: 'result', summary: after === 0 ? 'Old first-page activity' : 'Newest persisted activity', refs: [], call_id: null, created_at: summary.as_of }], as_of: summary.as_of });
       return Response.json({ run_id: run.run_id, through_cursor: after, has_more: false, events: [], as_of: summary.as_of });
     }
+    if (path.endsWith('/run') && runGate) await runGate;
+    if (fault === 'no-run' && (path.endsWith('/run') || path === '/api/v1/runs/active')) return Response.json(null);
     return Response.json(path === '/api/session' ? session : path === '/health/ready' ? health : path === '/api/instance' ? instance : path === `/api/v1/engagements/${id}` ? draft : path.endsWith('/run') || path === '/api/v1/runs/active' ? fault === 'other-active' ? summary.run : run : path.endsWith('/summary') ? summary : null);
   });
   vi.stubGlobal('fetch', fetcher);
@@ -66,6 +68,54 @@ function setup(query = '', fault = '', summaryGate?: Promise<void>, attemptGate?
   };
   return { view: mount(), mount, fetcher, worker, brain, summary, parent, workerRoster };
 }
+
+it('preserves the bound stream URL when Agents is clicked before run hydration', async () => {
+  let release: (() => void) | undefined;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const { view, fetcher, worker } = setup('', '', undefined, undefined, gate);
+  try {
+    const user = userEvent.setup();
+    await screen.findByText('Reading persisted run…');
+    const url = screen.getByLabelText('View URL').textContent;
+    const agents = screen.getByRole('button', { name: 'Agents' });
+    await user.click(agents);
+    expect(screen.getByLabelText('View URL').textContent).toBe(url);
+    expect(agents).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Feed' })).toBeDisabled();
+    // Feed filters also reach the shared updater while identity is pending.
+    await user.selectOptions(screen.getByLabelText('Event type'), '');
+    expect(screen.getByLabelText('View URL').textContent).toBe(url);
+    expect(fetcher.mock.calls.filter(([path]) => String(path).startsWith('/api/v1/runs/') && !['/api/v1/runs/active', '/api/v1/runs/publications'].includes(String(path)))).toHaveLength(0);
+    await act(async () => { release?.(); await gate; });
+    await waitFor(() => expect(agents).toBeEnabled());
+    await user.click(agents);
+    await user.click(await within(await screen.findByRole('list', { name: 'Spawned agents' })).findByRole('button', { name: /^RECON/ }));
+    const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
+    expect(inspector).toHaveAttribute('data-run-id', run.run_id);
+    expect(inspector).toHaveAttribute('data-attempt-id', worker.attempt_id);
+    await within(inspector).findByText(/End of observed history/);
+    expect(screen.getByLabelText('View URL')).toHaveTextContent(`run=${run.run_id}`);
+    expect(screen.queryByText(/Stream URL is invalid/)).not.toBeInTheDocument();
+    expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
+  } finally { view.unmount(); release?.(); }
+});
+
+it('keeps activity controls inert without a current run', async () => {
+  const { view, fetcher } = setup('', 'no-run');
+  try {
+    const user = userEvent.setup();
+    await screen.findByText('No run observed.');
+    const url = screen.getByLabelText('View URL').textContent;
+    await user.click(screen.getByRole('button', { name: 'Agents' }));
+    expect(screen.getByLabelText('View URL').textContent).toBe(url);
+    expect(screen.getByRole('button', { name: 'Agents' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Feed' })).toBeDisabled();
+    await user.selectOptions(screen.getByLabelText('Event type'), '');
+    expect(screen.getByLabelText('View URL').textContent).toBe(url);
+    expect(fetcher.mock.calls.filter(([path]) => String(path).startsWith('/api/v1/runs/') && !['/api/v1/runs/active', '/api/v1/runs/publications'].includes(String(path)))).toHaveLength(0);
+    expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
+  } finally { view.unmount(); }
+});
 
 it('shows latest observed activity independently of an older ascending event page', async () => {
   const { view, fetcher } = setup('', 'activity');

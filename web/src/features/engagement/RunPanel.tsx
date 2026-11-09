@@ -80,10 +80,11 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
   const after = viewValid ? Number(params.get('after') ?? 0) : 0;
   const filter = { kind: viewValid ? params.get('kind') ?? '' : '', actor: viewValid ? params.get('actor') ?? '' : '', state: viewValid ? params.get('agent-state') ?? '' : '' };
   function updateView(values: Record<string, string | null>) {
+    if (!runId) return;
     const next = new URLSearchParams(params);
     if (!viewValid) viewKeys.forEach(key => next.delete(key));
     for (const [key, value] of Object.entries(values)) { if (value) next.set(key, value); else next.delete(key); }
-    if (runId) next.set('run', runId);
+    next.set('run', runId);
     setParams(next, { replace: true });
   }
   const setSelected = (attempt: string | null, source: string | null = null) => {
@@ -285,7 +286,7 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
       <section className={styles.activity} aria-label="Current activity"><h3>Current activity</h3>
         {latestEvent ? <><p>{latestEvent.summary}</p><small className={styles.muted}>{latestEvent.kind} · <time dateTime={latestEvent.created_at}>{latestEvent.created_at} UTC</time></small></> : <p>{activity.data?.has_more ? 'Newer activity is not yet available in this bounded read.' : activity.isError ? 'Current activity unavailable; no activity inferred.' : activity.isFetching ? 'Reading current activity…' : 'No current event retained in this snapshot.'}</p>}
       </section>
-      <fieldset className={styles.activityTabs} aria-label="Activity view"><button aria-pressed={activityView === 'feed'} onClick={() => updateView({ activity: 'feed' })}>Feed</button><button aria-pressed={activityView === 'agents'} onClick={() => updateView({ activity: 'agents' })}>Agents</button></fieldset>
+      <fieldset className={styles.activityTabs} aria-label="Activity view" disabled={!runId}><button aria-pressed={activityView === 'feed'} onClick={() => updateView({ activity: 'feed' })}>Feed</button><button aria-pressed={activityView === 'agents'} onClick={() => updateView({ activity: 'agents' })}>Agents</button></fieldset>
       {hasView && !viewValid && !currentRun.isPending && <p role="alert">Stream URL is invalid or belongs to another run. No linked record was accepted. <button onClick={() => updateView({ attempt: null, source: null, after: null, kind: null, actor: null, 'agent-state': null, activity: null, 'agents-after': null, 'history-after': null })}>Reset stream view</button></p>}
       {activityView === 'agents' && <section aria-label="Agent roster"><h3>Agents <span className={styles.badge}>{summary.data?.metrics.agents ?? 'UNKNOWN'} total</span></h3>
         <p className={styles.muted}>One Brain across turns; workers grouped by logical task. {coherent?.owner_live ? 'Owner observed.' : 'Live ownership unverified; states are retained, not liveness.'}</p>

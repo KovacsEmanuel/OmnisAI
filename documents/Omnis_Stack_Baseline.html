@@ -217,7 +217,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </table></div>
 <p>Pinii parserelor sunt verificați ca publicare/metadate, nu printr-un test complet de recon. <code>defusedxml</code> are metadate vechi; Requires-Python permisiv nu certifică Python 3.13. Implicit nu facem fetch de <code>$ref</code> sau validare de țintă la upload. OpenAPI 2.0/3.2 se marchează unsupported până la probe proprii, chiar dacă biblioteca poate suporta mai mult.</p>
 <p>Driver, browser și imagine Playwright se actualizează împreună; documentația avertizează asupra mismatchului dintre versiunea bibliotecii și imagine.[5] Imaginile <code>mcr.microsoft.com/playwright/python:v1.63.0-noble</code> și JS echivalent au digesturi verificate, dar <strong>nu sunt executorul hardened livrat</strong>. Interpreterul din imagine poate fi diferit de Python 3.13.15; P3b fie îl înregistrează și testează separat, fie construiește imagine proprie pornind de la Python ales. Nu afirmăm un interpreter neinspectat.</p>
-<p>Katana și Nuclei au integrare planificată explicit în §10, fără a fi instalate/admisibile astăzi; sqlmap rămâne candidat E1. Orice adaptor are pin de binar/templates/digest, politică de efecte, captură, probe de bypass și laborator; un nume în SKILL.md nu instalează sau autorizează toolul.</p>
+<p><strong>D18 — Katana și subset HTTP Nuclei sunt obligatorii până la S7, în S3b</strong>, nu prerequisite pentru S1 sau primul IDOR suficient HTTP. §10/U10–U11 fixează unitățile; sqlmap rămâne candidat E1 cu SQLi. Nu sunt instalate/admisibile astăzi. Fiecare adaptor cere pin de binar/parser/templates/digest/licență, limite/efecte, captură, cancel/Stop și output consumat prin recon/map/Brain/inspector. Un binar în Docker sau numele într-un SKILL.md nu livrează integrarea.</p>
 <h2 id="6-proxy-blocaj-confirmat-nu-compatibilitate-presupusa">6. Proxy: blocaj confirmat, nu compatibilitate presupusă</h2>
 <p><code>mitmproxy==12.2.3</code> publicat impune limite care țin <code>cryptography</code> la ≤48.1, <code>h2</code> la 4.3.0, <code>msgpack</code> la ≤1.1.2 și <code>tornado</code> la ≤6.5.5.[18] Combinația rezolvată include <strong>cryptography 48.0.1, pyOpenSSL 26.2.0, mitmproxy-rs 0.12.11</strong>. Se rezolvă, dar nu este aprobată.</p>
 <p>Metadatele de advisories pe versiunile exacte au semnalat probleme pentru <strong>cryptography, h2, msgpack și tornado</strong>. Pentru cryptography, sursa indică remedieri în 49.0.0/50.0.0, în afara capului pachetului candidat.[19] Detaliile/aliasurile/fixed_in pentru toate sunt păstrate în JSON, fără a susține că toate sunt exploatabile în traseul Omnis. Lipsa exploitabilității demonstrate nu justifică alegerea lor ca frontieră de securitate nouă.</p>
@@ -455,14 +455,14 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 <tr>
 <td>U10</td>
 <td>P Katana <code>pkg/engine/parser/</code>, <code>pkg/navigation</code>, <code>pkg/output/result.go</code> JSONL</td>
-<td>executors/recon B10a/B15</td>
-<td>Crawler/parsers upstream, nu crawler nou. Compatibilitate JSONL și sink allow/deny/cancel; update/form submit/off-origin neaprobat refuzate; fiecare request atribuit.</td>
+<td>executors/recon B10a/B15, subset obligatoriu T2/S3b</td>
+<td>Crawler/parsers upstream, nu crawler nou. Compatibilitate JSONL și sink allow/deny/cancel; update/form submit/off-origin neaprobat refuzate; fiecare request atribuit și output consumat de recon/Brain/inspector înainte S7.</td>
 </tr>
 <tr>
 <td>U11</td>
 <td>P Nuclei <code>pkg/templates</code>, <code>pkg/operators</code>, <code>pkg/output.ResultEvent</code></td>
-<td>adaptor semnale B15n, expuneri E1</td>
-<td>Engine fixat; subset HTTP de templates cu provenance/digest/licență <strong>distincte, încă de selectat</strong>. Fără code/JS/headless/network/OAST; matcher hit ≠ verdict, zero match ≠ negativ, secret/PII controls.</td>
+<td>adaptor semnale B15n în T2/S3b; certificare expuneri E1</td>
+<td>Engine și subset HTTP/templates cu provenance/digest/licență <strong>distincte, încă de selectat</strong>, înainte dispatch. Fără code/JS/headless/raw-network/OAST; matcher hit ≠ verdict, zero match ≠ negativ; secret/PII controls și rezultat consumat înainte S7.</td>
 </tr>
 <tr>
 <td>U12</td>
@@ -702,7 +702,7 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 </tbody>
 </table></div>
 <h3 id="103-admitere-si-inlocuiri-explicite">10.3. Admitere și înlocuiri explicite</h3>
-<p>Katana devine reutilizare planificată B10/B15, Nuclei adaptor de semnale B15n/E1, Schemathesis E2; sqlmap rămâne candidat E1 fără pin/admitere încă. Textul vechi „nu dependențe baseline” pentru toate trei este înlocuit: <strong>selectat pentru integrare nu înseamnă instalat, evaluat sau permis</strong>. B10 folosește subsetul parser/crawl care trece gate-ul transportului; dacă binarul nu poate atribui requests, acesta rămâne blocat, nu se recreează preventiv engine-ul și nu se ocolește brokerul.</p>
+<p>Katana B10/B15 și subsetul HTTP Nuclei/B15n au primul consumer obligatoriu T2/S3b înainte S7; certificarea exposure și sqlmap/SQLi rămân E1, Schemathesis E2. <strong>Selectat pentru integrare nu înseamnă instalat, evaluat sau permis</strong>; pinii de sursă existenți nu atestă binarul ori template-urile care vor fi admise. B10 folosește subsetul parser/crawl care trece gate-ul transportului; fără atribuire requests, adaptorul rămâne blocat, nu se recreează preventiv engine-ul și nu se ocolește brokerul. Primul subset fără wordlist nu cere B10d; consumerii viitori de wordlist păstrează G-WORDLIST.</p>
 <p><strong>Copyleft la pin, nu licență presupusă permisivă:</strong> BBOT și Kiterunner au <code>LICENSE</code> AGPL-3.0, WebTech <code>LICENSE</code> GPL-3.0; CeWL <code>cewl.rb:18</code> declară CC-BY-SA 2.0 sau GPL-3+. Shannon AGPL-3.0 nu este singura unitate cu obligații de distribuție. Aceeași verificare de compatibilitate/notices se aplică fiecărui port, fără a șterge shortlistul tehnic ori a porni alt runtime. Decizia necesară privește importul/distribuția unității, nu aprobarea deja dată pentru amendamente; nu pretindem aviz juridic. Sursa este fișierul de licență la SHA-ul din §10.1, nu metadata unei versiuni latest. Lista source-test a manifestului este incompletă pentru S/R/HM; testele Strix/U06–U13 din tabel trebuie fixate prin hash în felia lor, nu declarate deja importate sau executate.</p>
 <p>Buildurile/executabilele și corpusurile cer hashes/licențe/lockuri proprii în felia de import; SHA-ul repo-ului nu certifică binarul sau bytes Assetnote de pe CDN. Engines nu fac auto-update la runtime. BBOT se extrage fără Ansible/scan helpers/_exec_config_class/env/scope merge; Scrapy fără Twisted/Crawler, signals nu sunt inbox durabil; WebTech fără downloader și cu malformed regex/ReDoS controls; CeWL fără Ruby spider/PII/password lists; Kiterunner fără suita de preflight mutatoare. Aceste adaptări sunt cerințe de test, nu invitație să înlocuim implementările cu descrieri conceptuale.</p>
 <p>Admission model B06m/G-MODEL este la T1 înainte de prima inferență, pe supervisor/senderul nou; B07/Jev folosesc același owner/ledger. Accounting MONITOR nu impune plafon LLM total, dar păstrează admiterea/limitele per apel, DATA și Stop. HOLD provider și Resume manual sunt contracte de produs, nu semantica SDK implicită. G-HERMES-BOUND este alias istoric retras; obligațiile nelegate de Hermes devin G-RUNTIME-BOUND-CORE/complet.</p>
@@ -761,5 +761,5 @@ h1{font:400 clamp(32px,3.5vw,52px)/1.16 Georgia,'Liberation Serif',serif;letter-
 [19] https://pypi.org/pypi/cryptography/48.0.1/json — cryptography 48.0.1 advisory metadata
 [21] https://www.sqlalchemy.org/download.html — SQLAlchemy maintained branches
 [22] https://raw.githubusercontent.com/docker-library/docs/master/postgres/README.md — PostgreSQL official image volume and PGDATA</p>
-<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>4af68c0ae9b0b0a5bef816ce309e4582f38ddce38153a8be06c9589faa031b2e</code>.</p></footer>
+<footer><div class="links"><a href="Omnis_Stack_Baseline.md">Sursa Markdown</a><a href="Omnis_Implementation_Plan.html">Plan</a><a href="Omnis_MVP_Architecture.html">Arhitectură</a><a href="Omnis_UI_Prototype.html">Prototip DEMO</a></div><p>Generat reproductibil din Markdown. Source SHA-256: <code>86a2ff3f800b07d1fa10373ab94223b56b448991c87d6ed58eae639e81b4d24f</code>.</p></footer>
 </main></div></body></html>

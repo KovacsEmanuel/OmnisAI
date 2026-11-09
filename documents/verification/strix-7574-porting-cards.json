@@ -7,6 +7,15 @@
     "status": "CANONICAL_PLAN_INPUT_SOURCE_INSPECTED_RUNTIME_NOT_RUN",
     "authority": "Ordinea și acceptarea sunt numai în Omnis_Implementation_Plan.md §7.2. Acest obiect completează aceleași SR01–SR09, nu creează alt catalog/plan sau mandat de implementare.",
     "approved_exit": "S7 cere nucleul HTTP/browser/SANDBOX_EXEC/recon/notes/map/threat-model/delegare adaptivă/D13/D14/raport HTML+JSON/UI; IDOR/BOLA prima familie, D03 intermediar. A DEFERRED_BY_OPERATOR; pairing manual suficient.",
+    "scanner_scope_d18": {
+      "mandatory_by_s7": ["Katana", "Nuclei: selected HTTP templates"],
+      "first_consumer": "S3b after admitted S2 transport: invocation/capture→typed observation/candidate→map/Brain/inspector; not a prerequisite for S1 or first sufficient HTTP IDOR",
+      "reuse": "Existing canonical stack U10/U11 executable adapters and source pins; no new crawler/scanner engine, registry or scheduler",
+      "admission": "Fix binary/parser/config/template digests and licenses, complete limits and effect classification before implementation/dispatch. Every request attributed and authorized at sink; positive useful consumer plus offscope/redirect/foreign identity/direct-egress/digest/Stop/timeout/oversized-output negatives. No install/auto-update or entire tool grant from shell skill.",
+      "nuclei_boundary": "HTTP subset only, no code/JS/headless/raw-network/OAST. Hit is Observation/Candidate, zero-match is not secure; missing family oracle/validator stays unsupported/inconclusive. No automatic E1 family certification.",
+      "deferred": "sqlmap with SQLi in E1; template breadth/wordlist consumers later at their own gates",
+      "runtime_status": "NOT_IMPLEMENTED_NOT_RUN; binary/template admission pending"
+    },
     "source_kit": {
       "branch": "content/strix-s234-catalog",
       "revision": "1885d3f9dd9d498008a84d005ad6197f4807db2f",

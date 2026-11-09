@@ -55,7 +55,7 @@ def t2_functional_core(text):
         "S2a": ("SR04", "SR05", "OPERATOR_CHECK", "identity"),
         "S2b": ("OBLIGATORIU_S7", "browser", "SANDBOX_EXEC", "G-NET"),
         "S3a": ("SR01", "SR02", "Brain", "brief"),
-        "S3b": ("S2b", "browser", "provenien"),
+        "S3b": ("S2b", "browser", "provenien", "Katana", "Nuclei"),
         "S4a": ("SR03", "SR09", "D13", "D14", "D03"),
         "S4b": ("SR09", "HTML/JSON", "claim_revision", "AVAILABLE"),
         "S5": ("SR06", "G-LOOP", "consum", "UNKNOWN"),
@@ -145,7 +145,7 @@ class ApiKeyContracts(unittest.TestCase):
     def test_t2_cannot_silently_drop_browser_reports_or_manual_pairing_disposition(self):
         original = document("Implementation_Plan")
         t2_functional_core(original)
-        for token in ("OBLIGATORIU_S7", "A = DEFERRED_BY_OPERATOR", "| S4b |"):
+        for token in ("OBLIGATORIU_S7", "A = DEFERRED_BY_OPERATOR", "| S4b |", "Katana", "Nuclei"):
             with self.subTest(token=token), self.assertRaises(AssertionError):
                 t2_functional_core(original.replace(token, "REMOVED_REQUIREMENT"))
 

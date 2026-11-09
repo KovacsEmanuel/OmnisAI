@@ -919,7 +919,7 @@ Matrice suport:
 | OpenAPI local JSON/YAML | Da, upload revizionat | Parser sigur, limite/depth, fără `$ref` externe sau execuție YAML; fără extindere scope |
 | Directory/parameter discovery | Da, bounded wordlist fixată | Activ, inclus în buget/efecte; soft-404 și rate limit tratate |
 | GraphQL/gRPC/WebSocket | Doar semnal de existență când observabil | Nu capabilitate testată; fără negativ implicit |
-| Katana/Nuclei/Schemathesis | Integrare prin adaptoare conform stack §10: recon, semnale, respectiv extensie E2 | Gate per transport/tool/template; sqlmap candidat E1, fără instalare/template-uri automate |
+| Katana/Nuclei/Schemathesis | Katana + subset HTTP Nuclei integrate obligatoriu în T2/S3b înainte S7: recon/semnale→map/Brain/inspector; Schemathesis E2 | Gate per transport/tool/template înainte efect, fără code/headless/raw-network/OAST în subsetul Nuclei; hit nu confirmă fără oracle/validator. sqlmap candidat E1 cu SQLi, fără instalare/template-uri automate; nu prerequisite S1/primului IDOR |
 
 Pachet Brain: snapshot și cursor, vecinătate relevantă, observații/contradicții, frontieră neexplorată, precondiții lipsă, buget și truncation flag. Contextul se paginează; nu transmitem întreaga hartă la fiecare tur. Dedup folosește ObligationKey/ExecutionKey din §6.3, nu doar ipoteză/suprafață/family revision; redelivery, rolul validatorului, procedura și inputurile materiale sunt distincte. Retest/reopen cere informație nouă sau motiv auditat.
 

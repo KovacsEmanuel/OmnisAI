@@ -164,7 +164,7 @@ async def test_run_activity_pg_live_keyset_and_scoped_reciprocal_history(
 
             first_response = await client.get(f"{root}/agents?limit=20")
             assert first_response.status_code == 200
-            first = AgentPage.model_validate(first_response.json())
+            first = AgentPage.model_validate_json(first_response.content)
             assert len(first.agents) == 20 and first.has_more and first.next_after
             assert first.agents[0].agent_id == "brain" and first.agents[0].attempts == 2
             async with engine.begin() as db:
@@ -181,7 +181,7 @@ async def test_run_activity_pg_live_keyset_and_scoped_reciprocal_history(
                 f"{root}/agents", params={"after": first.next_after, "limit": 20}
             )
             assert second_response.status_code == 200
-            second = AgentPage.model_validate(second_response.json())
+            second = AgentPage.model_validate_json(second_response.content)
             ids = [a.agent_id for a in first.agents + second.agents]
             assert len(ids) == len(set(ids)) == 26 and not second.has_more and second.revision == 8
             repeated = await client.get(
@@ -189,7 +189,7 @@ async def test_run_activity_pg_live_keyset_and_scoped_reciprocal_history(
             )
             assert (
                 repeated.status_code == 200
-                and AgentPage.model_validate(repeated.json()).agents == second.agents
+                and AgentPage.model_validate_json(repeated.content).agents == second.agents
             )
 
             async with engine.begin() as db:
@@ -206,17 +206,17 @@ async def test_run_activity_pg_live_keyset_and_scoped_reciprocal_history(
                 f"{root}/agents", params={"after": first.next_after, "limit": 20}
             )
             assert continued.status_code == 200
-            continued_page = AgentPage.model_validate(continued.json())
+            continued_page = AgentPage.model_validate_json(continued.content)
             assert continued_page.agents == second.agents and continued_page.revision == 9
             refreshed = await client.get(f"{root}/agents?limit=20")
             assert refreshed.status_code == 200
             assert earlier.task_id in [
-                a.agent_id for a in AgentPage.model_validate(refreshed.json()).agents
+                a.agent_id for a in AgentPage.model_validate_json(refreshed.content).agents
             ]
             metrics = await client.get(f"{root}/summary")
             assert (
                 metrics.status_code == 200
-                and RunSummary.model_validate(metrics.json()).metrics.agents == 27
+                and RunSummary.model_validate_json(metrics.content).metrics.agents == 27
             )
             for cursor in (
                 f"{uuid4()}:7:brain",
@@ -233,7 +233,7 @@ async def test_run_activity_pg_live_keyset_and_scoped_reciprocal_history(
                 history_url, params={"after": f"{run.run_id}:{actor.task_id}:0", "limit": 3}
             )
             assert response.status_code == 200
-            left = AgentHistory.model_validate(response.json())
+            left = AgentHistory.model_validate_json(response.content)
             assert left.has_more and [(e.sequence, e.paired_sequence) for e in left.events] == [
                 (1, 2),
                 (2, 1),
@@ -243,7 +243,7 @@ async def test_run_activity_pg_live_keyset_and_scoped_reciprocal_history(
                 history_url, params={"after": f"{run.run_id}:{actor.task_id}:3", "limit": 50}
             )
             assert response.status_code == 200
-            right = AgentHistory.model_validate(response.json())
+            right = AgentHistory.model_validate_json(response.content)
             assert right.events[0].pairing == "MATCHED" and right.events[0].paired_sequence == 3
             assert not right.has_more and right.through_cursor == 18
             by_sequence = {e.sequence: e for e in left.events + right.events}
@@ -261,7 +261,7 @@ async def test_run_activity_pg_live_keyset_and_scoped_reciprocal_history(
                 f"{root}/agents/brain/events?after={run.run_id}:brain:0"
             )
             assert brain_response.status_code == 200
-            brain_events = AgentHistory.model_validate(brain_response.json()).events
+            brain_events = AgentHistory.model_validate_json(brain_response.content).events
             assert [(e.sequence, e.pairing, e.paired_sequence) for e in brain_events[:2]] == [
                 (19, "PENDING", None),
                 (20, "UNMATCHED", None),

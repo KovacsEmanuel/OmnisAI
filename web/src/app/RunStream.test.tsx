@@ -37,6 +37,13 @@ function setup(query = '', fault = '', summaryGate?: Promise<void>, attemptGate?
     if (fault === 'other-active' && path === '/api/v1/runs/active') return Response.json(other);
     if (fault === 'other-active' && path === `/api/v1/engagements/${other.engagement_id}`) return Response.json({ ...draft, engagement_id: other.engagement_id, payload: { ...draft.payload, name: 'Other active engagement' } });
     if (path.endsWith('/summary')) { if (summaryGate) await summaryGate; return Response.json(summary); }
+    if (path.endsWith('/agents')) {
+      const groups = new Map<string, typeof summary.attempts>();
+      for (const item of summary.attempts) { const key = item.role === 'BRAIN' ? 'brain' : item.task_id; groups.set(key, [...groups.get(key) ?? [], item]); }
+      const agents = [...groups].map(([agent_id, items]) => { const item = items[0]!; return { agent_id: fault === 'roster-agent' && item.role === 'RECON' ? run.setup_ref.id : agent_id, role: item.role, parent_agent_id: item.role === 'BRAIN' ? null : 'brain', attempt_id: item.attempt_id, state: item.state, brief: item.brief, attempts: items.length }; }).sort((a, b) => a.agent_id === 'brain' ? -1 : b.agent_id === 'brain' ? 1 : a.agent_id.localeCompare(b.agent_id));
+      return Response.json({ run_id: run.run_id, revision: run.revision, agents, has_more: false, next_after: null, as_of: summary.as_of });
+    }
+    if (path.includes('/agents/') && path.includes('/events?')) return Response.json({ run_id: run.run_id, agent_id: path.split('/agents/')[1]!.split('/')[0], through_cursor: 0, events: [], has_more: false, as_of: summary.as_of });
     if (path.includes('/attempts/')) {
       if (attemptGate) await attemptGate;
       if (path.endsWith(worker.attempt_id) && fault !== 'missing') return Response.json(worker);
@@ -52,7 +59,7 @@ function setup(query = '', fault = '', summaryGate?: Promise<void>, attemptGate?
     return Response.json(path === '/api/session' ? session : path === '/health/ready' ? health : path === '/api/instance' ? instance : path === `/api/v1/engagements/${id}` ? draft : path.endsWith('/run') || path === '/api/v1/runs/active' ? fault === 'other-active' ? summary.run : run : path.endsWith('/summary') ? summary : null);
   });
   vi.stubGlobal('fetch', fetcher);
-  const mount = (url = `/engagements/${id}/stream${query}`) => {
+  const mount = (url = `/engagements/${id}/stream${query || `?run=${run.run_id}`}${fault.startsWith('activity') ? '' : '&activity=agents'}`) => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const view = render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[url]}><App /><Location /></MemoryRouter></QueryClientProvider>);
     return { client, unmount() { view.unmount(); client.clear(); } };
@@ -124,21 +131,21 @@ it('keeps current global Stop bound to another engagement while a historical ins
   within(inspector).getByRole('heading', { level: 3 }).focus();
   await user.keyboard('{Escape}');
   expect(screen.queryByRole('dialog', { name: 'Recorded agent activity' })).not.toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: 'Brain stream' })).toHaveFocus();
+  expect(screen.getByRole('heading', { name: 'Activity' })).toHaveFocus();
   view.unmount();
 });
 
 it('groups repeated Brain attempts as one actual task rather than several resident agents', async () => {
   const { view, summary, parent } = setup();
-  summary.attempts.push({ ...parent, attempt_id: run.setup_ref.id });
+  summary.attempts.push({ ...parent, task_id: run.setup_ref.id, attempt_id: run.setup_ref.id });
   const roster = await screen.findByRole('list', { name: 'Spawned agents' });
-  expect(await within(roster).findByText('2 recorded attempts')).toBeVisible();
-  expect(within(roster).getAllByRole('group', { name: `BRAIN task ${parent.task_id}` })).toHaveLength(1);
-  expect(within(roster).getAllByRole('button', { name: /^BRAIN/ })).toHaveLength(2);
+  expect(await within(roster).findByText(/2 recorded attempts/)).toBeVisible();
+  expect(within(roster).getAllByRole('listitem')).toHaveLength(2);
+  expect(within(roster).getAllByRole('button', { name: /^BRAIN/ })).toHaveLength(1);
   view.unmount();
 });
 
-it.each(['healthy', 'roster-model', 'roster-task'])('waits for delayed run summary before accepting decoder-valid %s inspection', async fault => {
+it.each(['healthy', 'roster-model', 'roster-task', 'roster-agent'])('waits for delayed run summary before accepting decoder-valid %s inspection', async fault => {
   let release: (() => void) | undefined;
   const gate = new Promise<void>(resolve => { release = resolve; });
   const { view, fetcher, brain, worker } = setup(`?run=${run.run_id}&attempt=${instance.instance_id}&source=${id}`, fault, gate);
@@ -178,7 +185,7 @@ it('accepts exact causal inspection legitimately omitted from an already loaded 
   const { view, brain, fetcher } = setup(`?run=${run.run_id}&attempt=${instance.instance_id}&source=${id}`, 'bounded');
   const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
   expect(inspector).toHaveTextContent(brain.decision!.summary);
-  expect(screen.getByText('Some attempts are omitted from this bounded summary. Page through events to select their exact attempt IDs.')).toBeVisible();
+  expect(screen.getByRole('region', { name: 'Agent inspector' })).toHaveAttribute('data-attempt-id', brain.attempt_id);
   expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
   view.unmount();
 });
@@ -328,7 +335,7 @@ it.each(['trigger', 'deep-link'])('closes the nonmodal inspector to a visible %s
   expect(screen.getByRole('button', { name: 'Stop run' })).toBeVisible();
   await user.click(within(inspector).getByRole('button', { name: 'Close inspector' }));
   expect(screen.queryByRole('region', { name: 'Agent inspector' })).not.toBeInTheDocument();
-  expect(entry === 'trigger' ? trigger : screen.getByRole('heading', { name: 'Brain stream' })).toHaveFocus();
+  expect(entry === 'trigger' ? trigger : screen.getByRole('heading', { name: 'Activity' })).toHaveFocus();
   view.unmount();
 });
 
@@ -349,7 +356,7 @@ it.each(['trigger', 'deep-link'].flatMap(entry => ['pending', 'error', 'loaded']
     expect(screen.getByRole('button', { name: 'Stop active run' }).closest('[inert]')).toBeNull();
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog', { name: 'Recorded agent activity' })).not.toBeInTheDocument();
-    expect(entry === 'trigger' ? trigger : screen.getByRole('heading', { name: 'Brain stream' })).toHaveFocus();
+    expect(entry === 'trigger' ? trigger : screen.getByRole('heading', { name: 'Activity' })).toHaveFocus();
     expect(screen.getByLabelText('View URL')).not.toHaveTextContent('attempt=');
     expect(screen.getByLabelText('View URL')).not.toHaveTextContent('source=');
     expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
@@ -416,7 +423,7 @@ it.each(['503', 'roster'].flatMap(fault => ['inside', 'stop'].flatMap(focus => [
   } else await waitFor(() => expect(close).toHaveFocus());
   await user.keyboard('{Escape}');
   expect(screen.queryByRole('dialog', { name: 'Recorded agent activity' })).not.toBeInTheDocument();
-  expect(entry === 'trigger' ? trigger : screen.getByRole('heading', { name: 'Brain stream' })).toHaveFocus();
+  expect(entry === 'trigger' ? trigger : screen.getByRole('heading', { name: 'Activity' })).toHaveFocus();
   expect(screen.getByLabelText('View URL')).not.toHaveTextContent('attempt=');
   expect(screen.getByLabelText('View URL')).not.toHaveTextContent('source=');
   expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
@@ -451,10 +458,10 @@ it('state filtering retains explicit ancestor context but no invisible-parent or
   const roster = await screen.findByRole('list', { name: 'Spawned agents' });
   await within(roster).findByRole('button', { name: /^RECON/ });
   expect(within(roster).queryByRole('button', { name: /^BRAIN/ })).not.toBeInTheDocument();
-  expect(roster).toHaveTextContent(`Ancestor context: BRAIN · ${instance.instance_id} · SUCCEEDED`);
+  expect(roster).toHaveTextContent('parent brain');
   expect(within(roster).getAllByRole('listitem').every(item => !!item.textContent?.trim())).toBe(true);
   await userEvent.setup().selectOptions(screen.getByLabelText('Agent state'), 'FAILED');
   expect(within(roster).queryAllByRole('listitem')).toHaveLength(0);
-  expect(screen.getByText('No agents match this state in the bounded summary.')).toBeVisible();
+  expect(screen.getByText('No agents match this state on this page.')).toBeVisible();
   view.unmount();
 });

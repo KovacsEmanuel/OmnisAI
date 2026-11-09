@@ -14,7 +14,7 @@ import type { SearchCatalog, RefreshCatalog, CancelCatalog } from './providerCat
 import { decodeKeySettings } from './providerKeys';
 import type { KeyCommand } from './providerKeys';
 import { decodeProviderModels } from './providerModels';
-import { runCommandFits, decodeReceipt, decodeOptionalRun, decodeRunSummary, decodeEvents, decodeAttemptInspection, decodePublications } from './runs';
+import { isAgent, decodeAgents, decodeAgentHistory, runCommandFits, decodeReceipt, decodeOptionalRun, decodeRunSummary, decodeEvents, decodeAttemptInspection, decodePublications } from './runs';
 import type { Preflight, StartRun, RunCommand } from './runs';
 import type { RemoveModel, SaveModels } from './providerModels';
 import { httpObservation, reportTypedError } from '../uiDiagnostics';
@@ -122,6 +122,18 @@ export const api = {
     const response = await request(`/api/v1/runs/${runId}/events?after=${runId}:${after}`, {}, signal);
     const value = await body(response); if (!response.ok) throw decodeError(value);
     return decodeEvents(value, runId, after);
+  },
+  async runAgents(runId: string, after: string | null = null, signal?: AbortSignal) {
+    if (!isUuid(runId) || (after !== null && (after.length > 128 || !after.startsWith(`${runId}:`)))) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/runs/${runId}/agents${after ? `?after=${encodeURIComponent(after)}` : ''}`, {}, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    return decodeAgents(value, runId, after);
+  },
+  async runAgentHistory(runId: string, agent: string, after = 0, signal?: AbortSignal) {
+    if (!isUuid(runId) || !isAgent(agent) || !Number.isSafeInteger(after) || after < 0) throw new ApiError('INVALID_INPUT');
+    const response = await request(`/api/v1/runs/${runId}/agents/${agent}/events?after=${runId}:${agent}:${after}`, {}, signal);
+    const value = await body(response); if (!response.ok) throw decodeError(value);
+    return decodeAgentHistory(value, runId, agent, after);
   },
   async runAttempt(runId: string, attemptId: string, signal?: AbortSignal) {
     if (!isUuid(runId) || !isUuid(attemptId)) throw new ApiError('INVALID_INPUT');

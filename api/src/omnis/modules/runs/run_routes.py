@@ -14,6 +14,9 @@ from omnis.modules.runs import run_store as store
 from omnis.modules.runs.model_test_routes import control_exchange
 from omnis.modules.runs.model_test_store import ModelConflict
 from omnis.modules.runs.run_contract import (
+    AgentHistory,
+    AgentIdentity,
+    AgentPage,
     AttemptInspection,
     CommandReceipt,
     EventPage,
@@ -167,6 +170,43 @@ async def summary(
         return await projections.summary(request.app.state.db_engine, run_id, limit)
     except ModelConflict as error:
         return error_response(error.code, 404)
+
+
+@router.get("/runs/{run_id}/agents", response_model=AgentPage, responses=error_responses(404, 422))
+async def agents(
+    run_id: Identity,
+    request: Request,
+    after: str | None = Query(default=None, max_length=128),
+    limit: int = Query(default=20, ge=1, le=50),
+) -> AgentPage | JSONResponse:
+    try:
+        return await projections.agents(request.app.state.db_engine, run_id, after, limit)
+    except ModelConflict as error:
+        return error_response(error.code, 404 if error.code == "NOT_FOUND" else 422)
+    except ValueError:
+        return error_response("REF_UNAVAILABLE", 422)
+
+
+@router.get(
+    "/runs/{run_id}/agents/{agent_id}/events",
+    response_model=AgentHistory,
+    responses=error_responses(404, 422),
+)
+async def agent_history(
+    run_id: Identity,
+    agent_id: AgentIdentity,
+    request: Request,
+    after: str | None = Query(default=None, max_length=128),
+    limit: int = Query(default=20, ge=1, le=50),
+) -> AgentHistory | JSONResponse:
+    try:
+        return await projections.agent_history(
+            request.app.state.db_engine, run_id, agent_id, after, limit
+        )
+    except ModelConflict as error:
+        return error_response(error.code, 404 if error.code == "NOT_FOUND" else 422)
+    except ValueError:
+        return error_response("REF_UNAVAILABLE", 422)
 
 
 @router.get("/runs/{run_id}/events", response_model=EventPage, responses=error_responses(404, 422))

@@ -9,6 +9,8 @@ export function checkRunProgress(next: RunView | null, previous: RunView | null 
   return next;
 }
 export type EventPage = components['schemas']['EventPage'];
+export type AgentPage = components['schemas']['AgentPage'];
+export type AgentHistory = components['schemas']['AgentHistory'];
 export type RunSummary = components['schemas']['RunSummary'];
 export type RunCommand = components['schemas']['RunCommand'];
 export function runCommandFits(command: RunCommand) {
@@ -244,10 +246,58 @@ function question(value: unknown): components['schemas']['Question'] {
   if ((row.state === 'PENDING') !== (row.answer_ref === null && row.command_id === null) || (row.state !== 'PENDING' && (row.answer_ref === null || row.command_id === null))) return fail();
   return { question_id: id(row.question_id), run_id: id(row.run_id), task_id: id(row.task_id), revision: integer(row.revision, 1), kind: 'CLARIFICATION', cause: text(row.cause, 256), text: text(row.text, 1024), refs: list(row.refs, 32, decodeRef), state: oneOf(row.state, ['PENDING', 'ANSWER_ADMITTED', 'CONSUMED']), answer_ref: nullable(row.answer_ref, decodeRef), command_id: nullable(row.command_id, id) };
 }
-export function decodeRunSummary(value: unknown, runId: string): RunSummary {
-  const row = record(value, ['run', 'owner_live', 'phase_active', 'question', 'attempts', 'has_more', 'as_of', 'usage']);
+function decodeMetrics(value: unknown): components['schemas']['RunMetrics'] {
+  const row = record(value, ['started_at', 'finished_at', 'agents', 'attempts', 'failed_attempts', 'sent', 'reserved', 'released', 'inflight', 'settled', 'unknown']);
+  const result = { started_at: nullable(row.started_at, timestamp), finished_at: nullable(row.finished_at, timestamp), agents: integer(row.agents), attempts: integer(row.attempts), failed_attempts: integer(row.failed_attempts), sent: integer(row.sent), reserved: integer(row.reserved), released: integer(row.released), inflight: integer(row.inflight), settled: integer(row.settled), unknown: integer(row.unknown) };
+  if (result.agents > result.attempts || result.failed_attempts > result.attempts || result.sent !== result.inflight + result.settled + result.unknown || (result.started_at && result.finished_at && Date.parse(result.finished_at) < Date.parse(result.started_at))) return fail();
+  return result;
+}
+export function runDuration(summary: RunSummary): string {
+  const start = summary.metrics.started_at;
+  const end = runTerminal(summary.run) ? summary.metrics.finished_at : summary.as_of;
+  if (!start || !end || Date.parse(end) < Date.parse(start)) return 'UNKNOWN';
+  const seconds = Math.floor((Date.parse(end) - Date.parse(start)) / 1000);
+  return `${Math.floor(seconds / 3600)}h ${Math.floor(seconds % 3600 / 60)}m ${seconds % 60}s`;
+}
+export const isAgent = (value: unknown): value is string => value === 'brain' || isUuid(value);
+export function decodeAgents(value: unknown, runId: string, after: string | null): AgentPage {
   if (new TextEncoder().encode(JSON.stringify(value)).length > 65536) return fail();
-  const result = { usage: usageSummary(row.usage, 'RUN'), owner_live: bool(row.owner_live), phase_active: bool(row.phase_active), run: decodeRun(row.run), question: nullable(row.question, question), attempts: list(row.attempts, 50, decodeAttempt), has_more: bool(row.has_more), as_of: timestamp(row.as_of) };
+  const row = record(value, ['run_id', 'revision', 'agents', 'has_more', 'next_after', 'as_of']);
+  if (row.run_id !== runId) return fail();
+  const revision = integer(row.revision, 1);
+  const agents = list(row.agents, 50, (value): components['schemas']['AgentRow'] => {
+    const item = record(value, ['agent_id', 'role', 'parent_agent_id', 'attempt_id', 'state', 'brief', 'attempts']);
+    const agent = isAgent(item.agent_id) ? item.agent_id : fail();
+    const role = oneOf(item.role, ['BRAIN', 'RECON']);
+    if ((role === 'BRAIN') !== (agent === 'brain')) return fail();
+    return { agent_id: agent, role, parent_agent_id: nullable(item.parent_agent_id, value => isAgent(value) ? value : fail()), attempt_id: id(item.attempt_id), state: oneOf(item.state, ['RUNNING', 'SUCCEEDED', 'INCONCLUSIVE', 'FAILED', 'CANCELLED', 'NEEDS_RECONCILIATION']), brief: text(item.brief, 1024), attempts: integer(item.attempts, 1) };
+  });
+  const hasMore = bool(row.has_more), next = nullable(row.next_after, value => text(value, 128));
+  const prefix = `${runId}:${revision}:`, previous = after?.slice(prefix.length);
+  const order = (agent: string) => agent === 'brain' ? '' : agent;
+  if (after && (!after.startsWith(prefix) || !isAgent(previous))) return fail();
+  if (new Set(agents.map(item => item.agent_id)).size !== agents.length || agents.some((item, index) => (index > 0 && order(item.agent_id) <= order(agents[index - 1]!.agent_id)) || (previous && order(item.agent_id) <= order(previous)))) return fail();
+  if (hasMore !== (next !== null) || (hasMore && (!agents.length || next !== `${prefix}${agents.at(-1)!.agent_id}`))) return fail();
+  return { run_id: runId, revision, agents, has_more: hasMore, next_after: next, as_of: timestamp(row.as_of) };
+}
+export function decodeAgentHistory(value: unknown, runId: string, agent: string, after: number): AgentHistory {
+  const row = record(value, ['run_id', 'agent_id', 'through_cursor', 'events', 'has_more', 'as_of']);
+  if (row.agent_id !== agent || new TextEncoder().encode(JSON.stringify(value)).length > 65536) return fail();
+  const entries = list(row.events, 50, value => record(value, ['event_id', 'run_id', 'task_id', 'attempt_id', 'sequence', 'kind', 'summary', 'refs', 'call_id', 'created_at', 'pairing', 'paired_sequence']));
+  const page = decodeEvents({ run_id: row.run_id, through_cursor: row.through_cursor, has_more: row.has_more, as_of: row.as_of, events: entries.map(({ pairing: _pairing, paired_sequence: _paired, ...event }) => event) }, runId, after);
+  const events = page.events.map((event, index) => {
+    const pairing = oneOf(entries[index]!.pairing, ['MATCHED', 'PENDING', 'UNMATCHED', 'NOT_APPLICABLE']);
+    const paired = nullable(entries[index]!.paired_sequence, value => integer(value, 1));
+    if (!event.attempt_id || !event.task_id || (agent !== 'brain' && event.task_id !== agent) || (pairing === 'MATCHED') !== (paired !== null) || (paired !== null && (paired === event.sequence || (event.kind === 'tool_called' ? paired < event.sequence : paired > event.sequence)))) return fail();
+    return { ...event, pairing, paired_sequence: paired };
+  });
+  if (page.has_more && !events.length) return fail();
+  return { ...page, agent_id: agent, events };
+}
+export function decodeRunSummary(value: unknown, runId: string): RunSummary {
+  const row = record(value, ['run', 'owner_live', 'phase_active', 'question', 'attempts', 'has_more', 'as_of', 'usage', 'metrics']);
+  if (new TextEncoder().encode(JSON.stringify(value)).length > 65536) return fail();
+  const result = { metrics: decodeMetrics(row.metrics), usage: usageSummary(row.usage, 'RUN'), owner_live: bool(row.owner_live), phase_active: bool(row.phase_active), run: decodeRun(row.run), question: nullable(row.question, question), attempts: list(row.attempts, 50, decodeAttempt), has_more: bool(row.has_more), as_of: timestamp(row.as_of) };
   if (result.run.run_id !== runId || result.attempts.some(item => item.run_id !== runId) || (result.question && result.question.run_id !== runId)) return fail();
   if (new Set(result.attempts.map(item => item.attempt_id)).size !== result.attempts.length || result.attempts.some(item => item.instance_id !== result.run.instance_id) || (result.phase_active && (!result.owner_live || result.run.state !== 'RUNNING' || result.run.active_attempt_id === null))) return fail();
   return result;

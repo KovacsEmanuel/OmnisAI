@@ -10,11 +10,16 @@ from omnis.modules.runs import model_test_store as records
 from omnis.modules.runs import run_store as store
 from omnis.modules.runs.model_test_contract import Ref
 from omnis.modules.runs.run_contract import (
+    AgentEvent,
+    AgentHistory,
+    AgentPage,
+    AgentRow,
     Attempt,
     DispatchUsage,
     EventPage,
     RoleUsage,
     RunEvent,
+    RunMetrics,
     RunSummary,
     RunView,
     UsageMeasures,
@@ -251,6 +256,248 @@ async def read_run(db: AsyncConnection, identity: str) -> RunView:
     return RunView.model_validate_json(json.dumps(payload))
 
 
+async def overview_metrics(db: AsyncConnection, run: RunView) -> RunMetrics:
+    row = (
+        (
+            await db.execute(
+                text("""
+        WITH actors AS (
+          SELECT count(DISTINCT CASE WHEN role='BRAIN' THEN 'brain' ELSE task_id::text END) AS agents,
+            count(*) AS attempts, count(*) FILTER (WHERE state='FAILED') AS failed_attempts
+          FROM run_attempt WHERE instance_id=:instance AND run_id=:run
+        ), requests AS (
+          SELECT count(*) FILTER (WHERE EXISTS (SELECT 1 FROM run_dispatch_event e
+              WHERE e.instance_id=d.instance_id AND e.dispatch_id=d.dispatch_id AND e.state='SENT')) AS sent,
+            count(*) FILTER (WHERE state='RESERVED') AS reserved,
+            count(*) FILTER (WHERE state='RELEASED') AS released,
+            count(*) FILTER (WHERE state='SENT') AS inflight,
+            count(*) FILTER (WHERE state='SETTLED') AS settled,
+            count(*) FILTER (WHERE state='UNKNOWN') AS unknown
+          FROM run_dispatch d WHERE instance_id=:instance AND run_id=:run
+        ), timing AS (
+          SELECT min((payload->>'created_at')::timestamptz) FILTER (WHERE payload->>'kind'='started') AS started_at,
+            CASE WHEN :terminal THEN max((payload->>'created_at')::timestamptz) END AS finished_at
+          FROM run_event WHERE instance_id=:instance AND run_id=:run
+        ) SELECT * FROM actors CROSS JOIN requests CROSS JOIN timing
+    """),
+                {
+                    "instance": run.instance_id,
+                    "run": run.run_id,
+                    "terminal": run.state in {"STOPPED", "COMPLETED", "LIMITED"},
+                },
+            )
+        )
+        .mappings()
+        .one()
+    )
+    return RunMetrics.model_validate(dict(row))
+
+
+def agent_cursor(run: RunView, after: str | None) -> str | None:
+    if after is None:
+        return None
+    prefix = f"{run.run_id}:{run.revision}:"
+    key = after.removeprefix(prefix)
+    if not after.startswith(prefix) or not valid_agent(key):
+        raise records.ModelConflict("CURSOR_DENIED")
+    return key
+
+
+def valid_agent(value: str) -> bool:
+    from uuid import UUID
+
+    if value == "brain":
+        return True
+    try:
+        return str(UUID(value, version=4)) == value
+    except ValueError:
+        return False
+
+
+async def agent_page(db: AsyncConnection, run: RunView, after: str | None, limit: int) -> AgentPage:
+    key = agent_cursor(run, after)
+    if key is not None and not await db.scalar(
+        text(
+            "SELECT 1 FROM run_attempt WHERE instance_id=:instance AND run_id=:run AND (CASE WHEN role='BRAIN' THEN 'brain' ELSE task_id::text END)=:agent LIMIT 1"
+        ),
+        {"instance": run.instance_id, "run": run.run_id, "agent": key},
+    ):
+        raise records.ModelConflict("CURSOR_DENIED")
+    # Revision-bound keysets refuse a changed roster rather than silently skip new UUIDs.
+    rows = (
+        (
+            await db.execute(
+                text("""
+        WITH grouped AS (
+          SELECT CASE WHEN role='BRAIN' THEN 'brain' ELSE task_id::text END AS agent_id,
+            role, count(*) AS attempts
+          FROM run_attempt WHERE instance_id=:instance AND run_id=:run GROUP BY 1,2
+        ) SELECT g.*, a.attempt_id::text, a.state, a.payload->>'brief' AS brief,
+            CASE WHEN p.role='BRAIN' THEN 'brain' ELSE p.task_id::text END AS parent_agent_id
+          FROM grouped g JOIN LATERAL (
+            SELECT a.* FROM run_attempt a
+            WHERE a.instance_id=:instance AND a.run_id=:run
+              AND (CASE WHEN a.role='BRAIN' THEN 'brain' ELSE a.task_id::text END)=g.agent_id
+            ORDER BY (a.attempt_id::text=:active) DESC,
+              (SELECT max(e.sequence) FROM run_event e WHERE e.instance_id=a.instance_id
+                AND e.run_id=a.run_id AND e.payload->>'attempt_id'=a.attempt_id::text) DESC NULLS LAST,
+              a.attempt_id DESC LIMIT 1
+          ) a ON TRUE LEFT JOIN run_task p ON p.instance_id=a.instance_id AND p.run_id=a.run_id
+              AND p.task_id::text=a.payload->>'parent_task_id' AND g.role<>'BRAIN'
+          WHERE CAST(:after AS text) IS NULL OR (g.agent_id<>'brain' AND (:after='brain' OR g.agent_id>:after))
+          ORDER BY (g.role='BRAIN') DESC,g.agent_id LIMIT :limit
+    """),
+                {
+                    "instance": run.instance_id,
+                    "run": run.run_id,
+                    "active": run.active_attempt_id,
+                    "after": key,
+                    "limit": limit + 1,
+                },
+            )
+        )
+        .mappings()
+        .all()
+    )
+    result = AgentPage(
+        run_id=run.run_id,
+        revision=run.revision,
+        agents=[],
+        has_more=len(rows) > limit,
+        next_after=None,
+        as_of=datetime.now(UTC),
+    )
+    for row in rows[:limit]:
+        item = AgentRow.model_validate(dict(row))
+        proposed = result.model_copy(update={"agents": [*result.agents, item]})
+        if len(proposed.model_dump_json().encode()) > 65000:
+            result = result.model_copy(update={"has_more": True})
+            break
+        result = proposed
+    if result.has_more:
+        if not result.agents:
+            raise records.ModelConflict("PROJECTION_LIMIT")
+        result = result.model_copy(
+            update={"next_after": f"{run.run_id}:{run.revision}:{result.agents[-1].agent_id}"}
+        )
+    return result
+
+
+async def agents(engine: AsyncEngine, identity: str, after: str | None, limit: int) -> AgentPage:
+    async with engine.connect() as connection:
+        db = await connection.execution_options(
+            isolation_level="REPEATABLE READ", postgresql_readonly=True
+        )
+        async with db.begin():
+            return await agent_page(db, await read_run(db, identity), after, limit)
+
+
+async def agent_history(
+    engine: AsyncEngine, identity: str, agent: str, after: str | None, limit: int
+) -> AgentHistory:
+    if not valid_agent(agent):
+        raise records.ModelConflict("NOT_FOUND")
+    cursor = 0
+    if after is not None:
+        prefix = f"{identity}:{agent}:"
+        number = after.removeprefix(prefix)
+        if (
+            not after.startswith(prefix)
+            or not number.isascii()
+            or not number.isdecimal()
+            or len(number) > 16
+            or int(number) > 9007199254740991
+            or str(int(number)) != number
+        ):
+            raise records.ModelConflict("CURSOR_DENIED")
+        cursor = int(number)
+    async with engine.connect() as connection:
+        db = await connection.execution_options(
+            isolation_level="REPEATABLE READ", postgresql_readonly=True
+        )
+        async with db.begin():
+            run = await read_run(db, identity)
+            params = {
+                "instance": run.instance_id,
+                "run": identity,
+                "agent": agent,
+                "after": cursor,
+                "limit": limit + 1,
+            }
+            exists = await db.scalar(
+                text(
+                    "SELECT 1 FROM run_attempt WHERE instance_id=:instance AND run_id=:run AND (CASE WHEN role='BRAIN' THEN 'brain' ELSE task_id::text END)=:agent LIMIT 1"
+                ),
+                params,
+            )
+            if not exists:
+                raise records.ModelConflict("NOT_FOUND")
+            rows = (
+                (
+                    await db.execute(
+                        text("""
+                SELECT e.payload, a.state, paired.sequence AS paired_sequence FROM run_event e
+                JOIN run_attempt a ON a.instance_id=e.instance_id AND a.run_id=e.run_id
+                  AND a.attempt_id::text=e.payload->>'attempt_id' AND a.task_id::text=e.payload->>'task_id'
+                LEFT JOIN LATERAL (
+                  SELECT p.sequence FROM run_event p WHERE p.instance_id=e.instance_id AND p.run_id=e.run_id
+                    AND p.payload->>'task_id'=e.payload->>'task_id'
+                    AND p.payload->>'attempt_id'=e.payload->>'attempt_id'
+                    AND p.payload->>'call_id'=e.payload->>'call_id'
+                    AND ((e.payload->>'kind'='tool_called' AND p.payload->>'kind' IN ('tool_result','result') AND p.sequence>e.sequence)
+                      OR (e.payload->>'kind' IN ('tool_result','result') AND p.payload->>'kind'='tool_called' AND p.sequence<e.sequence))
+                  ORDER BY p.sequence LIMIT 1
+                ) paired ON TRUE
+                WHERE e.instance_id=:instance AND e.run_id=:run AND e.sequence>:after
+                  AND (CASE WHEN a.role='BRAIN' THEN 'brain' ELSE a.task_id::text END)=:agent
+                ORDER BY e.sequence LIMIT :limit
+            """),
+                        params,
+                    )
+                )
+                .mappings()
+                .all()
+            )
+            result = AgentHistory(
+                run_id=identity,
+                agent_id=agent,
+                through_cursor=cursor,
+                events=[],
+                has_more=len(rows) > limit,
+                as_of=datetime.now(UTC),
+            )
+            for row in rows[:limit]:
+                event = RunEvent.model_validate_json(json.dumps(row["payload"]))
+                pairing = "NOT_APPLICABLE"
+                if event.kind in {"tool_called", "tool_result"} or (
+                    event.kind == "result" and event.call_id
+                ):
+                    pairing = (
+                        "MATCHED"
+                        if row["paired_sequence"] is not None
+                        else "PENDING"
+                        if event.kind == "tool_called" and row["state"] == "RUNNING"
+                        else "UNMATCHED"
+                    )
+                item = AgentEvent.model_validate(
+                    {
+                        **event.model_dump(),
+                        "pairing": pairing,
+                        "paired_sequence": row["paired_sequence"],
+                    }
+                )
+                proposed = result.model_copy(
+                    update={"events": [*result.events, item], "through_cursor": item.sequence}
+                )
+                if len(proposed.model_dump_json().encode()) > 65536:
+                    result = result.model_copy(update={"has_more": True})
+                    break
+                result = proposed
+            if result.has_more and not result.events:
+                raise records.ModelConflict("PROJECTION_LIMIT")
+            return result
+
+
 async def summary(engine: AsyncEngine, identity: str, limit: int = 20) -> RunSummary:
     async with engine.connect() as connection:
         db = await connection.execution_options(
@@ -281,6 +528,7 @@ async def summary(engine: AsyncEngine, identity: str, limit: int = 20) -> RunSum
             )
             result = RunSummary(
                 run=run,
+                metrics=await overview_metrics(db, run),
                 usage=await usage_summary(db, run),
                 owner_live=owner_live,
                 phase_active=owner_live

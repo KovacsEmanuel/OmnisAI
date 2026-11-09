@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router';
 import { api } from '../../shared/api/client';
 import type { SelectedDraft } from '../../shared/api/projections';
 import type { Receipt, RunCommand, StartRun, RunView, RunSummary, EventPage, Attempt, UsageSummary, UsageTotals, Ref } from '../../shared/api/runs';
-import { runCommandFits, runPolling as polling, checkRunProgress, runTerminal, usageFields, sameRef } from '../../shared/api/runs';
+import { runCommandFits, runPolling as polling, checkRunProgress, runTerminal, usageFields, sameRef, runDuration } from '../../shared/api/runs';
 import { RunStop } from './GlobalStop';
 import { ApiError, isUuid } from '../../shared/api/errors';
 import { useSession } from '../bootstrap/BrowserSession';
@@ -59,13 +59,16 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
   const currentKey = ['private', 'engagement-run', draft.engagement_id];
   const currentRun = useQuery({ queryKey: currentKey, queryFn: ({ signal }) => readPrivate(async () => checkRunProgress(await api.engagementRun(draft.engagement_id, signal), client.getQueryData<RunView | null>(currentKey)), signal), enabled, ...polling });
   const runId = currentRun.data?.run_id;
-  const viewKeys = ['run', 'attempt', 'source', 'after', 'kind', 'actor', 'agent-state'];
+  const viewKeys = ['run', 'attempt', 'source', 'after', 'kind', 'actor', 'agent-state', 'activity', 'agents-after', 'history-after'];
   const kinds = ['started', 'decision', 'tool_called', 'tool_result', 'result', 'control', 'question', 'answer'];
   const states = ['RUNNING', 'SUCCEEDED', 'INCONCLUSIVE', 'FAILED', 'CANCELLED', 'NEEDS_RECONCILIATION'];
   const hasView = viewKeys.some(key => params.has(key));
   const viewValid = !hasView || (params.get('run') === runId && isUuid(params.get('run')) &&
     viewKeys.every(key => params.getAll(key).length <= 1) &&
     (!params.has('attempt') || isUuid(params.get('attempt'))) &&
+    (!params.has('activity') || ['feed', 'agents'].includes(params.get('activity') ?? '')) &&
+    (!params.has('agents-after') || (params.get('agents-after')?.startsWith(`${runId}:`) && (params.get('agents-after')?.length ?? 0) <= 128)) &&
+    (!params.has('history-after') || (/^(0|[1-9][0-9]{0,15})$/.test(params.get('history-after') ?? '') && Number.isSafeInteger(Number(params.get('history-after'))))) &&
     (!params.has('source') || (isUuid(params.get('source')) && isUuid(params.get('attempt')) && params.get('source') !== params.get('attempt'))) &&
     (!params.has('after') || (/^(0|[1-9][0-9]{0,15})$/.test(params.get('after') ?? '') && Number.isSafeInteger(Number(params.get('after'))))) &&
     (!params.has('kind') || kinds.includes(params.get('kind') ?? '')) &&
@@ -85,17 +88,22 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
   }
   const setSelected = (attempt: string | null, source: string | null = null) => {
     if (attempt && runId) observeControl('inspector_open', { run_id: runId });
-    updateView({ attempt, source });
+    updateView({ attempt, source, 'history-after': null });
     if (attempt && attempt === selected && source === consumptionLink) (inspectorHeading.current ?? popup.current?.querySelector('button'))?.focus();
   };
   const setAfter = (after: number) => { setPage({ run: runId, cursors: after === 0 ? [] : [...cursors, after] }); updateView({ after: after ? String(after) : null }); };
   const summary = useQuery({ queryKey: ['private', 'run-summary', runId], queryFn: ({ signal }) => { if (!runId) throw new ApiError('INVALID_INPUT'); return readPrivate(async () => { const result = await api.runSummary(runId, signal); checkRunProgress(result.run, client.getQueryData<RunSummary>(['private', 'run-summary', runId])?.run); checkRunProgress(result.run, client.getQueryData<RunView | null>(currentKey)); return result; }, signal); }, enabled: enabled && !!runId, ...polling });
+  const activityView = viewValid && params.get('activity') === 'agents' ? 'agents' : 'feed';
+  const agentsAfter = viewValid ? params.get('agents-after') : null;
+  const roster = useQuery({ queryKey: ['private', 'run-agents', runId, agentsAfter], queryFn: ({ signal }) => { if (!runId) throw new ApiError('INVALID_INPUT'); return readPrivate(() => api.runAgents(runId, agentsAfter, signal), signal); }, enabled: enabled && !!runId && stream && activityView === 'agents', ...polling });
   const summaryReady = summary.isSuccess && summary.data.run.run_id === runId && summary.data.run.instance_id === currentRun.data?.instance_id;
   function actorMatches(result: Attempt, observed: RunSummary | undefined) {
     if (!observed || observed.run.run_id !== runId || observed.run.instance_id !== currentRun.data?.instance_id || result.instance_id !== observed.run.instance_id) return false;
-    const roster = observed.attempts.find(item => item.attempt_id === result.attempt_id);
+    const logical = roster.data?.agents.find(item => item.attempt_id === result.attempt_id);
+    if (logical && (logical.role !== result.role || logical.agent_id !== (result.role === 'BRAIN' ? 'brain' : result.task_id))) return false;
+    const retained = observed.attempts.find(item => item.attempt_id === result.attempt_id);
     // An already loaded bounded roster may legitimately omit an event-selected attempt.
-    return !roster || (result.task_id === roster.task_id && result.role === roster.role && result.configured_model === roster.configured_model);
+    return !retained || (result.task_id === retained.task_id && result.role === retained.role && result.configured_model === retained.configured_model);
   }
   const events = useQuery({ queryKey: ['private', 'run-events', runId, after], queryFn: ({ signal }) => { if (!runId) throw new ApiError('INVALID_INPUT'); return readPrivate(async () => { const result = await api.runEvents(runId, after, signal); const previous = client.getQueryData<EventPage>(['private', 'run-events', runId, after]); if (previous && result.through_cursor < previous.through_cursor) throw new ApiError('INVALID_RESPONSE'); return result; }, signal); }, enabled: enabled && !!runId && stream, ...polling });
   const inspector = useQuery({ queryKey: ['private', 'run-attempt', runId, selected, consumptionLink], queryFn: ({ signal }) => {
@@ -121,6 +129,9 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
   const inspectionMatches = !!inspector.data && actorMatches(inspector.data.result, summary.data) && (!inspector.data.source || actorMatches(inspector.data.source, summary.data));
   const rosterMismatch = summaryReady && !!inspector.data && !inspectionMatches;
   const detail = selected && summaryReady && inspectionMatches && !(consumptionLink && inspector.isError) ? inspector.data?.result : undefined;
+  const agentId = detail ? detail.role === 'BRAIN' ? 'brain' : detail.task_id : null;
+  const historyAfter = viewValid ? Number(params.get('history-after') ?? 0) : 0;
+  const history = useQuery({ queryKey: ['private', 'run-agent-history', runId, agentId, historyAfter], queryFn: ({ signal }) => { if (!runId || !agentId) throw new ApiError('INVALID_INPUT'); return readPrivate(() => api.runAgentHistory(runId, agentId, historyAfter, signal), signal); }, enabled: enabled && !!runId && !!agentId && stream, ...polling });
   const inspectorHeading = useRef<HTMLHeadingElement>(null);
   const runHeading = useRef<HTMLHeadingElement>(null);
   const selectionTrigger = useRef<HTMLButtonElement | null>(null);
@@ -235,32 +246,8 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
   const eventTypes = [...new Set([filter.kind, ...pageEvents.map(event => event.kind)])].filter(Boolean);
   const actors = [...new Set([filter.actor, ...pageEvents.map(event => event.task_id ?? 'none')])].filter(Boolean);
   const filteredEvents = pageEvents.filter(event => (!filter.kind || event.kind === filter.kind) && (!filter.actor || (event.task_id ?? 'none') === filter.actor));
-  const agentButton = (item: Attempt) => <button data-attempt-id={item.attempt_id} aria-label={`${item.role} · ${item.task_id} · ${item.state}${item.parent_task_id ? ` · parent ${item.parent_task_id}` : ''}${(tasks.get(item.task_id)?.length ?? 0) > 1 ? ` · attempt ${item.attempt_id}` : ''}`} aria-pressed={selected === item.attempt_id} onClick={event => { selectionTrigger.current = event.currentTarget; setSelected(item.attempt_id); }}><strong>{item.role}</strong> · {item.brief || 'Recorded task'}<span className={styles.badge}>{item.state}</span></button>;
-  const tasks = new Map<string, Attempt[]>();
-  for (const item of attempts) tasks.set(item.task_id, [...tasks.get(item.task_id) ?? [], item]);
-  const taskParent = (items: Attempt[]) => items[0] && items.every(item => item.parent_task_id === items[0]?.parent_task_id) ? items[0].parent_task_id : null;
-  const rendered = new Set<string>();
-  function agentRow(taskId: string, nested = false): ReactNode {
-    if (rendered.has(taskId)) return null;
-    rendered.add(taskId);
-    const items = tasks.get(taskId) ?? [];
-    const item = items[0];
-    if (!item) return null;
-    const rows = [...tasks].filter(([, children]) => taskParent(children) === taskId).map(([childId]) => agentRow(childId, true));
-    const hasChildren = rows.some(row => row !== null);
-    const matches = items.filter(attempt => !filter.state || attempt.state === filter.state);
-    if (!matches.length && !hasChildren) return null;
-    return <li key={taskId}><fieldset className={styles.taskGroup} aria-label={`${item.role} task ${taskId}`}>
-      {items.length > 1 && <p className={styles.muted}>{items.length} recorded attempts</p>}
-      {matches.map(attempt => <div key={attempt.attempt_id}>{items.length > 1 && <small className={styles.muted}>Record {items.indexOf(attempt) + 1}</small>}{agentButton(attempt)}</div>)}
-      {!matches.length && <p className={styles.muted}>Ancestor context: {item.role} · {item.task_id} · {item.state}</p>}
-      {item.parent_task_id && !tasks.has(item.parent_task_id) && <p>Parent outside this bounded summary: {item.parent_task_id}</p>}
-      {!items.every(attempt => attempt.parent_task_id === item.parent_task_id) && <p>Parent context differs across retained attempts; no single parent inferred.</p>}
-      {hasChildren && <ul style={nested ? { paddingInlineStart: 0 } : undefined}>{rows}</ul>}
-    </fieldset></li>;
-  }
   return <section className={`${stream ? styles.panel : ''} ${styles.run}`} aria-label="Inert run"><div className={stream ? styles.core : styles.overviewRun}>
-    <h2 ref={runHeading} tabIndex={-1}>{stream ? 'Brain stream' : 'Run status'}</h2>
+    <h2 ref={runHeading} tabIndex={-1}>{stream ? 'Activity' : 'Run status'}</h2>
     {!run && <p>{currentRun.isPending ? 'Reading persisted run…' : currentRun.isError ? 'Run unavailable; no run state inferred.' : 'No run observed.'}</p>}
     {run && <section className={styles.nowBar} aria-label="Run status" data-run-id={run.run_id} data-run-revision={run.revision}><strong>{run.state}</strong>{run.reason && <span>{run.reason}</span>}<span className={styles.muted}>Isolated synthetic run · no target assessment</span>{active && !coherent?.owner_live && <p>Live ownership unverified; showing the last saved state.</p>}</section>}
     {active && <div className={`${styles.providerActions} ${styles.runControls}`}>
@@ -274,8 +261,13 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
     </section>}
     {!stream && !question && <section className={styles.nowBar} aria-label="Needs you"><h3>Needs you</h3><p>{coherent ? 'No clarification recorded in this run snapshot.' : 'Clarifications UNKNOWN until a coherent run snapshot is read.'}</p></section>}
     {children}
-    {summary.data && <section aria-label="Run accounting" className={styles.accounting}><h3>Run accounting <span className={styles.badge}>MONITOR</span></h3><p className={styles.muted}>Observed at <time dateTime={summary.data.as_of}>{summary.data.as_of} UTC</time>{summary.isError || !coherent ? ' · stale or unverified' : ''}</p>
-      <dl className={styles.usageMetrics}>{(['total_tokens', 'cost_observed'] as const).map(key => <div key={key}><dt>{key === 'total_tokens' ? 'Total tokens' : 'Observed cost · no inferred currency'}</dt><dd>{summary.data.usage.totals[key].value ?? 'UNKNOWN'} <small>{summary.data.usage.totals[key].state} · {summary.data.usage.totals[key].observed_dispatches}/{summary.data.usage.totals.dispatches} observed</small></dd></div>)}<div><dt>Dispatch allocations · not paid calls</dt><dd>{summary.data.usage.totals.dispatches}<small>{summary.data.usage.totals.unobserved_dispatches} without observation</small></dd></div></dl>
+    {!stream && summary.data && <section aria-label="Run accounting" className={styles.accounting}><h3>Run accounting <span className={styles.badge}>MONITOR</span></h3><p className={styles.muted}>Observed at <time dateTime={summary.data.as_of}>{summary.data.as_of} UTC</time>{summary.isError || !coherent ? ' · stale or unverified' : ''}</p>
+      <dl className={styles.usageMetrics}>
+        <div><dt>Runtime · wall-clock</dt><dd>{runDuration(summary.data)}<small>Includes pauses · {runTerminal(summary.data.run) ? 'final event' : 'as of snapshot'}</small></dd></div>
+        <div><dt>LLM requests · SENT admissions</dt><dd>{summary.data.metrics.sent}<small>{summary.data.metrics.inflight} in flight · {summary.data.metrics.settled} settled · {summary.data.metrics.unknown} UNKNOWN</small><small>{summary.data.metrics.reserved} reserved, not sent · {summary.data.metrics.released} released, not sent</small></dd></div>
+        {(['input_tokens', 'output_tokens', 'total_tokens', 'cost_observed'] as const).map(key => <div key={key}><dt>{key === 'input_tokens' ? 'Input tokens' : key === 'output_tokens' ? 'Output tokens' : key === 'total_tokens' ? 'Total tokens' : 'Observed cost · no inferred currency'}</dt><dd>{summary.data.usage.totals[key].value ?? 'UNKNOWN'}<small>{summary.data.usage.totals[key].state} · {summary.data.usage.totals[key].observed_dispatches}/{summary.data.usage.totals.dispatches} observed</small>{key === 'input_tokens' && <small>Cached (included): {summary.data.usage.totals.cached_tokens.value ?? 'UNKNOWN'} · {summary.data.usage.totals.cached_tokens.state}</small>}{key === 'output_tokens' && <small>Reasoning (included): {summary.data.usage.totals.reasoning_tokens.value ?? 'UNKNOWN'} · {summary.data.usage.totals.reasoning_tokens.state}</small>}</dd></div>)}
+        <div><dt>Agents · whole run</dt><dd>{summary.data.metrics.agents}<small>One Brain + distinct worker tasks · {summary.data.metrics.attempts} attempts · {summary.data.metrics.failed_attempts} failed attempts</small></dd></div>
+      </dl><p className={styles.muted}>SENT records dispatch admission, not a paid or successful HTTP request. Failed attempts are not a request count; uncertain dispatch outcomes stay UNKNOWN. Cache and reasoning are included, never added twice.</p>
 
     </section>}
     {!active && !stream && <details className={styles.disclosure}><summary>Prepare inert run</summary><section className={styles.preflight} aria-label="New inert run setup"><h3>New inert run · explicit preflight</h3><p>Only the selected synthetic context is sent. No target requests, shell or browser tools. Models may make successive calls; 300 seconds per operation, no total LLM cost cap.</p>
@@ -293,15 +285,22 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
       <section className={styles.activity} aria-label="Current activity"><h3>Current activity</h3>
         {latestEvent ? <><p>{latestEvent.summary}</p><small className={styles.muted}>{latestEvent.kind} · <time dateTime={latestEvent.created_at}>{latestEvent.created_at} UTC</time></small></> : <p>{activity.data?.has_more ? 'Newer activity is not yet available in this bounded read.' : activity.isError ? 'Current activity unavailable; no activity inferred.' : activity.isFetching ? 'Reading current activity…' : 'No current event retained in this snapshot.'}</p>}
       </section>
-      <h3>Delegation tree</h3>
-      {hasView && !viewValid && !currentRun.isPending && <p role="alert">Stream URL is invalid or belongs to another run. No linked record was accepted. <button onClick={() => updateView({ attempt: null, source: null, after: null, kind: null, actor: null, 'agent-state': null })}>Reset stream view</button></p>}
-      <label>Agent state<select value={filter.state} onChange={event => updateView({ 'agent-state': event.target.value })}><option value="">All states</option>{states.map(state => <option key={state}>{state}</option>)}</select></label>
-      <p className={styles.muted}>Agent state filters this bounded roster; ancestor context is retained, not an additional matching agent.</p>
-      {/* The second pass retains rootless cycles; each bounded-summary attempt renders once. */}
-      <ul className={styles.agents} aria-label="Spawned agents">{[...tasks].filter(([, items]) => !tasks.has(taskParent(items) ?? '')).map(([taskId]) => agentRow(taskId))}{[...tasks.keys()].map(taskId => agentRow(taskId))}</ul>
-      {summary.data?.has_more && <p>Some attempts are omitted from this bounded summary. Page through events to select their exact attempt IDs.</p>}
-      {summary.data?.attempts.length === 0 && <p>No spawned agents in this summary.</p>}
-      {attempts.length > 0 && filter.state && !attempts.some(item => item.state === filter.state) && <p>No agents match this state in the bounded summary.</p>}
+      <fieldset className={styles.activityTabs} aria-label="Activity view"><button aria-pressed={activityView === 'feed'} onClick={() => updateView({ activity: 'feed' })}>Feed</button><button aria-pressed={activityView === 'agents'} onClick={() => updateView({ activity: 'agents' })}>Agents</button></fieldset>
+      {hasView && !viewValid && !currentRun.isPending && <p role="alert">Stream URL is invalid or belongs to another run. No linked record was accepted. <button onClick={() => updateView({ attempt: null, source: null, after: null, kind: null, actor: null, 'agent-state': null, activity: null, 'agents-after': null, 'history-after': null })}>Reset stream view</button></p>}
+      {activityView === 'agents' && <section aria-label="Agent roster"><h3>Agents <span className={styles.badge}>{summary.data?.metrics.agents ?? 'UNKNOWN'} total</span></h3>
+        <p className={styles.muted}>One Brain across turns; workers grouped by logical task. {coherent?.owner_live ? 'Owner observed.' : 'Live ownership unverified; states are retained, not liveness.'}</p>
+        <label>Agent state<select value={filter.state} onChange={event => updateView({ 'agent-state': event.target.value })}><option value="">All states</option>{states.map(state => <option key={state}>{state}</option>)}</select></label>
+        <p className={styles.muted}>State filters only this loaded page; parent context is not an additional matching agent.</p>
+        {roster.isPending && <p>Reading agents…</p>}
+        {roster.isError && <p role="alert">Agent roster unavailable or changed. No complete roster inferred. <button onClick={() => { updateView({ 'agents-after': null }); void roster.refetch(); }}>Reload agents</button></p>}
+        {roster.data && <><p className={styles.muted}>Snapshot revision {roster.data.revision} · {roster.data.as_of}{roster.isError || roster.data.revision !== run?.revision ? ' · stale' : ''}</p>
+        <ul className={styles.agents} aria-label="Spawned agents">{roster.data.agents.filter(item => !filter.state || item.state === filter.state).map(item => <li key={item.agent_id} className={item.parent_agent_id ? styles.workerAgent : undefined}><button aria-pressed={selected === item.attempt_id} data-attempt-id={item.attempt_id} onClick={event => { selectionTrigger.current = event.currentTarget; setSelected(item.attempt_id); }}><strong>{item.role}</strong> · {item.brief}<span className={styles.badge}>{item.state}</span></button><small className={styles.muted}>{item.attempts} recorded attempts{item.parent_agent_id ? ` · parent ${item.parent_agent_id}${roster.data?.agents.some(parent => parent.agent_id === item.parent_agent_id) ? '' : ' (outside this page)'}` : ' · run coordinator'}</small></li>)}</ul>
+        {!roster.data.agents.some(item => !filter.state || item.state === filter.state) && <p>{filter.state ? 'No agents match this state on this page.' : 'No agents recorded on this page.'}</p>}
+        <p>{roster.data.has_more ? 'More agents available.' : 'End of observed roster.'}</p></>}
+        {agentsAfter && <button onClick={() => updateView({ 'agents-after': null })}>First agents</button>}
+        {roster.data?.next_after && <button disabled={roster.isFetching || roster.isError} onClick={() => updateView({ 'agents-after': roster.data?.next_after ?? null })}>Next agents</button>}
+      </section>}
+      {activityView === 'feed' && <section aria-label="Activity feed"><h3>Feed</h3>
       <p>Filters apply only to the loaded page, not the whole run. Page navigation remains unfiltered.</p>
       <label>Event type<select value={filter.kind} onChange={event => updateView({ kind: event.target.value })}><option value="">All types</option>{eventTypes.map(kind => <option key={kind} value={kind}>{kind}</option>)}</select></label>
       <label>Event actor (task)<select value={filter.actor} onChange={event => updateView({ actor: event.target.value })}><option value="">All actors</option>{actors.map(actor => <option key={actor} value={actor}>{actor === 'none' ? 'No actor recorded' : `Task ${actor}`}</option>)}</select></label>
@@ -311,17 +310,25 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
       {after > 0 && <button onClick={() => { setAfter(0); }}>First events</button>}
       {after > 0 && <button onClick={() => { const previous = cursors.slice(0, -1); setPage({ run: runId, cursors: previous }); updateView({ after: String(previous.at(-1) ?? 0) }); }}>Previous events</button>}
       {events.data?.has_more && <button disabled={events.isFetching || events.data.through_cursor <= after} onClick={() => { setAfter(events.data?.through_cursor ?? after); }}>Next events</button>}
+      </section>}
       </div><aside aria-label="Contextual inspection">
       {!selected && <p className={styles.muted}>Select an agent or event to read its retained instructions and results.</p>}
       {selected && <dialog open ref={popup} className={styles.inspectorPopup} aria-label="Recorded agent activity" onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeInspector(); } }}>
       {selected && !summaryReady && <p>Waiting for a run-bound summary before inspection.</p>}
       {selected && summaryReady && inspector.isPending && <p>Loading selected agent…</p>}
       {detail && <section aria-label="Agent inspector" data-attempt-id={detail.attempt_id} data-run-id={detail.run_id}>
-        <button onClick={closeInspector}>Close inspector</button>
-        <h3 ref={inspectorHeading} tabIndex={-1}>{detail.role} · {detail.brief || 'Recorded task'}</h3><p>{detail.state} · read-only</p>
+        <header className={styles.inspectorHeader}><button onClick={closeInspector}>Close inspector</button>
+        <h3 ref={inspectorHeading} tabIndex={-1}>{detail.role} · {detail.brief || 'Recorded task'}</h3><p>{detail.state} · read-only</p></header>
         <p className={styles.muted}>Only retained records are shown, not a complete chat transcript.{inspector.isError ? ' Saved snapshot is stale or unavailable.' : ''}</p>
         <p>Configured model: {detail.configured_model} · Observed model: {detail.observed_model ?? 'UNKNOWN'}</p>
-        <section className={styles.record}><h4>Composed instructions and pinned skills</h4><pre>{detail.instructions || 'No retained instructions'}</pre></section>
+        <section aria-label="Agent history"><h4>Mission → recorded activity</h4><p>{detail.brief}</p><p className={styles.muted}>Chronological retained events for {agentId === 'brain' ? 'all Brain turns' : 'this worker task'}. No fabricated transcript; missing events or output remain gaps. Live reads never move your scroll.</p>
+        {history.isPending && <p>Reading agent history…</p>}{history.isError && <p role="alert">Agent history unavailable or stale; no events inferred.</p>}
+        <ol className={styles.events}>{history.data?.events.map(event => <li key={event.event_id}><div className={styles.eventMeta}><time dateTime={event.created_at}>{event.created_at}</time><span>#{event.sequence}</span></div><button onClick={() => { updateView({ attempt: event.attempt_id, source: null }); }}>{event.kind} · {event.summary}</button>{event.pairing !== 'NOT_APPLICABLE' && <p>{event.pairing}{event.paired_sequence ? ` · paired event #${event.paired_sequence}` : ' · no paired record observed'} · call {event.call_id ?? 'UNKNOWN'}</p>}<details className={styles.disclosure}><summary>Event details</summary><p>Task {event.task_id} · attempt {event.attempt_id}</p>{event.refs.map(ref => <p key={ref.id}>{refLabel(ref)}</p>)}{event.call_id && event.call_id === detail.call_id && event.attempt_id === detail.attempt_id && event.kind === 'tool_result' ? <pre>{detail.tool_output ?? 'Output not retained'}</pre> : <p>Open the recorded attempt for retained output and gaps; no additional output inferred.</p>}</details></li>)}</ol>
+        {history.data && <p>{history.data.events.length === 0 ? 'No retained agent events on this page. ' : ''}{history.data.has_more ? 'More history available.' : 'End of observed history; not proof of complete execution.'} Snapshot {history.data.as_of}</p>}
+        <button disabled={historyAfter === 0} onClick={() => updateView({ 'history-after': null })}>First agent events</button>
+        <button disabled={!history.data?.has_more || history.isFetching || history.isError} onClick={() => { updateView({ 'history-after': String(history.data?.through_cursor ?? 0) }); inspectorHeading.current?.focus(); }}>Next agent events</button>
+        </section>
+        <details className={styles.disclosure}><summary>Composed instructions and pinned skills</summary><pre>{detail.instructions || 'No retained instructions'}</pre></details>
         <section className={styles.record}><h4>Recorded completion</h4>
         {detail.result && <><p>Result status: {detail.result.state} · Completion kind: {detail.result.completion_kind ?? 'UNKNOWN'}</p><pre>{detail.result.summary ?? 'UNKNOWN'}</pre><h4>Retained gaps</h4>{detail.result.gaps.length ? <ul>{detail.result.gaps.map((gap, index) => <li key={index}>{gap}</li>)}</ul> : <p>No retained gaps</p>}<ul>{detail.result.consumed_refs.map(ref => <li key={ref.id}>Consumed input {refLabel(ref)}</li>)}</ul></>}
         {detail.decision && <details className={styles.disclosure} open><summary>Decisions</summary><p>Decision action: {detail.decision.action} · Completion kind: {detail.decision_completion_kind ?? 'UNKNOWN'}</p><pre>{detail.decision.summary}</pre><pre>{detail.decision.detail}</pre><ul>{detail.decision.consumed_refs.map(ref => <li key={ref.id}>Consumed result {refLabel(ref)}</li>)}</ul></details>}
@@ -348,7 +355,7 @@ export function RunPanel({ draft, stream, children }: { draft: SelectedDraft; st
       </aside></div>}
     <output aria-live="polite">{message}</output>
     {pending && <button disabled={sending} onClick={() => { void readReceipt(); }}>Read command receipt</button>}
-    <button onClick={() => { void client.invalidateQueries({ queryKey: ['private', 'engagement-run', draft.engagement_id] }); if (runId) { void summary.refetch(); if (stream) { void events.refetch(); if (selected) void inspector.refetch(); } } }}>Refresh run</button>
+    <button onClick={() => { void client.invalidateQueries({ queryKey: ['private', 'engagement-run', draft.engagement_id] }); if (runId) { void summary.refetch(); if (stream) { void roster.refetch(); if (agentId) void history.refetch(); } if (stream) { void events.refetch(); if (selected) void inspector.refetch(); } } }}>Refresh run</button>
     {(currentRun.isError || summary.isError || events.isError || inspector.isError) && <p>Run readback unavailable or stale; no state or effects are inferred.</p>}
   </div></section>;
 }

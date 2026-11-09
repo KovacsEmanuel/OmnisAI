@@ -411,6 +411,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/runs/{run_id}/agents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Agents */
+        get: operations["agents_api_v1_runs__run_id__agents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/agents/{agent_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Agent History */
+        get: operations["agent_history_api_v1_runs__run_id__agents__agent_id__events_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/runs/{run_id}/attempts/{attempt_id}": {
         parameters: {
             query?: never;
@@ -740,6 +774,87 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AgentEvent */
+        AgentEvent: {
+            attempt_id: components["schemas"]["Identity"] | null;
+            /** Call Id */
+            call_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            event_id: components["schemas"]["Identity"];
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "started" | "decision" | "tool_called" | "tool_result" | "result" | "control" | "question" | "answer";
+            paired_sequence: components["schemas"]["PositiveRevision"] | null;
+            /**
+             * Pairing
+             * @enum {string}
+             */
+            pairing: "MATCHED" | "PENDING" | "UNMATCHED" | "NOT_APPLICABLE";
+            /** Refs */
+            refs: components["schemas"]["RunRef"][];
+            run_id: components["schemas"]["Identity"];
+            sequence: components["schemas"]["PositiveRevision"];
+            /** Summary */
+            summary: string;
+            task_id: components["schemas"]["Identity"] | null;
+        };
+        /** AgentHistory */
+        AgentHistory: {
+            agent_id: components["schemas"]["AgentIdentity"];
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Events */
+            events: components["schemas"]["AgentEvent"][];
+            /** Has More */
+            has_more: boolean;
+            run_id: components["schemas"]["Identity"];
+            through_cursor: components["schemas"]["Revision"];
+        };
+        AgentIdentity: string;
+        /** AgentPage */
+        AgentPage: {
+            /** Agents */
+            agents: components["schemas"]["AgentRow"][];
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Has More */
+            has_more: boolean;
+            /** Next After */
+            next_after: string | null;
+            revision: components["schemas"]["PositiveRevision"];
+            run_id: components["schemas"]["Identity"];
+        };
+        /** AgentRow */
+        AgentRow: {
+            agent_id: components["schemas"]["AgentIdentity"];
+            attempt_id: components["schemas"]["Identity"];
+            attempts: components["schemas"]["PositiveRevision"];
+            /** Brief */
+            brief: string;
+            parent_agent_id: components["schemas"]["AgentIdentity"] | null;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "BRAIN" | "RECON";
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "RUNNING" | "SUCCEEDED" | "INCONCLUSIVE" | "FAILED" | "CANCELLED" | "NEEDS_RECONCILIATION";
+        };
         /** ApplicationContext */
         ApplicationContext: {
             /** Import Ref */
@@ -2106,6 +2221,22 @@ export interface components {
             /** Value */
             value?: null;
         };
+        /** RunMetrics */
+        RunMetrics: {
+            agents: components["schemas"]["Revision"];
+            attempts: components["schemas"]["Revision"];
+            failed_attempts: components["schemas"]["Revision"];
+            /** Finished At */
+            finished_at: string | null;
+            inflight: components["schemas"]["Revision"];
+            released: components["schemas"]["Revision"];
+            reserved: components["schemas"]["Revision"];
+            sent: components["schemas"]["Revision"];
+            settled: components["schemas"]["Revision"];
+            /** Started At */
+            started_at: string | null;
+            unknown: components["schemas"]["Revision"];
+        };
         RunRef: components["schemas"]["Ref"];
         /** RunSummary */
         RunSummary: {
@@ -2118,6 +2249,7 @@ export interface components {
             attempts: components["schemas"]["Attempt"][];
             /** Has More */
             has_more: boolean;
+            metrics: components["schemas"]["RunMetrics"];
             /** Owner Live */
             owner_live: boolean;
             /** Phase Active */
@@ -4743,6 +4875,183 @@ export interface operations {
             };
             /** @description Conflict */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    agents_api_v1_runs__run_id__agents_get: {
+        parameters: {
+            query?: {
+                after?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentPage"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    agent_history_api_v1_runs__run_id__agents__agent_id__events_get: {
+        parameters: {
+            query?: {
+                after?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                run_id: string;
+                agent_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentHistory"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

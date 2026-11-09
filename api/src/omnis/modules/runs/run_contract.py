@@ -454,7 +454,53 @@ class CommandReceipt(KeyDTO):
     state: Literal["READY", "ADMITTED"]
 
 
+class RunMetrics(KeyDTO):
+    started_at: datetime | None
+    finished_at: datetime | None
+    agents: Revision
+    attempts: Revision
+    failed_attempts: Revision
+    sent: Revision
+    reserved: Revision
+    released: Revision
+    inflight: Revision
+    settled: Revision
+    unknown: Revision
+
+
+type AgentIdentity = Annotated[
+    str,
+    Field(
+        strict=True,
+        max_length=36,
+        pattern=r"^(brain|[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$",
+    ),
+]
+
+
+class AgentRow(KeyDTO):
+    agent_id: AgentIdentity
+    role: Literal["BRAIN", "RECON"]
+    parent_agent_id: AgentIdentity | None
+    attempt_id: Identity
+    state: Literal[
+        "RUNNING", "SUCCEEDED", "INCONCLUSIVE", "FAILED", "CANCELLED", "NEEDS_RECONCILIATION"
+    ]
+    brief: str = Field(min_length=1, max_length=1024)
+    attempts: PositiveRevision
+
+
+class AgentPage(KeyDTO):
+    run_id: Identity
+    revision: PositiveRevision
+    agents: list[AgentRow] = Field(max_length=50)
+    has_more: bool
+    next_after: str | None = Field(max_length=128)
+    as_of: datetime
+
+
 class RunSummary(KeyDTO):
+    metrics: RunMetrics
     usage: UsageSummary
     run: RunView
     owner_live: bool
@@ -491,6 +537,20 @@ class EventPage(KeyDTO):
     run_id: Identity
     through_cursor: Revision
     events: list[RunEvent] = Field(max_length=50)
+    has_more: bool
+    as_of: datetime
+
+
+class AgentEvent(RunEvent):
+    pairing: Literal["MATCHED", "PENDING", "UNMATCHED", "NOT_APPLICABLE"]
+    paired_sequence: PositiveRevision | None
+
+
+class AgentHistory(KeyDTO):
+    run_id: Identity
+    agent_id: AgentIdentity
+    through_cursor: Revision
+    events: list[AgentEvent] = Field(max_length=50)
     has_more: bool
     as_of: datetime
 

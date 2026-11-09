@@ -20,7 +20,19 @@ export const syntheticAttempt: components['schemas']['Attempt'] = { instance_id:
 export function inspection(actor: components['schemas']['Attempt'] = syntheticAttempt): components['schemas']['AttemptInspection'] {
   return { ...actor, result: actor.result_ref ? { run_id: actor.run_id, task_id: actor.task_id, attempt_id: actor.attempt_id, state: actor.state === 'SUCCEEDED' ? 'SUCCEEDED' : 'INCONCLUSIVE', completion_kind: 'finish', summary: actor.result_summary ?? null, consumed_refs: [], gaps: actor.state === 'SUCCEEDED' ? [] : ['INERT_READ_PROOF_INCOMPLETE', 'Synthetic gap'] } : null, decision: null, decision_completion_kind: null, consumption: actor.result_ref ? { held: false, decision_ref: null, consumer_attempt_id: null } : null, usage: emptyUsage('ATTEMPT'), dispatches: [], dispatches_has_more: false, as_of: '2026-11-04T12:00:00Z' };
 }
-export const syntheticSummary: components['schemas']['RunSummary'] = { run: syntheticRun, owner_live: true, phase_active: false, question: null, attempts: [syntheticAttempt], usage: partialUsage(), has_more: false, as_of: '2026-11-04T12:00:00Z' };
+export const syntheticMetrics = { started_at: '2026-11-04T11:00:00Z', finished_at: null, agents: 2, attempts: 4, failed_attempts: 1, sent: 3, reserved: 0, released: 0, inflight: 0, settled: 2, unknown: 1 };
+export const syntheticSummary: components['schemas']['RunSummary'] = { metrics: syntheticMetrics, run: syntheticRun, owner_live: true, phase_active: false, question: null, attempts: [syntheticAttempt], usage: partialUsage(), has_more: false, as_of: '2026-11-04T12:00:00Z' };
+
+export function agentPage(summary: components['schemas']['RunSummary']): components['schemas']['AgentPage'] {
+  const groups = new Map<string, components['schemas']['Attempt'][]>();
+  for (const item of summary.attempts) { const key = item.role === 'BRAIN' ? 'brain' : item.task_id; groups.set(key, [...groups.get(key) ?? [], item]); }
+  const agents = [...groups].map(([agent_id, items]) => {
+    const item = items[0]!;
+    const parent = summary.attempts.find(parent => parent.task_id === item.parent_task_id);
+    return { agent_id, role: item.role, parent_agent_id: item.role === 'BRAIN' ? null : parent?.role === 'BRAIN' ? 'brain' : item.parent_task_id, attempt_id: item.attempt_id, state: item.state, brief: item.brief, attempts: items.length };
+  }).sort((a, b) => a.agent_id === 'brain' ? -1 : b.agent_id === 'brain' ? 1 : a.agent_id.localeCompare(b.agent_id));
+  return { run_id: summary.run.run_id, revision: summary.run.revision, agents, has_more: false, next_after: null, as_of: summary.as_of };
+}
 
 export function consumingBrain(): components['schemas']['AttemptInspection'] {
   const consumed = syntheticAttempt.result_ref;

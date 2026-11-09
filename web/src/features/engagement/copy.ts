@@ -1,5 +1,5 @@
 export const engagementCopy = {
-  overview: 'Overview', stream: 'Brain stream', findings: 'Findings', coverage: 'Coverage', reports: 'Reports', setup: 'Setup',
+  overview: 'Overview', stream: 'Activity', findings: 'Findings', coverage: 'Coverage', reports: 'Reports', setup: 'Setup',
   dashboard: 'Dashboard', loading: 'Loading engagement…', retry: 'Try again', refresh: 'Refresh engagement',
   unavailable: 'UNAVAILABLE', future: 'This surface is not implemented for this draft. No assessment has run.',
   readOnly: 'Persisted draft · read-only', notRun: 'NOT_RUN', start: 'Start assessment',

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { afterEach, expect, it, vi } from 'vitest';
 import { health, session, instance } from '../../tests/fixtures';
-import { syntheticRun, syntheticSummary, syntheticAttempt, inspection } from '../../tests/run-fixtures';
+import { agentPage, syntheticRun, syntheticSummary, syntheticAttempt, inspection } from '../../tests/run-fixtures';
 import { draft, id, projection } from '../../tests/projection-fixtures';
 import { payload } from '../../tests/draft-fixtures';
 import { api } from '../shared/api/client';
@@ -202,6 +202,7 @@ it.each(['calendar', 'inspector'] as const)('actual %s control emits only finite
       events.push({ ...body });
       return Response.json({ version: 1, event_id: body.event_id, accepted: true, state: 'RECORDED' }, { status: 202 });
     }
+    if (path.endsWith('/agents')) return Response.json(agentPage(syntheticSummary));
     return Response.json(path === '/api/session' ? session : path === '/health/ready' ? health : path === '/api/instance' ? instance : path === `/api/v1/engagements/${id}` ? draft : path.endsWith('/summary') ? { ...syntheticSummary, attempts: [syntheticAttempt] } : path.includes('/attempts/') ? inspection() : path.endsWith('/run') || path === '/api/v1/runs/active' ? kind === 'inspector' ? syntheticRun : null : null);
   }));
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -217,6 +218,7 @@ it.each(['calendar', 'inspector'] as const)('actual %s control emits only finite
     await waitFor(() => expect(events.some(event => event.site === 'calendar_choice')).toBe(true));
     expect(events.some(event => event.site === 'period_toggle')).toBe(true);
   } else {
+    await user.click(await screen.findByRole('button', { name: 'Agents' }));
     await user.click(await screen.findByRole('button', { name: /^RECON/ }));
     await screen.findByRole('region', { name: 'Agent inspector' });
     await waitFor(() => expect(events.some(event => event.site === 'inspector_open' && event.run_id === syntheticRun.run_id)).toBe(true));

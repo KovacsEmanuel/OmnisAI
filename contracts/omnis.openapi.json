@@ -1,6 +1,277 @@
 {
   "components": {
     "schemas": {
+      "AgentEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "call_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call Id"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "event_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "kind": {
+            "enum": [
+              "started",
+              "decision",
+              "tool_called",
+              "tool_result",
+              "result",
+              "control",
+              "question",
+              "answer"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "paired_sequence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PositiveRevision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pairing": {
+            "enum": [
+              "MATCHED",
+              "PENDING",
+              "UNMATCHED",
+              "NOT_APPLICABLE"
+            ],
+            "title": "Pairing",
+            "type": "string"
+          },
+          "refs": {
+            "items": {
+              "$ref": "#/components/schemas/RunRef"
+            },
+            "maxItems": 32,
+            "title": "Refs",
+            "type": "array"
+          },
+          "run_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "sequence": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "summary": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Summary",
+            "type": "string"
+          },
+          "task_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "event_id",
+          "run_id",
+          "task_id",
+          "attempt_id",
+          "sequence",
+          "kind",
+          "summary",
+          "refs",
+          "call_id",
+          "created_at",
+          "pairing",
+          "paired_sequence"
+        ],
+        "title": "AgentEvent",
+        "type": "object"
+      },
+      "AgentHistory": {
+        "additionalProperties": false,
+        "properties": {
+          "agent_id": {
+            "$ref": "#/components/schemas/AgentIdentity"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/AgentEvent"
+            },
+            "maxItems": 50,
+            "title": "Events",
+            "type": "array"
+          },
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "run_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "through_cursor": {
+            "$ref": "#/components/schemas/Revision"
+          }
+        },
+        "required": [
+          "run_id",
+          "agent_id",
+          "through_cursor",
+          "events",
+          "has_more",
+          "as_of"
+        ],
+        "title": "AgentHistory",
+        "type": "object"
+      },
+      "AgentIdentity": {
+        "maxLength": 36,
+        "pattern": "^(brain|[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$",
+        "type": "string"
+      },
+      "AgentPage": {
+        "additionalProperties": false,
+        "properties": {
+          "agents": {
+            "items": {
+              "$ref": "#/components/schemas/AgentRow"
+            },
+            "maxItems": 50,
+            "title": "Agents",
+            "type": "array"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "next_after": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next After"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "run_id": {
+            "$ref": "#/components/schemas/Identity"
+          }
+        },
+        "required": [
+          "run_id",
+          "revision",
+          "agents",
+          "has_more",
+          "next_after",
+          "as_of"
+        ],
+        "title": "AgentPage",
+        "type": "object"
+      },
+      "AgentRow": {
+        "additionalProperties": false,
+        "properties": {
+          "agent_id": {
+            "$ref": "#/components/schemas/AgentIdentity"
+          },
+          "attempt_id": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "attempts": {
+            "$ref": "#/components/schemas/PositiveRevision"
+          },
+          "brief": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Brief",
+            "type": "string"
+          },
+          "parent_agent_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentIdentity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "role": {
+            "enum": [
+              "BRAIN",
+              "RECON"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "RUNNING",
+              "SUCCEEDED",
+              "INCONCLUSIVE",
+              "FAILED",
+              "CANCELLED",
+              "NEEDS_RECONCILIATION"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "agent_id",
+          "role",
+          "parent_agent_id",
+          "attempt_id",
+          "state",
+          "brief",
+          "attempts"
+        ],
+        "title": "AgentRow",
+        "type": "object"
+      },
       "ApplicationContext": {
         "additionalProperties": false,
         "properties": {
@@ -4353,6 +4624,77 @@
         "title": "RunMetric",
         "type": "object"
       },
+      "RunMetrics": {
+        "additionalProperties": false,
+        "properties": {
+          "agents": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "attempts": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "failed_attempts": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "inflight": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "released": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "reserved": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "sent": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "settled": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "unknown": {
+            "$ref": "#/components/schemas/Revision"
+          }
+        },
+        "required": [
+          "started_at",
+          "finished_at",
+          "agents",
+          "attempts",
+          "failed_attempts",
+          "sent",
+          "reserved",
+          "released",
+          "inflight",
+          "settled",
+          "unknown"
+        ],
+        "title": "RunMetrics",
+        "type": "object"
+      },
       "RunRef": {
         "$ref": "#/components/schemas/Ref"
       },
@@ -4375,6 +4717,9 @@
           "has_more": {
             "title": "Has More",
             "type": "boolean"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/RunMetrics"
           },
           "owner_live": {
             "title": "Owner Live",
@@ -4402,6 +4747,7 @@
           }
         },
         "required": [
+          "metrics",
           "usage",
           "run",
           "owner_live",
@@ -8261,6 +8607,275 @@
           }
         },
         "summary": "Publications"
+      }
+    },
+    "/api/v1/runs/{run_id}/agents": {
+      "get": {
+        "operationId": "agents_api_v1_runs__run_id__agents_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Agents"
+      }
+    },
+    "/api/v1/runs/{run_id}/agents/{agent_id}/events": {
+      "get": {
+        "operationId": "agent_history_api_v1_runs__run_id__agents__agent_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "agent_id",
+            "required": true,
+            "schema": {
+              "maxLength": 36,
+              "pattern": "^(brain|[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$",
+              "title": "Agent Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentHistory"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Agent History"
       }
     },
     "/api/v1/runs/{run_id}/attempts/{attempt_id}": {

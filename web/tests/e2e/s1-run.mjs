@@ -41,7 +41,8 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
     assert.equal(value.result.completion_kind, 'finish');
     assert.equal(value.consumption.held, false);
     assert.ok(value.consumption.decision_ref && value.consumption.consumer_attempt_id);
-    const actor = page.getByLabel('Spawned agents').getByRole('button', { name: new RegExp(`^RECON · ${worker.task_id} ·`) });
+    await page.getByRole('button', { name: 'Agents', exact: true }).click();
+    const actor = page.getByLabel('Spawned agents').locator(`button[data-attempt-id="${worker.attempt_id}"]`);
     await check(actor).toBeVisible();
     const close = page.getByRole('button', { name: 'Close inspector', exact: true });
     if (await close.count()) await close.click();
@@ -161,7 +162,8 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   const pendingSummary = await read(`/api/v1/runs/${pendingRun.run_id}/summary`);
   const pendingActor = pendingSummary.attempts.find(item => item.role === 'BRAIN');
   assert.ok(pendingActor, 'Select an actually retained Brain attempt, never a configured future actor');
-  await page.getByRole('link', { name: 'Brain stream', exact: true }).click();
+  await page.getByRole('link', { name: 'Activity', exact: true }).click();
+  await page.getByRole('button', { name: 'Agents', exact: true }).click();
   await page.getByLabel('Spawned agents').locator(`button[data-attempt-id="${pendingActor.attempt_id}"]`).click();
   await check(page.getByRole('region', { name: 'Agent inspector' })).toHaveAttribute('data-attempt-id', pendingActor.attempt_id);
   const currentControl = page.getByRole('region', { name: 'Global run control', exact: true });
@@ -209,7 +211,7 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
   assert.deepEqual(completions.map(worker => worker.result.completion_kind).sort(), ['direct', 'direct', 'finish']);
   const finish = completions.find(worker => worker.result.completion_kind === 'finish');
   assert.ok(finish);
-  await page.getByRole('link', { name: 'Brain stream', exact: true }).click();
+  await page.getByRole('link', { name: 'Activity', exact: true }).click();
   const workerInspection = await inspectWorker(selected.run_id, finish);
   await accounting(page.getByRole('region', { name: 'Run totals' }), summary.usage);
   const inspector = page.getByRole('region', { name: 'Agent inspector' });
@@ -264,7 +266,7 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
       await screenshot(`s1-inspector-injected-ui-http-503-${focus}`);
       await page.keyboard.press('Escape');
       await check(popup).toHaveCount(0);
-      await check(focus === 'inside' ? page.getByLabel('Spawned agents').locator(`button[data-attempt-id="${finish.attempt_id}"]`) : page.getByRole('heading', { name: 'Brain stream', exact: true })).toBeFocused();
+      await check(focus === 'inside' ? page.getByLabel('Spawned agents').locator(`button[data-attempt-id="${finish.attempt_id}"]`) : page.getByRole('heading', { name: 'Activity', exact: true })).toBeFocused();
       assert.equal(new URL(page.url()).searchParams.has('attempt'), false);
       assert.equal(new URL(page.url()).searchParams.has('source'), false);
       assert.deepEqual(writes, beforeInjectedFailure, 'Injected UI HTTP failure/refetch must remain receive-only');
@@ -286,7 +288,7 @@ export async function runS1({ page, check, paired, origin, output, screenshot, s
     await selectedAgent.focus(); await check(selectedAgent).toBeFocused();
     const observeFocus = () => page.evaluate(() => {
       const active = document.activeElement;
-      const agent = document.querySelector('[aria-label="Spawned agents"] button[aria-label^="RECON ·"]');
+      const agent = Array.from(document.querySelectorAll('[aria-label="Spawned agents"] button')).find(button => button.textContent.startsWith('RECON'));
       const popup = document.querySelector('dialog[aria-label="Recorded agent activity"]');
       const heading = popup?.querySelector('[aria-label="Agent inspector"] h3');
       const close = popup?.querySelector('button');

@@ -9,7 +9,7 @@ import { App } from './App';
 import type { components } from '../shared/api/generated';
 import { isRecord } from '../shared/api/errors';
 import { sessionScope } from '../features/engagement/SettingsModels';
-import { emptyUsage, partialUsage, inspection, syntheticAttempt, observedDispatch, consumingBrain } from '../../tests/run-fixtures';
+import { agentPage, syntheticMetrics, emptyUsage, partialUsage, inspection, syntheticAttempt, observedDispatch, consumingBrain } from '../../tests/run-fixtures';
 
 it.each(['unchanged', 'selection', 'draft', 'context', 'generation', 'lost-preflight', 'lost-start'] as const)('SOURCE normal preflight/Start pins and invalidates %s without implicit writes', async change => {
   const publication = { kind: 'catalog-publication', id: '00000000-0000-4000-8000-000000000030', revision: 1, digest: 'c'.repeat(64) };
@@ -60,7 +60,7 @@ it.each(['unchanged', 'selection', 'draft', 'context', 'generation', 'lost-prefl
     else if (path === '/api/v1/runs/publications') value = [publication];
     else if (path === '/api/v1/settings/providers') value = { schema_version: 2, command_id: null, vault_status: 'UNLOCKED', reachable: 'NOT_VERIFIED', connections: [{ connection_id: choice.connection_id, provider: 'openrouter', revision: 1, enabled: true, credential_present: true }], selection: { schema_version: 2, selection_id: choice.connection_id, revision: selectionRevision, default: choice, brain: null, recon: { ...choice, model: 'fixture/recon-override' }, investigator: null, validator: null } };
     else if (path === `/api/v1/engagements/${id}/run` || path === '/api/v1/runs/active') value = hasRun ? run() : null;
-    else if (path === `/api/v1/runs/${runId}/summary`) value = { run: run(), usage: emptyUsage(), owner_live: true, phase_active: false, attempts: [], has_more: false, as_of: '2026-11-04T12:00:00Z', question: { question_id: questionId, run_id: runId, task_id: instance.instance_id, revision: 2, kind: 'CLARIFICATION', cause: 'Clarification needed', text: 'Which synthetic part?', refs: [], state: questionState, answer_ref: questionState === 'PENDING' ? null : answerRef, command_id: answerCommand } };
+    else if (path === `/api/v1/runs/${runId}/summary`) value = { metrics: syntheticMetrics, run: run(), usage: emptyUsage(), owner_live: true, phase_active: false, attempts: [], has_more: false, as_of: '2026-11-04T12:00:00Z', question: { question_id: questionId, run_id: runId, task_id: instance.instance_id, revision: 2, kind: 'CLARIFICATION', cause: 'Clarification needed', text: 'Which synthetic part?', refs: [], state: questionState, answer_ref: questionState === 'PENDING' ? null : answerRef, command_id: answerCommand } };
     else if (path.startsWith('/api/v1/runs/commands/')) value = receipts.get(path.split('/').at(-1) ?? '');
     return new Response(JSON.stringify(value));
   }));
@@ -203,7 +203,7 @@ function ViewLocation() {
 function mountedRun(surface = 'overview') {
   sessionStorage.clear();
   const state: { run: components['schemas']['RunView']; summary: components['schemas']['RunSummary'] } = {
-    run: observedRun(), summary: { run: observedRun(), usage: emptyUsage(), owner_live: true, phase_active: false, question: null, attempts: [], has_more: false, as_of: '2026-11-04T12:00:00Z' },
+    run: observedRun(), summary: { metrics: syntheticMetrics, run: observedRun(), usage: emptyUsage(), owner_live: true, phase_active: false, question: null, attempts: [], has_more: false, as_of: '2026-11-04T12:00:00Z' },
   };
   const writes: Record<string, unknown>[] = [];
   const fetcher = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
@@ -215,6 +215,8 @@ function mountedRun(surface = 'overview') {
       if (payload.action === 'pause') throw new Error('Lost pause reply');
       return new Response(JSON.stringify({ command_id: payload.command_id, setup_ref: null, run_id: state.run.run_id, revision: state.run.revision + 1, state: 'ADMITTED' }));
     }
+    if (path.endsWith('/agents')) return Response.json(agentPage(state.summary));
+    if (path.includes('/agents/') && path.includes('/events?')) return Response.json({ run_id: state.run.run_id, agent_id: path.split('/agents/')[1]!.split('/')[0], through_cursor: 0, events: [], has_more: false, as_of: state.summary.as_of });
     const value = path === '/api/session' ? session : path === '/health/ready' ? health : path === '/api/instance' ? instance : path === `/api/v1/engagements/${id}` ? draft : path === '/api/v1/runs/active' || path.endsWith('/run') ? state.run : path.endsWith('/summary') ? state.summary : path === '/api/v1/runs/publications' ? [] : null;
     return new Response(JSON.stringify(value));
   });
@@ -233,14 +235,16 @@ it('restores a run-bound stream selection and page filters from a nonsensitive U
   expect(inspector).toHaveTextContent(syntheticAttempt.result_summary!);
   expect(screen.getByLabelText('Event type')).toHaveValue('result');
   expect(screen.getByLabelText('Event actor (task)')).toHaveValue(id);
+  await userEvent.setup().click(screen.getByRole('button', { name: 'Agents' }));
   expect(screen.getByLabelText('Agent state')).toHaveValue('INCONCLUSIVE');
+  await userEvent.setup().click(screen.getByRole('button', { name: 'Feed' }));
   const user = userEvent.setup();
   await user.click(screen.getByRole('button', { name: 'Light theme' }));
   expect(screen.getByRole('region', { name: 'Agent inspector' })).toBe(inspector);
   expect(screen.getByLabelText('Current view URL')).not.toHaveTextContent(syntheticAttempt.input_text);
   expect(screen.getByLabelText('Current view URL')).not.toHaveTextContent(session.csrf_token);
   await user.click(screen.getByRole('link', { name: 'Overview' }));
-  await user.click(screen.getByRole('link', { name: 'Brain stream' }));
+  await user.click(screen.getByRole('link', { name: 'Activity' }));
   expect(await screen.findByRole('region', { name: 'Agent inspector' })).toHaveTextContent(syntheticAttempt.result_summary!);
   expect(screen.getByLabelText('Event type')).toHaveValue('result');
   expect(writes).toHaveLength(0);
@@ -628,10 +632,11 @@ it('SOURCE pages actual spawn events, inspects only selected attempts and resets
     if (path.includes('/attempts/')) return new Response(JSON.stringify(inspection(attempt)));
     return original(input, init);
   });
+  await userEvent.setup().click(await screen.findByRole('button', { name: 'Agents' }));
   await screen.findByRole('button', { name: /RECON/ });
   expect(fetcher.mock.calls.some(([path]) => String(path).includes('/attempts/'))).toBe(false);
-  expect(screen.getByText(/Some attempts are omitted/)).toBeVisible();
-  expect(screen.getByRole('button', { name: /RECON/ }).closest('li')?.parentElement?.closest('li')).toHaveTextContent('BRAIN');
+  expect(screen.getByText('End of observed roster.')).toBeVisible();
+  expect(screen.getByRole('button', { name: /RECON/ }).closest('li')).toHaveTextContent('parent brain');
   const user = userEvent.setup();
   await user.click(screen.getByRole('button', { name: /RECON/ }));
   const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
@@ -639,10 +644,12 @@ it('SOURCE pages actual spawn events, inspects only selected attempts and resets
   expect(inspector).toHaveTextContent('fixture/recon-override');
   expect(inspector).toHaveTextContent('Persisted synthetic output');
   expect(screen.getByRole('button', { name: /RECON/ })).toHaveAttribute('aria-pressed', 'true');
+  await user.click(screen.getByRole('button', { name: 'Feed' }));
   await user.click(screen.getByRole('button', { name: 'Next events' }));
   await screen.findByRole('button', { name: 'result · Persisted event 2' });
   await user.click(screen.getByRole('button', { name: 'First events' }));
   await screen.findByRole('button', { name: 'result · Persisted event 1' });
+  await user.click(screen.getByRole('button', { name: 'Feed' }));
   await user.click(screen.getByRole('button', { name: 'Next events' }));
   await screen.findByRole('button', { name: 'result · Persisted event 2' });
   const newRun = '00000000-0000-4000-8000-000000000099';
@@ -667,14 +674,14 @@ it('SOURCE roster preserves Brain clarification descendants and selects the exac
   const original = fetcher.getMockImplementation()!;
   fetcher.mockImplementation(async (input, init) => String(input) === `/api/v1/runs/${runId}/attempts/${recon.attempt_id}` ? new Response(JSON.stringify(inspection(recon))) : original(input, init));
   await screen.findByText('Needs you · CONSUMED');
+  await userEvent.setup().click(screen.getByRole('button', { name: 'Agents' }));
+  await screen.findByRole('button', { name: /^RECON/ });
   const roster = screen.getByRole('list', { name: 'Spawned agents' });
-  const worker = within(roster).getByRole('button', { name: `RECON · ${recon.task_id} · SUCCEEDED · parent ${consumes.task_id}` });
-  expect(within(roster).getAllByRole('button')).toHaveLength(3);
-  const parent = within(roster).getByRole('button', { name: `BRAIN · ${consumes.task_id} · SUCCEEDED · parent ${asks.task_id}` });
-  const root = within(roster).getByRole('button', { name: `BRAIN · ${asks.task_id} · SUCCEEDED` });
-  expect(worker.closest('li')?.parentElement?.closest('li')).toBe(parent.closest('li'));
-  expect(parent.closest('li')?.parentElement?.closest('li')).toBe(root.closest('li'));
-  expect(worker.closest('ul')).toHaveStyle({ paddingInlineStart: '0' });
+  const worker = within(roster).getByRole('button', { name: /^RECON/ });
+  expect(within(roster).getAllByRole('button')).toHaveLength(2);
+  expect(within(roster).getAllByRole('button', { name: /^BRAIN/ })).toHaveLength(1);
+  expect(worker.closest('li')).toHaveTextContent('parent brain');
+  expect(roster).toHaveTextContent('2 recorded attempts');
   expect(fetcher.mock.calls.some(([path]) => String(path).includes('/attempts/'))).toBe(false);
   worker.focus();
   await userEvent.setup().keyboard('{Enter}');
@@ -707,12 +714,13 @@ it('SOURCE roster keeps missing-parent and cyclic attempts selectable once', asy
     const actor = actors.find(item => String(input) === `/api/v1/runs/${runId}/attempts/${item.attempt_id}`);
     return actor ? new Response(JSON.stringify(inspection(actor))) : original(input, init);
   });
-  await screen.findByText(`Parent outside this bounded summary: ${missing}`);
+  await userEvent.setup().click(await screen.findByRole('button', { name: 'Agents' }));
+  await screen.findByText(new RegExp(`parent ${missing}.*outside this page`));
   const roster = screen.getByRole('list', { name: 'Spawned agents' });
   expect(within(roster).getAllByRole('button')).toHaveLength(actors.length);
   const user = userEvent.setup();
   for (const actor of actors) {
-    const button = within(roster).getByRole('button', { name: `RECON · ${actor.task_id} · INCONCLUSIVE · parent ${actor.parent_task_id}` });
+    const button = within(roster).getAllByRole('button').find(button => button.dataset.attemptId === actor.attempt_id)!;
     await user.click(button);
     const inspector = await screen.findByRole('region', { name: 'Agent inspector' });
     expect(inspector).toHaveAttribute('data-attempt-id', actor.attempt_id);
@@ -791,7 +799,7 @@ it('SOURCE event filters show UTC and exact actors from the loaded page and pres
   await waitFor(() => expect(actor).toHaveValue(''));
   await waitFor(() => expect(within(list).getAllByRole('listitem')).toHaveLength(3));
   const tailReads = [`/api/v1/runs/${runId}/events?after=${runId}:5`, `/api/v1/runs/${next}/events?after=${next}:2`];
-  const eventReads = fetcher.mock.calls.filter(([path]) => String(path).includes('/events?')).map(([path]) => String(path));
+  const eventReads = fetcher.mock.calls.filter(([path]) => String(path).includes('/events?') && !String(path).includes('/agents/')).map(([path]) => String(path));
   for (const tail of tailReads) expect(eventReads).toContain(tail);
   expect(eventReads.every(path => new RegExp(`/events\\?after=(${runId}|${next}):(0|3|7)$`).test(path) || tailReads.includes(path))).toBe(true);
   expect(writes).toHaveLength(0);
@@ -885,11 +893,14 @@ it('SOURCE selected inspection shows exact final, gaps, pending/held/consumed li
     return original(input, init);
   });
   const user = userEvent.setup();
+  await user.click(await screen.findByRole('button', { name: 'Agents' }));
   await user.click(await screen.findByRole('button', { name: /^RECON/ }));
   let inspector = await screen.findByRole('region', { name: 'Agent inspector' });
   expect(within(inspector).getByText(detail.input_text)).not.toBeVisible();
   await user.click(within(inspector).getByText('Prompt & input'));
   expect(within(inspector).getByText(detail.input_text)).toBeVisible();
+  expect(within(inspector).getByText(detail.instructions)).not.toBeVisible();
+  await user.click(within(inspector).getByText('Composed instructions and pinned skills', { selector: 'summary' }));
   expect(within(inspector).getByText(detail.instructions)).toBeVisible();
   await user.click(within(inspector).getByText('Usage', { exact: true }));
   expect(inspector).toHaveTextContent('INCONCLUSIVE');
@@ -934,6 +945,7 @@ it.each(['digest', 'consumed-ref', 'instance', 'role'] as const)('SOURCE consump
   const original = fetcher.getMockImplementation()!;
   fetcher.mockImplementation(async (input, init) => String(input) === `/api/v1/runs/${runId}/attempts/${worker.attempt_id}` ? new Response(JSON.stringify(worker)) : String(input) === `/api/v1/runs/${runId}/attempts/${brain.attempt_id}` ? new Response(JSON.stringify(brain)) : original(input, init));
   const user = userEvent.setup();
+  await user.click(await screen.findByRole('button', { name: 'Agents' }));
   await user.click(await screen.findByRole('button', { name: /^RECON/ }));
   await user.click(await screen.findByRole('button', { name: /Inspect consuming Brain/ }));
   await waitFor(() => expect(client.getQueryCache().findAll({ queryKey: ['private', 'run-attempt', runId, brain.attempt_id] })[0]?.state.status).toBe('error'));
@@ -954,12 +966,14 @@ it('SOURCE inspection reload retains legacy UNKNOWN completion and lost-response
   const original = fetcher.getMockImplementation()!;
   fetcher.mockImplementation(async (input, init) => String(input).includes('/attempts/') ? new Response(JSON.stringify(worker)) : original(input, init));
   const user = userEvent.setup();
+  await user.click(await screen.findByRole('button', { name: 'Agents' }));
   await user.click(await screen.findByRole('button', { name: /^RECON/ }));
   await screen.findByText('No observation receipt; usage UNKNOWN, not zero.');
   expect(screen.getByRole('region', { name: 'Agent inspector' })).toHaveTextContent('Completion kind: UNKNOWN');
   view.unmount(); client.clear();
   const reads = fetcher.mock.calls.filter(([path]) => String(path).includes('/attempts/')).length;
   const reloaded = render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[`/engagements/${id}/stream`]}><App /></MemoryRouter></QueryClientProvider>);
+  await user.click(await screen.findByRole('button', { name: 'Agents' }));
   await screen.findByRole('button', { name: /^RECON/ });
   expect(fetcher.mock.calls.filter(([path]) => String(path).includes('/attempts/'))).toHaveLength(reads);
   await user.click(screen.getByRole('button', { name: /^RECON/ }));
@@ -976,7 +990,8 @@ it('SOURCE accounting displays exact whole-run partial subtotals, role attributi
   const original = fetcher.getMockImplementation();
   if (!original) throw new Error('Missing existing read mock');
   fetcher.mockImplementation(async (input, init) => String(input) === `/api/v1/runs/${runId}/attempts/${syntheticAttempt.attempt_id}` ? Response.json(inspection(syntheticAttempt)) : original(input, init));
-  await screen.findByRole('region', { name: 'Run accounting' });
+  await userEvent.setup().click(await screen.findByRole('button', { name: 'Agents' }));
+  expect(screen.queryByRole('region', { name: 'Run accounting' })).not.toBeInTheDocument();
   expect(screen.queryByText('Exact accounting & provenance')).not.toBeInTheDocument();
   await userEvent.setup().click(await screen.findByRole('button', { name: /^RECON/ }));
   const inspector = await screen.findByRole('region', { name: 'Agent inspector' });

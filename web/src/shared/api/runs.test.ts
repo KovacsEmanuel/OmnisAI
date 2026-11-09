@@ -2,8 +2,29 @@ import { expect, it, vi } from 'vitest';
 import { api } from './client';
 import { decodeError } from './errors';
 import { decodeEvents, decodePublications } from './runs';
+import { decodeAgents, decodeAgentHistory, runDuration } from './runs';
 import type { RunCommand } from './runs';
 import { syntheticSummary, emptyUsage, inspection, partialUsage, observedDispatch } from '../../../tests/run-fixtures';
+
+it('SOURCE duration freezes at the persisted final event, never mount time, and missing is UNKNOWN', () => {
+  expect(runDuration(syntheticSummary)).toBe('1h 0m 0s');
+  const terminal = { ...syntheticSummary, run: { ...syntheticSummary.run, state: 'STOPPED' as const }, as_of: '2026-12-01T00:00:00Z', metrics: { ...syntheticSummary.metrics, finished_at: '2026-11-04T11:00:30Z' } };
+  expect(runDuration(terminal)).toBe('0h 0m 30s');
+  expect(runDuration({ ...terminal, metrics: { ...terminal.metrics, finished_at: null } })).toBe('UNKNOWN');
+});
+it('SOURCE agent decoders refuse foreign scopes, duplicate rows and contradictory pairing', () => {
+  const run = syntheticSummary.run.run_id;
+  const actor = { agent_id: 'brain', role: 'BRAIN', parent_agent_id: null, attempt_id: run, state: 'SUCCEEDED', brief: 'Mission', attempts: 25 };
+  const roster = { run_id: run, revision: 7, agents: [actor], has_more: true, next_after: `${run}:7:brain`, as_of: syntheticSummary.as_of };
+  expect(decodeAgents(roster, run, null).agents).toHaveLength(1);
+  expect(() => decodeAgents({ ...roster, run_id: actor.attempt_id + 'x' }, run, null)).toThrow();
+  expect(() => decodeAgents({ ...roster, agents: [actor, actor] }, run, null)).toThrow();
+  expect(() => decodeAgents(roster, run, `${run}:6:brain`)).toThrow();
+  const history = { run_id: run, agent_id: 'brain', through_cursor: 0, events: [], has_more: false, as_of: syntheticSummary.as_of };
+  expect(decodeAgentHistory(history, run, 'brain', 0).events).toEqual([]);
+  expect(() => decodeAgentHistory(history, run, run, 0)).toThrow();
+  expect(() => decodeAgentHistory({ ...history, has_more: true }, run, 'brain', 0)).toThrow();
+});
 
 it('SOURCE normal attempt inspection retains exact result, consumption and original dispatch observations', async () => {
   const value = { ...inspection(), usage: partialUsage('ATTEMPT'), dispatches: [observedDispatch()], dispatches_has_more: true };

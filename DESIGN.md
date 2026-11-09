@@ -43,7 +43,7 @@ colors:
   light-info: "#2D5E82"
   light-infoBg: "#E0EAF1"
   light-shadow: "#C5BDB0"
-  light-accent: "#D9541E"
+  light-accent: "#B87759"
   light-accentInk: "#111111"
 typography:
   h1:
@@ -170,7 +170,7 @@ components:
 
 ## Colors
 
-Paleta fără prefix este dark implicit. Culorile `light-*` sunt aceleași roluri semantice în light; exporterul DTCG existent le păstrează, iar sync-design le aplică sub `:root[data-theme="light"]`, fără a duplica paleta în CSS. Amendamentul S1-UX fixează light crem `#f3eee3`, ink `#111111` și accent `#d9541e`. Accentul este pentru suprafețe/markeri, cu ink pe portocaliu (4.709:1), nu text mic portocaliu pe crem sau alb pe portocaliu. Rolurile de text/status rămân contrastante; dark păstrează paleta acceptată. Se păstrează capsulele, fonturile și double-bezel, fără motion/glow nou. `shadow` controlează numai umbra discretă, nu informație.
+Paleta fără prefix este dark implicit. Culorile `light-*` sunt aceleași roluri semantice în light; exporterul DTCG existent le păstrează, iar sync-design le aplică sub `:root[data-theme="light"]`, fără a duplica paleta în CSS. Amendamentul S1-UX fixează light crem `#f3eee3`, ink `#111111` și accent terracotă estompat `#b87759`. Accentul este pentru suprafețe/markeri, cu ink pe portocaliu (5.234:1), nu text mic portocaliu pe crem sau alb pe portocaliu. Rolurile de text/status rămân contrastante; dark păstrează paleta acceptată. Se păstrează capsulele, fonturile și double-bezel, fără motion/glow nou. `shadow` controlează numai umbra discretă, nu informație.
 
 `primary` marchează acțiunea principală și selecția, nu „securitate garantată”. Statusurile folosesc **text plus semn/etichetă**, niciodată numai culoare. UNKNOWN, unavailable și zero sunt stări diferite. `border` este pentru contururi interactive; `divider` numai pentru separatoare neesențiale. Focus vizibil de 2px, offset 3px, în `focus`. Preview-urile evidence nu moștenesc HTML/CSS de la țintă.
 

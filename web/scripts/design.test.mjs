@@ -32,7 +32,7 @@ test('native document and inner scrollbars use theme tokens with rounded hover e
 
 test('S1 cream/ink/orange is exported without low-contrast orange body text', () => {
   const colors = JSON.parse(readFileSync(new URL('../../documents/Omnis_Design.tokens.json', import.meta.url))).color;
-  for (const [role, hex] of Object.entries({ 'light-neutral': '#f3eee3', 'light-text': '#111111', 'light-accent': '#d9541e', 'light-accentInk': '#111111' })) assert.equal(colors[role]?.$value.hex, hex);
+  for (const [role, hex] of Object.entries({ 'light-neutral': '#f3eee3', 'light-text': '#111111', 'light-accent': '#b87759', 'light-accentInk': '#111111' })) assert.equal(colors[role]?.$value.hex, hex);
   assert.notEqual(colors['light-primary'].$value.hex, colors['light-accent']?.$value.hex);
 });
 
@@ -53,6 +53,7 @@ test('both palettes export the same roles and keep text, states and focus readab
       ['text', ['neutral', 'surface', 'elevated', 'selected'], 4.5],
       ['secondary', ['neutral', 'surface', 'elevated', 'selected'], 4.5],
       ['primary', ['neutral', 'surface', 'selected'], 4.5],
+      ['accentInk', ['accent'], 4.5],
       ['danger', ['neutral', 'surface', 'dangerBg'], 4.5],
       ['warning', ['warningBg'], 4.5], ['success', ['successBg'], 4.5], ['info', ['infoBg'], 4.5],
       ['focus', ['neutral', 'surface', 'selected'], 3], ['border', ['neutral', 'surface'], 3],

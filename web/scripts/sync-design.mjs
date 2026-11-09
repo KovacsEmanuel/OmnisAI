@@ -1,9 +1,27 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import yaml from 'js-yaml';
 
 const root = new URL('../../', import.meta.url);
 const output = new URL('../src/shared/styles/', import.meta.url);
-const tokens = JSON.parse(await readFile(new URL('documents/Omnis_Design.tokens.json', root)));
+const tokenPath = new URL('documents/Omnis_Design.tokens.json', root);
+const existing = await readFile(tokenPath, 'utf8');
+const tokens = JSON.parse(existing);
+const design = await readFile(new URL('DESIGN.md', root), 'utf8');
+const frontmatter = design.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+if (!frontmatter) throw new Error('Missing canonical DESIGN.md tokens');
+const palette = yaml.load(frontmatter[1]).colors;
+if (!palette || typeof palette !== 'object' || Object.keys(tokens.color).some(key => !key.startsWith('$') && !Object.hasOwn(palette, key))) throw new Error('Incomplete canonical palette');
+// Only the palette changes here; retain the existing DTCG typography/spacing export.
+tokens.color = { $type: 'color' };
+for (const [name, hex] of Object.entries(palette)) {
+  if (typeof hex !== 'string' || !/^#[0-9a-f]{6}$/i.test(hex)) throw new Error(`Invalid color ${name}`);
+  tokens.color[name] = { $value: { colorSpace: 'srgb', components: hex.slice(1).match(/../g).map(channel => Math.round(parseInt(channel, 16) / 255 * 1000) / 1000), hex: hex.toLowerCase() } };
+}
+const exported = JSON.stringify(tokens, null, 2) + '\n';
+if (process.argv.includes('--check')) {
+  if (existing !== exported) { console.error('Canonical design palette drift'); process.exitCode = 1; }
+} else if (existing !== exported) await writeFile(tokenPath, exported);
 const provenance = await readFile(new URL('documents/assets/fonts-provenance.json', root));
 const source = JSON.parse(provenance);
 const fonts = await readFile(new URL('documents/assets/prototype-fonts.css', root));

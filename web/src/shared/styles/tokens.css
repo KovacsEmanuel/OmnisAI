@@ -19,6 +19,8 @@
   --color-info: #a2bad0;
   --color-infoBg: #202930;
   --color-shadow: #000000;
+  --color-accent: #2a2c27;
+  --color-accentInk: #eee9e1;
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 16px;
@@ -32,12 +34,12 @@
   --font-mono: Geist Mono, Liberation Mono, Consolas, monospace;
 }
 :root[data-theme="light"] {
-  --color-primary: #665c4d;
+  --color-primary: #111111;
   --color-secondary: #5f5b52;
-  --color-neutral: #e9e4db;
-  --color-surface: #f5f1ea;
-  --color-elevated: #ece7de;
-  --color-text: #1a1b17;
+  --color-neutral: #f3eee3;
+  --color-surface: #faf7f0;
+  --color-elevated: #eee8db;
+  --color-text: #111111;
   --color-border: #81796b;
   --color-divider: #cec7bb;
   --color-selected: #e1dbd0;
@@ -51,4 +53,6 @@
   --color-info: #2d5e82;
   --color-infoBg: #e0eaf1;
   --color-shadow: #c5bdb0;
+  --color-accent: #d9541e;
+  --color-accentInk: #111111;
 }

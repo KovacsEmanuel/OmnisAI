@@ -30,6 +30,12 @@ test('native document and inner scrollbars use theme tokens with rounded hover e
   assert.doesNotMatch(css, /scrollbar-width:\s*none|::-webkit-scrollbar\s*\{[^}]*display:\s*none|scroll-behavior:\s*smooth/);
 });
 
+test('S1 cream/ink/orange is exported without low-contrast orange body text', () => {
+  const colors = JSON.parse(readFileSync(new URL('../../documents/Omnis_Design.tokens.json', import.meta.url))).color;
+  for (const [role, hex] of Object.entries({ 'light-neutral': '#f3eee3', 'light-text': '#111111', 'light-accent': '#d9541e', 'light-accentInk': '#111111' })) assert.equal(colors[role]?.$value.hex, hex);
+  assert.notEqual(colors['light-primary'].$value.hex, colors['light-accent']?.$value.hex);
+});
+
 test('both palettes export the same roles and keep text, states and focus readable', () => {
   const colors = JSON.parse(readFileSync(new URL('../../documents/Omnis_Design.tokens.json', import.meta.url))).color;
   const css = readFileSync(new URL('../src/shared/styles/tokens.css', import.meta.url), 'utf8');

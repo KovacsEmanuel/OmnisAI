@@ -212,15 +212,37 @@
         "hex": "#000000"
       }
     },
+    "accent": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.165,
+          0.173,
+          0.153
+        ],
+        "hex": "#2a2c27"
+      }
+    },
+    "accentInk": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.933,
+          0.914,
+          0.882
+        ],
+        "hex": "#eee9e1"
+      }
+    },
     "light-primary": {
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0.4,
-          0.361,
-          0.302
+          0.067,
+          0.067,
+          0.067
         ],
-        "hex": "#665c4d"
+        "hex": "#111111"
       }
     },
     "light-secondary": {
@@ -238,44 +260,44 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0.914,
-          0.894,
-          0.859
+          0.953,
+          0.933,
+          0.89
         ],
-        "hex": "#e9e4db"
+        "hex": "#f3eee3"
       }
     },
     "light-surface": {
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0.961,
-          0.945,
-          0.918
+          0.98,
+          0.969,
+          0.941
         ],
-        "hex": "#f5f1ea"
+        "hex": "#faf7f0"
       }
     },
     "light-elevated": {
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0.925,
-          0.906,
-          0.871
+          0.933,
+          0.91,
+          0.859
         ],
-        "hex": "#ece7de"
+        "hex": "#eee8db"
       }
     },
     "light-text": {
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0.102,
-          0.106,
-          0.09
+          0.067,
+          0.067,
+          0.067
         ],
-        "hex": "#1a1b17"
+        "hex": "#111111"
       }
     },
     "light-border": {
@@ -419,6 +441,28 @@
           0.69
         ],
         "hex": "#c5bdb0"
+      }
+    },
+    "light-accent": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.851,
+          0.329,
+          0.118
+        ],
+        "hex": "#d9541e"
+      }
+    },
+    "light-accentInk": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.067,
+          0.067,
+          0.067
+        ],
+        "hex": "#111111"
       }
     }
   },

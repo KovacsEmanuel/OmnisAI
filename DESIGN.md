@@ -22,12 +22,14 @@ colors:
   info: "#A2BAD0"
   infoBg: "#202930"
   shadow: "#000000"
-  light-primary: "#665C4D"
+  accent: "#2A2C27"
+  accentInk: "#EEE9E1"
+  light-primary: "#111111"
   light-secondary: "#5F5B52"
-  light-neutral: "#E9E4DB"
-  light-surface: "#F5F1EA"
-  light-elevated: "#ECE7DE"
-  light-text: "#1A1B17"
+  light-neutral: "#F3EEE3"
+  light-surface: "#FAF7F0"
+  light-elevated: "#EEE8DB"
+  light-text: "#111111"
   light-border: "#81796B"
   light-divider: "#CEC7BB"
   light-selected: "#E1DBD0"
@@ -41,6 +43,8 @@ colors:
   light-info: "#2D5E82"
   light-infoBg: "#E0EAF1"
   light-shadow: "#C5BDB0"
+  light-accent: "#D9541E"
+  light-accentInk: "#111111"
 typography:
   h1:
     fontFamily: "Geist, Segoe UI, Liberation Sans, Arial, sans-serif"
@@ -120,8 +124,8 @@ components:
     backgroundColor: "{colors.elevated}"
     textColor: "{colors.text}"
   button-primary:
-    backgroundColor: "{colors.selected}"
-    textColor: "{colors.text}"
+    backgroundColor: "{colors.accent}"
+    textColor: "{colors.accentInk}"
     rounded: "{rounded.pill}"
     padding: 12px
     height: 44px
@@ -166,7 +170,7 @@ components:
 
 ## Colors
 
-Paleta fără prefix este dark implicit. Culorile `light-*` sunt aceleași roluri semantice în light; exporterul DTCG existent le păstrează, iar sync-design le aplică sub `:root[data-theme="light"]`, fără a duplica paleta în CSS. Fundalul/fețele/ink/taupe provin din CSS-ul referinței; accentul light închide ușor `accent-2` pentru contrast AA inclusiv pe selecția bej, iar statusurile sunt închise pentru contrast pe fundaluri calde. Se păstrează capsulele, fonturile și double-bezel, fără motion/glow nou. `shadow` controlează numai umbra discretă, nu informație.
+Paleta fără prefix este dark implicit. Culorile `light-*` sunt aceleași roluri semantice în light; exporterul DTCG existent le păstrează, iar sync-design le aplică sub `:root[data-theme="light"]`, fără a duplica paleta în CSS. Amendamentul S1-UX fixează light crem `#f3eee3`, ink `#111111` și accent `#d9541e`. Accentul este pentru suprafețe/markeri, cu ink pe portocaliu (4.709:1), nu text mic portocaliu pe crem sau alb pe portocaliu. Rolurile de text/status rămân contrastante; dark păstrează paleta acceptată. Se păstrează capsulele, fonturile și double-bezel, fără motion/glow nou. `shadow` controlează numai umbra discretă, nu informație.
 
 `primary` marchează acțiunea principală și selecția, nu „securitate garantată”. Statusurile folosesc **text plus semn/etichetă**, niciodată numai culoare. UNKNOWN, unavailable și zero sunt stări diferite. `border` este pentru contururi interactive; `divider` numai pentru separatoare neesențiale. Focus vizibil de 2px, offset 3px, în `focus`. Preview-urile evidence nu moștenesc HTML/CSS de la țintă.
 

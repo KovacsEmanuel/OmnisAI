@@ -1,5 +1,7 @@
 """SOURCE read-model checks; PostgreSQL/live acceptance belongs to the parent."""
 
+import json
+import sqlite3
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
@@ -132,53 +134,87 @@ async def test_agent_history_pairs_across_pages_and_exposes_gaps(
             "task_id": run.owner_id,
             "attempt_id": run.owner_id,
             "sequence": index,
-            "kind": "tool_called" if index != 21 else "tool_result",
-            "summary": "Recorded inert call",
+            "kind": "control",
+            "summary": "Retained synthetic event",
             "refs": [],
-            "call_id": "call",
+            "call_id": None,
             "created_at": datetime.now(UTC).isoformat(),
         }
-        for index in range(1, 24)
+        for index in range(1, 37)
     ]
+    for sequence, kind, call in [
+        (20, "tool_called", "page"),
+        (21, "tool_result", "page"),
+        (22, "tool_called", "pending"),
+        (23, "tool_called", "missing"),
+        (24, "tool_called", "reused"),
+        (25, "tool_result", "reused"),
+        (26, "tool_called", "reused"),
+        (27, "result", "reused"),
+        (28, "tool_called", "extra-call"),
+        (29, "tool_called", "extra-call"),
+        (30, "tool_result", "extra-call"),
+        (31, "tool_called", "extra-result"),
+        (32, "tool_result", "extra-result"),
+        (33, "result", "extra-result"),
+        (34, "tool_result", None),
+        (35, "result", None),
+    ]:
+        events[sequence - 1].update(kind=kind, call_id=call)
+    pending = str(uuid4())
+    events[21]["attempt_id"] = pending
     queries: list[str] = []
 
     async def execute(self: AsyncConnection, query: object, params: dict[str, object]) -> object:
         queries.append(str(query))
         assert params["instance"] == run.instance_id and params["run"] == run.run_id
-        after = int(str(params["after"]))
-        rows = [
-            (
-                event,
-                "RUNNING" if event["sequence"] == 22 else "FAILED",
-                21 if event["sequence"] == 20 else 20 if event["sequence"] == 21 else None,
+        # Only PG text casts differ; execute the full projection, not invented pair columns.
+        with sqlite3.connect(":memory:") as sql:
+            sql.execute(
+                "CREATE TABLE run_event(instance_id text, run_id text, sequence int, payload text)"
             )
-            for event in events
-            if int(str(event["sequence"])) > after
-        ]
-        return IteratorResult(
-            SimpleResultMetaData(["payload", "state", "paired_sequence"]),
-            iter(rows[: int(str(params["limit"]))]),
-        )
+            sql.execute(
+                "CREATE TABLE run_attempt(instance_id text, run_id text, attempt_id text, task_id text, role text, state text)"
+            )
+            for attempt, state in [(run.owner_id, "FAILED"), (pending, "RUNNING")]:
+                sql.execute(
+                    "INSERT INTO run_attempt VALUES(?,?,?,?,?,?)",
+                    (run.instance_id, run.run_id, attempt, run.owner_id, "BRAIN", state),
+                )
+            sql.executemany(
+                "INSERT INTO run_event VALUES(?,?,?,?)",
+                [(run.instance_id, run.run_id, e["sequence"], json.dumps(e)) for e in events],
+            )
+            rows = sql.execute(str(query).replace("::text", ""), params)
+            names = [column[0] for column in rows.description]
+            values = [(json.loads(row[0]), *row[1:]) for row in rows]
+        return IteratorResult(SimpleResultMetaData(names), iter(values))
 
     monkeypatch.setattr(AsyncConnection, "execute", execute)
     first = await projections.agent_history(engine, run.run_id, "brain", None, 20)
     second = await projections.agent_history(
-        engine, run.run_id, "brain", f"{run.run_id}:brain:{first.through_cursor}", 20
+        engine, run.run_id, "brain", f"{run.run_id}:brain:20", 20
     )
     replay = await projections.agent_history(
-        engine, run.run_id, "brain", f"{run.run_id}:brain:{first.through_cursor}", 20
+        engine, run.run_id, "brain", f"{run.run_id}:brain:20", 20
     )
     assert len(first.events) == 20 and first.has_more
-    assert len(second.events) == 3 and not second.has_more
-    assert [e.sequence for e in first.events + second.events] == list(range(1, 24))
+    assert len(second.events) == 16 and not second.has_more
+    assert [e.sequence for e in first.events + second.events] == list(range(1, 37))
     assert replay.events == second.events
     assert first.events[-1].pairing == "MATCHED" and first.events[-1].paired_sequence == 21
-    assert [e.pairing for e in second.events] == ["MATCHED", "PENDING", "UNMATCHED"]
-    assert all(
-        "p.payload->>'task_id'=e.payload->>'task_id'" in query
-        and "p.payload->>'attempt_id'=e.payload->>'attempt_id'" in query
-        for query in queries
-    )
+    assert [e.pairing for e in second.events[:3]] == ["MATCHED", "PENDING", "UNMATCHED"]
+    assert [(e.sequence, e.paired_sequence) for e in second.events[3:7]] == [
+        (24, 25),
+        (25, 24),
+        (26, 27),
+        (27, 26),
+    ]
+    assert all(e.pairing == "UNMATCHED" and e.paired_sequence is None for e in second.events[7:14])
+    direct = second.events[14]
+    assert direct.kind == "result" and direct.call_id is None
+    assert direct.pairing == "NOT_APPLICABLE" and direct.paired_sequence is None
+    assert second.events[-1].pairing == "NOT_APPLICABLE"
     scalar.return_value = None
     with pytest.raises(ModelConflict, match="NOT_FOUND"):
         await projections.agent_history(engine, run.run_id, str(uuid4()), None, 20)

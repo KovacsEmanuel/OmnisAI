@@ -290,8 +290,14 @@ export function decodeAgentHistory(value: unknown, runId: string, agent: string,
     const pairing = oneOf(entries[index]!.pairing, ['MATCHED', 'PENDING', 'UNMATCHED', 'NOT_APPLICABLE']);
     const paired = nullable(entries[index]!.paired_sequence, value => integer(value, 1));
     if (!event.attempt_id || !event.task_id || (agent !== 'brain' && event.task_id !== agent) || (pairing === 'MATCHED') !== (paired !== null) || (paired !== null && (paired === event.sequence || (event.kind === 'tool_called' ? paired < event.sequence : paired > event.sequence)))) return fail();
+    const pairable = ['tool_called', 'tool_result'].includes(event.kind) || (event.kind === 'result' && !!event.call_id);
+    if (pairable === (pairing === 'NOT_APPLICABLE') || (pairable && !event.call_id && pairing !== 'UNMATCHED') || (pairing === 'PENDING' && event.kind !== 'tool_called')) return fail();
     return { ...event, pairing, paired_sequence: paired };
   });
+  for (const event of events) {
+    const paired = events.find(item => item.sequence === event.paired_sequence);
+    if (paired && (paired.pairing !== 'MATCHED' || paired.paired_sequence !== event.sequence || paired.task_id !== event.task_id || paired.attempt_id !== event.attempt_id || paired.call_id !== event.call_id || (event.kind === 'tool_called' ? !['tool_result', 'result'].includes(paired.kind) : paired.kind !== 'tool_called'))) return fail();
+  }
   if (page.has_more && !events.length) return fail();
   return { ...page, agent_id: agent, events };
 }

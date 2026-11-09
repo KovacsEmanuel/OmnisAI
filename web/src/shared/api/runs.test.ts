@@ -28,6 +28,36 @@ it('SOURCE agent decoders refuse foreign scopes, duplicate rows and contradictor
   expect(() => decodeAgentHistory({ ...history, has_more: true }, run, 'brain', 0)).toThrow();
 });
 
+it('SOURCE history validates kinds, IDs, directions and reciprocal visible pairs', () => {
+  const run = syntheticSummary.run.run_id;
+  const event = (sequence: number, kind: string, paired: number | null, call: string | null = 'reused') => ({ event_id: `00000000-0000-4000-8000-${String(sequence).padStart(12, '0')}`, run_id: run, task_id: run, attempt_id: run, sequence, kind, summary: 'Retained event', refs: [], call_id: call, created_at: syntheticSummary.as_of, pairing: paired === null ? 'UNMATCHED' : 'MATCHED', paired_sequence: paired });
+  const decode = (events: ReturnType<typeof event>[]) => decodeAgentHistory({ run_id: run, agent_id: 'brain', through_cursor: events.at(-1)?.sequence ?? 0, events, has_more: false, as_of: syntheticSummary.as_of }, run, 'brain', 0);
+  const pairs = [event(1, 'tool_called', 2), event(2, 'tool_result', 1), event(3, 'tool_called', 4), event(4, 'result', 3)];
+  expect(decode(pairs).events).toHaveLength(4);
+  expect(decode([pairs[0]!]).events).toHaveLength(1);
+  expect(decode([pairs[3]!]).events).toHaveLength(1);
+  expect(decode([event(1, 'tool_called', null, null), event(2, 'tool_result', null, null)]).events.every(item => item.pairing === 'UNMATCHED')).toBe(true);
+  const direct = { ...event(1, 'result', null, null), pairing: 'NOT_APPLICABLE' };
+  expect(decode([direct]).events).toEqual([direct]);
+  expect(decode([{ ...event(1, 'control', null, null), pairing: 'NOT_APPLICABLE' }]).events).toHaveLength(1);
+  expect(decode([{ ...event(1, 'tool_called', null), pairing: 'PENDING' }]).events).toHaveLength(1);
+  for (const invalid of [
+    [event(1, 'result', null, null)], [event(2, 'result', 1, null)],
+    [{ ...direct, pairing: 'PENDING' }], [{ ...direct, call_id: 'finish' }],
+    [{ ...event(1, 'tool_result', null, null), pairing: 'NOT_APPLICABLE' }],
+    [event(2, 'control', 1, null)],
+    [{ ...event(1, 'tool_called', null), pairing: 'NOT_APPLICABLE' }],
+    [{ ...event(1, 'result', null), pairing: 'PENDING' }],
+    [{ ...event(1, 'tool_called', null, null), pairing: 'PENDING' }],
+    [event(1, 'tool_called', 2, null)], [event(1, 'tool_result', 2)], [event(2, 'tool_called', 1)],
+    [pairs[0]!, pairs[1]!, pairs[2]!, { ...pairs[3]!, paired_sequence: 1 }],
+    [pairs[0]!, { ...pairs[1]!, call_id: 'other' }],
+    [pairs[0]!, { ...pairs[1]!, attempt_id: '00000000-0000-4000-8000-000000000099' }],
+    [pairs[0]!, { ...pairs[1]!, task_id: '00000000-0000-4000-8000-000000000099' }],
+    [pairs[0]!, event(2, 'tool_result', null)],
+  ]) expect(() => decode(invalid)).toThrow();
+});
+
 it('SOURCE normal attempt inspection retains exact result, consumption and original dispatch observations', async () => {
   const value = { ...inspection(), usage: partialUsage('ATTEMPT'), dispatches: [observedDispatch()], dispatches_has_more: true };
   vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockImplementation(async () => new Response(JSON.stringify(value))));

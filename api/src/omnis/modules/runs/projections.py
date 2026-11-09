@@ -444,21 +444,35 @@ async def agent_history(
                 (
                     await db.execute(
                         text("""
-                SELECT e.payload, a.state, paired.sequence AS paired_sequence FROM run_event e
-                JOIN run_attempt a ON a.instance_id=e.instance_id AND a.run_id=e.run_id
-                  AND a.attempt_id::text=e.payload->>'attempt_id' AND a.task_id::text=e.payload->>'task_id'
-                LEFT JOIN LATERAL (
-                  SELECT p.sequence FROM run_event p WHERE p.instance_id=e.instance_id AND p.run_id=e.run_id
-                    AND p.payload->>'task_id'=e.payload->>'task_id'
-                    AND p.payload->>'attempt_id'=e.payload->>'attempt_id'
-                    AND p.payload->>'call_id'=e.payload->>'call_id'
-                    AND ((e.payload->>'kind'='tool_called' AND p.payload->>'kind' IN ('tool_result','result') AND p.sequence>e.sequence)
-                      OR (e.payload->>'kind' IN ('tool_result','result') AND p.payload->>'kind'='tool_called' AND p.sequence<e.sequence))
-                  ORDER BY p.sequence LIMIT 1
-                ) paired ON TRUE
-                WHERE e.instance_id=:instance AND e.run_id=:run AND e.sequence>:after
-                  AND (CASE WHEN a.role='BRAIN' THEN 'brain' ELSE a.task_id::text END)=:agent
-                ORDER BY e.sequence LIMIT :limit
+                WITH scoped AS (
+                  SELECT e.sequence, e.payload, a.state FROM run_event e
+                  JOIN run_attempt a ON a.instance_id=e.instance_id AND a.run_id=e.run_id
+                    AND a.attempt_id::text=e.payload->>'attempt_id' AND a.task_id::text=e.payload->>'task_id'
+                  WHERE e.instance_id=:instance AND e.run_id=:run
+                    AND (CASE WHEN a.role='BRAIN' THEN 'brain' ELSE a.task_id::text END)=:agent
+                ), ordered AS (
+                  SELECT sequence, payload->>'kind' AS kind,
+                    lag(payload->>'kind') OVER w AS previous_kind,
+                    lag(payload->>'kind',2) OVER w AS before_previous_kind,
+                    lead(payload->>'kind') OVER w AS next_kind,
+                    lead(payload->>'kind',2) OVER w AS after_next_kind,
+                    lag(sequence) OVER w AS previous_sequence, lead(sequence) OVER w AS next_sequence
+                  FROM scoped WHERE payload->>'kind' IN ('tool_called','tool_result','result')
+                    AND nullif(payload->>'call_id','') IS NOT NULL
+                  WINDOW w AS (PARTITION BY payload->>'task_id',payload->>'attempt_id',payload->>'call_id' ORDER BY sequence)
+                )
+                SELECT e.payload, e.state,
+                  CASE WHEN o.kind='tool_called' AND o.next_kind IN ('tool_result','result')
+                    AND coalesce(o.previous_kind,'')<>'tool_called'
+                    AND coalesce(o.after_next_kind,'') NOT IN ('tool_result','result') THEN o.next_sequence
+                  WHEN o.kind IN ('tool_result','result') AND o.previous_kind='tool_called'
+                    AND coalesce(o.next_kind,'') NOT IN ('tool_result','result')
+                    AND coalesce(o.before_previous_kind,'')<>'tool_called' THEN o.previous_sequence
+                  END AS paired_sequence,
+                  (o.kind='tool_called' AND o.next_kind IS NULL
+                    AND coalesce(o.previous_kind,'')<>'tool_called') AS pending
+                FROM scoped e LEFT JOIN ordered o ON o.sequence=e.sequence
+                WHERE e.sequence>:after ORDER BY e.sequence LIMIT :limit
             """),
                         params,
                     )
@@ -484,7 +498,7 @@ async def agent_history(
                         "MATCHED"
                         if row["paired_sequence"] is not None
                         else "PENDING"
-                        if event.kind == "tool_called" and row["state"] == "RUNNING"
+                        if event.call_id and row["pending"] and row["state"] == "RUNNING"
                         else "UNMATCHED"
                     )
                 item = AgentEvent.model_validate(

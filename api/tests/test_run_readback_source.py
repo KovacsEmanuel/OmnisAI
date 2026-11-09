@@ -124,6 +124,25 @@ async def test_original_sdk_usage_owner_checkpoint_then_normal_reload_without_ef
             return IteratorResult(SimpleResultMetaData(["payload"]), iter([]))
         if sql.startswith("SELECT payload FROM run_attempt"):
             return IteratorResult(SimpleResultMetaData(["payload"]), iter([(item.model_dump(),)]))
+        if "WITH actors AS (" in sql:
+            assert readonly and parameters["instance"] == owned.run.instance_id
+            assert parameters["run"] == owned.run.run_id
+            metrics = {
+                "agents": 1,
+                "attempts": 1,
+                "failed_attempts": int(item.state == "FAILED"),
+                "sent": int(dispatch_state in {"SENT", "SETTLED", "UNKNOWN"}),
+                "reserved": int(dispatch_state == "RESERVED"),
+                "released": int(dispatch_state == "RELEASED"),
+                "inflight": int(dispatch_state == "SENT"),
+                "settled": int(dispatch_state == "SETTLED"),
+                "unknown": int(dispatch_state == "UNKNOWN"),
+                "started_at": None,
+                "finished_at": None,
+            }
+            return IteratorResult(
+                SimpleResultMetaData(list(metrics)), iter([tuple(metrics.values())])
+            )
         assert readonly and sql.startswith("\nWITH")
         ref = Ref.model_validate(retained["usage_ref"])
         value = saved[ref.id]

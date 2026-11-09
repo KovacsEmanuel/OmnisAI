@@ -420,6 +420,30 @@ try {
   observePostlude('SECRETS_ENTER');
   await secretChecks();
   observePostlude('SECRETS_DONE');
+} catch (error) {
+  observePostlude('FAILURE', error);
+  throw error;
+} finally {
+  try {
+    if (blocker) await new Promise(resolve => {
+      blocker.stdin.end('release\n'); blocker.once('exit', resolve);
+      setTimeout(() => { blocker.kill(); resolve(); }, 3000).unref();
+    }).catch(error => { observePostlude('FAILURE', error); throw error; });
+  } finally {
+    try {
+      observePostlude('CONTEXT_CLOSE_ENTER');
+      await context.close().catch(error => { observePostlude('FAILURE', error); throw error; });
+      observePostlude('CONTEXT_CLOSE_DONE');
+    } finally {
+      observePostlude('BROWSER_CLOSE_ENTER');
+      await browser.close().catch(error => { observePostlude('FAILURE', error); throw error; });
+      observePostlude('BROWSER_CLOSE_DONE');
+    }
+  }
+}
+
+try {
+  // Pending body reads can require page closure; close their producer before joining them.
   observePostlude('DIAGNOSTICS_ENTER');
   await Promise.all(diagnosticTasks);
   observePostlude('DIAGNOSTICS_DONE');
@@ -438,12 +462,4 @@ try {
 } catch (error) {
   observePostlude('FAILURE', error);
   throw error;
-} finally {
-  if (blocker) { blocker.stdin.end('release\n'); await new Promise(resolve => { blocker.once('exit', resolve); setTimeout(() => { blocker.kill(); resolve(); }, 3000).unref(); }); }
-  observePostlude('CONTEXT_CLOSE_ENTER');
-  await context.close().catch(error => { observePostlude('FAILURE', error); throw error; });
-  observePostlude('CONTEXT_CLOSE_DONE');
-  observePostlude('BROWSER_CLOSE_ENTER');
-  await browser.close().catch(error => { observePostlude('FAILURE', error); throw error; });
-  observePostlude('BROWSER_CLOSE_DONE');
 }

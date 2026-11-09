@@ -100,3 +100,95 @@ test('unchanged diagnostic predicate ignores GET and other endpoints', async () 
     assert.deepEqual(result, { tasks: 0, receipts: [], errors: [], bodyReads: 0 });
   }
 });
+
+const tailStart = source.indexOf("  observePostlude('SECRETS_ENTER');");
+const observerStart = source.indexOf('let postludePhase =');
+const observerEnd = source.indexOf('function diagnosticPost(', observerStart);
+assert.ok(tailStart > end && observerStart >= 0 && observerEnd > observerStart);
+const postlude = new Function(`{ scenario, diagnosticTasks, diagnosticReceipts, diagnosticErrors, assert,
+  secretChecks, context, browser, blocker, writeFile, writeFileSync, console, join, process }`, `return (async () => {
+  const output = 'synthetic-output', requests = [], external = [], pageErrors = [];
+  const catalogEvidence = { synthetic: true }, diagnosticProbeCorrelation = null;
+  ${source.slice(observerStart, observerEnd)}
+  try {
+  ${source.slice(tailStart)}
+})();`);
+
+for (const scenario of ['s1-run', 'b04']) {
+  for (const failure of [null, 'malformed', 'secrets', 'release', 'context', 'browser']) {
+    test(`${scenario} postlude closes before joining bodies or publishing: ${failure ?? 'valid'}`, async () => {
+      const tasks = [], receipts = [], errors = [], calls = [], markers = [], writes = [], logs = [];
+      const pending = Promise.withResolvers();
+      let listener, closed = false, fuse;
+      const context = {
+        on(name, callback) { assert.equal(name, 'response'); listener = callback; },
+        async close() {
+          calls.push('context'); closed = true;
+          pending.reject(new Error('Synthetic page closed'));
+          if (failure === 'context') throw new Error('Synthetic context failure');
+        },
+      };
+      register(context, diagnosticPost, tasks, null, schemas, assert, receipts, errors);
+      const request = { method: () => 'POST', url: () => origin + path, postDataJSON: () => event };
+      const response = { request: () => request, headers: () => ({ 'x-correlation-id': id }), status: () => 202 };
+      listener({ ...response, body: () => pending.promise });
+      listener({ ...response, body: async () => Buffer.from(failure === 'malformed' ? '{' : JSON.stringify(ack)) });
+      await tasks[1]; // Delivered bytes must be validated even with another body still pending.
+      assert.equal(receipts.length, failure === 'malformed' ? 0 : 1);
+      assert.deepEqual(errors, failure === 'malformed' ? ['INVALID_DIAGNOSTIC_ACK'] : []);
+      const work = postlude({ scenario, diagnosticTasks: tasks, diagnosticReceipts: receipts, diagnosticErrors: errors, assert,
+        async secretChecks() {
+          calls.push('secrets'); assert.equal(closed, false);
+          if (failure === 'secrets') assert.fail('Synthetic secret failure');
+        },
+        context, browser: { version: () => 'synthetic', async close() {
+          calls.push('browser');
+          if (failure === 'browser') throw new Error('Synthetic browser failure');
+        } },
+        blocker: { stdin: { end(value) {
+          calls.push('release'); assert.equal(value, 'release\n');
+          if (failure === 'release') throw new Error('Synthetic release failure');
+        } }, once(name, resolve) { assert.equal(name, 'exit'); resolve(); }, kill() {} },
+        async writeFile(path, data) { calls.push('write'); writes.push({ path, data: JSON.parse(data) }); },
+        writeFileSync(path, data) { markers.push(JSON.parse(data)); },
+        console: { log(message) { calls.push('log'); logs.push(message); } },
+        join: (...parts) => parts.join('/'), process: { env: { OMNIS_E2E_STAGE: 'before' } },
+      });
+      // This fuse only detects the SOURCE deadlock; it never settles the observed body.
+      try {
+        const result = await Promise.race([work.then(() => ({ ok: true }), error => ({ error })),
+          new Promise(resolve => { fuse = setTimeout(() => resolve({ stalled: true }), 50); })]);
+        assert.notEqual(result.stalled, true, `Body join blocked owned closure: ${calls.join(',')}`);
+        assert.deepEqual(calls.slice(0, 4), ['secrets', 'release', 'context', 'browser']);
+        assert.equal(calls.filter(call => call === 'context').length, 1);
+        assert.equal(calls.filter(call => call === 'browser').length, 1);
+        if (failure) {
+          assert.ok(result.error); assert.deepEqual(writes, []); assert.deepEqual(logs, []);
+        } else {
+          assert.equal(result.ok, true);
+          assert.equal(writes.at(-1).data.passed, true); assert.equal(writes.at(-1).data.secretChecks, true);
+          assert.equal(logs.length, 1); assert.match(logs[0], /E2E PASS/);
+          if (scenario === 'b04') assert.deepEqual(writes[0].data, { receipts, probe_correlation: null, complete: false });
+        }
+        await Promise.all(tasks);
+        assert.deepEqual(receipts.map(receipt => receipt.state), failure === 'malformed'
+          ? ['TRANSPORT_UNCONFIRMED'] : ['RECORDED', 'TRANSPORT_UNCONFIRMED']);
+        if (scenario === 's1-run') {
+          assert.equal(markers.some(marker => marker.phase === 'CONTEXT_CLOSE_DONE'), failure !== 'context');
+          assert.equal(markers.some(marker => marker.phase === 'BROWSER_CLOSE_DONE'), failure !== 'browser');
+          const first = markers.at(-1).firstFailure;
+          if (failure) assert.deepEqual(first, {
+            phase: { malformed: 'DIAGNOSTICS_DONE', secrets: 'SECRETS_ENTER', release: 'SECRETS_DONE',
+              context: 'CONTEXT_CLOSE_ENTER', browser: 'BROWSER_CLOSE_ENTER' }[failure],
+            kind: ['malformed', 'secrets'].includes(failure) ? 'ASSERTION' : 'ERROR',
+          });
+          else assert.equal(first, null);
+        } else assert.deepEqual(markers, []);
+      } finally {
+        clearTimeout(fuse);
+        // Release only this fake page after a failing assertion, so RED cannot leak a pending task.
+        await Promise.allSettled([work, ...(closed ? [] : [context.close()])]);
+      }
+    });
+  }
+}

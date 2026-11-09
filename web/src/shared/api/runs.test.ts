@@ -19,7 +19,9 @@ it('SOURCE agent decoders refuse foreign scopes, duplicate rows and contradictor
   expect(decodeAgents(roster, run, null).agents).toHaveLength(1);
   expect(() => decodeAgents({ ...roster, run_id: actor.attempt_id + 'x' }, run, null)).toThrow();
   expect(() => decodeAgents({ ...roster, agents: [actor, actor] }, run, null)).toThrow();
-  expect(() => decodeAgents(roster, run, `${run}:6:brain`)).toThrow();
+  const worker = { ...actor, agent_id: "00000000-0000-4000-8000-000000000099", role: "RECON" };
+  expect(decodeAgents({ ...roster, revision: 8, agents: [worker], next_after: `${run}:7:${worker.agent_id}` }, run, `${run}:7:brain`).agents).toEqual([worker]);
+  for (const cursor of ['', `${run}:0:brain`, `${run}:07:brain`, `${run}:9:brain`, `foreign:7:brain`, `${run}:7:invalid`]) expect(() => decodeAgents(roster, run, cursor)).toThrow();
   const history = { run_id: run, agent_id: 'brain', through_cursor: 0, events: [], has_more: false, as_of: syntheticSummary.as_of };
   expect(decodeAgentHistory(history, run, 'brain', 0).events).toEqual([]);
   expect(() => decodeAgentHistory(history, run, run, 0)).toThrow();

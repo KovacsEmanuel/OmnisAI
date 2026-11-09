@@ -73,12 +73,23 @@ async def test_agent_roster_groups_brain_and_pages_without_prompt_payloads(
         "GROUP BY" in query and "instance_id=:instance" in query and "run_id=:run" in query
         for query in queries
     )
-    with pytest.raises(ModelConflict, match="CURSOR_DENIED"):
-        await projections.agent_page(
-            db, run.model_copy(update={"revision": run.revision + 1}), first.next_after, 20
-        )
+    progressed = await projections.agent_page(
+        db, run.model_copy(update={"revision": run.revision + 1}), first.next_after, 3
+    )
+    assert [a.agent_id for a in progressed.agents] == ids[20:23]
+    assert progressed.next_after == f"{run.run_id}:{run.revision}:{ids[22]}"
+    assert progressed.revision == run.revision + 1
     with pytest.raises(ModelConflict, match="CURSOR_DENIED"):
         await projections.agent_page(db, run, f"foreign:{run.revision}:brain", 20)
+    for cursor in (
+        "",
+        f"{run.run_id}:0:brain",
+        f"{run.run_id}:01:brain",
+        f"{run.run_id}:2:brain",
+        f"{run.run_id}:1:invalid",
+    ):
+        with pytest.raises(ModelConflict, match="CURSOR_DENIED"):
+            await projections.agent_page(db, run, cursor, 20)
     anchor.return_value = None
     with pytest.raises(ModelConflict, match="CURSOR_DENIED"):
         await projections.agent_page(db, run, f"{run.run_id}:{run.revision}:{str(uuid4())}", 20)

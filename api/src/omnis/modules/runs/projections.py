@@ -296,9 +296,18 @@ async def overview_metrics(db: AsyncConnection, run: RunView) -> RunMetrics:
 def agent_cursor(run: RunView, after: str | None) -> str | None:
     if after is None:
         return None
-    prefix = f"{run.run_id}:{run.revision}:"
-    key = after.removeprefix(prefix)
-    if not after.startswith(prefix) or not valid_agent(key):
+    prefix = f"{run.run_id}:"
+    revision, separator, key = after.removeprefix(prefix).partition(":")
+    if (
+        not after.startswith(prefix)
+        or separator != ":"
+        or not revision.isascii()
+        or not revision.isdecimal()
+        or len(revision) > 16
+        or not 1 <= int(revision) <= min(run.revision, 9007199254740991)
+        or str(int(revision)) != revision
+        or not valid_agent(key)
+    ):
         raise records.ModelConflict("CURSOR_DENIED")
     return key
 
@@ -323,7 +332,7 @@ async def agent_page(db: AsyncConnection, run: RunView, after: str | None, limit
         {"instance": run.instance_id, "run": run.run_id, "agent": key},
     ):
         raise records.ModelConflict("CURSOR_DENIED")
-    # Revision-bound keysets refuse a changed roster rather than silently skip new UUIDs.
+    # Retain the first-page revision as freshness metadata, not a live-read fence.
     rows = (
         (
             await db.execute(
@@ -377,9 +386,8 @@ async def agent_page(db: AsyncConnection, run: RunView, after: str | None, limit
     if result.has_more:
         if not result.agents:
             raise records.ModelConflict("PROJECTION_LIMIT")
-        result = result.model_copy(
-            update={"next_after": f"{run.run_id}:{run.revision}:{result.agents[-1].agent_id}"}
-        )
+        prefix = after.rsplit(":", 1)[0] if after else f"{run.run_id}:{run.revision}"
+        result = result.model_copy(update={"next_after": f"{prefix}:{result.agents[-1].agent_id}"})
     return result
 
 

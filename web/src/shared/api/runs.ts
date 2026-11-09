@@ -273,9 +273,10 @@ export function decodeAgents(value: unknown, runId: string, after: string | null
     return { agent_id: agent, role, parent_agent_id: nullable(item.parent_agent_id, value => isAgent(value) ? value : fail()), attempt_id: id(item.attempt_id), state: oneOf(item.state, ['RUNNING', 'SUCCEEDED', 'INCONCLUSIVE', 'FAILED', 'CANCELLED', 'NEEDS_RECONCILIATION']), brief: text(item.brief, 1024), attempts: integer(item.attempts, 1) };
   });
   const hasMore = bool(row.has_more), next = nullable(row.next_after, value => text(value, 128));
-  const prefix = `${runId}:${revision}:`, previous = after?.slice(prefix.length);
+  const parts = after?.split(':'), issued = parts ? Number(parts[1]) : revision;
+  const prefix = `${runId}:${issued}:`, previous = parts?.[2];
   const order = (agent: string) => agent === 'brain' ? '' : agent;
-  if (after && (!after.startsWith(prefix) || !isAgent(previous))) return fail();
+  if (after !== null && (parts?.length !== 3 || !Number.isSafeInteger(issued) || issued < 1 || issued > revision || after !== `${prefix}${previous}` || !isAgent(previous))) return fail();
   if (new Set(agents.map(item => item.agent_id)).size !== agents.length || agents.some((item, index) => (index > 0 && order(item.agent_id) <= order(agents[index - 1]!.agent_id)) || (previous && order(item.agent_id) <= order(previous)))) return fail();
   if (hasMore !== (next !== null) || (hasMore && (!agents.length || next !== `${prefix}${agents.at(-1)!.agent_id}`))) return fail();
   return { run_id: runId, revision, agents, has_more: hasMore, next_after: next, as_of: timestamp(row.as_of) };

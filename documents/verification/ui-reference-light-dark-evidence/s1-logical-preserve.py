@@ -271,6 +271,9 @@ def restore():
     Runtime, owner = helpers()
     runtime = Runtime(BASE / 'd', time.monotonic() + 250)
     fixture = Path(os.environ['OMNIS_TEST_FIXTURE'])
+    require(fixture == fixture.resolve() == OUTPUT / 'r/fixture.json'
+            and json.loads(read(OUTPUT / 'fixture-owner.json', 16384))['fixture'] == str(fixture),
+            'RESTORE_FIXTURE_BINDING')
     attested = owner.attest_fixture(fixture)
     manifest = json.loads(read(fixture, 16384))
     cid = attested['container_id']
@@ -279,6 +282,7 @@ def restore():
     saved = json.loads(read(OUTPUT / 'archive-manifest.json', 1024**2))
     for name, digest in saved['hashes'].items():
         require(sha(read(OUTPUT / name, LIMIT)) == digest, 'ARCHIVE_CHANGED')
+    record(OUTPUT / 'restore-claim.json', {'one_shot': True, 'fixture': str(fixture), 'cid': cid})
     base = ['exec', '-i', '-e', 'PGPASSWORD', *PG_ENV, cid]
     env = {'PGPASSWORD': os.environ['OMNIS_TEST_DB_PASSWORD']}
     connection = ['-h', '/var/run/postgresql', '-U', 'omnis_test', '-d', 'omnis_test']

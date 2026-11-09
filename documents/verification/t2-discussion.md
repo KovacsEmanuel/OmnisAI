@@ -46,6 +46,8 @@ O recomandare aprobată avansează discuția. Aplicarea amendamentului și lansa
 
 **D18 — alegere explicită ulterioară, amendament de etapizare:** **Katana și un subset HTTP Nuclei integrate obligatoriu până la S7; sqlmap odată cu SQLi în E1.** Plan§7.2/S3b și stack U10/U11 sunt actualizate, fără a transforma scanerele în prerequisite pentru S1 sau primul IDOR suficient HTTP. Integrare înseamnă invocare/captură/output tipizat→recon/map/Brain/inspector și Stop/deny pe aceeași cale, nu doar binare în imagine. Pinii binari/template-urile/limitele se admit înainte de execuție; semnal Nuclei nu conferă verdict unei familii fără oracle calificat. Schimbarea este documentară, nu instalare, mandat de cod sau trafic. Reviewul acestui delta este separat de acceptarea amendamentului anterior.
 
+**D18 ACCEPTED_DOCUMENTARY_SCOPED:** părinte pe `f850a039e62d937e36ed306385794e1d001b48cd`, după review independent `APPROVED_DOCUMENTARY_SCOPED`, zero findings; original privat `t2-amendment/review-d18-scanners.json` în baza dosarului Strix. Guardul de etapizare a avut RED2, apoi91teste docs PASS/exit0, renderer/check/diff exit0 și readback DOM al celor3cititoare afectate. Reviewul confirmă cele10fișiere exacte, sursele HTML/JSON și absența dependenței circulare wordlist, fără reaudite/reexecuție. Nu runtime PASS, tooluri instalate sau T2/S7 închis; această înregistrare schimbă numai statusul documentar.
+
 **Firul urmărit, la nivel de direcție:** setup/ROE/prompt → Brain → recon propriu → hartă/context/ipoteză → delegare → investigație reală → rezultat/indicii → decizie/continuare → validare independentă → finding inspectabil în engagement.
 
 ## 3. Ce rămâne de discutat, în ordine de produs

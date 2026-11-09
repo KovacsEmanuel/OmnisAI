@@ -253,7 +253,7 @@ async def test_actual_owner_finalization_persists_before_continuation(
         parent_task_id=None,
         state="RUNNING",
         brief="Inert",
-        input_refs=[reference],
+        input_refs=[] if exit_kind == "brain_finish" else [reference],
         input_text="Inert",
         instructions="Inert",
         configured_model="fixture/recon",
@@ -284,7 +284,7 @@ async def test_actual_owner_finalization_persists_before_continuation(
     async def consume(
         db: AsyncConnection, run: RunView, references: list[Ref], decision: Ref
     ) -> None:
-        assert references == [reference] and payloads
+        assert references == actor.input_refs and payloads
         owned.writes.append("consume")
 
     async def event(*args: object, **kwargs: object) -> int:
@@ -308,7 +308,7 @@ async def test_actual_owner_finalization_persists_before_continuation(
         owned.run = owned.run.model_copy(update={"state": "STOPPING"})
     elif exit_kind == "brain_finish":
         output = BrainDecision(
-            action="finish", summary="Read result", detail="S1 only", consumed_refs=[reference]
+            action="finish", summary="No input result", detail="S1 only", consumed_refs=[]
         ).model_dump_json()
     if exit_kind.startswith("finish"):
         await owned.owner.complete(

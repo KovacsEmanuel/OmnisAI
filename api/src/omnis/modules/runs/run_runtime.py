@@ -1093,6 +1093,7 @@ class AgentRunOwner:
                 ref.model_dump_json() for ref in decision.consumed_refs
             } != {ref.model_dump_json() for ref in attempt.input_refs}:
                 raise records.ModelConflict("CONSUMPTION_CONTEXT_DENIED")
+            progress = await store.inert_progress(db, run, snapshot, decision.consumed_refs)
             reference = await records.put(
                 db,
                 self.instance,
@@ -1126,10 +1127,12 @@ class AgentRunOwner:
             run = run.model_copy(
                 update={
                     "active_attempt_id": None,
-                    "stagnation": 0 if decision.consumed_refs else min(3, run.stagnation + 1),
+                    "stagnation": 0 if progress else min(3, run.stagnation + 1),
                 }
             )
-            if decision.action == "delegate":
+            if run.stagnation >= 3:
+                run = run.model_copy(update={"state": "LIMITED", "reason": "STAGNATION"})
+            elif decision.action == "delegate":
                 run = await self.new_attempt(
                     db, run, snapshot, role="RECON", brief=decision.detail, parent=attempt.task_id
                 )
@@ -1150,11 +1153,13 @@ class AgentRunOwner:
                 run = run.model_copy(
                     update={"state": "LIMITED", "reason": "S1_INERT_ONLY_NO_ASSESSMENT"}
                 )
-            if run.stagnation >= 3:
-                run = run.model_copy(update={"state": "LIMITED", "reason": "STAGNATION"})
             cursor = await store.event(
                 db, run, "decision", decision.summary, actor=attempt, refs=[reference]
             )
+            if run.reason == "STAGNATION":
+                cursor = await store.event(
+                    db, run, "control", "STAGNATION", actor=attempt, refs=[reference]
+                )
         else:
             kind = "cancel" if reason == "CANCELLED" else "error" if reason else completion
             final = (

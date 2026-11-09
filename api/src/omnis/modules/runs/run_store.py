@@ -418,6 +418,98 @@ async def add_inbox(db: AsyncConnection, value: RunView, reference: Ref) -> None
     )
 
 
+async def inert_progress(
+    db: AsyncConnection, value: RunView, snapshot: Setup, references: list[Ref]
+) -> bool:
+    # shortcut: S1 has only frozen reads and operator answers; extend with the next real producer.
+    progress = False
+    for reference in references:
+        if reference.revision != 1:
+            raise records.ModelConflict("REF_UNAVAILABLE")
+        payload = await records.resolve(db, value.instance_id, reference, reference.kind)
+        answer_text = None
+        if reference.kind == "run-result-v1":
+            result = ResultRecord.model_validate(payload)
+            actor = await attempt(db, value, result.attempt_id)
+            if (result.run_id, result.task_id, result.state) != (
+                value.run_id,
+                actor.task_id,
+                actor.state,
+            ) or actor.result_ref != reference:
+                raise records.ModelConflict("REF_UNAVAILABLE")
+            if result.state != "SUCCEEDED":
+                continue
+            read_ref = actor.read_receipt_ref
+            if (
+                actor.role != "RECON"
+                or read_ref is None
+                or read_ref.revision != 1
+                or read_ref not in result.consumed_refs
+                or any(ref not in (read_ref, snapshot.context_ref) for ref in result.consumed_refs)
+                or len({ref.model_dump_json() for ref in result.consumed_refs})
+                != len(result.consumed_refs)
+                or result.gaps
+                or actor.input_refs != [snapshot.context_ref]
+                or actor.call_id is None
+            ):
+                raise records.ModelConflict("REF_UNAVAILABLE")
+            receipt = await records.resolve(db, value.instance_id, read_ref, "run-tool-result-v1")
+            context = await records.resolve(
+                db, value.instance_id, snapshot.context_ref, "run-context-v1"
+            )
+            if receipt != {
+                "run_id": value.run_id,
+                "task_id": actor.task_id,
+                "attempt_id": actor.attempt_id,
+                "call_id": actor.call_id,
+                "context_ref": snapshot.context_ref.model_dump(mode="json"),
+                "context": context,
+            }:
+                raise records.ModelConflict("REF_UNAVAILABLE")
+        elif reference.kind == "run-answer-v1":
+            admitted = await question(db, value)
+            answer_text = payload.get("text")
+            if (
+                admitted is None
+                or admitted.run_id != value.run_id
+                or admitted.question_id != value.question_id
+                or admitted.state != "ANSWER_ADMITTED"
+                or admitted.answer_ref != reference
+                or admitted.command_id is None
+                or not isinstance(answer_text, str)
+                or not answer_text.strip()
+                or payload
+                != {
+                    "question_id": admitted.question_id,
+                    "text": answer_text,
+                    "scope_change": False,
+                }
+                or payload.get("scope_change") is not False
+            ):
+                raise records.ModelConflict("REF_UNAVAILABLE")
+        else:
+            raise records.ModelConflict("REF_UNAVAILABLE")
+        # Search the whole run's consumed set, not the bounded pending inbox or a recent page.
+        seen = await db.scalar(
+            text(
+                "SELECT 1 FROM run_inbox i JOIN model_record_v2 r "
+                "ON r.instance_id=i.instance_id AND r.id=i.result_id "
+                "WHERE i.instance_id=:instance AND i.run_id=:run "
+                "AND i.consumed_decision_id IS NOT NULL AND NOT i.held AND r.kind=:kind "
+                "AND ((:kind='run-result-v1' AND r.payload->>'state'='SUCCEEDED') "
+                "OR (:kind='run-answer-v1' AND r.payload->>'text'=:answer)) LIMIT 1"
+            ),
+            {
+                "instance": value.instance_id,
+                "run": value.run_id,
+                "kind": reference.kind,
+                "answer": answer_text,
+            },
+        )
+        progress = progress or seen is None
+    return progress
+
+
 async def consume(
     db: AsyncConnection, value: RunView, references: list[Ref], decision: Ref
 ) -> None:

@@ -1,6 +1,6 @@
 # Omnis — specificație UI/UX API-key-only · baseline vizual acceptat
 
-**VISUAL_ACCEPTED · Prototip df17a29 · Surface: Operate / Monitor, cu inspector contextual. S1-UX/core: TECHNICAL_ACCEPTED_SCOPED; verdictul vizual uman al versiunii noi rămâne PENDING.** Activity/Feed/Agents, proiecțiile și paleta cerută sunt implementate și probate scoped în [registru](verification/ui-reference-light-dark.md#predare-s1-tehnic-spre-s2a). Restul UI al nucleului T2 rămâne specificație până la producerii S2–S7; testele tehnice nu acordă aprobare estetică.
+**VISUAL_ACCEPTED · Prototip df17a29 · Surface: Operate / Monitor, cu inspector contextual. S1-UX/core: LOCAL_ACCEPTED_SCOPED.** Operatorul acceptă restul UI și cere numai accent mai stins; retușul teracotă are review/QA și readback autentificat, fără redesign. Activity/Feed/Agents și proiecțiile sunt implementate/probate în [registru](verification/ui-reference-light-dark.md#predare-s1-tehnic-spre-s2a). Restul UI T2 rămâne specificație până la producerii S2–S7; testele nu sunt un nou verdict estetic uman asupra nuanței exacte.
 
 [DESIGN.md](../DESIGN.md) este sursa tokenurilor; [prototipul offline](Omnis_UI_Prototype.html) este o demonstrație navigabilă, nu frontendul implementat. Conținutul sintetic este etichetat DEMO și nu poate executa requesturi, autentificări sau scanări. Limbajul UI MVP: engleză pentru etichete tehnice consecvente, documentație română; excepția explicit cerută este setupul de misiune cu etichetele românești de mai jos. Nu implementăm i18n complet, dar textele rămân centralizate.
 

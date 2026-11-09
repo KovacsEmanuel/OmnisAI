@@ -128,10 +128,16 @@ class LocalBoundary:
                 and scope["path"].endswith("/revisions")
                 and len(scope["path"].split("/")) == 6
             )
-            run_query = (
-                scope["path"].startswith("/api/v1/runs/")
-                and len(scope["path"].split("/")) == 6
-                and scope["path"].split("/")[-1] in {"summary", "events"}
+            run_query = scope["path"].startswith("/api/v1/runs/") and (
+                (
+                    len(scope["path"].split("/")) == 6
+                    and scope["path"].split("/")[-1] in {"summary", "events", "agents"}
+                )
+                or (
+                    len(scope["path"].split("/")) == 8
+                    and scope["path"].split("/")[5] == "agents"
+                    and scope["path"].split("/")[-1] == "events"
+                )
             )
             if (
                 not (

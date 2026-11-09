@@ -108,6 +108,54 @@ async def test_foreign_reads_duplicate_host_and_pairing_url_are_refused() -> Non
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("agent", ["brain", "00000000-0000-4000-8000-000000000002"])
+async def test_activity_queries_reach_auth_without_weakening_boundary(agent: str) -> None:
+    run = "00000000-0000-4000-8000-000000000001"
+    root = f"/api/v1/runs/{run}"
+    async with AsyncClient(transport=ASGITransport(app=create_app()), base_url=ORIGIN) as client:
+        for path in (f"{root}/agents", f"{root}/agents/{agent}/events"):
+            cursor = f"{run}:1:brain" if path.endswith("/agents") else f"{run}:{agent}:0"
+            for query in (
+                f"after={cursor}",
+                "after=" + cursor.replace(":", "%3A"),
+                "limit=20",
+                "after=x&limit=20",
+                "after=" + "x" * 250,
+            ):
+                response = await client.get(f"{path}?{query}")
+                assert response.status_code == 401
+                assert response.json()["error"]["code"] == "UNAUTHENTICATED"
+            for query in (
+                "after=0&after=1",
+                "limit=1&limit=2",
+                "after=0&limit=20&x=1",
+                "x=1",
+                "after",
+                "after=" + "x" * 251,
+            ):
+                response = await client.get(f"{path}?{query}")
+                assert response.status_code == 400
+                assert response.json()["error"]["code"] == "QUERY_NOT_ALLOWED"
+            for headers, code in (
+                ({"host": "attacker.invalid"}, "INVALID_HOST"),
+                ({"origin": "http://attacker.invalid"}, "INVALID_ORIGIN"),
+            ):
+                response = await client.get(f"{path}?limit=20", headers=headers)
+                assert response.json()["error"]["code"] == code
+            response = await client.post(f"{path}?limit=20", headers={"origin": ORIGIN})
+            assert response.json()["error"]["code"] == "QUERY_NOT_ALLOWED"
+        for suffix in (
+            "agents/extra",
+            f"agents/{agent}/other",
+            f"agents/{agent}/events/extra",
+            "attempts",
+        ):
+            response = await client.get(f"{root}/{suffix}?limit=20")
+            assert response.json()["error"]["code"] == "QUERY_NOT_ALLOWED"
+        assert (await client.get(f"{root}/events?after={run}:0")).status_code == 401
+
+
+@pytest.mark.asyncio
 async def test_http_port_is_explicit_and_loopback_only(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("OMNIS_HTTP_PORT", "18765")
     async with AsyncClient(

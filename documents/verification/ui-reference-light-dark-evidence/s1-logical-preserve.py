@@ -25,7 +25,7 @@ REPO = Path('/home/kali/OmnisAI')
 BASE = Path('/home/kali/.local/share/omnis-settings-c-9e51d10')
 SOURCE = BASE / 's/omnis'
 CLI = BASE / 'cli/lib/python3.13/site-packages/omnis_cli'
-OUTPUT = Path('/home/kali/.local/share/omnis-backups/s1-ui-current-3832f3a1')
+OUTPUT = Path('/home/kali/.local/share/omnis-backups/s1-ui-current-3832f3a1-r2')
 UV = '/home/kali/.local/share/omnis-toolchains/bin/uv'
 TOOL_PATH = '/home/kali/.local/share/omnis-toolchains/bin:/usr/bin:/bin'
 INSTANCE = 'd694129b-a3e5-446d-9e5b-fe9bc19abed8'
@@ -67,6 +67,8 @@ def sha(raw):
 
 def copy_projection(raw):
     require(len(raw) <= EXPANDED_LIMIT, 'EXPANDED_LIMIT')
+    # shortcut: lowercase ASCII columns, quoted or bare; review other dump grammars.
+    column = rb'(?:[a-z_][a-z_0-9]*|"[a-z_][a-z_0-9]*")'
     tables, sequences, rows, name, columns = {}, [], [], None, ''
     for line in raw.splitlines(keepends=True):
         if name is not None:
@@ -78,7 +80,8 @@ def copy_projection(raw):
                 require(line.endswith(b'\n'), 'COPY_ROW_INCOMPLETE')
                 rows.append(line)
         elif line.startswith(b'COPY '):
-            match = re.fullmatch(rb'COPY (public\.[a-z_][a-z_0-9]*) \(([a-z_0-9, ]+)\) FROM stdin;\n', line)
+            match = re.fullmatch(rb'COPY (public\.[a-z_][a-z_0-9]*) \((' + column
+                                 + rb'(?:, ' + column + rb')*)\) FROM stdin;\n', line)
             if match is None:
                 raise ValueError('UNSUPPORTED_COPY_HEADER')
             name, columns = (value.decode('ascii') for value in match.groups())

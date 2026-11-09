@@ -87,6 +87,14 @@ class RecipeTest(unittest.TestCase):
         self.assertEqual(module.copy_projection(first), module.copy_projection(reordered))
         self.assertNotEqual(module.copy_projection(first), module.copy_projection(first.replace(b"x", b"z")))
         self.assertEqual(module.copy_projection(first)["tables"]["public.table2"]["count"], 2)
+        quoted = first.replace(b"payload", b'"grant"')
+        expected = module.copy_projection(first)
+        expected["tables"]["public.table2"]["columns"] = 'id, "grant"'
+        self.assertEqual(module.copy_projection(quoted), expected)
+        self.assertNotEqual(module.copy_projection(quoted), module.copy_projection(quoted.replace(b'"grant"', b"grant")))
+        for malformed in (b'"grant', b'grant"', b'""grant""', b'""', b'"gr"ant"'):
+            with self.subTest(column=malformed), self.assertRaisesRegex(ValueError, "UNSUPPORTED_COPY_HEADER"):
+                module.copy_projection(first.replace(b"payload", malformed))
         for invalid in (first[:-4], first + first, first.replace(b"public.table2", b"other.table2")):
             with self.assertRaises(ValueError):
                 module.copy_projection(invalid)
